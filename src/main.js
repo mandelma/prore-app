@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import 'mdb-vue-ui-kit/css/mdb.min.css'
+import '@/css/form.css'
+import '@/css/theme.css'
 import { createPinia } from 'pinia'
 import router from './router'
 

@@ -1,0 +1,133 @@
+/* ---------- Forms (dark) ---------- */
+:root[data-theme="dark"] {
+    --form-field-bg: var(--bg-surface-2);
+    --form-field-border: var(--border);
+    /*--form-field-border: red;*/
+    --form-field-text: var(--text);
+    --form-placeholder: var(--text-subtle);
+    --form-label: var(--text-muted);
+    --form-label-focus: var(--text);
+    --form-focus-border: var(--text-muted);
+    --form-focus-ring: var(--ring);            /* already defined from primary */
+    --form-valid: var(--success);
+    --form-invalid: var(--danger);
+    --form-disabled-bg: #0b1018;
+    --form-disabled-text: #5e6a79;
+    --form-helper: var(--text-subtle);
+}
+
+/* Inputs & selects */
+.form-control,
+.form-select,
+textarea.form-control {
+    background-color: var(--form-field-bg);
+    border-color: var(--form-field-border);
+    color: var(--form-field-text);
+}
+.form-control::placeholder { color: var(--form-placeholder); opacity: 1; }
+
+/* Focus */
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--form-field-bg);
+    border-color: var(--form-focus-border);
+    color: var(--form-field-text);
+    box-shadow: 0 0 0 .2rem var(--form-focus-ring);
+}
+
+/* Labels & help text */
+.form-label { color: var(--form-label); }
+.form-text  { color: var(--form-helper); }
+
+/* Validation (Bootstrap classes – also picked up by MDB inputs) */
+.is-valid.form-control,
+.was-validated .form-control:valid { border-color: var(--form-valid); }
+.is-invalid.form-control,
+.was-validated .form-control:invalid { border-color: var(--form-invalid); }
+.valid-feedback, .invalid-feedback { color: inherit; }
+.valid-feedback { color: var(--form-valid); }
+.invalid-feedback { color: var(--form-invalid); }
+
+/* Disabled */
+.form-control:disabled,
+.form-select:disabled {
+    background-color: var(--form-disabled-bg);
+    color: var(--form-disabled-text);
+    border-color: var(--form-field-border);
+    opacity: 1;
+}
+
+/* Input groups */
+.input-group-text {
+    background-color: var(--bg-surface-1);
+    border-color: var(--form-field-border);
+    color: var(--form-field-text);
+}
+
+/* Checkboxes / radios / switches */
+.form-check-input {
+    background-color: var(--bg-surface-1);
+    border-color: var(--form-field-border);
+}
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 .2rem var(--form-focus-ring);
+}
+
+/* Range slider */
+.form-range::-webkit-slider-thumb { background: var(--primary); }
+.form-range::-moz-range-thumb     { background: var(--primary); }
+
+/* Floating labels (Bootstrap) */
+:root[data-theme="dark"].form-floating>.form-control,
+:root[data-theme="dark"].form-floating>.form-select { background-color: var(--form-field-bg); color: var(--form-field-text); }
+:root[data-theme="dark"].form-floating label { color: var(--form-label); }
+:root[data-theme="dark"].form-floating>.form-control:focus ~ label,
+:root[data-theme="dark"].form-floating>.form-control:not(:placeholder-shown) ~ label {
+    color: var(--form-label-focus);
+}
+
+/* MDB "form-outline" labels (if you use that style) */
+:root[data-theme="dark"].form-outline .form-control { background-color: var(--form-field-bg); color: var(--form-field-text); }
+:root[data-theme="dark"].form-outline .form-label { color: var(--form-label); }
+:root[data-theme="dark"].form-outline .form-control:focus ~ .form-label,
+:root[data-theme="dark"].form-outline .form-control.active ~ .form-label { color: var(--form-label-focus); }
+
+/* Optional: a nice form card wrapper */
+.form-card {
+    background: var(--bg-surface-1);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    padding: 1.25rem;
+}
+.form-actions { display:flex; gap:.75rem; justify-content:flex-end; }
+
+
+/* Labels */
+:root[data-theme="dark"] .form-outline .form-label,
+:root[data-theme="dark"] .form-floating > label {
+    color: var(--form-label) !important;
+}
+
+/* Placeholder */
+:root[data-theme="dark"] .form-control::placeholder {
+    color: var(--form-placeholder) !important;
+    opacity: 1;
+}
+
+
+
+
+/*!* Focus (keep all parts same color) *!*/
+/*:root[data-theme="dark"] .form-outline .form-control:focus {*/
+/*    border-color: var(--form-focus-border) !important;*/
+/*    box-shadow: 0 0 0 .2rem var(--form-focus-ring) !important;*/
+/*}*/
+/*:root[data-theme="dark"] .form-outline .form-control:focus ~ .form-notch .form-notch-leading,*/
+/*:root[data-theme="dark"] .form-outline .form-control:focus ~ .form-notch .form-notch-trailing {*/
+/*    border-color: var(--form-focus-border) !important;*/
+/*}*/
+/*:root[data-theme="dark"] .form-outline .form-control:focus ~ .form-notch .form-notch-middle {*/
+/*    border-top-color: var(--form-focus-border) !important;*/
+/*}*/
