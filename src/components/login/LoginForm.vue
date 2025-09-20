@@ -116,7 +116,6 @@ const userLoginData = async () => {
     }
   } else {
     console.log("Error - Kaikki kentät täytettävä!")
-    //loginError.value = true;
     // this.loginErrorMessage = "kaikki kentät on täytettävä!"
     // setTimeout(() => {
     //   this.loginErrorMessage = null
