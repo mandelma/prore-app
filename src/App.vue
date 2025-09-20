@@ -31,7 +31,9 @@
 <!--            <MDBIcon icon="bell" style="color: orange;" class="icon" @click="onIcon" />-->
 <!--            <MDBBadge notification color="danger" pill>1</MDBBadge>-->
 <!--          </MDBNavbarItem>-->
-
+          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
+            <language-contents />
+          </MDBNavbarItem>
           <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle tag="a" class="nav-link" @click="userDropdown = !userDropdown">
@@ -39,7 +41,9 @@
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu">
                 <MDBDropdownItem href="#">Action</MDBDropdownItem>
-                <MDBDropdownItem href="#">Another Action</MDBDropdownItem>
+                <MDBDropdownItem href="">
+                  <RouterLink to="/calendar" style="color: #ddd;">Kalenteri</RouterLink>
+                </MDBDropdownItem>
                 <MDBDropdownItem href="#">Something else here</MDBDropdownItem>
                 <MDBDropdownItem href="#" @click="logOut">Log out</MDBDropdownItem>
               </MDBDropdownMenu>
@@ -47,7 +51,7 @@
           </MDBNavbarItem>
 
           <MDBNavbarItem v-else to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
-            Kirjaudu
+            {{t('login')}}
           </MDBNavbarItem>
         </MDBNavbarNav>
       </div>
@@ -90,7 +94,7 @@
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
       >
-        © 2025 Copyright: DUVA OY
+        © 2025 Copyright: DuVa OY
 
       </div>
       <!-- Copyright -->
@@ -122,46 +126,60 @@ import {
   MDBFooter,
   MDBContainer
 } from 'mdb-vue-ui-kit';
+//import Calendar from './components/Calendar.vue'
 import { ref, onMounted } from "vue";
-
+import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
 import loginService from './service/login.js';
-import {useLoginStore} from "@/stores/login.js";
+import { useLoginStore } from "@/stores/login.js";
 
+import {useI18n} from "vue-i18n/dist/vue-i18n";
+import LanguageContents from "@/components/LanguageContents.vue";
+import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
 const userData = ref("")
 const userDropdown = ref(false);
 const login = useLoginStore();
-
-onMounted (() => {
+const { t } = useI18n();
+onMounted (async () => {
   console.log("Mounted on start!");
-
+  console.log("ENV variable: " + import.meta.env.VITE_APP_MAP_KEY);
   login.hydrate();
+
+  if (!window.google) {
+    await loadGoogleMap();
+    // const script = document.createElement("script");
+    // script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_MAP_KEY}&libraries=places,geometry&v=beta`;
+    // script.async = true;
+    // script.defer = true;
+    // document.head.appendChild(script);
+    console.log("Map is inited in APP!");
+  }
 })
-const addUser = async () => {
-  const new_user = {
-    username: "sama",
-    password: "sama",
-    firstname: "Sanna",
-    lastname: "Marin"
-  }
-
-  const userAdded = await userService.addUser(new_user);
-};
-const logIn = async () => {
-  let user = "";
-  const userLogin = {
-    username: 'sama',
-    password: 'sama'
-  }
-
-  user = await loginService.login(userLogin)
-  if (user.error !== "login error") {
-    console.log("User logged in")
-    login.onLogin(user);
-  } else {
-    console.log("No user logged in - " + user);
-  }
-}
+// const addUser = async () => {
+//   const new_user = {
+//     username: "sama",
+//     password: "sama",
+//     firstname: "Sanna",
+//     lastname: "Marin"
+//   }
+//
+//   const userAdded = await userService.addUser(new_user);
+// };
+// const logIn = async () => {
+//   let user = "";
+//   const userLogin = {
+//     username: 'sama',
+//     password: 'sama'
+//   }
+//
+//   user = await loginService.login(userLogin)
+//   if (user.error !== "login error") {
+//     console.log("User logged in")
+//     login.onLogin(user);
+//   } else {
+//     console.log("No user logged in - " + user);
+//   }
+// }
 const logOut = () => {
   login.onLogOut()
 }

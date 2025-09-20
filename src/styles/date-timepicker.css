@@ -1,0 +1,17 @@
+:root {
+    --mdb-datetimepicker-button-toggle-background-color: #444;
+    --mdb-datetimepicker-button-toggle-hover-background-color: #ddd;
+}
+
+[data-mdb-theme="dark"] .buttons-container {
+    background-color: grey;
+}
+
+[data-mdb-theme="dark"] .buttons-container .timepicker-button-toggle {
+    --mdb-datetimepicker-button-toggle-background-color: #444;
+    --mdb-datetimepicker-button-toggle-hover-background-color: #2a2f3a;
+}
+
+[data-mdb-theme="dark"] .datepicker-footer .datepicker-footer-btn {
+    background-color: red;
+}

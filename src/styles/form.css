@@ -39,6 +39,7 @@ textarea.form-control {
 .form-label { color: var(--form-label); }
 .form-text  { color: var(--form-helper); }
 
+
 /* Validation (Bootstrap classes – also picked up by MDB inputs) */
 .is-valid.form-control,
 .was-validated .form-control:valid { border-color: var(--form-valid); }

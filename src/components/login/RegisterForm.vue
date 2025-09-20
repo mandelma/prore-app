@@ -141,7 +141,7 @@ import loginService from '@/service/login.js';
 import {useLoginStore} from "@/stores/login.js";
 
 defineOptions({
-  name: 'RegisterForm'
+  name: 'register-form'
   // you can also set other options here if needed
 })
 const registerFirstName = ref("");

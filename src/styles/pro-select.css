@@ -1,0 +1,31 @@
+
+/* primevue-overrides.css */
+.p-select-overlay {
+    width: 500px;
+    height: 500px !important;       /* whole panel */
+    display: flex;
+    flex-direction: column;
+}
+
+.p-select-overlay [data-pc-section="content"] {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.p-select-list-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none !important;    /* remove Aura’s cap */
+    overflow-y: auto;
+}
+
+@media (max-width: 480px) {
+    .p-select-overlay {
+        width: 90%;
+        height: 400px !important;       /* whole panel */
+        display: flex;
+        flex-direction: column;
+    }
+}

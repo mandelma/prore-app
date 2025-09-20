@@ -12,10 +12,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
+    "@fullcalendar/vue3": "^6.1.19",
+    "@googlemaps/js-api-loader": "^1.16.10",
+    "@primevue/themes": "^4.3.9",
     "axios": "^1.11.0",
     "mdb-vue-ui-kit": "file:../../OneDrive/Desktop/mdb5-vue-ui-kit-pro-essential-master.tar.gz",
     "pinia": "^3.0.3",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.9",
     "vue": "^3.5.18",
+    "vue-i18n": "^11.1.12",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
