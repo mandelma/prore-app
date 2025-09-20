@@ -1,0 +1,1 @@
+import{c as t,o as a,a as n,w as r,u as s,J as o,b as c}from"./index-0xjDgJIs.js";const m=Object.assign({name:"recipient-form"},{__name:"RecipientForm",setup(i){return(l,e)=>(a(),t("div",null,[n(s(o),null,{default:r(()=>e[0]||(e[0]=[c("h2",null,"Recipient form",-1)])),_:1,__:[0]})]))}});export{m as default};

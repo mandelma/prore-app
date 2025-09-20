@@ -185,13 +185,6 @@ const events = ref([
     end:   '2025-09-25T11:15:00',
     extendedProps: { type: 'client', location: 'Room A', note: 'Se aika sopii tosi hyvin!!' }
   },
-  // {
-  //   id: '2',
-  //   title: 'Team sync',
-  //   start: '2025-09-25T10:00:00',
-  //   end:   '2025-09-25T11:00:00',
-  //   extendedProps: { type: 'meeting', location: 'Room A', note: 'Bring docs' }
-  // },
   {
     id: '2',
     title: 'Joustava',
