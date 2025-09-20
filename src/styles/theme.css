@@ -1,8 +1,44 @@
+/*html, body { margin: 0; }*/
+/*body { overflow-x: hidden; }*/
+/** { outline: 1px solid rgba(255,0,0,0.2); }*/
+
+
+
+/*.container,*/
+/*.container-fluid {*/
+/*    padding-left: var(--mdb-gutter-x, 0.75rem);*/
+/*    padding-right: var(--mdb-gutter-x, 0.75rem);*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*!* keep a sane default gutter for rows *!*/
+/*.row {*/
+/*    --mdb-gutter-x: 1.5rem;*/
+/*    --mdb-gutter-y: 0;*/
+/*}*/
+
+
+/*html {*/
+/*    scrollbar-gutter: stable both-edges;*/
+/*}*/
+/*!* remove default gaps and prevent horizontal scroll *!*/
+/*html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }*/
+
+/*!* ensure dark background everywhere *!*/
+/*html[data-mdb-theme="dark"],*/
+/*html[data-mdb-theme="dark"] body { background: #0f1115; }*/
+
+/*!* MDB body var (helps some components) *!*/
+/*:root[data-mdb-theme="dark"] { --mdb-body-bg: #0f1115; }*/
+
+
 /* Navbar and page style */
 :root[data-theme="dark"] {
     --bg-app: #0E1218;
-    --bg-surface-1: #141A23;
+    /*--bg-surface-1: #141A23;*/
+    --bg-surface-1: #0b1618;
     --bg-surface-2: #1B2330;
+
 
     --nav-bg: #0F172A;
     --nav-border: #223043;
@@ -38,6 +74,8 @@
     --bs-navbar-hover-color: var(--text);
     --bs-navbar-brand-color: var(--text);
     --bs-navbar-active-color: var(--text);
+
+
 }
 
 .app-shell {
@@ -80,6 +118,7 @@
 .navbar .dropdown-menu {
     background-color: var(--bg-surface-1);
     border-color: var(--border);
+
 }
 .navbar .dropdown-menu :hover {
     background-color: grey;
@@ -141,9 +180,216 @@
 .btn:focus-visible{ box-shadow:0 0 0 .2rem var(--ring); }
 
 
+ /*Calendar container*/
+[data-mdb-theme='dark'] .datepicker {
+    background-color: #161a22;  /* dark background */
+    color: #e6e6e6;             /* light text */
+    border: 1px solid #2a2f3a;
+    border-radius: 8px;
+}
+
+[data-mdb-theme='dark'] .datepicker-modal-container {
+    background-color: #161a22;  /* dark background */
+    color: #e6e6e6;             /* light text */
+    border: 1px solid #2a2f3a;
+    border-radius: 8px;
+}
+
+/*[data-mdb-theme='dark'] .datepicker-button-toggle {*/
+/*    background-color: #161a22;  !* dark background *!*/
+/*    color: #e6e6e6;             !* light text *!*/
+/*    border: 1px solid #2a2f3a;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+/*[data-mdb-theme='dark'] .buttons-container {*/
+
+/*}*/
+
+[data-mdb-theme='dark'] .datepicker-button-toggle-hover-background-color {
+    /*background-color: red;  !* dark background *!*/
+    color: #e6e6e6;             /* light text */
+    border: 1px solid #2a2f3a;
+    border-radius: 8px;
+}
+
+/* Header (month/year) */
+[data-mdb-theme='dark'] .datepicker-header {
+    background-color: #1e2530;
+    color: #ffffff;
+    border-bottom: 1px solid #2a2f3a;
+}
+
+/* Day cells */
+[data-mdb-theme='dark'] .datepicker-cell {
+    background-color: transparent;
+    color: #cbd5e1;
+    border-radius: 6px;
+}
+
+/* Hovered day */
+[data-mdb-theme='dark'] .datepicker-cell:hover {
+    background-color: #2a2f3a;
+    color: #fff;
+}
+
+[data-mdb-theme='dark'] .datepicker-cell  .current {
+    background-color: green;
+}
+
+/* Selected day */
+[data-mdb-theme='dark'] .datepicker-cell.selected,
+[data-mdb-theme='dark'] .datepicker-cell.focused {
+    /*background-color: #7aa2ff; !* your accent color *!*/
+    color: #0b0d12;
+}
+
+/* Disabled day */
+[data-mdb-theme='dark'] .datepicker-cell.disabled {
+    color: #555 !important;
+}
+
+[data-mdb-theme='dark'] .datepicker .timepicker {
+    background-color: #161a22;  /* dark background */
+    color: #e6e6e6;             /* light text */
+    border: 1px solid #2a2f3a;
+    border-radius: 8px;
+}
+
+[data-mdb-theme='dark'] .datepicker-footer .datepicker-footer-btn {
+    background-color: #161a22;
+}
+
+[data-mdb-theme='dark'] .datepicker-footer .datepicker-footer-btn :hover {
+    color: #343f53;
+}
+
+[data-mdb-theme='dark'] .datepicker-cell :hover{
+    background-color: #343f53 !important;
+}
+
+[data-mdb-theme='dark']  .datepicker-day-cell .datepiccker-small-cell .current{
+    background-color: red !important;
+}
+
+/* === Dark theme for TIMEPICKER popups (works when popup is appended to <body>) === */
+body[data-mdb-theme='dark'] .clockpicker-popover,
+body[data-mdb-theme='dark'] .timepicker-modal,
+body[data-mdb-theme='dark'] .timepicker,
+body[data-mdb-theme='dark'] .timepicker-dropdown {
+    background-color: #161a22 !important;
+    color: #e6e6e6 !important;
+    border: 1px solid #2a2f3a !important;
+    border-radius: 8px !important;
+}
+
+/* Clock face / dial */
+body[data-mdb-theme='dark'] .clockpicker-plate,
+body[data-mdb-theme='dark'] .timepicker-clock,
+body[data-mdb-theme='dark'] .timepicker-dial {
+    background-color: #1b2030 !important;
+    border: none !important;
+}
+
+/* Hour/minute ticks / numbers */
+body[data-mdb-theme='dark']body[data-mdb-theme='dark'] .clockpicker-tick,
+body[data-mdb-theme='dark'] .timepicker-number .timepicker-current-wrapper {
+    color: #e6e6e6 !important;
+    border: 1px solid red;
+}
+
+
+body[data-mdb-theme='dark'] .timepicker-current-wrapper .timepicker-dot {
+    background-color: #1b2030 !important;
+    color: #e6e6e6;
+}
+
+body[data-mdb-theme='dark']  .timepicker-elements {
+    background-color: #1b2030 !important;
+}
+
+body[data-mdb-theme='dark'] .timepicker-footer {
+    background-color: #212839;
+}
+
+/* Active / hovered tick or selected number */
+body[data-mdb-theme='dark'] .clockpicker-tick.active,
+body[data-mdb-theme='dark'] .clockpicker-tick:hover,
+body[data-mdb-theme='dark'] .timepicker-number.active,
+body[data-mdb-theme='dark'] .timepicker-number:hover {
+    background-color: #3867ff !important;  /* your accent */
+    color: #fff !important;
+    border-radius: 50% !important;
+}
+
+/* Clock hand & center dot (SVG in ClockPicker; dial hand in MDB5) */
+body[data-mdb-theme='dark'] .clockpicker-canvas-bg { fill: #3867ff !important; }
+body[data-mdb-theme='dark'] .clockpicker-canvas-bearing { fill: #fff !important; }
+body[data-mdb-theme='dark'] .clockpicker-canvas-fg { stroke: #3867ff !important; }
+
+body[data-mdb-theme='dark'] .timepicker-hand { background-color: #3867ff !important; }
+body[data-mdb-theme='dark'] .timepicker-dot { background-color: #fff !important; }
+
+/* Header / title / AM-PM buttons */
+body[data-mdb-theme='dark'] .timepicker-title,
+body[data-mdb-theme='dark'] .timepicker-head,
+body[data-mdb-theme='dark'] .timepicker-am-pm-block,
+body[data-mdb-theme='dark'] .timepicker-button {
+    background-color: #161a22 !important;
+    color: #e6e6e6 !important;
+    border-color: #2a2f3a !important;
+}
+
+/* Inputs inside the popup */
+body[data-mdb-theme='dark'] .timepicker-input,
+body[data-mdb-theme='dark'] .timepicker .form-control {
+    background-color: #0f131a !important;
+    color: #e6e6e6 !important;
+    border-color: #2a2f3a !important;
+}
 
 
 
+
+/* Google dropdown container background */
+.pac-container {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+    border-radius: 8px !important;
+}
+
+/* Each item */
+.pac-item {
+
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* On hover */
+.pac-item:hover {
+    background-color: #333 !important;
+    color: #ffffff !important;
+}
+
+/* Highlighted item (arrow keys) */
+.pac-item.pac-selected {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+/* Address secondary text (like city/country) */
+.pac-item .pac-item-query {
+    color: #b0b0b0 !important;
+}
+
+
+/*Modals*/
+[data-mdb-theme='dark'] .modal-content {
+    border: 1px solid #444;
+}
 
 
 /* Primary button */

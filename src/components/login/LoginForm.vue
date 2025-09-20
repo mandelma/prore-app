@@ -26,6 +26,7 @@
           label="Käyttäjätunnus"
           id="loginUsername"
           v-model="loginUsername"
+
           wrapperClass="mb-4"
       />
 
@@ -64,7 +65,7 @@
 
       <!-- Register buttons -->
       <div class="text-center">
-        <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
+        <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
       </div>
     </form>
   </div>
