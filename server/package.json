@@ -6,6 +6,10 @@
   "author": "Marko",
   "type": "commonjs",
   "main": "index.js",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",

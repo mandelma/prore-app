@@ -21,7 +21,7 @@
     "@googlemaps/js-api-loader": "^1.16.10",
     "@primevue/themes": "^4.3.9",
     "axios": "^1.11.0",
-    "mdb-vue-ui-kit": "file:../../OneDrive/Desktop/mdb5-vue-ui-kit-pro-essential-master.tar.gz",
+    "mdb-vue-ui-kit": "file:/server/vendor/mdb-vue-ui-kit.tgz",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",
