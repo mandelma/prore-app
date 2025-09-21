@@ -39,6 +39,12 @@
     --bg-surface-1: #0b1618;
     --bg-surface-2: #1B2330;
 
+    /*fullCalendar day-today slot*/
+    --fc-today-bg-color: rgba(73, 210, 255, 0.12); /* neon-cyan tint */
+
+
+
+
 
     --nav-bg: #0F172A;
     --nav-border: #223043;

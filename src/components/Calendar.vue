@@ -743,7 +743,7 @@ const options = computed(() => ({
 }
 
 .fc-col-header {
-  background-color: grey;
+  background-color: #242931;
 }
 .fc .fc-col-header, .fc .fc-daygrid-day { border-color:#2a2f3a; }
 .fc { background:#161a22; color:#e6e6e6; border-radius:8px; }
@@ -771,6 +771,15 @@ const options = computed(() => ({
   background-color: #161a22;
 }
 
+/* Neon cyan borders */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-timegrid-slot,
+.fc-theme-standard .fc-timegrid-col-frame {
+  border-color: rgba(73, 210, 255, 0.7) !important;
+  box-shadow: 0 0 4px rgba(73, 210, 255, 0.6);
+}
+
 /* push title to its own line if needed */
 @media (max-width: 640px) {
   .fc .fc-toolbar-chunk { display: flex; gap: 6px; }
@@ -779,14 +788,11 @@ const options = computed(() => ({
   .fc .fc-toolbar-chunk:last-child  { order: 3; }   /* view buttons */
   .fc .fc-button { padding: 2px 8px; font-size: .75rem; }
 
-  /* Neon cyan borders */
-  .fc-theme-standard td,
-  .fc-theme-standard th,
-  .fc-theme-standard .fc-timegrid-slot,
-  .fc-theme-standard .fc-timegrid-col-frame {
-    border-color: rgba(73, 210, 255, 0.7) !important;
-    box-shadow: 0 0 4px rgba(73, 210, 255, 0.6);
-  }
+
+
+  /*.fc-theme-standard td {*/
+  /*  background-color: #161A22FF;*/
+  /*}*/
 
 
   /* vertical borders (between days) */
@@ -842,7 +848,7 @@ const options = computed(() => ({
   /* days & time slots */
   .fc .fc-daygrid-day:active,
   .fc .fc-timegrid-slot:active {
-    background:#2a2f3a;
+    /*background:#2a2f3a;*/
     /*transform: scale(0.98);*/
   }
 }

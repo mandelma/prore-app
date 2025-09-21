@@ -139,11 +139,13 @@ import { ref, watch } from 'vue';
 import userService from '@/service/users.js';
 import loginService from '@/service/login.js';
 import {useLoginStore} from "@/stores/login.js";
+import { useRouter } from 'vue-router'
 
 defineOptions({
   name: 'register-form'
   // you can also set other options here if needed
 })
+const router = useRouter();
 const registerFirstName = ref("");
 const registerLastName = ref("");
 const registerUsername = ref("");
@@ -252,11 +254,12 @@ const submitUser = async () => {
         console.log("registerPassword " + registerPassword.value)
         console.log("registerEmail " + registerEmail.value)
         const loggedInUser = await loginService.login({username: registerUsername.value, password: registerPassword.value});
-        console.log("LOgin error: " + loggedInUser.error)
+        console.log("Login error: " + loggedInUser.error)
         if (loggedInUser.error !== "login error") {
           //this.$emit('register:data', loggedInUser)
           login.onLogin(loggedInUser);
           checkFieldValues();
+          await router.push('/');
 
         } else {
           console.log("Error with login! " + loggedInUser.error)

@@ -43,13 +43,13 @@
               <MDBDropdownToggle tag="a" class="nav-link" @click="userDropdown = !userDropdown">
                 <MDBIcon icon="user" class="icon" />
               </MDBDropdownToggle>
-              <MDBDropdownMenu class="dropdown-menu">
-                <MDBDropdownItem href="#">Action</MDBDropdownItem>
-                <MDBDropdownItem href="">
-                  <RouterLink to="/calendar" style="color: #ddd;">Kalenteri</RouterLink>
+              <MDBDropdownMenu class="dropdown-menu" >
+<!--                <MDBDropdownItem href="#">Action</MDBDropdownItem>-->
+                <MDBDropdownItem style="color: #ddd;" href="">
+                  <RouterLink to="/calendar" >Kalenteri</RouterLink>
                 </MDBDropdownItem>
-                <MDBDropdownItem href="#">Something else here</MDBDropdownItem>
-                <MDBDropdownItem href="#" @click="logOut">Log out</MDBDropdownItem>
+<!--                <MDBDropdownItem href="#">Something else here</MDBDropdownItem>-->
+                <MDBDropdownItem style="color: #ddd;" href="#" @click="logOut">Log out</MDBDropdownItem>
               </MDBDropdownMenu>
             </MDBDropdown>
           </MDBNavbarItem>
@@ -140,9 +140,11 @@ import { useLoginStore } from "@/stores/login.js";
 import {useI18n} from "vue-i18n/dist/vue-i18n";
 import LanguageContents from "@/components/LanguageContents.vue";
 import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
+const router = useRouter();
 const userData = ref("")
 const userDropdown = ref(false);
 const login = useLoginStore();
+import { useRouter } from "vue-router";
 const { t } = useI18n();
 onMounted (async () => {
   console.log("Mounted on start!");
@@ -186,6 +188,7 @@ onMounted (async () => {
 // }
 const logOut = () => {
   login.onLogOut()
+  router.push('/');
   // "mdb-vue-ui-kit": "file:../../OneDrive/Desktop/mdb5-vue-ui-kit-pro-essential-master.tar.gz",
 
   //"mdb-vue-ui-kit": "file:server/vendor/mdb-vue-ui-kit.tgz",
