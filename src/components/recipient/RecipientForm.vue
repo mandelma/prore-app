@@ -223,7 +223,7 @@
 
         </form>
       </div>
-      <MDBBtn block @click="$router.push('/follow-pos')">Start watching</MDBBtn>
+<!--      <MDBBtn block @click="$router.push('/follow-pos')">Start watching</MDBBtn>-->
     </MDBContainer>
   </div>
 </template>
