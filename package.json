@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "start": "node server/index.js",
     "build": "vite build",
     "heroku-postbuild": "npm install --prefix server && npm install && npm run build",
     "preview": "vite preview"
