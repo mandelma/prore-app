@@ -16,10 +16,10 @@
 <!--        me-lg-0-->
 
         <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
-          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon icon="calendar" class="icon" @click="$router.push('calendar')" />
+<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
+<!--            <MDBIcon icon="calendar" class="icon" @click="$router.push('calendar')" />-->
 
-          </MDBNavbarItem>
+<!--          </MDBNavbarItem>-->
 <!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
 <!--            <MDBIcon icon="comment" class="icon" />-->
 <!--            <MDBBadge notification color="danger" pill>2</MDBBadge>-->

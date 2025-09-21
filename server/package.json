@@ -7,6 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "cd.. && rmdir /s /q dist && npm run build && xcopy dist server\\dist /E /H /C /I /Y",
     "test": "echo \"Error: no test specified\" && exit 1"
