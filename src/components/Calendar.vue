@@ -753,6 +753,7 @@ const options = computed(() => ({
 
 /* --- Minimal dark theme to match MDB dark --- */
 .fc { background:#161a22; color:#e6e6e6; border-radius:8px; }
+.fc .fc-daygrid-day { border: 1px solid #c76d6d;}
 .fc .fc-toolbar-title { color:#e6e6e6; }
 .fc .fc-button { background:#2a2f3a; border:none; }
 .fc .fc-button:hover, .fc .fc-button:focus { filter: brightness(1.1); }
@@ -777,6 +778,31 @@ const options = computed(() => ({
   .fc .fc-toolbar-chunk:first-child { order: 1; }   /* prev/next */
   .fc .fc-toolbar-chunk:last-child  { order: 3; }   /* view buttons */
   .fc .fc-button { padding: 2px 8px; font-size: .75rem; }
+
+  /* Neon cyan borders */
+  .fc-theme-standard td,
+  .fc-theme-standard th,
+  .fc-theme-standard .fc-timegrid-slot,
+  .fc-theme-standard .fc-timegrid-col-frame {
+    border-color: rgba(73, 210, 255, 0.7) !important;
+    box-shadow: 0 0 4px rgba(73, 210, 255, 0.6);
+  }
+
+
+  /* vertical borders (between days) */
+  /*.fc-theme-standard .fc-timegrid-col-frame {*/
+  /*  border-color: #304649;  !* your custom color *!*/
+  /*}*/
+
+  /* horizontal borders (between time slots) */
+  /*.fc-theme-standard .fc-timegrid-slot {*/
+  /*  border-color: #284549;*/
+  /*}*/
+
+  /*Header row vert borders*/
+  /*.fc-theme-standard th {*/
+  /*  border-color: #00bcd4;*/
+  /*}*/
 
   /*.fc .fc-button {*/
   /*  background:#2a2f3a;*/
