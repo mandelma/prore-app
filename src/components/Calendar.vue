@@ -776,8 +776,10 @@ const options = computed(() => ({
 .fc-theme-standard th,
 .fc-theme-standard .fc-timegrid-slot,
 .fc-theme-standard .fc-timegrid-col-frame {
-  border-color: rgba(73, 210, 255, 0.7) !important;
-  box-shadow: 0 0 4px rgba(73, 210, 255, 0.6);
+  /*border-color: rgba(73, 210, 255, 0.7) !important;*/
+  /*box-shadow: 0 0 4px rgba(73, 210, 255, 0.6);*/
+  border-color: rgba(14, 31, 36, 0.7) !important;
+  box-shadow: 0 0 4px rgba(34, 72, 84, 0.6);
 }
 
 /* push title to its own line if needed */
