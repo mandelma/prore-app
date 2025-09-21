@@ -194,6 +194,7 @@ const logOut = () => {
   //"mdb-vue-ui-kit": "file:server/vendor/mdb-vue-ui-kit.tgz",
 
   //"mdb-vue-ui-kit": "file:vendor/mdb-vue-ui-kit.tgz",
+  // "^20.19.0 || >=22.12.0"
 }
 
 const onIcon = () => {
