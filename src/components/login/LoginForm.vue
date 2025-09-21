@@ -12,7 +12,7 @@
       >
         <template #title> TAPAHTUI VIRHE! </template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
-        <template #small>eee</template>
+        <template #small></template>
         Väärä käyttäjätunnus tai salasana!
       </MDBToast>
     </div>
@@ -116,6 +116,7 @@ const userLoginData = async () => {
     }
   } else {
     console.log("Error - Kaikki kentät täytettävä!")
+    loginError.value = true;
     // this.loginErrorMessage = "kaikki kentät on täytettävä!"
     // setTimeout(() => {
     //   this.loginErrorMessage = null
