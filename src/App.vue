@@ -186,6 +186,7 @@ onMounted (async () => {
 // }
 const logOut = () => {
   login.onLogOut()
+  // "mdb-vue-ui-kit": "file:../../OneDrive/Desktop/mdb5-vue-ui-kit-pro-essential-master.tar.gz",
 }
 
 const onIcon = () => {
