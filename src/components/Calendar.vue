@@ -27,7 +27,10 @@
   </div>
 
 
+  <h2>Props: {{count}}</h2><br>
+  <p>Weekdays {{days}}</p><br>
 
+  <MDBBtn color="primary" @click="sendProp">Send props back</MDBBtn>
 
   <MDBModal
       v-model="showCreate" center
@@ -173,9 +176,18 @@ import svLocale from '@fullcalendar/core/locales/sv'
 import etLocale from '@fullcalendar/core/locales/et'
 import enLocale from '@fullcalendar/core/locales/en-gb'
 
-
+defineProps({
+  count: {type: Number},
+  days: Array
+})
 
 //const events = ref([])
+
+const emit = defineEmits(['over'])
+
+const sendProp = () => {
+  emit("over", "Hello parent!")
+}
 
 const events = ref([
   {
@@ -876,6 +888,10 @@ const options = computed(() => ({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.fc-dayGridMonth-view  {
+  /*border: 1px solid red;*/
 }
 
 /* Color classes (use your dark palette) */

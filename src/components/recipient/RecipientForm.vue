@@ -3,172 +3,161 @@
 <!--    v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"-->
     <MDBContainer>
 <!--      g-3 needs-validation   -->
+      <div style="padding: 13px 0 20px 0;">
+        <MDBToast
+            v-model="isInitClientError"
+            autohide
+            :delay="3000"
+            :stacking="false"
+            position="top-center"
+            toast="danger"
+            icon="fas fa-exclamation-circle fa-lg me-2"
+        >
+          <template #title>VIRHE LOMAKEELLA! </template>
+          <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+          <template #small></template>
+          {{clientFormErrorMsg}}
+        </MDBToast>
+      </div>
       <div class="form-card">
-        <p style="margin-top: 10px;">{{t('client_form_offersOrQuickSolution')}}</p>
-        <form class="g-3 needs-validation" novalidate @submit.prevent="checkForm" autocomplete="off" style=" padding: 5px;">
+        <p style="margin-top: 10px; color: #00BFFFFF;">{{t('client_form_offersOrQuickSolution')}}</p>
+        <form novalidate @submit.prevent="createClient" autocomplete="off" style=" padding: 5px;">
           <MDBRow>
 
             <MDBCol col="10">
-              <div style="text-align: left; padding-bottom: 23px;">
-                <Select
-                    style="width: 100%;"
-                    v-model="profession"
-                    :options="professions"
-                    filter optionLabel="label"
-                    optionGroupLabel="label"
-                    optionGroupChildren="items"
-                    placeholder="Valitse ammattilainen"
-                    v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
-                    class="w-full md:w-[30rem]"
+              <div class="field-wrapper">
+                <div>
+                  <Select
+                      style="width: 100%;"
+                      v-model="form.profession"
+                      :options="professions"
+                      filter optionLabel="label"
+                      optionGroupLabel="label"
+                      optionGroupChildren="items"
+                      placeholder="Valitse ammattilainen *"
 
-                >
+                      v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
+                      class="w-full md:w-[30rem]"
 
-                  <template #value="slotProps">
-                    <div v-if="slotProps.value" >
-                      <!--              <img :alt="slotProps.value.label" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`mr-2 flag flag-${slotProps.value.code.toLowerCase()}`" style="width: 18px" />-->
+                  >
 
-                      <div>{{ slotProps.value.label }}</div>
-                    </div>
-                    <span v-else>
+                    <template #value="slotProps">
+                      <div v-if="slotProps.value" >
+                        <!--              <img :alt="slotProps.value.label" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`mr-2 flag flag-${slotProps.value.code.toLowerCase()}`" style="width: 18px" />-->
+
+                        <div>{{ slotProps.value.label }}</div>
+                      </div>
+                      <span v-else>
                     {{ slotProps.placeholder }}
                   </span>
-                  </template>
-                  <template #optiongroup="slotProps" >
-                    <div  class="flex items-center gap-2">
-                      <i :class= 'slotProps.option.icon' style='font-size:17px;color:cadetblue;'></i>&nbsp;&nbsp;&nbsp;
-                      <span>{{ slotProps.option.label }}</span>
-                    </div>
-                  </template>
-                </Select>
-              </div>
+                    </template>
+                    <template #optiongroup="slotProps" >
+                      <div  class="flex items-center gap-2">
+                        <i :class= 'slotProps.option.icon' style='font-size:17px;color:cadetblue;'></i>&nbsp;&nbsp;&nbsp;
+                        <span>{{ slotProps.option.label }}</span>
+                      </div>
+                    </template>
+                  </Select>
+                </div>
 
+                <span v-if="errors.profession" class="field-footer">{{ errors.profession }}</span>
+              </div>
             </MDBCol>
 
             <MDBCol col="2">
-              <div style="width: 100%;" @click="$router.push('/pro-around')">
+              <div style="width: 100%;" @click="router.push('/pro-around')">
                 <img class="mapGif" :src="mapImage" alt="from_map" />
               </div>
 
             </MDBCol>
           </MDBRow>
 
+          <div class="field-wrapper">
+            <MDBInput
+                label="Syötä tilauksen avainsana *"
+                v-model="form.orderHeader"
+                size="lg"
+                invalidFeedback="Ole hyvä ja kirjoita avainsana."
+                validFeedback="Ok!"
+                required
 
-          <MDBInput
-              counter :maxlength="30"
+            />
+            <span v-if="errors.orderHeader" class="field-footer">{{ errors.orderHeader }}</span>
+            <!-- custom error text -->
 
-              label="Syötä tilauksen avainsana"
-              v-model="orderHeader"
 
-              size="lg"
-
-              invalidFeedback="Ole hyvä ja kirjoita avainsana."
-              validFeedback="Ok!"
-              required
-              wrapperClass="mb-4"
-          >
-          </MDBInput>
+          </div>
 
           <MDBRow>
+
+
             <MDBCol lg="6">
 
-              <div  class="input-group mb-3">
-                <!-- MDB input inside input-group -->
-                <MDBInput
-                    size="lg"
-                    id="location"
-                    v-model="address"
-                    label="Anna osoite"
-                    placeholder=""
-                    wrapperClass="form-outline flex-grow-3"
-                    :inputClass="'ps-0'"
-                    aria-describedby="button-addon2"
-                />
+<!--              Form address {{form.address}}-->
 
-                <MDBBtn  style="border: 1px solid #ddd;" type="button" @click="clearAddress">
-                  <i class="fas fa-times" ></i>
-                </MDBBtn>
+              <div :class="{hideInput: !form.address && isAddress}" style="width: 100%;" class="field-wrapper ">
+                <div  class="input-group">
+                  <MDBInput
+                      size="lg"
+                      id="location"
+
+                      v-model="form.address"
+                      label="Anna osoite"
+                      placeholder=""
+                      wrapperClass="form-outline flex-grow-3"
+                      :inputClass="'ps-0'"
+                      aria-describedby="button-addon2"
+                  />
+                  <MDBBtn type="button" style="border:1px solid #ddd">
+                    <MDBIcon size="2x" @click="form.address ? clearAddress() : showAddress()">
+                      <i :class="form.address ? 'fas fa-times' : 'fas fa-search-location'"></i>
+                    </MDBIcon>
+                  </MDBBtn>
+                </div>
+
+                <span v-if="errors.address" class="field-footer">{{ errors.address }}</span>
+              </div>
+              <!-- overlay spinner, not removing input -->
+              <div v-show="!form.address && isAddress"
+                   style="text-align: center; padding-bottom: 27px;"
+
+              >
+                <MDBSpinner grow color="info" />
               </div>
 
-            </MDBCol>
-            <MDBCol lg="6">
-              <div style="margin-bottom: 13px;">
-
-                <MDBInput
-                    size="lg"
-                    label="Valitse haluamasi alue - km"
-                    type="number"
-                    onkeypress="return event.charCode >= 48" min="0"
-                    v-model="range"
-                >
-
-                </MDBInput>
-
-
-              </div>
             </MDBCol>
 
           </MDBRow>
           <div >
 
-<!--            <div class="grid grid-cols-2 gap-3" :key="reInitKey">-->
-<!--              &lt;!&ndash; DATE: pass props directly, not via :options &ndash;&gt;-->
-<!--              <MDBDatepicker-->
-<!--                  v-model="datePart"-->
-<!--                  label="Date"-->
-<!--                  :firstDay="L.firstDay"-->
-<!--                  :monthsFull="L.monthsFull"-->
-<!--                  :monthsShort="L.monthsShort"-->
-<!--                  :weekdaysFull="L.weekdaysFull"-->
-<!--                  :weekdaysShort="L.weekdaysShort"-->
-<!--                  format="dd.mm.yyyy"-->
-<!--                  disablePast-->
-<!--              />-->
+            <p style="text-align: left;">Mihin aikaan tarvitset ammattilaista?</p>
+            <div class="field-wrapper">
+              <MDBDateTimepicker
+                  size="lg"
+                  label="Valitse tehtävän päivämäärä ja aika"
+                  v-model="form.dateTime"
 
-<!--              &lt;!&ndash; TIME: pass labels directly &ndash;&gt;-->
-<!--              <MDBTimepicker-->
-<!--                  v-model="timePart"-->
-<!--                  label="Time"-->
-<!--                  :cancelLabel="L.cancelLabel"-->
-<!--                  :okLabel="L.okLabel"-->
-<!--                  :twelveHour="L.twelveHour"-->
-<!--              />-->
-<!--            </div>-->
-
-
-
-
-
-
-
-
-
-            <MDBDateTimepicker
-                size="lg"
-                label="Select Date and Time"
-                v-model="dateTime"
-
-                :datepicker="{
+                  :datepicker="{
                   ...L
                 }"
-                :timepicker="{
+                  :timepicker="{
                   ...L,
                   hoursFormat: 24
                 }"
 
-                :key="reInitKey"
-                disablePast
-            />
+                  :key="reInitKey"
+                  disablePast
+              />
+              <span v-if="errors.dateTime" class="field-footer">{{ errors.dateTime }}</span>
+            </div>
+
           </div>
-
-          <!--          auto-position="top"-->
-
-          <p style="text-align: left;">Mihin aikaan tarvitset ammattilaista?</p>
 
           <div style="color: #fff;">
 
           </div>
 
-          <div style="text-align: left;">
+          <div class="field-wrapper">
             <MDBCheckbox
                 label="Vastaukset voi lähettää sähköpostiin!"
                 name="agreement_as_client"
@@ -180,16 +169,20 @@
 
           <MDBRow>
             <MDBCol lg="6">
-              <MDBTextarea
-                  maxlength="70"
-                  label="Kuvaus tilauksen sisällöstä..."
-                  rows="3"
-                  v-model="explanation"
-                  invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
-                  validFeedback="Ok!"
-                  required
-              />
-              <span class="message-counter"> {{explanation.length}} / 70</span>
+              <div class="field-wrapper">
+                <MDBTextarea
+                    maxlength="70"
+                    label="Kuvaus tilauksen sisällöstä *"
+                    rows="3"
+                    v-model="form.explanation"
+                    invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
+                    validFeedback="Ok!"
+                    required
+                />
+                <span v-if="errors.explanation" class="field-footer">{{ errors.explanation }}</span>
+                <span class="message-counter"> {{form.explanation.length}} / 70</span>
+              </div>
+
             </MDBCol>
             <MDBCol lg="6">
 <!--              <error-notification :message = imgLoadErrorMessage />-->
@@ -216,12 +209,12 @@
 
             </MDBCol>
 
-
           </MDBRow>
 
-          <MDBBtn outline="success" size="lg"  @click="addRecipient" style="margin-top:5px; margin-bottom: 20px;" type="submit">Submit</MDBBtn>
+          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">Submit</MDBBtn>
 
         </form>
+<!--        <recipient-page :header="form.address"/>-->
       </div>
 <!--      <MDBBtn block @click="$router.push('/follow-pos')">Start watching</MDBBtn>-->
     </MDBContainer>
@@ -230,45 +223,72 @@
 
 <script setup>
 /* global google */
-import {MDBContainer, MDBRow, MDBCol, MDBBtn, MDBCheckbox, MDBTextarea, MDBBtnClose, MDBInput, MDBIcon, MDBDateTimepicker, MDBDatepicker, MDBTimepicker} from "mdb-vue-ui-kit";
+import {MDBContainer, MDBRow, MDBCol, MDBBtn, MDBCheckbox, MDBTextarea, MDBToast, MDBInput, MDBIcon, MDBDateTimepicker, MDBSpinner, MDBDatepicker, MDBTimepicker} from "mdb-vue-ui-kit";
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
+import { useLoginStore } from "@/stores/login.js";
 import proList from '@/components/controllers/professions'
 import Select from 'primevue/select';
 import map_image from '@/assets/map.gif'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n';
-//import {useI18n} from "vue-i18n/dist/vue-i18n";
+import clientService from '../../service/recipients'
+import RecipientPage from '@/components/recipient/RecipientPage.vue'
+
 import '@/styles/pro-select.css';
 defineOptions({
   name: 'recipient-form'
-  // you can also set other options here if needed
 })
 
 const { locale, t } = useI18n();
 
 const router = useRouter();
-const profession = ref("");
+
+const form = reactive({
+  profession: "",
+  orderHeader: "",
+  address: "",
+  dateTime: "",
+  explanation: ""
+});
+const errors = reactive({});
+
+
+const validateForm = () => {
+  errors.profession = form.profession ? "" : "Profession is required";
+  errors.orderHeader = form.orderHeader ? "" : "Header is required";
+  errors.address = form.address ? "" : "Address is required";
+  errors.dateTime = form.dateTime ? "" : "Date is required";
+  errors.explanation = form.explanation ? "" : "Kuvaus is required";
+
+  return !errors.profession && !errors.orderHeader && !errors.address && !errors.dateTime && !errors.explanation;
+}
+
+watch(() => form.profession, () => (errors.profession = ""));
+watch(() => form.orderHeader, () => (errors.orderHeader = ""));
+watch(() => form.address, () => (errors.address = ""));
+watch(() => form.dateTime, () => (errors.dateTime = ""));
+watch(() => form.explanation, () => (errors.explanation = ""));
+
+const MAX = ref(50);
+const isInitClientError = ref(false);
+const clientFormErrorMsg = ref("");
+const selectedLang = ref("");
+const userAuth = useLoginStore();
+const isAddress = ref(false);
+const myLocation = ref("");
+const isClientContactAgreement = ref(false);
 const professions = proList;
-const explanation = ref("");
 const mapImage = map_image;
-const orderHeader = ref("");
 const range = ref(null);
-const address = ref(null);
 const lat = ref(null);
 const lng = ref(null);
-const dateTime = ref("");
-//const datePart = ref('')
-//const timePart = ref('')
-//const combined = computed(() => datePart.value && timePart.value ? `${datePart.value} ${timePart.value}` : '')
 
 const mdbLocale = computed(() => {
   const map = { en: 'en', fi: 'fi', sv: 'sv', et: 'et' }
   return map[locale.value] ?? 'fi'
 })
-
-
 
 // label sets (add your own langs as needed)
 const L = computed(() => {
@@ -344,38 +364,52 @@ const reInitKey = computed(() => `dt-${locale.value}`)
 
 
 // Reactive options derived from current locale
-const dpOptions = computed(() => {
-  const L = labels[locale.value] ?? labels.en
-  return {
-    firstDay: L.firstDay,
-    monthsFull: L.monthsFull,
-    monthsShort: L.monthsShort,
-    weekdaysFull: L.weekdaysFull,
-    weekdaysShort: L.weekdaysShort,
-    // choose an input format you want (affects the text in the input)
-    format: 'dd.mm.yyyy'
-  }
-})
+// const dpOptions = computed(() => {
+//   const L = labels[locale.value] ?? labels.en
+//   return {
+//     firstDay: L.firstDay,
+//     monthsFull: L.monthsFull,
+//     monthsShort: L.monthsShort,
+//     weekdaysFull: L.weekdaysFull,
+//     weekdaysShort: L.weekdaysShort,
+//     // choose an input format you want (affects the text in the input)
+//     format: 'dd.mm.yyyy'
+//   }
+// })
 
-const tpOptions = computed(() => {
-  const L = labels[locale.value] ?? labels.en
-  return {
-    cancelLabel: L.time.cancelLabel,
-    okLabel: L.time.okLabel,
-    twelveHour: L.time.twelveHour
-  }
-})
+// const tpOptions = computed(() => {
+//   const L = labels[locale.value] ?? labels.en
+//   return {
+//     cancelLabel: L.time.cancelLabel,
+//     okLabel: L.time.okLabel,
+//     twelveHour: L.time.twelveHour
+//   }
+// })
 
 // Force remount when locale changes so popup re-inits with new labels
 //const reinitKey = computed(() => `dt-${locale.value}`)
 
 
 
+const isLocating = ref(false)                     // used to show the spinner
+
+// const showSpinner = computed(() => {
+//   const hasAddress =
+//       typeof form.address === 'string'
+//           ? form.address.trim().length > 0
+//           : !!form.address
+//   return !hasAddress && isLocating.value
+// })
 
 
+const currentLang = computed(() => locale.value.split('-')[0])
+watch(currentLang, (lang) => {
+  console.log(`Hetke keelevalik - ${lang}`);
+  selectedLang.value = lang;
+}, { immediate: true })
 
-onMounted(() => {
-  clientCurrentLocation();
+
+onMounted(async() => {
   const center = { lat: 50.064192, lng: -130.605469 };
   // Create a bounding box with sides ~10km away from the center point
   const defaultBounds = {
@@ -402,23 +436,26 @@ onMounted(() => {
     lat.value = place.geometry.location.lat()
     lng.value = place.geometry.location.lng()
 
-    address.value = place.formatted_address
+    form.address = place.formatted_address
     console.log(place)
   })
 })
 
-const clientCurrentLocation = async () => {
+
+const myCurrentLocation = async() => {
   if (navigator.geolocation) {
     await navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = position.coords;
       // Show a map centered at latitude / longitude.
       lat.value = latitude
       lng.value = longitude
-      console.log("Latitude is: " + lat.value);
-      showClientLocationData (latitude, longitude);
+      showClientLocationData (latitude, longitude)
     });
   }
+
 }
+
+
 const showClientLocationData = (lat, long) => {
   axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
       "," + long
@@ -429,8 +466,8 @@ const showClientLocationData = (lat, long) => {
 
           console.log(response.data.error_message)
         } else {
-          address.value = response.data.results[1].formatted_address;
-          console.log("Address now " + address.value);
+          form.address = response.data.results[1].formatted_address;
+          console.log("Address now " + form.address);
         }
 
       })
@@ -440,16 +477,82 @@ const showClientLocationData = (lat, long) => {
       })
 }
 
+const showAddress = () => {
+  isAddress.value = true;
+  myCurrentLocation();
+}
+
 const clearAddress = () => {
-  address.value = null;
+  isAddress.value = false;
+  form.address = '';
+}
+
+const parseDmyTime = (str) => {
+  const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, dd, mm, yyyy, HH, MM] = m.map(Number);
+  return new Date(yyyy, mm - 1, dd, HH, MM);
+
+
+  // const date = new Date()              // current date
+  // const formatted = date.toLocaleDateString('en-US', {
+  //   year: 'numeric',
+  //   month: '2-digit',
+  //   day: '2-digit'
+  // })
+  // console.log(formatted)               // → 09/26/2025
+  //
+  // date.toLocaleDateString('en-GB')     // → 26/09/2025
+  // date.toLocaleDateString('de-DE')     // → 26.09.2025
+}
+
+const createClient = () => {
+  if (!validateForm()) {
+    console.log("Midagi puudu:", form);
+    clientFormErrorMsg.value = "Kentät pitäisi huomioida!"
+    isInitClientError.value = true;
+  } else {
+    console.log("Header - " + form.orderHeader);
+    const dateObj = parseDmyTime(form.dateTime);
+    let ms;
+    if (dateObj) {
+      ms = dateObj.getTime();
+      console.log("Milliseconds:", ms);  // e.g. 1758976800000
+    } else {
+      console.log("Invalid date string");
+    }
+
+    const client = {
+      created: dateObj,
+      created_ms: ms,
+      dateStr: form.dateTime,
+      header: form.orderHeader,
+      agreement: isClientContactAgreement.value,
+      address: form.address,
+      latitude: lat.value,
+      longitude: lng.value,
+      zone: range.value !== null ? range.value : 0,
+      professional: form.profession.label,
+      isIncludeOffers: true,
+      description: form.explanation,
+      status: "notSeen",
+      //imageId: this.imgId ? this.imgId : []
+    }
+
+    const Booking = clientService.addRecipient(userAuth.user.id, client);
+
+  }
+
 }
 
 </script>
 
 <style >
-  input label {
-    color: red;
-  }
+.message-counter {
+  float: right;
+  opacity: 0.5;
+}
+
   .mapGif {
     width: 40px;
     cursor: pointer;
@@ -459,4 +562,10 @@ const clearAddress = () => {
     /*  width: 30px;*/
     /*}*/
   }
+
+
+.hideInput {
+  display: none;
+}
+
 </style>

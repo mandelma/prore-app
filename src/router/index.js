@@ -26,7 +26,10 @@ const routes = [
     {
         path: "/client-form",
         name: "recipient-form",
-        component: () => import("../components/recipient/RecipientForm.vue")
+        component: () => import("../components/recipient/RecipientForm.vue"),
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: "/pro-around",
@@ -39,16 +42,42 @@ const routes = [
         component: () => import('../components/FollowUserPosition.vue')
     },
     {
-        path: "/calendar",
+        path: "/calendar/:count",
         name: "calendar",
-        component: () => import("../components/Calendar.vue")
-    }
+        component: () => import("../components/Calendar.vue"),
+        props: route => ({
+            count: Number(route.params.count)
+        })
+    },
+    {
+        path: "/pro-form",
+        name: "provider-form",
+        component: () => import("../components/provider/ProviderForm.vue"),
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
+      path: "/pro-panel",
+      name: "pro-panel",
+      component: () => import("../components/provider/ProviderPanel.vue")
+    },
+    {
+        path: "/client-panel",
+        name: "recipient-page",
+        component: () => import("../components/recipient/RecipientPage.vue")
+    },
+    {
+        path: "/recipient-content",
+        name: "recipient-content",
+        component: () => import("../components/recipient/RecipientContent.vue")
+    },
 
 ];
 
 const protectedRoutes = [
     "recipient-form",
-    // "provider-form",
+    "provider-form",
     // "Gallery",
     // "pro-gallery"
     //"provider-panel"
