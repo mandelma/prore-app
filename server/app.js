@@ -73,5 +73,7 @@ app.use(serveStatic(path.join(__dirname, '../dist')));
 
 app.use('/api/users', require('./routers/users'));
 app.use('/api/login', require('./routers/login'));
+app.use('/api/recipients', require('./routers/recipients'));
+app.use('/api/providers', require('./routers/providers'));
 
 module.exports = server;

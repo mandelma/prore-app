@@ -46,9 +46,13 @@
               <MDBDropdownMenu class="dropdown-menu" >
 <!--                <MDBDropdownItem href="#">Action</MDBDropdownItem>-->
                 <MDBDropdownItem style="color: #ddd;" href="">
-                  <RouterLink to="/calendar" >Kalenteri</RouterLink>
+                  <RouterLink :to="{name: 'calendar', params: {count: 10}}" style="color: #ddd;" >Kalenteri</RouterLink>
+
                 </MDBDropdownItem>
 <!--                <MDBDropdownItem href="#">Something else here</MDBDropdownItem>-->
+                <MDBDropdownItem v-if="client.isBookings" href="#">
+                  <RouterLink to="/client-panel">Tilaukset</RouterLink>
+                </MDBDropdownItem>
                 <MDBDropdownItem style="color: #ddd;" href="#" @click="logOut">Log out</MDBDropdownItem>
               </MDBDropdownMenu>
             </MDBDropdown>
@@ -72,8 +76,29 @@
 
 <!--    <router-view />-->
     <main class="container py-4" style=" flex: 1;">
-      <RouterView style="padding-top: 50px; text-align: center;"/>
+<!--      <RouterView-->
+<!--          style="padding-top: 50px; text-align: center;"-->
+<!--      />-->
+      <RouterView
+          style="padding-top: 50px; text-align: center;"
+          v-slot="{Component}">
+        <component :is="Component" :days="weekdays" :bookings="bookings" @over="handleOver" />
+      </RouterView>
     </main>
+
+<!--    <h2>Test {{test}}</h2>-->
+
+<!--    <p v-if="isLoading">Loading…</p>-->
+<!--    <p v-else-if="error" class="text-red-600">{{ error }}</p>-->
+<!--    <template v-else>-->
+<!--      <h2>My bookings ({{ count }})</h2>-->
+<!--      <ul v-if="bookings.length">-->
+<!--        <li v-for="b in bookings" :key="b.id">-->
+<!--          {{ b.header }} — {{ b.date }}-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--      <p v-else>No bookings yet.</p>-->
+<!--    </template>-->
 
     <MDBFooter
 
@@ -131,25 +156,56 @@ import {
   MDBContainer
 } from 'mdb-vue-ui-kit';
 //import Calendar from './components/Calendar.vue'
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { storeToRefs } from 'pinia';
 import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
 import loginService from './service/login.js';
 import { useLoginStore } from "@/stores/login.js";
+import { useClientStore} from "@/stores/recipientStore.js";
+
 
 import {useI18n} from "vue-i18n/dist/vue-i18n";
 import LanguageContents from "@/components/LanguageContents.vue";
 import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
+import socket from "@/socket";
 const router = useRouter();
 const userData = ref("")
 const userDropdown = ref(false);
 const login = useLoginStore();
 import { useRouter } from "vue-router";
 const { t } = useI18n();
+const client = useClientStore();
+const { bookings, isBookings, count, isLoading, error } = storeToRefs(client)
+const test = ref(null);
+
+const weekdays = ["Mon","Tue", "Wed"];
+
+// watch(() => login.user?.id, async (id) => {
+//   if (id) {
+//     await client.orderList(id)
+//     console.log("IsBookings - " + client.isBookings)
+//     console.log("AUTH " + login.isAuthenticated)
+//     console.log('Client orders count is', count.value)
+//   }
+// }, { immediate: true })
+
 onMounted (async () => {
   console.log("Mounted on start!");
+  //console.log('PROCESS ENV ' + process.env.NODE_ENV)
+  //client.orderList(login.user.id);
+
   console.log("ENV variable: " + import.meta.env.VITE_APP_MAP_KEY);
-  login.hydrate();
+  await login.hydrate();
+  if (login.user?.id) {
+    await client.orderList(login.user.id)
+  }
+
+  console.log("IsBookings - " + client.isBookings)
+  console.log("AUTH " + login.isAuthenticated)
+  console.log('Client orders count is', count.value)
+
+  //console.log("ID " + login.user.id)
 
   if (!window.google) {
     await loadGoogleMap();
@@ -161,31 +217,10 @@ onMounted (async () => {
     console.log("Map is inited in APP!");
   }
 })
-// const addUser = async () => {
-//   const new_user = {
-//     username: "sama",
-//     password: "sama",
-//     firstname: "Sanna",
-//     lastname: "Marin"
-//   }
-//
-//   const userAdded = await userService.addUser(new_user);
-// };
-// const logIn = async () => {
-//   let user = "";
-//   const userLogin = {
-//     username: 'sama',
-//     password: 'sama'
-//   }
-//
-//   user = await loginService.login(userLogin)
-//   if (user.error !== "login error") {
-//     console.log("User logged in")
-//     login.onLogin(user);
-//   } else {
-//     console.log("No user logged in - " + user);
-//   }
-// }
+
+const handleOver = (greeting) => {
+  test.value = greeting;
+}
 const logOut = () => {
   login.onLogOut()
   router.push('/');

@@ -105,7 +105,7 @@ const userLoginData = async () => {
     if (user.error !== "login error") {
       console.log("User just logged in!");
       userApp.onLogin(user);
-      await router.push({name: 'Home'});
+      //await router.push({name: 'Home'});
     } else {
       console.log("No user logged in");
       loginError.value = true;

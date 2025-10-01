@@ -38,9 +38,17 @@
     /*--bg-surface-1: #141A23;*/
     --bg-surface-1: #0b1618;
     --bg-surface-2: #1B2330;
+    --bg-surface-3: #283346;
+    --nav-dd-border: #6192e2;
+
+
 
     /*fullCalendar day-today slot*/
     --fc-today-bg-color: rgba(73, 210, 255, 0.12); /* neon-cyan tint */
+
+
+
+
 
 
 
@@ -122,12 +130,12 @@
 .card,
 .modal-content,
 .navbar .dropdown-menu {
-    background-color: var(--bg-surface-1);
-    border-color: var(--border);
+    background-color: var(--bg-surface-3);
+    /*border-color: var(--nav-dd-border);*/
 
 }
 .navbar .dropdown-menu :hover {
-    background-color: grey;
+    background-color: #447173;
     color: #dddddd;
 }
 .offcanvas,
@@ -267,8 +275,25 @@
     background-color: #161a22;
 }
 
+[data-mdb-theme='dark'] .datepicker-date-controls {
+    background-color: #161a22;
+}
+
+[data-mdb-theme='dark'] .datepicker-date-controls  :hover {
+    background-color: #272f3e;
+    color: #ddd;
+}
+
 [data-mdb-theme='dark'] .datepicker-footer .datepicker-footer-btn :hover {
     color: #343f53;
+}
+
+[data-mdb-theme='dark'] .datepicker-arrow-controls .datepicker-previous-button {
+    color: grey;
+}
+
+[data-mdb-theme='dark'] .datepicker-arrow-controls .datepicker-next-button {
+    color: grey;
 }
 
 [data-mdb-theme='dark'] .datepicker-cell :hover{
@@ -360,7 +385,7 @@ body[data-mdb-theme='dark'] .timepicker .form-control {
 
 /* Google dropdown container background */
 .pac-container {
-    background-color: #1e1e1e !important;
+    background-color: #1b2030 !important;
     color: #ffffff !important;
     border: 1px solid #444 !important;
     border-radius: 8px !important;

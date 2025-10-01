@@ -26,6 +26,7 @@ textarea.form-control {
 }
 .form-control::placeholder { color: var(--form-placeholder); opacity: 1; }
 
+
 /* Focus */
 .form-control:focus,
 .form-select:focus {
@@ -35,9 +36,32 @@ textarea.form-control {
     box-shadow: 0 0 0 .2rem var(--form-focus-ring);
 }
 
+.form-check-label {
+    color: #0E7490FF;
+}
+
 /* Labels & help text */
 .form-label { color: var(--form-label); }
 .form-text  { color: var(--form-helper); }
+
+/* give all MDBInput fields extra bottom padding */
+/*.mdb-input,*/
+/*.mdb-input input,*/
+/*.form-outline input.form-control {*/
+/*    margin-bottom: 50px !important;*/
+/*}*/
+
+
+.field-wrapper {
+    padding-bottom: 27px;
+    text-align: left;
+}
+
+.field-footer {
+    color: red;
+
+    font-size: 13px;
+}
 
 
 /* Validation (Bootstrap classes – also picked up by MDB inputs) */
