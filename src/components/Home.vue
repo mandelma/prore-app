@@ -340,11 +340,11 @@ html, body, #app { height: 100%; }
   color: transparent;
 
   /* neon-glow, mis sobitub esilehe stiiliga */
-  text-shadow:
-      0 1px 0 rgba(255,255,255,.35),
-      0 0 10px rgba(73,210,255,.55),
-      0 0 28px rgba(0,180,200,.35),
-      0 0 54px rgba(0,160,180,.25);
+  /*text-shadow:*/
+  /*    0 1px 0 rgba(255,255,255,.35),*/
+  /*    0 0 10px rgba(73,210,255,.55),*/
+  /*    0 0 28px rgba(0,180,200,.35),*/
+  /*    0 0 54px rgba(0,160,180,.25);*/
 
   position: relative;
 }
