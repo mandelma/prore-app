@@ -95,6 +95,7 @@
 
 <!--              Form address {{form.address}}-->
 
+
               <div :class="{hideInput: !form.address && isAddress}" style="width: 100%;" class="field-wrapper ">
                 <div  class="input-group">
                   <MDBInput
@@ -125,6 +126,19 @@
                 <MDBSpinner grow color="info" />
               </div>
 
+            </MDBCol>
+            <MDBCol>
+              <div class="field-wrapper">
+                <MDBInput
+                    type="text"
+
+                    :value="preferredRangeValue"
+                    @input="filterClientInput"
+                    label="Anna säde mistä maksimi haet ammattilaista - km"
+                    v-model="desiredRange"
+                    size="lg"
+                />
+              </div>
             </MDBCol>
 
           </MDBRow>
@@ -185,6 +199,8 @@
 
             </MDBCol>
             <MDBCol lg="6">
+<!--              <p>Range {{desiredRange}}</p><br>-->
+<!--              <p>Range 2 {{preferredRangeValue}}</p>-->
 <!--              <error-notification :message = imgLoadErrorMessage />-->
 <!--              <img v-if="showImage" :src="showImage" style="width: 200px; margin-bottom: 20px;" alt="..."/>-->
 <!--              <label v-if="!isUploaded" for="file-upload" class="custom-file-upload">-->
@@ -233,13 +249,16 @@ import map_image from '@/assets/map.gif'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n';
-import clientService from '../../service/recipients'
+import clientService from '../../service/recipients';
+import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 import RecipientPage from '@/components/recipient/RecipientPage.vue'
 
 import '@/styles/pro-select.css';
 defineOptions({
   name: 'recipient-form'
-})
+});
+
+const emit = defineEmits(['createBookingMultiple'])
 
 const { locale, t } = useI18n();
 
@@ -271,17 +290,42 @@ watch(() => form.address, () => (errors.address = ""));
 watch(() => form.dateTime, () => (errors.dateTime = ""));
 watch(() => form.explanation, () => (errors.explanation = ""));
 
+const filterClientInput = ref((event) => {
+  // Filter out non-digit characters
+  const raw = event.target.value;
+
+  // Only allow digits and a single dot
+  let filtered = raw.replace(/[^0-9.]/g, '');
+
+  // Only allow one dot
+  const parts = filtered.split('.');
+  if (parts.length > 2) {
+    filtered = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  // Prevent leading dot (e.g., ".5" becomes "0.5")
+  if (filtered.startsWith('.')) {
+    filtered = '0' + filtered;
+  }
+
+  // Update input field directly
+  event.target.value = filtered;
+  preferredRangeValue.value = filtered;
+})
+
 const MAX = ref(50);
 const isInitClientError = ref(false);
 const clientFormErrorMsg = ref("");
 const selectedLang = ref("");
 const userAuth = useLoginStore();
+const preferredRangeValue = ref('');
 const isAddress = ref(false);
 const myLocation = ref("");
 const isClientContactAgreement = ref(false);
 const professions = proList;
 const mapImage = map_image;
-const range = ref(null);
+const desiredRange = ref("")
+//const range = ref(null);
 const lat = ref(null);
 const lng = ref(null);
 
@@ -350,7 +394,7 @@ const L = computed(() => {
         weekdaysShort: ['su','ma','ti','ke','to','pe','la'],
         weekdaysNarrow: ['S','M','T','K','T','P','L'],
         cancelBtnText: 'Peruuta',
-        clearLabel: 'fuck',
+        clearLabel: 'Poista',
 
         cancelLabel: 'Peruuta',
         okLabel: 'Ok',
@@ -393,14 +437,6 @@ const reInitKey = computed(() => `dt-${locale.value}`)
 
 const isLocating = ref(false)                     // used to show the spinner
 
-// const showSpinner = computed(() => {
-//   const hasAddress =
-//       typeof form.address === 'string'
-//           ? form.address.trim().length > 0
-//           : !!form.address
-//   return !hasAddress && isLocating.value
-// })
-
 
 const currentLang = computed(() => locale.value.split('-')[0])
 watch(currentLang, (lang) => {
@@ -410,36 +446,49 @@ watch(currentLang, (lang) => {
 
 
 onMounted(async() => {
-  const center = { lat: 50.064192, lng: -130.605469 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
+  validateMaps();
 
-  const input = document.getElementById("location");
 
-  const options = {
-    bounds: defaultBounds,
-    componentRestrictions: { country: "fi" },
-    fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-    strictBounds: false,
-    //types: ["establishment"],
-  };
-  const autocomplete = new google.maps.places.Autocomplete(input, options);
-  // const autocomplete = client.places.autocomplete(input, options);
-
-  autocomplete.addListener("place_changed", () => {
-    let place = autocomplete.getPlace()
-    lat.value = place.geometry.location.lat()
-    lng.value = place.geometry.location.lng()
-
-    form.address = place.formatted_address
-    console.log(place)
-  })
 })
+
+const validateMaps = async() => {
+  try {
+    await loadGoogleMaps();
+    console.log("Map is inited in Recipient form! ✅");
+    const center = { lat: 50.064192, lng: -130.605469 };
+    // Create a bounding box with sides ~10km away from the center point
+    const defaultBounds = {
+      north: center.lat + 0.1,
+      south: center.lat - 0.1,
+      east: center.lng + 0.1,
+      west: center.lng - 0.1,
+    };
+
+    const input = document.getElementById("location");
+
+    const options = {
+      bounds: defaultBounds,
+      componentRestrictions: { country: "fi" },
+      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
+      strictBounds: false,
+      //types: ["establishment"],
+    };
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+    // const autocomplete = client.places.autocomplete(input, options);
+
+    autocomplete.addListener("place_changed", () => {
+      let place = autocomplete.getPlace()
+      lat.value = place.geometry.location.lat()
+      lng.value = place.geometry.location.lng()
+
+      form.address = place.formatted_address
+      console.log(place)
+    })
+  } catch (err) {
+    console.error('Google Maps failed to load ❌', err);
+    mapsError.value = true;
+  }
+}
 
 
 const myCurrentLocation = async() => {
@@ -506,9 +555,10 @@ const parseDmyTime = (str) => {
   // date.toLocaleDateString('de-DE')     // → 26.09.2025
 }
 
-const createClient = () => {
+const createClient = async() => {
   if (!validateForm()) {
     console.log("Midagi puudu:", form);
+
     clientFormErrorMsg.value = "Kentät pitäisi huomioida!"
     isInitClientError.value = true;
   } else {
@@ -531,7 +581,7 @@ const createClient = () => {
       address: form.address,
       latitude: lat.value,
       longitude: lng.value,
-      zone: range.value !== null ? range.value : 0,
+      zone: desiredRange.value !== "" ? desiredRange.value : 0,
       professional: form.profession.label,
       isIncludeOffers: true,
       description: form.explanation,
@@ -539,7 +589,11 @@ const createClient = () => {
       //imageId: this.imgId ? this.imgId : []
     }
 
-    const Booking = clientService.addRecipient(userAuth.user.id, client);
+    const booking = await clientService.addRecipient(userAuth.user.id, client);
+
+    if (booking) {
+      emit('createBookingMultiple', booking)
+    }
 
   }
 

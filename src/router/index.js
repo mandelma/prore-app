@@ -63,6 +63,11 @@ const routes = [
       component: () => import("../components/provider/ProviderPanel.vue")
     },
     {
+        path: "/client-offers",
+        name: "client-offers-list",
+        component: () => import("../components/provider/ClientOffersList.vue")
+    },
+    {
         path: "/client-panel",
         name: "recipient-page",
         component: () => import("../components/recipient/RecipientPage.vue")
@@ -72,6 +77,11 @@ const routes = [
         name: "recipient-content",
         component: () => import("../components/recipient/RecipientContent.vue")
     },
+    {
+        path: "/pay-plan",
+        name: "pay-plan",
+        component: () => import("../components/PayPlan.vue")
+    }
 
 ];
 

@@ -10,7 +10,7 @@
               class="icon-active"
 
               style="cursor: pointer; font-size: 26px;"
-              @click="$router.push('/')"
+              @click="router.push('/')"
           />
         </MDBNavbarBrand>
 <!--        me-lg-0-->
@@ -31,10 +31,10 @@
 <!--            <MDBIcon icon="bell" style="color: #0E7490;" class="icon" />-->
 <!--          </MDBNavbarItem>-->
 
-<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
-<!--            <MDBIcon icon="bell" style="color: orange;" class="icon" @click="onIcon" />-->
-<!--            <MDBBadge notification color="danger" pill>1</MDBBadge>-->
-<!--          </MDBNavbarItem>-->
+          <MDBNavbarItem  v-if="isIncomingOffers" class="me-3 me-lg-5" linkClass="link-secondary">
+            <MDBIcon  icon="bell" style="color: orange;" class="icon" @click="onIconBell" />
+            <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
+          </MDBNavbarItem>
           <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
             <language-contents />
           </MDBNavbarItem>
@@ -82,11 +82,34 @@
       <RouterView
           style="padding-top: 50px; text-align: center;"
           v-slot="{Component}">
-        <component :is="Component" :days="weekdays" :bookings="bookings" @over="handleOver" />
+        <component
+            :is="Component"
+            :days="weekdays"
+            :bookings="bookings"
+            @createBookingMultiple="handleCreateBookingMultiple"
+            @over="handleOver"
+
+            @createPro="handleCreatePro"
+            :provider="provider"
+
+            :offersIn="incomingOffers ?? []"
+            :isPro="isUserPro ?? false"
+            :credit="proCredit ?? 0"
+        />
       </RouterView>
     </main>
 
-<!--    <h2>Test {{test}}</h2>-->
+<!--    <h2>is user pro  {{isUserPro}}</h2><br>-->
+<!--    <h2>incoming offers {{incomingOffers}}</h2><br>-->
+<!--    <p>offers count {{incomingOffersCount}}</p><br>-->
+<!--    <p>Credit left: {{proCredit}}</p><br>-->
+<!--    <p>Incoming offers {{isIncomingOffers}}</p><br>-->
+<!--    <p>booking {{bookings}}</p><br>-->
+<!--    <p>Is bookings {{isBookings}}</p><br>-->
+<!--    <p>Bookings count {{count}}</p><br>-->
+<!--    <p>Is pro {{isUserPro}}</p>-->
+
+
 
 <!--    <p v-if="isLoading">Loading…</p>-->
 <!--    <p v-else-if="error" class="text-red-600">{{ error }}</p>-->
@@ -155,7 +178,7 @@ import {
   MDBFooter,
   MDBContainer
 } from 'mdb-vue-ui-kit';
-//import Calendar from './components/Calendar.vue'
+
 import { ref, watch, onMounted } from "vue";
 import { storeToRefs } from 'pinia';
 import language from './components/LanguageContents.vue'
@@ -163,21 +186,29 @@ import userService from './service/users.js';
 import loginService from './service/login.js';
 import { useLoginStore } from "@/stores/login.js";
 import { useClientStore} from "@/stores/recipientStore.js";
+import { useProStore } from '@/stores/providerStore.js';
 
 
 import {useI18n} from "vue-i18n/dist/vue-i18n";
 import LanguageContents from "@/components/LanguageContents.vue";
-import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
+//import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
+import recipientService from './service/recipients.js'
+import providerService from './service/providers.js'
+import onMap from '@/components/controllers/distance'
 import socket from "@/socket";
 const router = useRouter();
-const userData = ref("")
-const userDropdown = ref(false);
+const userID = ref('');
+const username = ref('')
+let userDropdown = ref(false);
 const login = useLoginStore();
 import { useRouter } from "vue-router";
 const { t } = useI18n();
 const client = useClientStore();
+const handleProvider = useProStore();
 const { bookings, isBookings, count, isLoading, error } = storeToRefs(client)
+const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const test = ref(null);
+const bb = ref(null)
 
 const weekdays = ["Mon","Tue", "Wed"];
 
@@ -195,11 +226,19 @@ onMounted (async () => {
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
 
-  console.log("ENV variable: " + import.meta.env.VITE_APP_MAP_KEY);
+
   await login.hydrate();
-  if (login.user?.id) {
-    await client.orderList(login.user.id)
+  if (login.user) {
+    const user = login.user;
+
+    userID.value = user.id;
+    username.value = user.username;
+    await client.orderList(user.id);
+    await handleProvider.getProState(user.id);
+    //joinServer (user.id, user.username);
   }
+
+  joinServer();
 
   console.log("IsBookings - " + client.isBookings)
   console.log("AUTH " + login.isAuthenticated)
@@ -207,16 +246,140 @@ onMounted (async () => {
 
   //console.log("ID " + login.user.id)
 
-  if (!window.google) {
-    await loadGoogleMap();
-    // const script = document.createElement("script");
-    // script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.VUE_APP_MAP_KEY}&libraries=places,geometry&v=beta`;
-    // script.async = true;
-    // script.defer = true;
-    // document.head.appendChild(script);
-    console.log("Map is inited in APP!");
-  }
+
 })
+
+const joinServer = (userID, nickname) => {
+  // console.log("Joining server: " + nickname + " ja id: " + userID)
+  // socket.on("get user credentials", () => {
+  //   socket.emit("user credentials", {
+  //     userID: "1234567",
+  //     username: "Tiina",
+  //   })
+  //
+  // })
+
+  listen();
+}
+const listen = async() => {
+  socket.on('create booking mtp', async(id, bookingId, proIdArr) => {
+    console.log("GOT THE BOOKING " + bookingId + ": ");
+    console.log("Booking id + " + bookingId)
+    const b = await recipientService.getBookingById(bookingId);
+    bb.value = b
+    if (userID.value === id) {
+      //await handleProvider.addBooking(bookingID);
+      await handleProvider.upsertBooking(b);
+    }
+  })
+}
+
+const handleCreatePro = (pro) => {
+  handleProvider.createPro(pro);
+}
+
+// Client created booking and finding matching providers to send this booking to
+const handleCreateBookingMultiple = async (booking) => {
+
+  console.log("Booking zone - " + booking.zone);
+  booking.ordered = [];
+  //const createBookingStatus = await recipientService.updateRecipient(booking.id, {status: "notSeen"});
+  let origin = [booking.latitude, booking.longitude];
+  let destination = [];
+  const providersForBooking = await providerService.getProvidersMatchingByProfession(
+      {result: booking.professional}
+  )
+
+  client.createBooking(booking);
+
+  console.log("Professional. " + booking.professional)
+
+  let proIdArr = [];
+
+  let orderedBookings = [];
+
+  for (let i = 0; i < providersForBooking.length; i++) {
+    if (providersForBooking[i].user.id !== userID.value) {
+
+    }
+
+    destination = [providersForBooking[i].latitude, providersForBooking[i].longitude];
+    console.log("Pro id " + providersForBooking[i].id);
+    //if (providersForBooking[i].user.id !== userInID.value) {
+      if (booking.zone === 0) {
+
+        if (providersForBooking[i].user.id !== userID) {
+          console.log("PRP ID, zone is 0: " + providersForBooking[i].user.id)
+
+          orderedBookings = [
+            ...orderedBookings,
+            providersForBooking[i]
+          ]
+
+          if (providersForBooking[i].user.id !== userID) {
+            proIdArr = [
+              ...proIdArr,
+              providersForBooking[i].user.id
+            ]
+          }
+
+          await recipientService.addProviderData(booking.id, providersForBooking[i].id);
+          await providerService.addProviderBooking(providersForBooking[i].id, booking.id);
+        }
+      } else {
+        onMap.findDistance(origin, destination)
+            .then(async (data) => {
+              console.log("Data distance: " + data.distance)
+              console.log("Data duration: " + data.duration)
+              console.log("Data distance type - " + typeof data.distance);
+
+              if (parseInt(data.distance) < booking.zone) {
+                booking.ordered = [
+                  ...booking.ordered,
+                  providersForBooking[i]
+                ]
+                if (providersForBooking[i].user.id !== userID) {
+                  console.log("PRP ID: " + providersForBooking[i].user.id)
+                  proIdArr = [
+                    ...proIdArr,
+                    providersForBooking[i].user.id
+                  ]
+
+                }
+                await recipientService.addProviderData(booking.id, providersForBooking[i].id);
+                await providerService.addProviderBooking(providersForBooking[i].id, booking.id);
+
+              }
+            })
+      }
+    //}
+
+
+
+  }
+  // if (_image) {
+  //   booking.image = [];
+  //   booking.image = booking.image.concat(_image);
+  //   console.log("IMAGE DATA " + image.name)
+  // }
+  console.log("proIdArr length is " + proIdArr.length)
+
+  if (proIdArr.length > 0) {
+    socket.emit('create booking multiple - pro', proIdArr, booking.id);
+  }
+
+
+
+
+  booking.ordered = orderedBookings;
+
+
+  await router.push('/client-panel');
+
+  //const proBooking = await recipientService.getBookingById(booking.id);
+  //socket.emit("send created booking", proIdArr, proBooking);
+  //this.recipientBookings = this.recipientBookings.concat(booking);
+}
 
 const handleOver = (greeting) => {
   test.value = greeting;
@@ -224,16 +387,11 @@ const handleOver = (greeting) => {
 const logOut = () => {
   login.onLogOut()
   router.push('/');
-  // "mdb-vue-ui-kit": "file:../../OneDrive/Desktop/mdb5-vue-ui-kit-pro-essential-master.tar.gz",
-
-  //"mdb-vue-ui-kit": "file:server/vendor/mdb-vue-ui-kit.tgz",
-
-  //"mdb-vue-ui-kit": "file:vendor/mdb-vue-ui-kit.tgz",
-  // "^20.19.0 || >=22.12.0"
 }
 
-const onIcon = () => {
-  console.log("Clicked on icon ")
+const onIconBell = () => {
+  console.log("Clicked on icon ");
+  router.push("/client-offers");
 }
 
 

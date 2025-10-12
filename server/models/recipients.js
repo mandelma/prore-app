@@ -90,12 +90,12 @@ const recipientSchema = new Schema({
         type: Array
     },
 
-    // offers: [
-    //     {
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         ref: "offer"
-    //     }
-    // ],
+    offers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "offer"
+        }
+    ],
     zone: {
         type: Number
     },

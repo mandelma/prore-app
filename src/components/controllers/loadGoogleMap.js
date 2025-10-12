@@ -1,21 +1,15 @@
+import { Loader } from '@googlemaps/js-api-loader';
 
-export function loadGoogleMap() {
-    return new Promise((resolve) => {
-        if (window.google?.maps?.places && customElements.get("gmp-placeautocomplete")) {
-            resolve();
-            return;
-        }
+let mapsPromise;
 
-        window.initMap = () => {
-            //isLoaded = true;
-            resolve();
-        };
-
-        const script = document.createElement("script");
-        script.src =
-            `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_APP_MAP_KEY}&libraries=places,geometry&v=beta&callback=initMap`
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    });
+export function loadGoogleMaps() {
+    if (!mapsPromise) {
+        const loader = new Loader({
+            apiKey: import.meta.env.VITE_APP_MAP_KEY,
+            version: 'weekly',
+            libraries: ['places', 'geometry'],
+        });
+        mapsPromise = loader.load();   // load once
+    }
+    return mapsPromise;              // reuse same promise
 }

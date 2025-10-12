@@ -50,7 +50,7 @@ const providerSchema = new Schema({
             ref: 'timeoffer'
         }
     ],
-    booking: [
+    proposal: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Recipient'

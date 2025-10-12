@@ -21,8 +21,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 //const socket = io(URL, { autoConnect: false });
-
+let token;
+const raw = localStorage.getItem('loggedAppUser');
+if (raw) {
+    const appUser = JSON.parse(raw);
+    token = appUser.token;
+}
 const connectionOptions = {
+    auth: { token },
     "force new connection": true,
     "reconnectionAttempts": "Infinity",
     "timeout": 10000,

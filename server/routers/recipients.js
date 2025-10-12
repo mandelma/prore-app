@@ -16,11 +16,12 @@ router.get('/', async (req, res) => {
 
 router.get('/user/:id', async (req, res) => {
     const recipients = await Recipient.find({user: req.params.id})
-        .populate('user');
-        // .populate('ordered')
+        .populate('user')
+        .populate('ordered')
         // .populate({path: 'ordered', populate: {path: 'user'}} )
         // .populate({path: 'ordered', populate: {path: 'reference'}})
-        // .populate('image').populate('offers')
+        // .populate('image')
+        .populate('offers')
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}})
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'reference'}}}).exec();
 
@@ -30,15 +31,19 @@ router.get('/user/:id', async (req, res) => {
 })
 
 router.get('/booking/:id', async (req, res) => {
-    const booking = await Recipient.findOne({_id: req.params.id}).populate('image').populate('user').populate('ordered')
-        .populate({path: 'ordered', populate: {path: 'user'}}).populate('offers')
-        .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}}).exec();
+    const booking = await Recipient.findOne({_id: req.params.id})
+        //.populate('image')
+        .populate('user')
+        .populate('ordered')
+        .populate({path: 'ordered', populate: {path: 'user'}})
+        .populate('offers')
+        //.populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}}).exec();
     res.send(booking);
 })
 
 
 
-router.post('/:id', async (req, res) => {
+router.post('/:id', async (req, res, next) => {
     try {
         const body = req.body;
         const date = new Date(body.created)              // current date
@@ -71,10 +76,11 @@ router.post('/:id', async (req, res) => {
         })
 
         const savedRecipient = await recipient.save();
-        if (body.agreement) {
 
-        }
-        res.json(savedRecipient)
+        await savedRecipient.populate({ path: 'user', select: '_id name avatar email' });
+
+        res.json(savedRecipient.toObject({ getters: true, virtuals: true }));
+        //res.json(savedRecipient)
     } catch (err) {
         console.log("Error: " + err.message);
     }
