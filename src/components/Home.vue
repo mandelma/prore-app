@@ -6,6 +6,7 @@
 
      <div class="center-page">
        <main class="page">
+<!--         class="logo-hero"-->
          <div class="logo-hero">
            <img class="logo-hero__img"
                 style="border-radius: 100%;"
@@ -13,14 +14,16 @@
                 alt="Prokeikkatori logo" width="1024" height="549" />
          </div>
          <h1 class="app-title"><span class="app-title__word">PROKEIKKATORI</span></h1>
-         <p class="tagline">Nopeus on tärkein!</p>
+         <p class="tagline">Nopeus on tärkeintä!</p>
 
          <div class="action-panel">
            <button class="btn-hero btn-hero--primary" @click="clientInitial">
              <span class="btn-hero__icon">🔍</span> ETSIN PALVELUA
            </button>
            <button class="btn-hero btn-hero--accent" @click="proInitial">
-             <span class="btn-hero__icon btn-hero__icon--accent">＋</span> TARJOAN PALVELUA
+             <span class="btn-hero__icon btn-hero__icon--accent">＋</span>
+             <MDBIcon></MDBIcon>
+             TARJOAN PALVELUA
            </button>
 
          </div>
@@ -141,6 +144,7 @@ import { useCounterStore } from '@/stores/counter'
 import { mapStores, mapActions } from 'pinia'
 import { useLoginStore } from '@/stores/login'
 import loginService from "@/service/login.js";
+import {useProStore} from "@/stores/providerStore.js";
 import '@/styles/theme.css'
 import logo from '@/assets/logo_trans_main-edited.png';
 import { useRouter } from 'vue-router';
@@ -153,6 +157,7 @@ defineOptions({
 const counter = useCounterStore();
 const router = useRouter();
 const { t } = useI18n();
+const proStore = useProStore();
 
 const clientInitial = () => {
   console.log("Recipient form.");
@@ -160,7 +165,12 @@ const clientInitial = () => {
 }
 const proInitial = () => {
   console.log("Pro form");
-  router.push('/pro-form')
+  if (proStore.isUserPro) {
+    router.push('/pro-panel');
+  } else {
+    router.push('/pro-form');
+  }
+
 }
 
 </script>
@@ -279,7 +289,7 @@ html, body, #app { height: 100%; }
   content:"";
   position:absolute; inset: -6% -8% -2%;
   background:
-      radial-gradient(60% 60% at 50% 45%, rgba(73,210,255,.20), transparent 50%),
+      radial-gradient(60% 60% at 50% 45%, rgba(255, 112, 73, 0.2), transparent 50%),
       radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.25), transparent 50%);
   filter: blur(4px);
   pointer-events:none;
@@ -296,9 +306,9 @@ html, body, #app { height: 100%; }
 .logo-hero__img{
   display:block; width:100%; height:auto;
   /*image-rendering: -webkit-optimize-contrast;*/
-  filter:
-      drop-shadow(0 0 10px rgba(73,210,255,.45))
-      drop-shadow(0 0 28px rgba(0,180,200,.25));
+  /*filter:*/
+  /*    drop-shadow(0 0 10px rgba(73,210,255,.45))*/
+  /*    drop-shadow(0 0 28px rgba(0,180,200,.25));*/
 }
 @media (min-width:768px){
   .logo-hero{ margin-top: 22px; }
@@ -457,7 +467,7 @@ html, body, #app { height: 100%; }
 }
 
 /* Icons */
-.btn-hero__icon{ font-size:1.05rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55)); }
+.btn-hero__icon{ font-size: 2rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55));  }
 .btn-hero__icon--accent{ color:var(--orange); filter: drop-shadow(0 0 6px rgba(255,138,61,.6)); }
 
 /* Hover / active / focus */

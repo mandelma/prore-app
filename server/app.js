@@ -8,7 +8,8 @@ const history = require('connect-history-api-fallback');
 const path = require("path");
 
 require('dotenv').config();
-
+const handleSocket = require('./utils/socketHandler')
+const jwt = require("jsonwebtoken");
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     maxHttpBufferSize: 1e8, // 100 MB
@@ -71,9 +72,35 @@ app.use(bodyParser.json());
 app.use(history());
 app.use(serveStatic(path.join(__dirname, '../dist')));
 
+const offerRouter = require('./routers/offers')
+
 app.use('/api/users', require('./routers/users'));
 app.use('/api/login', require('./routers/login'));
 app.use('/api/recipients', require('./routers/recipients'));
 app.use('/api/providers', require('./routers/providers'));
+app.use('/api/offer', offerRouter);
+
+io.use((socket, next) => {
+    const token = socket.handshake.auth?.token;
+    if (!token) return next(new Error("No token"));
+
+    try {
+        const payload = jwt.verify(token, process.env.SECRET);
+        socket.userId = payload.id;
+        socket.username = payload.username;
+        next();
+    } catch (e) {
+        next(new Error("Invalid token"));
+    }
+});
+
+io.on("connection", (socket) => {
+    socket.join(socket.userId);
+
+    socket.emit("test", socket.userId);
+
+    handleSocket(socket)
+});
+
 
 module.exports = server;

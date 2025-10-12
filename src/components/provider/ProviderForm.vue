@@ -18,7 +18,7 @@
         </MDBToast>
       </div>
       <div class="form-card">
-        <h2>Luo tili</h2>
+
         <form @submit.prevent="submitPro">
           <div class="field-wrapper">
             <MDBInput
@@ -74,8 +74,9 @@
           <div class="field-wrapper">
             <MDBInput
                 type="text"
-                @input="rangeInput"
+
                 :value="rangeValue"
+                @input="filterInput"
                 label="Anna toiminta-alueen säde - km"
                 v-model="range"
                 size="lg"
@@ -190,9 +191,12 @@ import proList from '@/components/controllers/professions'
 import {computed, onMounted, reactive, watch, ref} from 'vue';
 import proService from '../../service/providers.js'
 import axios from "axios";
+import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
 defineOptions({
   name: 'provider-form'
 })
+
+const emit = defineEmits(['createPro']);
 
 const pForm = reactive({
   proName: "",
@@ -209,18 +213,18 @@ const isInitProError = ref(false);
 const proFormErrorMsg = ref("");
 //const proName = ref("");
 //const ideNum = ref("");
-const rangeInput = ref("");
 const rangeValue = ref(null);
 const professions = proList;
 //const profession = ref("");
 const lat = ref(0);
 const long = ref(0);
-const range = ref(null);
+const range = ref("");
 //const pAddress = ref("");
 const about_price = ref("hour");
 const proDescription = ref("");
 const price = ref("");
 let inputValue = ref('');
+const mapsError = ref(false);
 const filterInput = ref((event) => {
   // Filter out non-digit characters
   const raw = event.target.value;
@@ -243,6 +247,7 @@ const filterInput = ref((event) => {
   event.target.value = filtered;
   inputValue.value = filtered;
 })
+
 const pro_link = ref(null);
 const isAvailable24_7 = ref(false);
 
@@ -283,37 +288,49 @@ const isLocating = ref(false)                     // used to show the spinner
 //   return !hasProAddress && isLocating.value
 // })
 
-onMounted(() => {
-  const center = { lat: 50.064192, lng: -130.605469 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  const input = document.getElementById("pro-location");
-
-  const options = {
-    bounds: defaultBounds,
-    componentRestrictions: { country: "fi" },
-    fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-    strictBounds: false,
-    //types: ["establishment"],
-  };
-  const autocomplete = new google.maps.places.Autocomplete(input, options);
-  // const autocomplete = client.places.autocomplete(input, options);
-
-  autocomplete.addListener("place_changed", () => {
-    let place = autocomplete.getPlace()
-    lat.value = place.geometry.location.lat()
-    long.value = place.geometry.location.lng()
-
-    pForm.address = place.formatted_address
-    console.log(place)
-  })
+onMounted(async() => {
+  await handleMaps();
 })
+
+const handleMaps = async() => {
+  try {
+    await loadGoogleMaps();
+    console.log("Map is inited in Pro form! ✅");
+
+    const center = { lat: 50.064192, lng: -130.605469 };
+    // Create a bounding box with sides ~10km away from the center point
+    const defaultBounds = {
+      north: center.lat + 0.1,
+      south: center.lat - 0.1,
+      east: center.lng + 0.1,
+      west: center.lng - 0.1,
+    };
+
+    const input = document.getElementById("pro-location");
+
+    const options = {
+      bounds: defaultBounds,
+      componentRestrictions: { country: "fi" },
+      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
+      strictBounds: false,
+      //types: ["establishment"],
+    };
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+    // const autocomplete = client.places.autocomplete(input, options);
+
+    autocomplete.addListener("place_changed", () => {
+      let place = autocomplete.getPlace()
+      lat.value = place.geometry.location.lat()
+      long.value = place.geometry.location.lng()
+
+      pForm.address = place.formatted_address
+      console.log(place)
+    })
+  } catch (err) {
+    console.error('Google Maps failed to load ❌', err);
+    mapsError.value = true;
+  }
+}
 
 const proCurrentLocation = async () => {
   if (navigator.geolocation) {
@@ -404,6 +421,7 @@ const submitPro = async() => {
     console.log("Added provider::: " + newProvider)
     if (newProvider) {
       newProvider.user = {id: proAuth.user.id, username: proAuth.user.username};
+      emit('createPro', newProvider);
       router.push("/pro-panel");
     } else {
       console.log("Tapahtui virhe, yritä uudelleen!");

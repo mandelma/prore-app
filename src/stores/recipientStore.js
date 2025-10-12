@@ -4,16 +4,25 @@ import { useLoginStore} from "@/stores/login.js";
 import clientService from '../service/recipients.js'
 
 export const useClientStore = defineStore('client', () => {
-    const clientAuth = useLoginStore();
+    //const clientAuth = useLoginStore();
     const bookings = ref([])
     const count = ref(null)
     const isLoading = ref(false)
-    const error = ref("" || null)
+    const clientError = ref("" || null)
 
     const isBookings = computed(() => !!count.value)
+
+    const createBooking = (booking) => {
+        bookings.value.push(booking);
+        count.value = bookings.value.length;
+    }
+    // const addBookingVisitor = (bId, visitor) => {
+    //     const index = bookings.value.findIndex(inx => inx.id === bId);
+    //     bookings.value[index].visitor.push(visitor);
+    // }
     const orderList = async(id) => {
         isLoading.value = true;
-        error.value = null;
+        clientError.value = null;
         try {
             const orders = await clientService.getOwnBookings(id);
             const list = orders ? orders : [];
@@ -21,7 +30,7 @@ export const useClientStore = defineStore('client', () => {
             count.value = list.length;
             return list;
         } catch (error) {
-            error.value = error.message;
+            clientError.value = error.message;
             bookings.value = [];
             count.value = 0;
             throw error;
@@ -30,5 +39,5 @@ export const useClientStore = defineStore('client', () => {
         }
     }
 
-    return { bookings, isBookings, count, isLoading, error, orderList };
+    return { createBooking, bookings, isBookings, count, isLoading, clientError, orderList };
 })

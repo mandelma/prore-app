@@ -17,7 +17,7 @@ export const useLoginStore = defineStore('login', () => {
     // --actions--
     const onLogin = (payload) => {
         user.value = payload;
-        //token.value = payload.token ?? null;
+        token.value = payload.token ?? null;
         localStorage.setItem('loggedAppUser', JSON.stringify(payload));
         if(route.query.redirect) {
             router.push(route.query.redirect)
@@ -27,7 +27,7 @@ export const useLoginStore = defineStore('login', () => {
     }
     const onLogOut = () => {
         user.value = null
-        //token.value = null
+        token.value = null
         localStorage.removeItem('loggedAppUser')
     }
     const hydrate = async () => {

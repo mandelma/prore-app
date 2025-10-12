@@ -27,10 +27,10 @@
   </div>
 
 
-  <h2>Props: {{count}}</h2><br>
-  <p>Weekdays {{days}}</p><br>
+<!--  <h2>Props: {{count}}</h2><br>-->
+<!--  <p>Weekdays {{days}}</p><br>-->
 
-  <MDBBtn color="primary" @click="sendProp">Send props back</MDBBtn>
+<!--  <MDBBtn color="primary" @click="sendProp">Send props back</MDBBtn>-->
 
   <MDBModal
       v-model="showCreate" center

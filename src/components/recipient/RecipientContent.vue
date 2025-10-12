@@ -290,7 +290,7 @@
 
       </MDBCol>
 
-      <MDBBtn block color="danger" size="sm" @click="removeOfferedBookings">{{ t('recipient_result_remove_order') }}</MDBBtn>
+      <MDBBtn style="margin-top: 27px;" block color="danger" size="sm" @click="removeOfferedBookings">{{ t('recipient_result_remove_order') }}</MDBBtn>
     </MDBRow>
 
     <!--    Booking offers {{booking_offers}}-->

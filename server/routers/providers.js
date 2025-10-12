@@ -11,16 +11,16 @@ router.get('/', async(req, res) => {
 
 router.get('/:id', async (req, res) => {
     const provider = await Provider.findOne({user: req.params.id})
-        .populate('timeoffer')
-        .populate('reference')
-        .populate('booking')
+        // .populate('timeoffer')
+        // .populate('reference')
+        //.populate('proposal')
         .populate('user')
-        .populate({path: 'booking', populate: {path: 'user'}})
+        .populate({path: 'proposal', populate: {path: 'user'}})
 
 
-        .populate({path: 'booking', populate: {path: 'offers', populate: {path: 'provider'}}})
-
-        .populate({path: 'booking', populate: {path: 'image'}}).exec();
+        //.populate({path: 'proposal', populate: {path: 'offers', populate: {path: 'provider'}}})
+        //
+        // .populate({path: 'booking', populate: {path: 'image'}}).exec();
 
 
     //const provider = await Provider.findById(req.params.id)
@@ -29,12 +29,12 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/by-provider-id', async (req, res) => {
     const provider = await Provider.findOne({_id: req.params.id})
-        .populate('timeoffer')
-        .populate('booking')
+        //.populate('timeoffer')
+        //.populate('booking')
         .populate('user')
-        .populate({path: 'booking', populate: {path: 'user'}})
+        .populate({path: 'proposal', populate: {path: 'user'}})
 
-        .populate({path: 'booking', populate: {path: 'image'}}).exec()
+        //.populate({path: 'booking', populate: {path: 'image'}}).exec()
 
     //const provider = await Provider.findById(req.params.id)
     res.send(provider);
@@ -46,8 +46,9 @@ router.post('/profession',async (req, res) => {
         console.log("In req.body " + req.body.result )
 
         const providers = await Provider.find({profession:{$in: req.body.result}})
-            .populate('reference')
-            .populate('timeoffer').populate('user');
+            // .populate('reference')
+            // .populate('timeoffer')
+            .populate('user').exec();
 
             //.populate({path: 'timeoffer', populate: {path: 'user'}}).exec()
 
@@ -124,8 +125,8 @@ router.post('/:id/booking', async(req, res) =>{
 router.post('/:providerId/addRecipient/:id', async (req, res) => {
     try {
         const provider = await Provider.findById(req.params.providerId);
-        if (!provider.booking.includes(req.params.id)) {
-            provider.booking = provider.booking.concat(req.params.id);
+        if (!provider.proposal.includes(req.params.id)) {
+            provider.proposal = provider.proposal.concat(req.params.id);
             await provider.save();
             res.send("Recipient is added!")
         } else {
