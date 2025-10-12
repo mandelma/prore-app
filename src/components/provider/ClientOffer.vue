@@ -87,7 +87,7 @@
           </td>
           <td>
             <MDBBtn color="primary">
-              <MDBIcon ><i class="far fa-comment"></i></MDBIcon>
+              <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
             </MDBBtn>
           </td>
         </tr>
