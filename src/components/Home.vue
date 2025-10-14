@@ -2,8 +2,6 @@
  <div style="text-align: center;">
    <MDBContainer>
 
-     <!-- src/views/HomeView.vue -->
-
      <div class="center-page">
        <main class="page">
 <!--         class="logo-hero"-->
