@@ -35,7 +35,7 @@ export const useProStore = defineStore("pro", () => {
                 providerId.value = pro.id;
                 const incoming_offers_list = pro.proposal ? pro.proposal : [];
                 provider.value = pro;
-                proCredit.value = ((pro.proTime - new Date().getTime()) / 86400000).toFixed() < 0 ? 0 : ((pro.proTime - new Date().getTime()) / 86400000).toFixed();
+                proCredit.value = ((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((pro.proTime - new Date().getTime()) / 86400000).toFixed();
                 incomingOffers.value = incoming_offers_list;
                 newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
                 //isNewIncomingOffers.value = incoming_offers_list.some(io => io.visitors.includes(providerId))
@@ -59,6 +59,27 @@ export const useProStore = defineStore("pro", () => {
         // keep the counter in sync
         incomingOffersCount.value = incomingOffers.value.length
     }
+    const addProviderOffer = (id, newContent) => {
+        console.log("added booking pro offer - ");
+        const index = incomingOffers.value.findIndex(iov => iov.id === id);
+        const updatedOffer = incomingOffers.value[index];
+        updatedOffer.offers.push(newContent);
+        const updatedOffers = incomingOffers.value.map(item => item.id === id ? updatedOffer : item);
+        incomingOffers.value = updatedOffers;
+    }
+    const removeBookingOffer = async(id) => {
+
+        console.log("Does proStore remove works?" + id);
+        //await providerService.removeProviderBooking(providerId.value, id);
+        
+        //incomingOffers.value = incomingOffers.value.filter(iov => iov.id !== id);
+        //incomingOffersCount.value = incomingOffers.value.length;
+        const targetId = String(id);
+        const getId = (b) => String(b?.id ?? b?._id);
+        const next = incomingOffers.value.filter(b => getId(b) !== targetId);
+        incomingOffers.value = next;
+        incomingOffersCount.value = next.length;
+    }
     const updateCredit = (creditDaysCovered) => {
         console.log("Updated credit now: " + creditDaysCovered);
         proCredit.value += creditDaysCovered;
@@ -67,6 +88,8 @@ export const useProStore = defineStore("pro", () => {
         createPro,
         getProState,
         upsertBooking,
+        addProviderOffer,
+        removeBookingOffer,
         updateCredit,
         addVisitorForBooking,
         providerId,

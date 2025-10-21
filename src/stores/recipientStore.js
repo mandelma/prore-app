@@ -38,6 +38,15 @@ export const useClientStore = defineStore('client', () => {
             isLoading.value = false;
         }
     }
+    const addOffer = async(bId, offer) => {
+        console.log("Added order to booking id - " + bId);
+        //await clientService.createOffer(offer);
+        const index = bookings.value.findIndex(inx => inx.id === bId);
+        const offeredBooking = bookings.value[index];
+        
+        const editedBookings = bookings.value.map(booking => booking.id);
+        
+    }
 
-    return { createBooking, bookings, isBookings, count, isLoading, clientError, orderList };
+    return { createBooking, addOffer, bookings, isBookings, count, isLoading, clientError, orderList };
 })
