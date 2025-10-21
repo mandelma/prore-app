@@ -10,18 +10,17 @@
             <MDBBtnClose
                 white
                 style=" padding: 10px;"
-                size="lg"
+                size="sm"
                 @click="$router.go(-1)"
             />
           </div>
 
         </div>
-        <p v-if="!isNoAddressGiven" style="color: red;">Anna osoittesi!</p>
 
         <div :class="{hideClientInput: !address && isAddress}" style="width: 100%;" class="field-wrapper ">
           <div  class="input-group">
             <MDBInput
-                size="lg"
+                size="sm"
                 v-model="address"
                 label="Anna osoite"
                 id="client-input"
@@ -30,20 +29,15 @@
                 :inputClass="'ps-0'"
                 aria-describedby="button-addon2"
             />
-            <MDBBtn type="button" style="border:1px solid #ddd">
-              <MDBIcon size="2x" @click="address ? clearAddress() : showAddress()">
-                <i :class="address ? 'fas fa-times' : 'fas fa-search-location'"></i>
+            <MDBBtn v-if="address" type="button" style="border:1px solid #ddd">
+              <MDBIcon size="1x" @click="clearAddress()">
+                <i :class="'fas fa-times'"></i>
               </MDBIcon>
             </MDBBtn>
           </div>
         </div>
         <!-- overlay spinner, not removing input -->
-        <div v-show="!address && isAddress"
-             style="text-align: center; "
-
-        >
-          <MDBSpinner grow color="info" />
-        </div>
+        
 
 <!--        <div id="address-panel">-->
 
@@ -131,21 +125,32 @@
 
         </div>
 
-        <MDBSelect white v-model:options = rangeOptions label="Etsi alue"/>
+        <MDBSelect size="sm" white v-model:options = rangeOptions label="Etsi alue"/>
 
 
-        <p
+        <!-- <p
             v-if="prof && isPressedFindBtn"
             :class="{noClients: isActiveProffs}"
             style="color: palevioletred;"
         >
           Ei ammattilaisia vielä!
         </p>
-
+ -->
       </div>
     </div>
-    <div id="map"></div>
+
+    
+    
   </div>
+  <!-- <div id="map">
+    <h2>Map</h2>
+  </div> -->
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="spinner" class="spinner-overlay">
+    <div class="spinner"></div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -172,6 +177,7 @@ const mapsError = ref(false);
 const professions = proList;
 const profession = ref("");
 const isAddress = ref(false);
+const isMapLoaded = ref(false);
 
 const rangeOptions = ref([
   {text: '1 km', value: 1},
@@ -211,6 +217,8 @@ const getCurrentPosition = async() => {
 const handleMaps = async() => {
   try {
     await loadGoogleMaps();
+
+
     console.log("Map is inited in pro around! ✅");
     userCurrentLocation();
 
@@ -293,13 +301,32 @@ const userCurrentLocation =  () => {
 // Kasutaja sihtkoht, otsitakse automaatselt
 const showUserLocationOnTheMap = (latitude, longitude) => {
   try {
-    new google.maps.Map(document.getElementById("map"), {
+
+    console.log("Map is loading...")
+    
+    const el = document.getElementById('map');
+    if (!el) throw new Error('Map container #map not found');
+    if (!(el instanceof HTMLElement)) throw new Error('Map container is not an HTMLElement');
+
+    // 3) Create the map only once, then add listeners
+    //const map = new google.maps.Map(el, { center: {lat: 60.17, lng: 24.94}, zoom: 12 });
+    const map = new google.maps.Map(document.getElementById("map"), {
       zoom: 13,
       center: new google.maps.LatLng(latitude, longitude),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       accuracy: 50,
 
     });
+
+    const spinner = document.getElementById("spinner");
+
+    // 4) Add listeners only on defined targets
+    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
+      console.log('tiles loaded');
+      spinner.style.opacity = "0";
+      setTimeout(() => spinner.style.display = "none", 400);
+        isMapLoaded.value = true;
+      });
   } catch(err) {
     console.log("Error to load map: " + err.message);
   }
@@ -333,8 +360,6 @@ const getAddressFrom = (lat, long) => {
             center: new google.maps.LatLng(lat, long),
             mapTypeId: google.maps.MapTypeId.ROADMAP
           });
-
-          // AIzaSyBDA2EBoGezJx51wQtxoW3Ecq5Ql8CCAiE
 
           address.value = response.data.results[1].formatted_address
         }
@@ -385,9 +410,10 @@ const pinSymbol = (color, stroke_color) => {
 
 <style scoped>
 .client-map-panel {
-  background-color: #2b2a2a;
+  background-color: #1B2330;
+  border-radius: 10px;
   padding: 10px;
-  margin: auto;
+  margin: 60px auto;
   width: 30%;
   float: right;
 }
@@ -397,17 +423,18 @@ const pinSymbol = (color, stroke_color) => {
     display: none !important;
   }
   .client-map-panel {
-    background-color: #2b2a2a;
+    background-color: #1B2330;
     padding: 10px;
-    margin: auto;
+    margin: 60px auto;
     width: 80%;
     float: none;
   }
 }
-.hideClientInput {
+/* .hideClientInput {
   display: none;
-}
-#map {
+} */
+
+/* #map {
   background:  url(/src/assets/map.gif)  no-repeat center center;
 
 }
@@ -419,5 +446,58 @@ const pinSymbol = (color, stroke_color) => {
   right: 0;
   bottom: 50px;
   left: 0;
+}  */
+
+#map-container {
+  /* position: relative; */
+  width: 100%;
+  /* height: 500px; */
 }
+
+#map {
+  /* width: 100%;
+  height: 100%; */
+
+  position: absolute;
+
+  top: 60px;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+}
+
+/* Overlay spinner */
+.spinner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0b1618; /* your background color while map loads */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.waitMapLoading {
+  display: none;
+}
+
+
 </style>

@@ -1,4 +1,5 @@
 <template>
+
   <MDBContainer>
     <div style="padding-top: 17px;">
 
@@ -22,23 +23,19 @@
       </MDBToast>
 
       <div v-if="!isOpenBooking">
-        <div v-for="(booking, index) in incomingOffers " :key="index" >
+        <div v-for="(booking, index) in safeOffers " :key="index" >
 
 
-
-<!--          <div v-if="collapse1" style="display: flex; justify-content: right;">-->
-<!--            <MDBBtnClose white @click="collapse1=!collapse1"/>-->
-<!--          </div>-->
           <div v-if="!booking.visitors.some(id => id === provider.id)" class="booking-row-new"  :class="[{ activePanel: booking.id === bookingID }]">
             <div class="line">
             <span class="left-item">
               {{timeAgo(booking.started)}}
             </span>
-              <span v-if="collapse1 && booking.id === bookingID" class="right-item">
-              <MDBBtnClose white @click="collapse1=!collapse1"/>
+              <span v-if="parentOpen && booking.id === bookingID" class="right-item">
+              <MDBBtnClose white @click="parentOpen=!parentOpen"/>
             </span>
             </div>
-            <span  :class="{'strong-tilt-move-shake': isNoLimit && index === 0}">
+            <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
               <span class="new_notification" @click="openBookingOffer(booking, index)">
                 <b>{{booking.user.username.length < HEADER_LENGTH ?booking.user.username : booking.user.username.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
@@ -46,7 +43,7 @@
 
                 <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
 
-                {{booking.offers ? ( booking.offers.some(offer => offer.provider.id === userIsProvider.id || offer.provider.id === userIsProvider.id)
+                {{booking.offers ? ( booking.offers.some(offer => offer.provider.id === providerId.value)
                     ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
                 </span>
               </span>
@@ -54,10 +51,14 @@
             <MDBCollapse
                 v-if="booking.id === bookingID"
                 id="collapsibleContent1"
-                v-model="collapse1"
+                :ref="setCollapseRoot"
+                v-model="parentOpen"
             >
-              <div class="mt-3">
+              <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
+                    :open="childOpen"
+                    @resize-parent="syncParentHeight"
+                    @unlock-parent="unlockParentHeight"
                     :client="client"
                 />
 
@@ -71,8 +72,8 @@
               <span class="left-item">
                 {{timeAgo(booking.started)}}
               </span>
-                <span v-if="collapse1 && booking.id === bookingID" class="right-item">
-                <MDBBtnClose white @click="collapse1=!collapse1"/>
+                <span v-if="parentOpen && booking.id === bookingID" class="right-item">
+                <MDBBtnClose white @click="parentOpen=!parentOpen"/>
               </span>
               </div>
               <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
@@ -83,7 +84,7 @@
                   {{booking.header.length < HEADER_LENGTH ? booking.header : booking.header.substr(0, HEADER_LENGTH) + "..."}}
 
                   <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
-                  {{booking.offers ? (  booking.offers.some(offer => offer.provider.id === userIsProvider.id) ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
+                  {{booking.offers ? (  booking.offers.some(offer => offer.provider.id === providerId.value) ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
                 </span>
 
               </span>
@@ -92,10 +93,15 @@
             <MDBCollapse
                 v-if="booking.id === bookingID"
                 id="collapsibleContent2"
-                v-model="collapse1"
+                :ref="setCollapseRoot"
+                v-model="parentOpen"
             >
-              <div class="mt-3">
+              <!-- target a real DOM element to control height -->
+              <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
+                    :open="childOpen"
+                    @resize-parent="syncParentHeight"
+                    @unlock-parent="unlockParentHeight"
                     :client="client"
                 />
 
@@ -118,13 +124,14 @@
 
 <script setup>
 import {MDBContainer, MDBRow, MDBCol, MDBToast, MDBBtn, MDBBtnClose, MDBCollapse} from'mdb-vue-ui-kit';
-import {ref, toRefs, computed} from 'vue';
+import {ref, toRefs, onMounted, onBeforeUnmount, provide, computed} from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useProStore } from '@/stores/providerStore.js';
 import ClientOffer from './ClientOffer.vue'
 import recipientService from '../../service/recipients.js';
 import { useClientStore } from '@/stores/recipientStore.js';
+import providerService from '../../service/providers.js'
 defineOptions({
   name: 'client-offers-list'
 });
@@ -140,20 +147,124 @@ const _props = defineProps({
 // keep them reactive
 const { offersIn, isPro, credit } = toRefs(_props);
 
-const safeOffers = computed(() =>
-    Array.isArray(offersIn.value) ? offersIn.value : []
-)
+
 
 const router = useRouter();
-const HEADER_LENGTH = ref(13);
+const HEADER_LENGTH = ref(23);
 const proStore = useProStore();
-const { incomingOffers } = storeToRefs(proStore);
+const { incomingOffers, providerId } = storeToRefs(proStore);
 const client = ref({});
 const isNoLimit = ref(false);
 const noLimitWarning = ref(false);
 const isOpenBooking = ref(false);
-const collapse1 = ref(false);
-const bookingID = ref(0)
+const parentOpen = ref(false);
+const childOpen = ref(false)
+const collapseEl = ref(null)    // <div ref="collapseEl">
+const bookingID = ref(0);
+const bookingIndex = ref(0);
+
+const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : [])
+
+
+/** ✅ The actual collapse root DOM element (from <MDBCollapse>) */
+const collapseRootEl = ref(null)
+
+/** Setter used by :ref on MDBCollapse; Vue calls with el on mount and null on unmount */
+function setCollapseRoot (compOrEl) {
+  // MDBCollapse is a component → prefer .$el; if already element, use directly; null on unmount
+  collapseRootEl.value = compOrEl?.$el ?? compOrEl ?? null
+}
+
+/* ---------- Height sync helpers (no async/await) ---------- */
+let raf1 = 0, raf2 = 0
+
+function resizeParent () {
+  const el = collapseRootEl.value
+  if (!parentOpen.value || !el) return
+  if (raf1) cancelAnimationFrame(raf1)
+  if (raf2) cancelAnimationFrame(raf2)
+
+  // double rAF to measure after classes/styles applied
+  raf1 = requestAnimationFrame(() => {
+    raf2 = requestAnimationFrame(() => {
+      const root = collapseRootEl.value
+      if (!root || !parentOpen.value) return
+      root.style.height = root.scrollHeight + 'px'
+    })
+  })
+}
+
+function unlockParent () {
+  if (raf1) cancelAnimationFrame(raf1)
+  if (raf2) cancelAnimationFrame(raf2)
+  const el = collapseRootEl.value
+  if (!el) return
+  requestAnimationFrame(() => {
+    const again = collapseRootEl.value
+    if (again) again.style.height = ''
+  })
+}
+
+/** Expose to child via inject */
+provide('resizeParent', resizeParent)
+provide('unlockParent', unlockParent)
+
+/** Optional: keep in sync if inner content changes after open (images, async) */
+let ro
+onMounted(() => {
+  if ('ResizeObserver' in window) {
+    ro = new ResizeObserver(() => resizeParent())
+    // Observe the root when it exists
+    if (collapseRootEl.value) ro.observe(collapseRootEl.value)
+  }
+})
+onBeforeUnmount(() => { ro && ro.disconnect() })
+
+
+// // ——— Height sync helpers (sync + rAF; no async/await) ———
+// let raf1 = 0, raf2 = 0
+//
+// function resizeParent () {
+//   // bail if closed or element missing
+//   if (!parentOpen.value || !collapseEl.value) return
+//
+//   // cancel any pending frames
+//   if (raf1) cancelAnimationFrame(raf1)
+//   if (raf2) cancelAnimationFrame(raf2)
+//
+//   // double-rAF to measure AFTER Vue/transition writes
+//   raf1 = requestAnimationFrame(() => {
+//     raf2 = requestAnimationFrame(() => {
+//       const el = collapseEl.value
+//       if (!el || !parentOpen.value) return
+//       el.style.height = el.scrollHeight + 'px'
+//     })
+//   })
+// }
+//
+// function unlockParent () {
+//   if (raf1) cancelAnimationFrame(raf1)
+//   if (raf2) cancelAnimationFrame(raf2)
+//   requestAnimationFrame(() => {
+//     const el = collapseEl.value
+//     if (!el) return
+//     el.style.height = '' // let MDB manage height next time
+//   })
+// }
+//
+// // Expose to children via provide/inject
+// provide('resizeParent', resizeParent)
+// provide('unlockParent', unlockParent)
+//
+// // Optional: keep synced if content grows after open (images, async)
+// let ro
+// onMounted(() => {
+//   if ('ResizeObserver' in window && collapseEl.value) {
+//     ro = new ResizeObserver(() => resizeParent())
+//     ro.observe(collapseEl.value)
+//   }
+// })
+// onBeforeUnmount(() => { ro && ro.disconnect() })
 
 function parseDmyTime(dmyStr) {
   // Example: "07/10/2025, 12:00"
@@ -163,6 +274,19 @@ function parseDmyTime(dmyStr) {
 
   return new Date(year, month - 1, day, hours, minutes)
 }
+
+// async function syncParentHeight () {
+//   await nextTick()
+//   if (!parentOpen.value || !collapseEl.value) return
+//   // lock parent to its content height during child transition
+//   collapseEl.value.style.height = collapseEl.value.scrollHeight + 'px'
+// }
+//
+// function unlockParentHeight () {
+//   if (!collapseEl.value) return
+//   // clear inline height after transition completes
+//   collapseEl.value.style.height = ''
+// }
 
 // const parseDmyTime = (str) => {
 //   const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
@@ -192,13 +316,14 @@ const addVisitor = async(id, visitor) => {
   //this.$emit("join:visitor", id, visitor.visitor);
 }
 
-const openBookingOffer = (booking) => {
+const openBookingOffer = (booking, index) => {
   console.log("Credit " + credit.value);
   if (credit.value > 0) {
     console.log("Opening page...");
     console.log("Header - " + client.value.header);
     bookingID.value = booking.id;
-    collapse1.value = !collapse1.value;
+    bookingIndex.value = index;
+    parentOpen.value = !parentOpen.value;
     client.value = booking;
     console.log("Here header: " + incomingOffers.value[0].header);
     //isOpenBooking.value = true;
@@ -267,7 +392,7 @@ const timeAgo = (iso) => {
   align-items: center;            /* vertically centers them */
 }
 .left-item {
-  color: grey;
+  color: #66aab1;
   font-size: 11px;
 }
 
@@ -299,4 +424,6 @@ span.strong-tilt-move-shake {
   75% { transform: translate(-5px, 5px) rotate(-5deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
+/* Helps avoid margin-collapsing visual glitches inside height-animated blocks */
+.card.card-body { display: flow-root; }
 </style>

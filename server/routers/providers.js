@@ -438,7 +438,7 @@ router.put('/:id/recipient/:recipientId', async (req, res) => {
     try {
         await Provider.findOneAndUpdate(
             { _id: req.params.id },
-            { $pull: {booking: req.params.recipientId}}
+            { $pull: {proposal: req.params.recipientId}}
         )
         res.send("Booking is removed!")
     } catch (err) {
