@@ -31,10 +31,17 @@
 <!--            <MDBIcon icon="bell" style="color: #0E7490;" class="icon" />-->
 <!--          </MDBNavbarItem>-->
 
-          <MDBNavbarItem  v-if="isIncomingOffers" class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon  icon="bell" style="color: orange;" class="icon" @click="onIconBell" />
+          <!-- Client incomed offers -->
+          <MDBNavbarItem  v-if="clientNewOffersAmount > 0 && route.name !== 'recipient-page'" @click="seeClientOffer" class="me-3 me-lg-5" linkClass="link-secondary">
+            <MDBIcon  icon="bell" style="color: #0E7490;" class="icon"/>
+            <MDBBadge  notification color="danger" pill>{{clientNewOffersAmount}}</MDBBadge>
+          </MDBNavbarItem>
+          <!-- Provider incomed offers-->
+          <MDBNavbarItem  v-if="isIncomingOffers" @click="onIconBell" class="me-3 me-lg-5" linkClass="link-secondary">
+            <MDBIcon  icon="bell" style="color: orange;" class="icon"/>
             <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
+
           <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
             <language-contents />
           </MDBNavbarItem>
@@ -197,15 +204,16 @@ import providerService from './service/providers.js'
 import onMap from '@/components/controllers/distance'
 import socket from "@/socket";
 const router = useRouter();
+const route = useRoute();
 const userID = ref('');
 const username = ref('')
 let userDropdown = ref(false);
 const login = useLoginStore();
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const { t } = useI18n();
 const client = useClientStore();
 const handleProvider = useProStore();
-const { bookings, isBookings, count, isLoading, error } = storeToRefs(client)
+const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const test = ref(null);
 const bb = ref(null)
@@ -249,15 +257,7 @@ onMounted (async () => {
 
 })
 
-const joinServer = (userID, nickname) => {
-  // console.log("Joining server: " + nickname + " ja id: " + userID)
-  // socket.on("get user credentials", () => {
-  //   socket.emit("user credentials", {
-  //     userID: "1234567",
-  //     username: "Tiina",
-  //   })
-  //
-  // })
+const joinServer = () => {
 
   listen();
 }
@@ -271,6 +271,14 @@ const listen = async() => {
       //await handleProvider.addBooking(bookingID);
       await handleProvider.upsertBooking(b);
     }
+  })
+  socket.on('client use offer', async(bookingID, offer) => {
+    console.log("I got the offer - " + offer.name);
+    await client.getProviderOffer(bookingID, offer);
+  })
+  socket.on('pro-handle-confirmed', async({sender, orderId, offerId}) => {
+    console.log("PRO GOT IT - " + orderId);
+    await handleProvider.handleConfirmed(orderId);
   })
 }
 
@@ -393,6 +401,10 @@ const onIconBell = () => {
   console.log("Clicked on icon ");
   router.push("/client-offers");
 }
+const seeClientOffer = () => {
+  console.log("opening the offer");
+  router.push('/client-panel');
+}
 
 
 </script>
@@ -401,7 +413,7 @@ const onIconBell = () => {
 html, body { height: 100%; }            /* ensures the body can size to the viewport */
 body {
   /* better on mobile (address bar) */
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
 }
 </style>

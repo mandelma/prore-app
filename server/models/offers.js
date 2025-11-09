@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const offerSchema = new Schema({
     bookingID: {type: String},
+    sender: {type: String},
     room: {type: String},
     isNewOffer: {type: Boolean},
     name: {type: String},

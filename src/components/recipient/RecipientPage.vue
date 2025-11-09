@@ -3,7 +3,7 @@
     <div v-if="isRecipientContent">
       <recipient-content
         :booking="selectedBooking"
-
+        @updateOfferState="handleUpdateOfferState"
         @canselRecipientContent="handleCanselRecipientContent"
       />
     </div>
@@ -32,7 +32,7 @@
 
         <!--          v-if="confirmedBookingsByClient.some(ccb => ccb.id === booking.id)"-->
         <MDBRow v-for="(booking, index) in bookings" :key="index" class="bookings">
-          <div class="client-orders">
+          <div v-if="booking.status !== 'confirmed'" class="client-orders">
             <aside  id="info-block-confirmed" >
               <section class="file-marker">
                 <div>
@@ -43,12 +43,13 @@
 
                     <MDBRow>
                       <MDBCol>
-                        {{booking.date}}
+                        
 
                         <p class="booking_time">
-                          klo
+                          {{booking.date}}
+                          <!-- klo
                           {{new Date(booking.created).getHours() >= 10 ? new Date(booking.created).getHours() : "0" + new Date(booking.created).getHours() }} :
-                          {{new Date(booking.created).getMinutes() >= 10 ? new Date(booking.created).getMinutes() : "0" + new Date(booking.created).getMinutes() }}
+                          {{new Date(booking.created).getMinutes() >= 10 ? new Date(booking.created).getMinutes() : "0" + new Date(booking.created).getMinutes() }} -->
                         </p>
                       </MDBCol>
                       <MDBCol>
@@ -68,7 +69,7 @@
                           <MDBBtn v-else color="danger" @click="handleQuitSelectedBooking(index)" >{{t('recipient_panel_quit_order')}}</MDBBtn>
                         </div>
 
-                        <MDBBtn v-else  outline="success" size="lg" @click="handleRecipientResult(booking.id, booking)" style="width: 100%;">
+                        <MDBBtn v-else rounded  outline="" size="lg" @click="handleRecipientResult(booking.id, booking)" style="width: 100%;">
                           <span :class="{date_expired: booking.created_ms - new Date().getTime() <= 0}" >{{t('recipient_panel_order')}}</span>
                           <MDBBadge v-if="booking.offers.filter(offer => offer.isNewOffer).length > 0" color="danger"  class="ms-2" >
                             {{booking.offers.filter(offer => offer.isNewOffer).length}}
@@ -107,7 +108,7 @@
 
         </MDBRow>
         <div style="margin-top: 23px;">
-          <MDBBtn outline="info" block size="lg" @click="newBooking">{{t('recipient_panel_new_order')}}</MDBBtn>
+          <MDBBtn outline="info" block size="lg" @click="router.push('/client-form')">{{t('recipient_panel_new_order')}}</MDBBtn>
         </div>
 
       </div>
@@ -115,41 +116,64 @@
     </div>
   </MDBContainer>
 
+
 </template>
 
 <script setup>
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBBadge } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
-import RecipientContent from "../recipient/RecipientContent.vue"
+import { ref, computed } from 'vue';
+import RecipientContent from "../recipient/RecipientContent.vue";
+import { useClientStore } from '@/stores/recipientStore';
+import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 
 defineOptions({
   name: "recipient-page"
 })
 defineProps({
-  bookings: {type: Array}
+  //bookings: {type: Array}
 })
 
 const { t } = useI18n();
+const router = useRouter();
 const selectedIndex = ref(null);
 const isRecipientContent = ref(false);
 const selectedBooking = ref(null);
+const clientStore = useClientStore();
+
+const { bookings } = storeToRefs(clientStore);
 
 const handleRecipientResult = (id, booking) => {
-  console.log("Booking id - " + id); + booking.header
+  console.log("Booking id - " + id); 
   console.log("Booking title: ")
   isRecipientContent.value = true;
-  selectedBooking.value = booking;
+  
+  selectedBooking.value = clientStore.getBookingById(id);
+}
+
+const handleUpdateOfferState = (bookingId, offerId) => {
+  console.log("Booking id is " +bookingId);
+  console.log("Offer id is " + offerId);
+  selectedBooking.value = clientStore.getBookingById(bookingId);
 }
 
 const handleCanselRecipientContent = () => {
   isRecipientContent.value = false;
+  //0E1218FF
 }
 
 
 </script>
 
 <style scoped>
+.client-orders {
+  background-color: #1a222e;
+  border: 1px solid #0e131a;
+  border-radius: 5px;
+  padding: 17px;
+  margin-bottom: 5px;
+}
 .bookings {
   font-size: 16px;
   text-align: left;
@@ -162,11 +186,13 @@ const handleCanselRecipientContent = () => {
 
 #info-block section {
   border: 1px solid #939696;
+  
   margin-bottom: 20px;
 }
 
 #info-block-confirmed section {
-  border: 1px solid #d5b13c;
+  border: 1px solid #23334d;
+  border-radius: 20px;
   margin-bottom: 20px;
 }
 
@@ -179,7 +205,7 @@ const handleCanselRecipientContent = () => {
 
 .box-title {
   background: #808687 none repeat scroll 0 0;
-  border-radius: 50px;
+  
   color: black;
   display: inline-block;
   /*padding: 0 2px;*/
@@ -190,7 +216,7 @@ const handleCanselRecipientContent = () => {
 }
 .box-title-confirmed {
   /*background: #141414 none repeat scroll 0 0;*/
-  background: #0E1218FF none repeat scroll 0 0;
+  background: #1a222e none repeat scroll 0 0;
   display: inline-block;
   color: #66aab1;
   /*padding: 0 2px;*/

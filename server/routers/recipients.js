@@ -22,7 +22,7 @@ router.get('/user/:id', async (req, res) => {
         // .populate({path: 'ordered', populate: {path: 'reference'}})
         // .populate('image')
         .populate('offers')
-        // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}})
+        .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}})
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'reference'}}}).exec();
 
 
@@ -37,7 +37,7 @@ router.get('/booking/:id', async (req, res) => {
         .populate('ordered')
         .populate({path: 'ordered', populate: {path: 'user'}})
         .populate('offers')
-        //.populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}}).exec();
+        .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}}).exec();
     res.send(booking);
 })
 
@@ -160,6 +160,20 @@ router.post('/:bookingID/offer/:id', async (req, res) => {
         }
     } catch (error) {
         res.status(500).send("Error happens to add offer!")
+    }
+})
+
+// Add confirmed offer
+router.post('/:bookingId/confirmed', async (req, res) => {
+    const { bookingId } = req.params;
+    const body = req.body;
+    try {
+        const booking = await Recipient.findById(bookingId);
+        booking.offer = body;
+        await booking.save();
+        res.send(booking);
+    } catch (e) {
+        console.log("Error - " + e.message);
     }
 })
 // Add provider id to recipient

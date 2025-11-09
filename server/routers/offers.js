@@ -14,6 +14,7 @@ router.post('/', async(req, res) => {
     try {
         const newOffer = new Offer({
             bookingID: body.bookingID,
+            sender: body.sender,
             room: body.room,
             isNewOffer: true,
             name: body.name,
@@ -38,6 +39,7 @@ router.post('/', async(req, res) => {
 
 })
 
+// Update offer status
 router.put('/:id', async (req, res) => {
     try {
         console.log("body in offers: " + req.body)
@@ -50,6 +52,7 @@ router.put('/:id', async (req, res) => {
     }
 })
 
+// Remove offer and offer id from recipient
 router.delete('/:offer_id/remove_by_offerID/:booking_id', async (req, res) => {
     try {
         await Offer.findByIdAndDelete(req.params.offer_id);
@@ -63,6 +66,8 @@ router.delete('/:offer_id/remove_by_offerID/:booking_id', async (req, res) => {
         console.log("Error: " + error.message);
     }
 })
+
+
 
 router.delete('/:booking_id', async (req, res) => {
     try {

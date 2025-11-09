@@ -17,8 +17,7 @@ import Aura from '@primevue/themes/aura'
 
 
 
-import '@/styles/theme.css'
-import '@/styles/form.css'
+
 //import '@/styles/date-timepicker.css'
 import { createPinia } from 'pinia'
 import router from './router'
@@ -36,3 +35,5 @@ createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {theme: {preset: A
         }}}).mount('#app')
 
 import '@/styles/pro-select.css'
+import '@/styles/theme.css'
+import '@/styles/form.css'

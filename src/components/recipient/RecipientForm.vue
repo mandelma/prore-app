@@ -163,6 +163,7 @@
                   disablePast
               />
               <span v-if="errors.dateTime" class="field-footer">{{ errors.dateTime }}</span>
+              
             </div>
 
           </div>
@@ -328,6 +329,8 @@ const desiredRange = ref("")
 //const range = ref(null);
 const lat = ref(null);
 const lng = ref(null);
+
+const o = ref(null);
 
 const mdbLocale = computed(() => {
   const map = { en: 'en', fi: 'fi', sv: 'sv', et: 'et' }
@@ -534,14 +537,6 @@ const showAddress = () => {
 const clearAddress = () => {
   isAddress.value = false;
   form.address = '';
-}
-
-const parseDmyTime = (str) => {
-  const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
-  if (!m) return null;
-  const [, dd, mm, yyyy, HH, MM] = m.map(Number);
-  return new Date(yyyy, mm - 1, dd, HH, MM);
-
 
   // const date = new Date()              // current date
   // const formatted = date.toLocaleDateString('en-US', {
@@ -555,9 +550,30 @@ const parseDmyTime = (str) => {
   // date.toLocaleDateString('de-DE')     // → 26.09.2025
 }
 
+const parseDmyTime = (str) => {
+  const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, dd, mm, yyyy, HH, MM] = m.map(Number);
+  return new Date(yyyy, mm - 1, dd, HH, MM);
+}
+
 const createClient = async() => {
   if (!validateForm()) {
     console.log("Midagi puudu:", form);
+
+
+    const dateObj = parseDmyTime(form.dateTime);
+    let ms;
+    if (dateObj) {
+      o.value = dateObj;
+      ms = dateObj.getTime();
+      console.log("Milliseconds:", ms);  // e.g. 1758976800000
+    } else {
+      console.log("Invalid date string");
+    }
+
+
+
 
     clientFormErrorMsg.value = "Kentät pitäisi huomioida!"
     isInitClientError.value = true;
@@ -566,6 +582,8 @@ const createClient = async() => {
     const dateObj = parseDmyTime(form.dateTime);
     let ms;
     if (dateObj) {
+      o.value = dateObj;
+      console.log("DATE - " + dateObj);
       ms = dateObj.getTime();
       console.log("Milliseconds:", ms);  // e.g. 1758976800000
     } else {

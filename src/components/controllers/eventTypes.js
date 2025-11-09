@@ -1,6 +1,6 @@
 export const EVENT_TYPES = {
-    meeting:  { label: 'Meeting',     class: 'event-meeting',  color: '#2563eb' },
-    client:   { label: 'Client call', class: 'event-client',   color: '#16a34a' },
-    vacation: { label: 'Vacation',    class: 'event-vacation', color: '#dc2626' },
-    task:     { label: 'Task',        class: 'event-task',     color: '#a855f7' }
+    offer:  { label: 'Confirmed offer',     class: 'event-offer',  color: '#48769c' },
+    time:   { label: 'Time', class: 'event-time',   color: '#e29657' },
+    vacation: { label: 'Vacation',    class: 'event-vacation', color: '#c04b4bff' },
+    booking:     { label: 'Confirmed booking',        class: 'event-booking',     color: '#097a5e' }
 }

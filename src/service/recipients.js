@@ -23,7 +23,7 @@ const addRecipient = async (id, newRecipient) => {
     return recipient.data;
 }
 // Update booking status
-const updateRecipient = async (id, update) => {
+const updateRecipientStatus = async (id, update) => {
     const updated = await axios.put(`${baseUrl}/${id}`, update);
     return updated.data;
 }
@@ -65,6 +65,12 @@ const createOffer = async (bookingID, offerID) => {
     return offer.data;
 }
 
+// Add confirmed offer
+const addConfirmedOffer = async (bookingId, offer) => {
+    const confirmed = await axios.post(`${baseUrl}/${bookingId}/confirmed`, offer);
+    return confirmed.data;
+}
+
 // Update booking date
 const newDate = async (id, date) => {
     const updated = await axios.put(`${baseUrl}/${id}/updateDate`, date);
@@ -95,13 +101,14 @@ export default {
     getOwnBookings,
     getBookingById,
     addRecipient,
-    updateRecipient,
+    updateRecipientStatus,
     editBookingAddress,
     editDescription,
     addProviderData,
     addVisitor,
     removeProviderData,
     createOffer,
+    addConfirmedOffer,
     //addProviderID,
     newDate,
     addImage,

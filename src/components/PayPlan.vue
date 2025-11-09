@@ -117,7 +117,7 @@ const handlePayment = (selectedAmount) => {
   const updatedCredit = new Date().getTime() + ((daysAccountToAdd + daysLeftAccount) * 86400000) ;
   console.log("Olet maksanut " + amount.value + " euroa!");
 
-  proStore.updateCredit(daysAfterUpdate);
+  proStore.updateCredit(daysAfterUpdate, updatedCredit);
 
 }
 const handleQuitPayment = () => {

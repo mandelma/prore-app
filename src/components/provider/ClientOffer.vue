@@ -21,7 +21,7 @@
     <div v-if="!client.professional && !road">
       <MDBSpinner color="info" />
     </div>
-    <div v-else >
+    <div v-else style="border-top: 1px solid grey;">
 
       <MDBTable borderless style="font-size: 12px; color: #dddddd; text-align: left;">
         <tbody>
@@ -87,18 +87,23 @@
 
           </td>
           <td>
-            <MDBBtn color="primary">
+            <!-- <MDBBtn color="primary">
               <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
-            </MDBBtn>
+            </MDBBtn> -->
           </td>
         </tr>
         </tbody>
       </MDBTable>
-      <div v-if="client.isIncludeOffers" style="margin-bottom: 20px; border: 1px solid red;">
-        <div v-if="!client.offers.some(offer => offer.provider.id === providerId.value)">
+      <div style="display: flex; justify-content: right;">
+        <MDBBtn color="primary" class="mb-3">
+          <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
+        </MDBBtn>
+      </div>
+      <div v-if="client.isIncludeOffers" style="margin-bottom: 20px;">
+        <div v-if="!client.offers.some(offer => offer.bookingID === client.id)">
           <MDBBtn
               :disabled="isDisableProNotOfferBtns"
-              
+              class="mb-3"
               block
               color="primary"
               size="lg"
@@ -249,7 +254,10 @@ import { ref, nextTick, inject, toRefs, onMounted, computed } from 'vue';
 import handleLocation from '../controllers/distance.js';
 import { useProStore } from '@/stores/providerStore.js';
 import { useClientStore } from '@/stores/recipientStore.js';
+import { useLoginStore } from '@/stores/login.js';
 import { storeToRefs } from 'pinia';
+import socket from "@/socket";
+
 defineOptions({
   name: 'client-offer'
 });
@@ -265,7 +273,7 @@ const _props = defineProps({
 
 const { client, open } = toRefs(_props)
 
-
+const sender = useLoginStore();
 const proClient = useProStore();
 const clientStore = useClientStore();
 
@@ -284,6 +292,7 @@ const d = handleLocation;
 const roadDistance = ref(null);
 const roadDuration = ref(null);
 const isHandleOffer = ref(false);
+const { user } = storeToRefs(sender)
 const { providerId, provider } = storeToRefs(proClient);
 const offerPrice = ref(null);
 const offerPlace = ref('here');
@@ -307,14 +316,14 @@ onMounted(async() => {
   //   await loadGoogleMaps();
   //   console.log("Map is inited in ClientOffer!");
   // }
-  console.log("CXC " + await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]));
+  console.log("CXC " + await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]));
 
-  const road = await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]);
+  const road = await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]);
 
   if (road) {
     console.log("Distance is " + road.distance);
     console.log("Duration is " + road.duration);
-    roadDistance.value = road.distance + " km";
+    roadDistance.value = road.distance;
     roadDuration.value = road.duration;
   }
   //console.log("Distance is " + final.value.distance);
@@ -337,12 +346,12 @@ const makeOfferBtn = () => {
   isHandleOffer.value = true;
 }
 const createOffer = () => {
+  
   console.log("Creating offer! " + offerPrice.value);
 
-  
-  
   const offer = {
     bookingID: client.value.id,
+    sender: user.value.id,
     isNewOffer: true,
     name: provider.value.pName,
     placeOrGo: offerPlace.value,
@@ -354,8 +363,12 @@ const createOffer = () => {
     place: offerPlace.value,
     provider: providerId.value
   }    
+  const addressee = client.value.user.id;
+  console.log("Addressee - " + addressee);
   //clientStore.addOffer(client.value.id, offer);
-  proClient.addProviderOffer(client.value.id, offer);
+  proClient.addProviderOffer(client.value.id, addressee, offer);
+  //socket.emit('client get offer', addressee, client.value.id, offer);
+
 }
 const quitOffer = () => {
   //isQuitClientBooking = true;

@@ -44,10 +44,10 @@ const providerSchema = new Schema({
     pro_link: {
         type: String
     },
-    timeoffer: [
+    timetable: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'timeoffer'
+            ref: 'Timerange'
         }
     ],
     proposal: [
