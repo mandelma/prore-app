@@ -66,6 +66,7 @@ const corsOptions ={
     optionSuccessStatus: 200,
 }
 
+app.use(express.json());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
@@ -79,6 +80,7 @@ app.use('/api/login', require('./routers/login'));
 app.use('/api/recipients', require('./routers/recipients'));
 app.use('/api/providers', require('./routers/providers'));
 app.use('/api/offer', offerRouter);
+app.use('/api/timeoffers', require('./routers/timetable'))
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;

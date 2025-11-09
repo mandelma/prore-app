@@ -36,24 +36,7 @@
             </MDBBtn>
           </div>
         </div>
-        <!-- overlay spinner, not removing input -->
-        
-
-<!--        <div id="address-panel">-->
-
-<!--          <MDBInput-->
-<!--              white-->
-<!--              inputGroup-->
-<!--              label="Anna toinen osoitteesi kun ei täsmää"-->
-<!--              v-model="address"-->
-<!--              id="autocomplete"-->
-<!--              size="lg"-->
-<!--              wrapperClass="mb-4"-->
-<!--          >-->
-<!--            <MDBBtnClose v-if="address" white style="float: right; margin-right: 7px; margin-top: 5px;" @click="clearOrderAddress"/>-->
-<!--          </MDBInput>-->
-
-<!--        </div>-->
+  
 
         <div class="field-wrapper">
           <div>
@@ -73,8 +56,7 @@
 
               <template #value="slotProps">
                 <div v-if="slotProps.value" >
-                  <!--              <img :alt="slotProps.value.label" src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" :class="`mr-2 flag flag-${slotProps.value.code.toLowerCase()}`" style="width: 18px" />-->
-
+                
                   <div>{{ slotProps.value.label }}</div>
                 </div>
                 <span v-else>
@@ -142,9 +124,7 @@
     
     
   </div>
-  <!-- <div id="map">
-    <h2>Map</h2>
-  </div> -->
+  
   <div id="map-container">
     <div id="map"></div>
     <div id="spinner" class="spinner-overlay">
@@ -430,23 +410,7 @@ const pinSymbol = (color, stroke_color) => {
     float: none;
   }
 }
-/* .hideClientInput {
-  display: none;
-} */
 
-/* #map {
-  background:  url(/src/assets/map.gif)  no-repeat center center;
-
-}
-
-#map {
-  position: absolute;
-
-  top: 60px;
-  right: 0;
-  bottom: 50px;
-  left: 0;
-}  */
 
 #map-container {
   /* position: relative; */

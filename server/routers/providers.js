@@ -11,14 +11,15 @@ router.get('/', async(req, res) => {
 
 router.get('/:id', async (req, res) => {
     const provider = await Provider.findOne({user: req.params.id})
-        // .populate('timeoffer')
+        .populate('timetable')
         // .populate('reference')
         //.populate('proposal')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
 
 
-        //.populate({path: 'proposal', populate: {path: 'offers', populate: {path: 'provider'}}})
+        .populate({path: 'proposal', populate: {path: 'offers', populate: {path: 'provider'}}})
+        .populate({path: 'proposal', populate: {path: 'ordered'}})
         //
         // .populate({path: 'booking', populate: {path: 'image'}}).exec();
 
@@ -33,7 +34,7 @@ router.get('/:id/by-provider-id', async (req, res) => {
         //.populate('booking')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
-
+        .populate({timetable})
         //.populate({path: 'booking', populate: {path: 'image'}}).exec()
 
     //const provider = await Provider.findById(req.params.id)

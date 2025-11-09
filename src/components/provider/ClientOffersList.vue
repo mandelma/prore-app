@@ -43,7 +43,7 @@
 
                 <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
 
-                {{booking.offers ? ( booking.offers.some(offer => offer.provider.id === providerId.value)
+                {{booking.isIncludeOffers ? ( booking.offers.some(offer => offer.bookingID === booking.id)
                     ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
                 </span>
               </span>
@@ -76,16 +76,20 @@
                 <MDBBtnClose white @click="parentOpen=!parentOpen"/>
               </span>
               </div>
+              
+              <!-- ---{{ booking.offers }} -->
+              
               <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
+                
                 <span class="seen_notification" @click="openBookingOffer(booking, index)">
-
+                  
                   <b>{{booking.user.username.length < HEADER_LENGTH ? booking.user.username : booking.user.username.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
                   {{booking.header.length < HEADER_LENGTH ? booking.header : booking.header.substr(0, HEADER_LENGTH) + "..."}}
-
+                  
                   <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
-                  {{booking.offers ? (  booking.offers.some(offer => offer.provider.id === providerId.value) ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
-                </span>
+                    {{booking.isIncludeOffers ? (booking.offers.some(offer => offer.bookingID === booking.id) ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
+                  </span>
 
               </span>
 
@@ -316,15 +320,17 @@ const addVisitor = async(id, visitor) => {
   //this.$emit("join:visitor", id, visitor.visitor);
 }
 
-const openBookingOffer = (booking, index) => {
+const openBookingOffer = async(booking, index) => {
   console.log("Credit " + credit.value);
+  bookingIndex.value = index;
   if (credit.value > 0) {
     console.log("Opening page...");
     console.log("Header - " + client.value.header);
     bookingID.value = booking.id;
-    bookingIndex.value = index;
+    
     parentOpen.value = !parentOpen.value;
-    client.value = booking;
+    //client.value = booking;
+    client.value = proStore.getIncomOfferById(booking.id);
     console.log("Here header: " + incomingOffers.value[0].header);
     //isOpenBooking.value = true;
 
@@ -373,7 +379,7 @@ const timeAgo = (iso) => {
   font-size: 14px;
 }
 .booking-row-seen {
-  background: #354057FF;
+  background: rgb(34, 41, 56);
   /*box-shadow: 0.3em 0.3em 1em rgba(104,101,101,0.6);*/
   box-shadow: 0.3em 0.3em 1em rgb(138, 138, 138);
   padding: 10px;
@@ -381,8 +387,19 @@ const timeAgo = (iso) => {
   font-size: 14px;
 }
 
+.new_notification {
+  font-size: 1rem;
+  font-weight: bold;
+  color: orange;
+
+}
+.seen_notification {
+  font-size: 1rem;
+  color: #ddd;
+}
+
 .activePanel {
-  background: #354057;
+  background: #283041;
 
 }
 
@@ -396,15 +413,6 @@ const timeAgo = (iso) => {
   font-size: 11px;
 }
 
-.new_notification {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #d55b5b;
-
-}
-.seen_notification {
-  font-size: 1rem;
-}
 span {
 
   /*background: #48abe0;*/

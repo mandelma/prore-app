@@ -111,6 +111,10 @@
     backdrop-filter: saturate(140%) blur(8px);
 }
 
+.btn {
+  margin: auto 0;
+}
+
 /* Icon tiers */
 .navbar .icon,
 .navbar .nav-link i,
@@ -194,6 +198,15 @@
 .btn:focus-visible{ box-shadow:0 0 0 .2rem var(--ring); }
 
 
+/* MDBSelect style */
+
+/* [data-mdb-theme='dark'] .select-input,
+[data-mdb-theme='dark'] .select-dropdown {
+  background-color: #0b1618 !important;
+  color: #fff !important;
+} */
+
+
  /*Calendar container*/
 [data-mdb-theme='dark'] .datepicker {
     background-color: #161a22;  /* dark background */
@@ -261,7 +274,7 @@
 
 /* Disabled day */
 [data-mdb-theme='dark'] .datepicker-cell.disabled {
-    color: #555 !important;
+    /* color: #555 !important; */
 }
 
 [data-mdb-theme='dark'] .datepicker .timepicker {

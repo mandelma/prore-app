@@ -96,6 +96,9 @@ const recipientSchema = new Schema({
             ref: "offer"
         }
     ],
+    offer: {
+        type: Object
+    },
     zone: {
         type: Number
     },
