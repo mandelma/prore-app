@@ -5,8 +5,10 @@ import offerService from '../service/offers.js';
 import timetableService from '../service/timetable.js';
 import socket from '@/socket'
 import clientService from "@/service/recipients.js";
+import { useRouter } from 'vue-router';
 
 export const useProStore = defineStore("pro", () => {
+    const router = useRouter();
     const loading = ref(false);
     const provider = ref(null);
     const providerId = ref(null);
@@ -116,7 +118,7 @@ export const useProStore = defineStore("pro", () => {
     const removeBookingOffer = async(id) => {
 
         console.log("Does proStore remove works?" + id);
-        //await providerService.removeProviderBooking(providerId.value, id);
+        await providerService.removeProviderBooking(providerId.value, id);
         
         //incomingOffers.value = incomingOffers.value.filter(iov => iov.id !== id);
         //incomingOffersCount.value = incomingOffers.value.length;
@@ -130,6 +132,29 @@ export const useProStore = defineStore("pro", () => {
         const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
         incomingOffers.value = pendingOffers;
         incomingOffersCount.value = incomingOffers.value.length;
+    }
+    // Confirming client offer sended from map
+    const onConfirmClientBooking = async(bookingId, offer) => {
+        console.log("Booking id is " + bookingId)
+        await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
+        
+        //const _offerMade = await offerService.addOffer(offer);
+        
+        const offerId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+        offer.id = offerId;
+        // siin teha...
+        //await clientService.createOffer(bookingId, offerId);
+        await clientService.addConfirmedOffer(bookingId, offer);
+        const confirmed = incomingOffers.value.find(item => item.id === bookingId);
+        const currentList = incomingOffers.value.filter(confirmed => confirmed.id !== bookingId);
+        incomingOffers.value = currentList;
+        incomingOffersCount.value = incomingOffers.value.length;
+
+        proCalendarEvents.value = proCalendarEvents.value.concat(confirmed);
+        
+        if (incomingOffersCount.value < 1) {
+            router.push('/');
+        }
     }
     const updateCredit = async(creditDaysCovered, credit_ms) => {
         console.log("Updated credit now: " + creditDaysCovered + " credit ms " + credit_ms);
@@ -188,6 +213,8 @@ export const useProStore = defineStore("pro", () => {
         }) */
     }
 
+    
+
     const onDelete = async (eventId) => {
         console.log("Del event id is: " + eventId);
         console.log("Pro id is " + providerId.value);
@@ -207,6 +234,7 @@ export const useProStore = defineStore("pro", () => {
         onEdit,
         onDelete,
         handleConfirmed,
+        onConfirmClientBooking,
         providerId,
         isUserPro,
         provider,

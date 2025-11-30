@@ -62,11 +62,6 @@
 </MDBModal> -->
 
 
-
-
-  state start {{ editForm.start }}
-  end {{ editForm.end }}
-
   <!-- Edit event   :modelValue="true"-->
   <MDBModal
       v-model="showEdit" center
@@ -397,7 +392,7 @@ const events = computed(() => [
           <p>Tilauksen tiedot:</p>
           <ul>
             <li><strong>Osoite - </strong> ${pce.address}</li>
-            <li><strong>Etäisyys - </strong> ${dist}</li>
+            <li><strong>Etäisyys - </strong> ${dist} km</li>
             <li><strong>Matkan aikaa noin </strong> ${duration}</li>
             <li><strong>Hinta - </strong> ${price} Eur</li>
           </ul>

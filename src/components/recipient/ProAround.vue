@@ -1,9 +1,13 @@
 <template>
+ 
   <div>
-    <div style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
-      <div :class="{hideMainPanel: !isMainPanel}" class="client-map-panel">
+    
+    <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
+      
+      <div v-if="isMainPanel" class="client-map-panel">
+        
         <div style="display: flex; justify-content: right;">
-          <MDBIcon size="lg" style="padding: 10px;" @click="closeMainPanel">
+          <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
             <i class="fas fa-expand-arrows-alt"></i>
           </MDBIcon>
           <div>
@@ -36,13 +40,13 @@
             </MDBBtn>
           </div>
         </div>
-  
 
         <div class="field-wrapper">
           <div>
             <Select
                 style="width: 100%;"
                 v-model="profession"
+                @change="changedProfession"
                 :options="professions"
                 filter optionLabel="label"
                 optionGroupLabel="label"
@@ -73,64 +77,128 @@
           </div>
         </div>
 
-
+        <!--format: 'YYYY-MM-DD'-->
         <div  :class="{hideDistSelectPanel: !isDistSelection}">
           <p style="text-align: left;">Valitse kiinnostavaa ajankohta tai heti!</p>
           <div class="distSelectPanel">
 
+            <div class="field-wrapper">
+              <MDBDateTimepicker
+                  size="lg"
+                  label="Valitse tehtävän päivämäärä ja aika"
+                  v-model="dt"
 
-<!--            <VueDatePicker-->
-<!--                style="margin-bottom: 20px; width: 70%; padding: 7px;"-->
-<!--                v-model="bookingDate"-->
-<!--                dark-->
-<!--                :min-date="new Date()"-->
-<!--                teleport-center-->
-<!--                @internal-model-change="handleInternalDate"-->
-<!--                @update:model-value="handleDate"-->
-<!--                :state="isNoDate ? false : null"-->
-<!--            >-->
+                  :datepicker="{
+                  ...L,
+                  
+                }"
+                  :timepicker="{
+                  ...L,
+                  hoursFormat: 24
+                }"
 
-<!--            </VueDatePicker>-->
+                  :key="reInitKey"
+                  disablePast
+              />
+              
+            </div>
+
+            isDateNow {{ isDateNow }}
+            date {{ showDt }}
+
             <div style="margin-top: 15px;">
               <MDBCheckbox
                   label="Heti!"
                   name="selection"
-                  v-model="isSelectNotNow"
+                  v-model="isDateNow"
                   value="true"
                   @click="removeDateIfExist"
                   wrapperClass="mb-4"
               />
             </div>
 
+            dt {{ dt }}
+
           </div>
 
 
         </div>
-
-        <MDBSelect size="sm" white v-model:options = rangeOptions label="Etsi alue"/>
-
-
-        <!-- <p
-            v-if="prof && isPressedFindBtn"
-            :class="{noClients: isActiveProffs}"
-            style="color: palevioletred;"
-        >
-          Ei ammattilaisia vielä!
-        </p>
- -->
+        
+        <MDBSelect size="sm" white v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
+          
       </div>
+      <!--Displaying when no main panel open-->
+      <MDBBtn
+        v-else
+        color="primary"
+        style="position: absolute; opacity: 0.8; top: 60px; left: 80%; z-index: 2;"
+        @click="isMainPanel = true"
+      >
+        Paneeli
+      </MDBBtn>
+      
     </div>
 
+    /* <div style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
+      <HandleToast 
+      v-model="toastModel"
+      :toast-name="toastState"
+      :icon-state="toastIcon"
+      :text="toastContent"
+    />
+    </div> */
     
+
+    <div style="padding: 13px 0 20px 0;">
+        <MDBToast
+            v-model="isRequestSent"
+            autohide
+            :delay="3000"
+            :stacking="false"
+            position="top-center"
+            toast="success"
+            icon="fas fa-check fa-lg me-2"
+        >
+          <template #title>PROKEIKKATORI</template>
+          <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+          <template #small></template>
+          <p>{{ rs_success_msg }}</p>
+        </MDBToast>
+      </div>
+
+    <div>
+      <MDBModal
+        tabindex="-1"
+        centered
+        v-model="displayProPanel"
+      >
+        <MDBModalHeader>
+          <h2>Pro data here</h2>
+        </MDBModalHeader>
+        <MDBModalBody>
+          <p>Tällä - {{ onProvider.pName }} - tiedot...</p>
+          <request-form  
+          :target="target" 
+          :date="dt" 
+          @sendRequest="handleSendRequest"
+          />
+        </MDBModalBody>
+        <!-- <MDBModalFooter>
+          <MDBBtn color="primary" @click="sendRequest(onProvider)">Tilaa yritys</MDBBtn>
+          <button @click="testToast">Show toast</button>
+        </MDBModalFooter> -->
+      </MDBModal>
+    </div>
     
   </div>
   
   <div id="map-container">
+    
     <div id="map"></div>
     <div id="spinner" class="spinner-overlay">
-    <div class="spinner"></div>
+      <div class="spinner"></div>
+    </div>
   </div>
-</div>
 </template>
 
 <script setup>
@@ -138,18 +206,26 @@
 //   lat: { type: Number, required: true },
 //   lng: { type: Number, required: true },
 // });
-import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner} from 'mdb-vue-ui-kit';
-import { ref, onMounted } from 'vue';
+import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
+import { ref, onMounted, watch } from 'vue';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
 //import { Loader } from "@googlemaps/js-api-loader"; // official way
 import axios from 'axios';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
+import providerService from '@/service/providers'
+import match from '@/components/controllers/compare_dt'
+import { useClientStore } from '@/stores/recipientStore';
+import { useLoginStore } from '@/stores/login';
+import ToastHandler from '../helpers/ToastHandler.vue';
+import RequestForm from './RequestForm.vue';
+
 //import { useMapStore } from '@/stores/mapStore';
 //const location = useMapStore();
 defineOptions({
   name: "pro-around"
 })
+
 const address = ref(null);
 const myLat = ref( null);
 const myLng = ref(null);
@@ -158,6 +234,42 @@ const professions = proList;
 const profession = ref("");
 const isAddress = ref(false);
 const isMapLoaded = ref(false);
+const currentProfession = ref("");
+const isDistSelection = ref(false);
+const selectedRange = ref(null);
+const distBtw = ref(0);
+const stateActive = ref(false);
+const isMainPanel = ref(true);
+const countOfSelectedProfessional = ref(null);
+const reInitKey = ref(0);
+const dt = ref(null);
+const showDt = ref(null);
+const target = ref(null);
+const handleMatch = match;
+const visibleProCount = ref(0);
+const isDateNow = ref(false);
+const displayProPanel = ref(false);
+
+const onProvider = ref(null);
+const isRequestSent = ref(false);
+const rs_success_msg = ref("");
+
+
+const clientStore = useClientStore();
+const auth = useLoginStore();
+
+
+/* const toastModel = ref(false)
+const toastState = ref('')
+const toastIcon = ref('')
+const toastContent = ref('') */
+
+function testToast() {
+  toastState.value = 'danger'
+  toastIcon.value = 'fas fa-check fa-lg me-2'
+  toastContent.value = 'Hallo Helsinki'
+  toastModel.value = true
+}
 
 const rangeOptions = ref([
   {text: '1 km', value: 1},
@@ -194,6 +306,67 @@ const getCurrentPosition = async() => {
   });
 }
 
+/* watch(selectedRange, (newVal) => {
+  console.log("Dist is changed ", newVal);
+  
+  showClientLocationOnTheMap(currentProfession.value, newVal);
+
+}) */
+
+watch(isMapLoaded, (ready) => {
+  if (ready) {
+    console.log("Ready? " + ready)
+    watch(selectedRange, (newVal) => {
+      console.log("Dist is changed ", newVal);
+      showClientLocationOnTheMap(profession.value.label, newVal)
+    }, { immediate: true })
+  }
+})
+
+watch(isDateNow, (state) => {
+  if (state) {
+    dt.value = toPickerString(new Date());
+    reInitKey.value++;
+    const dateNow = new Date();
+    const formatted = dateNow.toLocaleString("fi-FI", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    // Convert "2025-11-12, 18:37" → "2025-11-12, 18:37"
+    const final = formatted.replace(",", "");
+    showDt.value = final;
+  } else {
+    dt.value = null;
+    showDt.value = null;
+    reInitKey.value++;
+  }
+})
+
+
+
+const changedProfession = () => {
+      console.log("Changed " + profession.value.label);
+      //this.showClientLocationOnTheMap(this.prof.label, this.distBtw);
+      currentProfession.value = profession.value.label;
+      isDistSelection.value = true;
+}
+
+
+function toPickerString(d = new Date()) {
+  const pad = n => String(n).padStart(2, '0')
+  const y = d.getFullYear()
+  const m = pad(d.getMonth() + 1)
+  const day = pad(d.getDate())
+  const hh = pad(d.getHours())
+  const mm = pad(d.getMinutes())
+  return `${y}-${m}-${day}, ${hh}:${mm}`
+}
+
 const handleMaps = async() => {
   try {
     await loadGoogleMaps();
@@ -201,22 +374,6 @@ const handleMaps = async() => {
 
     console.log("Map is inited in pro around! ✅");
     userCurrentLocation();
-
-
-    // const selectDistance = document.getElementById
-    // ("distance");
-
-
-
-    // selectDistance.addEventListener("change", (event) => {
-    //   this.distBtw = parseFloat(event.target.value);
-    //   this.stateActive = true;
-    //   const data = {
-    //     profession: this.currentProfession,
-    //     distance: parseFloat(event.target.value)
-    //   }
-    //
-    // })
 
     const input = document.getElementById("client-input");
 
@@ -351,6 +508,305 @@ const getAddressFrom = (lat, long) => {
       })
 }
 
+
+
+const distanceBtw = (originLat, originLng, destLat, destLng) => {
+  var origin = new google.maps.LatLng(originLat, originLng);
+  var destination = new google.maps.LatLng(destLat, destLng);
+  return (google.maps.geometry.spherical.computeDistanceBetween(origin, destination) / 1000).toFixed(2);
+}
+
+const otherUserLocations = async (providers, profession, dist) => {
+  //const client = new Client({});
+  if (!window.google || !window.google.maps) {
+    console.error('Google Maps not loaded yet')
+    return
+  }
+  console.log("Profession and dist... " + profession + " " + dist)
+  console.log("lat - " + myLat.value)
+  let prev_infowindow = false;
+
+  let map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 11,
+    center: new google.maps.LatLng(myLat.value, myLng.value),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+  console.log("Users count: " + providers.length)
+  console.log("Current distance " + dist)
+  let date;
+  if (dt.value) {
+    console.log("Booking date 2 " + new Date(dt.value));
+    date = new Date(dt.value);
+  }
+
+  let count = 0;
+
+  if (providers.length > 0) {
+    //this.target = {};
+
+    for (let pos = 0; pos < providers.length; pos++) {
+      console.log("-----Firma------- " + providers[pos].pName);
+      
+      let myLatLong = [myLat.value, myLng.value];
+
+      providers[pos].profession.forEach(prof => {
+        if (prof === profession) {
+
+
+
+          //his.providers.push(providers[pos])
+          console.log("Pro " + prof)
+          let providerLatLng = [providers[pos].latitude, providers[pos].longitude];
+          console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude));
+
+          //distance.theDist()
+
+          //this.countOfSelectedClient++;
+          //this.isActiveProffs = true;
+
+          if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
+            count ++;
+
+            let marker;
+            
+            // text: "Saatavilla!"
+            if (providers[pos].isAvailable24_7) {
+              marker = new google.maps.Marker({
+                position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
+                accuracy: 50,
+                map: map,
+                title: providers[pos].yritys,
+                icon: this.pinSymbol('seagreen', 'darkgreen'),
+                label: { color: 'green',  fontWeight: 'bold', fontSize: '14px', }
+              })
+            } else {
+              if (providers[pos].timetable.length > 0) {
+                providers[pos].timetable.map(time => {
+                  console.log("Date: " + time.start)
+                  console.log("Fitting datetime: " +
+                      handleMatch.providerMatchingForClient(
+                          date,
+                          time.start,
+                          time.end
+                      )
+
+                  )
+
+
+                  if (handleMatch.providerMatchingForClient(
+                      date,
+                      time.start,
+                      time.end
+                  ) || providers[pos].isAvailable24_7) {
+
+                    marker = new google.maps.Marker({
+                      position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
+                      accuracy: 50,
+                      map: map,
+                      title: providers[pos].pName,
+                      icon: pinSymbol('seagreen', 'darkgreen'),
+                      //label: { color: '#79f759',  fontWeight: 'bold', fontSize: '14px', text: "Saatavilla!"}
+                    })
+                  } else {
+
+                    marker = new google.maps.Marker({
+                      position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
+                      accuracy: 50,
+                      map: map,
+                      title: providers[pos].pName,
+                      icon: pinSymbol('orange', 'darkorange'),
+                      //label: { color: '#f79859',  fontWeight: 'bold', fontSize: '14px', text: "Sovitaessa!"}
+                    })
+
+                  }
+                })
+              } else {
+                marker = new google.maps.Marker({
+                  position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
+                  accuracy: 50,
+                  map: map,
+                  title: providers[pos].pName,
+                  icon: pinSymbol('orange', 'darkorange'),
+                  //label: { color: '#f79859',  fontWeight: 'bold', fontSize: '14px', text: "Sovitaessa!"}
+                })
+              }
+            }
+
+            window.myGlobalFunction = this && this.openMarker
+              ? this.openMarker.bind(this)
+              : (idx) => handleSelectedPro(providers[idx])//console.log('openMarker fallback', idx);
+
+            const infowindow = new google.maps.InfoWindow();
+
+            /* const infowindow = new google.maps.InfoWindow({
+              content: `
+                <div class="custom-info">
+                  <div style="display: flex; justify-content: right;">
+                    <button id="custom-close">×</button>
+                  </div>
+                  
+                  <h3>My Place</h3>
+                  <p>Hello world!</p>
+                  
+                </div>
+                `
+            }); */
+
+            // hide Google’s built-in close button when ready
+            infowindow.addListener("domready", () => {
+              const closeBtn = document.querySelector(".gm-ui-hover-effect");
+              if (closeBtn) closeBtn.style.display = "none";
+
+              document
+                .getElementById("custom-close")
+                ?.addEventListener("click", () => infowindow.close());
+            });
+
+            marker.addListener('click', () => {
+              console.log('POOOOS', pos);
+              const p = pos; // snapshot if this is inside a loop
+
+              if (prev_infowindow) prev_infowindow.close();
+              prev_infowindow = infowindow;
+
+              infowindow.setContent(
+                
+                `
+                <div class="custom-info">
+                  <div style="display: flex; justify-content: right;">
+                    <button id="custom-close">×</button>
+                  </div>
+                  
+                  <h3>My Place</h3>
+                  <p>Hello world!</p>
+                  <div>
+                  <p style="color: green;">${providers[p].pName}</p>
+                  <p style="color: red;" onclick="myGlobalFunction(${p})">Tiedot</p>
+                </div>
+                </div>
+                `
+              );
+
+              // Newer signature is safe and avoids oddities
+              infowindow.open({
+                anchor: marker,
+                map,
+                shouldFocus: false
+              });
+            });
+
+          }
+
+        }
+      })
+
+    }
+
+    visibleProCount.value = count;
+
+    if (count > 0) {
+      console.log("Pro count existing...");
+      isMainPanel.value = false;
+      //this.isActiveProffs = true;
+      //this.isMainPanel = false;
+
+    } else {
+      console.log("Pro count not existing...")
+      //this.isActiveProffs = false;
+    }
+    countOfSelectedProfessional.value = count;
+    console.log("countxx " + count)
+    //this.identifyProfText();
+    //console.log("Count " + this.countOfSelectedClients)
+
+  }
+
+}
+
+const showClientLocationOnTheMap = async(profession, range) => {
+
+  console.log("Current distance herexx  ")
+  const providers = await providerService.getProviders()
+  if (providers) {
+    otherUserLocations(providers, profession, range);
+    /* if (!window.google) {
+      this.otherUserLocations(providers, profession, range);
+    } else {
+      this.otherUserLocations(providers, profession, range);
+    } */
+
+  }
+
+}
+
+const findSuitablePro = () => {
+  if (address.value) {
+    //this.isPressedFindBtn = true;
+    showClientLocationOnTheMap(currentProfession.value, selectedRange.value);
+  } else {
+    console.log("No address given!");
+    //this.isNoAddressGiven = false;
+  }
+
+}
+
+const handleSelectedPro = (pro) => {
+  console.log("Ordered company: " + pro.pName);
+  target.value = pro;
+  onProvider.value = pro;
+  displayProPanel.value = true;
+}
+
+const parseDmyTime = (str) => {
+  const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, dd, mm, yyyy, HH, MM] = m.map(Number);
+  return new Date(yyyy, mm - 1, dd, HH, MM);
+}
+
+const handleSendRequest = async (_form) => {
+  const userId = await auth.user.id;
+  const receiverId = target.value.user.id;
+  console.log("Sending request to " + target.value.user.username);
+
+  const dateObj = parseDmyTime(dt.value);
+  let ms;
+  if (dateObj) {
+      //o.value = dateObj;
+      ms = dateObj.getTime();
+      console.log("Milliseconds:", ms);  // e.g. 1758976800000
+  } else {
+      console.log("Invalid date string");
+  }
+
+  const request = {
+    created: dateObj,
+    created_ms: ms,
+    dateStr: dt.value,
+    header: _form.header,
+    agreement: false,
+    address: address.value,
+    latitude: myLat.value,
+    longitude: myLng.value,
+    zone: 0,
+    professional: profession.value.label,
+    isIncludeOffers: false,
+    description: _form.content,
+    status: "pending",
+  }
+
+
+  displayProPanel.value = false;
+  //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!"
+  //isRequestSent.value = true;
+  clientStore.onRequest(receiverId, userId, target.value.id, request);
+
+  /* toastState.value = 'danger'
+  toastIcon.value = 'fas fa-check fa-lg me-2'
+  toastContent.value = 'Hallo Helsinki'
+  toastModel.value = true */
+} 
+
 onMounted (async () => {
   //await displayPosition();
   await handleMaps();
@@ -463,5 +919,28 @@ const pinSymbol = (color, stroke_color) => {
   display: none;
 }
 
+.custom-info {
+  position: relative;
+  padding: 8px 12px;
+  font-family: sans-serif;
+}
+
+#custom-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #f44336;
+  border: none;
+  color: white;
+  font-size: 18px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* .hideMainPanel {
+  display: none;
+} */
 
 </style>

@@ -59,14 +59,14 @@
                       <MDBCol lg="4">
                         <div v-if="!booking.isIncludeOffers">
                           <MDBBtn
-                              v-if="index === selectedIndex"
+                              v-if="selBookingId === booking.id && isQuitBooking"
                               style="margin-bottom: 13px;"
                               outline="danger" block size="lg"
                               @click="canselQuitSelectedBooking"
                           >
                             Poistu
                           </MDBBtn>
-                          <MDBBtn v-else color="danger" @click="handleQuitSelectedBooking(index)" >{{t('recipient_panel_quit_order')}}</MDBBtn>
+                          <MDBBtn v-else color="danger" @click="handleQuitSelectedBooking(booking.id)" >{{t('recipient_panel_quit_order')}}</MDBBtn>
                         </div>
 
                         <MDBBtn v-else rounded  outline="" size="lg" @click="handleRecipientResult(booking.id, booking)" style="width: 100%;">
@@ -78,7 +78,7 @@
 
                       </MDBCol>
                     </MDBRow>
-                    <MDBRow v-if="selectedIndex === index && !booking.isIncludeOffers">
+                    <MDBRow v-if="selBookingId === booking.id && !booking.isIncludeOffers">
 
                       <MDBCol lg="8" style="text-align: center;">
                         <MDBTextarea
@@ -94,7 +94,7 @@
 
                       </MDBCol>
                       <MDBCol lg="4">
-                        <MDBBtn v-if="isQuitBooking && clientQuitBookingReason.length > 3" block color="success" size="lg>" style="margin-top: 10px;" @click="clientRejectBookingNoOffers(booking)">{{t('recipient_panel_confirm_quit')}}</MDBBtn>
+                        <MDBBtn v-if="isQuitBooking && clientQuitBookingReason.length > 3" block color="success" size="lg>" style="margin-top: 10px;" @click="clientRejectMapBooking(booking)">{{t('recipient_panel_confirm_quit')}}</MDBBtn>
                       </MDBCol>
 
                     </MDBRow>
@@ -113,6 +113,8 @@
 
       </div>
 
+      
+
     </div>
   </MDBContainer>
 
@@ -126,6 +128,7 @@ import { ref, computed } from 'vue';
 import RecipientContent from "../recipient/RecipientContent.vue";
 import { useClientStore } from '@/stores/recipientStore';
 import { useRouter } from 'vue-router'
+import { useNotificationStore } from '@/stores/notificationStore';
 import { storeToRefs } from 'pinia'
 
 defineOptions({
@@ -141,6 +144,12 @@ const selectedIndex = ref(null);
 const isRecipientContent = ref(false);
 const selectedBooking = ref(null);
 const clientStore = useClientStore();
+const notificationStore = useNotificationStore();
+
+const isQuitBooking = ref(false);
+const selBookingId = ref(null);
+const clientQuitBookingReason = ref("");
+
 
 const { bookings } = storeToRefs(clientStore);
 
@@ -161,6 +170,25 @@ const handleUpdateOfferState = (bookingId, offerId) => {
 const handleCanselRecipientContent = () => {
   isRecipientContent.value = false;
   //0E1218FF
+}
+
+const handleQuitSelectedBooking = (id) => {
+  console.log("Index, quit booking: " + id);
+  selBookingId.value = id;
+  isQuitBooking.value = true;
+}
+
+const canselQuitSelectedBooking = () => {
+  isQuitBooking.value = false;
+  clientQuitBookingReason.value = "";
+}
+
+const clientRejectMapBooking = async (booking) => {
+  console.log("Quit bbb " + booking.header);
+  console.log("Selected booking pro user - " + booking.ordered[0].user);
+  const addressaat = booking.ordered[0].user;
+  await clientStore.removeConfirmedMapOffer(booking);
+  await notificationStore.addNotification(booking, clientQuitBookingReason.value, addressaat);
 }
 
 

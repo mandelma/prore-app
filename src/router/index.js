@@ -81,6 +81,11 @@ const routes = [
         path: "/pay-plan",
         name: "pay-plan",
         component: () => import("../components/PayPlan.vue")
+    },
+    {
+        path: "/notifications",
+        name: "notifications",
+        component: () => import("../components/UserNotifications.vue")
     }
 
 ];

@@ -28,7 +28,8 @@ export const useLoginStore = defineStore('login', () => {
     const onLogOut = () => {
         user.value = null
         token.value = null
-        localStorage.removeItem('loggedAppUser')
+        localStorage.removeItem('loggedAppUser');
+        router.push('/');
     }
     const hydrate = async () => {
 
@@ -45,6 +46,7 @@ export const useLoginStore = defineStore('login', () => {
         } else {
             console.log("User is not logged in!");
             user.value = null;
+            router.push('/');
         }
         // try {
         //     user.value = JSON.parse(raw)

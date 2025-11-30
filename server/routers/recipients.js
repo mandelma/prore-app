@@ -314,6 +314,8 @@ router.put('/:id', async (req, res) => {
 // Delete booking
 router.delete('/:id', async (req, res) => {
     try {
+        // const client = await Recipient.findById(req.params.id);
+        
         await Recipient.findByIdAndDelete(req.params.id);
         res.send("Booking deleted!")
     } catch (err) {
