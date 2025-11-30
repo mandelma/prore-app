@@ -218,7 +218,7 @@
 [data-mdb-theme='dark'] .datepicker-modal-container {
     background-color: #161a22;  /* dark background */
     color: #e6e6e6;             /* light text */
-    border: 1px solid #2a2f3a;
+    
     border-radius: 8px;
 }
 
@@ -234,6 +234,21 @@
 /*}*/
 
 
+/* Increase the visible height of the calendar grid */
+.datepicker-modal-container .datepicker-view {
+    min-height: 360px;   /* adjust until last row is clear */
+}
+
+/* Optional: ensure background matches and no edges show */
+.datepicker-modal-container .datepicker-view,
+.datepicker-modal-container .datepicker-main {
+    background: #151820; /* your dark background */
+    border-radius: 8px;
+}
+
+
+
+
 [data-mdb-theme='dark'] .datepicker-button-toggle-hover-background-color {
     /*background-color: red;  !* dark background *!*/
     color: #e6e6e6;             /* light text */
@@ -245,7 +260,8 @@
 [data-mdb-theme='dark'] .datepicker-header {
     background-color: #1e2530;
     color: #ffffff;
-    border-bottom: 1px solid #2a2f3a;
+    /* border-bottom: 1px solid #2a2f3a; */
+    padding: 13px;
 }
 
 /* Day cells */
@@ -274,7 +290,7 @@
 
 /* Disabled day */
 [data-mdb-theme='dark'] .datepicker-cell.disabled {
-    /* color: #555 !important; */
+    color: #555 !important;
 }
 
 [data-mdb-theme='dark'] .datepicker .timepicker {
@@ -285,7 +301,11 @@
 }
 
 [data-mdb-theme='dark'] .datepicker-footer .datepicker-footer-btn {
-    background-color: #161a22;
+    background-color: #1c2331;
+}
+
+[data-mdb-theme='dark']  .datepicker-cancel-btn {
+    margin-right: 20px;
 }
 
 [data-mdb-theme='dark'] .datepicker-date-controls {

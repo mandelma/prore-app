@@ -83,6 +83,19 @@
           </td>
         </tr>
         <tr>
+          <td>Sijainti</td>
+          <td>
+            <div id="map-container">
+              <div id="client-location"></div>
+
+              <!-- overlay while map is loading -->
+              <div id="spinner" class="spinner-overlay">
+                <div class="spinner"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
           <td>
 
           </td>
@@ -191,7 +204,7 @@
           <MDBBtn v-if="!isHandleOffer" :disabled="isDisableProNotOfferBtns" block outline="danger" @click="rejectFormBooking" size="lg">Poista tilaus</MDBBtn>
         </div>
       </div>
-
+      <!--:::With offers::-->
       <div v-else style="margin-bottom: 20px;">
         <!--    <MDBBtn outline="success" block size="lg" @click="isQuitClientBooking = true">Varmista tilaus</MDBBtn>-->
 
@@ -201,7 +214,7 @@
             block
             outline="success"
             size="lg"
-            @click="confirmBooking(booking)"
+            @click="confirmClientBooking()"
         >
           Varmista tilaus
         </MDBBtn>
@@ -257,6 +270,7 @@ import { useClientStore } from '@/stores/recipientStore.js';
 import { useLoginStore } from '@/stores/login.js';
 import { storeToRefs } from 'pinia';
 import socket from "@/socket";
+import {loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 
 defineOptions({
   name: 'client-offer'
@@ -274,7 +288,7 @@ const _props = defineProps({
 const { client, open } = toRefs(_props)
 
 const sender = useLoginStore();
-const proClient = useProStore();
+const proStore = useProStore();
 const clientStore = useClientStore();
 
 
@@ -293,63 +307,27 @@ const roadDistance = ref(null);
 const roadDuration = ref(null);
 const isHandleOffer = ref(false);
 const { user } = storeToRefs(sender)
-const { providerId, provider } = storeToRefs(proClient);
+const { providerId, provider } = storeToRefs(proStore);
 const offerPrice = ref(null);
 const offerPlace = ref('here');
 const offerAbout = ref('');
 const reason = ref('');
 const isQuitClientBooking = ref(false);
 
+const isMapLoading = ref(true);
+
 
 // const parentCollapse = ref(null); // <MDBCollapse> component
 // const parentContent  = ref(null); // inner content we measure
 
 const mapsError = ref(false);
-import {loadGoogleMaps} from '../controllers/loadGoogleMap.js'
+
 const final = ref(null);
 
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
 //const road = computed(async() => await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]))
-onMounted(async() => {
-  await validateMaps();
-  // if (!window.google) {
-  //   await loadGoogleMaps();
-  //   console.log("Map is inited in ClientOffer!");
-  // }
-  console.log("CXC " + await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]));
 
-  const road = await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]);
-
-  if (road) {
-    console.log("Distance is " + road.distance);
-    console.log("Duration is " + road.duration);
-    roadDistance.value = road.distance;
-    roadDuration.value = road.duration;
-  }
-  //console.log("Distance is " + final.value.distance);
-  //console.log("Duration is " + final.value.duration);
-
-})
-const validateMaps = async() => {
-  try {
-    await loadGoogleMaps();
-    console.log("Map is inited in ClientOffer! ✅");
-  } catch (err) {
-    console.error('Google Maps failed to load ❌', err);
-    mapsError.value = true;
-  }
-}
-
-
-const makeOfferBtn = () => {
-  console.log("Make offer!");
-  isHandleOffer.value = true;
-}
-const createOffer = () => {
-  
-  console.log("Creating offer! " + offerPrice.value);
-
-  const offer = {
+const offer = {
     bookingID: client.value.id,
     sender: user.value.id,
     isNewOffer: true,
@@ -363,16 +341,105 @@ const createOffer = () => {
     place: offerPlace.value,
     provider: providerId.value
   }    
+
+
+onMounted(async() => {
+  await validateMaps();
+  // if (!window.google) {
+  //   await loadGoogleMaps();
+  //   console.log("Map is inited in ClientOffer!");
+  // }
+
+  
+  //console.log("Distance is " + final.value.distance);
+  //console.log("Duration is " + final.value.duration);
+
+})
+const validateMaps = async() => {
+  try {
+    await loadGoogleMaps(); // your existing loader
+    console.log("Map is inited in ClientOffer! ✅");
+
+    console.log("CXC " + await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]));
+
+    const road = await d.findDistance([provider.value.latitude, provider.value.longitude], [client.value.latitude, client.value.longitude]);
+
+    if (road) {
+      console.log("Distance is " + road.distance);
+      console.log("Duration is " + road.duration);
+      roadDistance.value = road.distance;
+      roadDuration.value = road.duration;
+    }
+
+    const mapEl = document.getElementById("client-location");
+    if (!mapEl) {
+      throw new Error("#client-location not found in DOM");
+    }
+
+    const map = new google.maps.Map(mapEl, {
+      zoom: 11,
+      center: new google.maps.LatLng(
+        client.value.latitude,
+        client.value.longitude
+      ),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+    });
+
+    // optional: add a marker at the client location
+    new google.maps.Marker({
+      position: {
+        lat: client.value.latitude,
+        lng: client.value.longitude,
+      },
+      map,
+    });
+
+    // hide spinner when map is idle (fully rendered)
+    google.maps.event.addListenerOnce(map, "idle", () => {
+      const spinner = document.getElementById("spinner");
+      if (spinner) spinner.style.display = "none";
+    });
+  } catch (err) {
+    console.error("Google Maps failed to load ❌", err);
+    mapsError.value = true;
+    const spinner = document.getElementById("spinner");
+    if (spinner) spinner.style.display = "none";
+  }
+}
+
+
+const makeOfferBtn = () => {
+  console.log("Make offer!");
+  isHandleOffer.value = true;
+}
+const createOffer = () => {
+  
+  console.log("Creating offer! " + offerPrice.value);
+
+  
   const addressee = client.value.user.id;
   console.log("Addressee - " + addressee);
   //clientStore.addOffer(client.value.id, offer);
-  proClient.addProviderOffer(client.value.id, addressee, offer);
+  proStore.addProviderOffer(client.value.id, addressee, offer);
   //socket.emit('client get offer', addressee, client.value.id, offer);
 
 }
+// On single offer from map
 const quitOffer = () => {
   //isQuitClientBooking = true;
-  console.log("Quit offer");
+  if (confirm("Oletko varmaa että tilaus poistetaan?")) {
+    console.log("Quit offer");
+  } else {
+    console.log("Keskeytetty poistaminen!");
+  }
+}
+
+const confirmClientBooking = async () => {
+  console.log("client user id: " + client.value.user.id);
+  const receiver = client.value.user.id;
+  const bookingId = client.value.id;
+  await proStore.onConfirmClientBooking(client.value.id, offer);
+  socket.emit('on client request confirm', receiver, bookingId, offer);
 }
 
 const rejectFormBooking = () => {
@@ -381,7 +448,7 @@ const rejectFormBooking = () => {
 
     isQuitClientBooking.value = true;
     console.log("Reject");
-    proClient.removeBookingOffer(client.value.id)
+    proStore.removeBookingOffer(client.value.id)
     //emit('quit-booking-order');
     //this.$emit("rejectFormBooking", booking);
 
@@ -394,4 +461,48 @@ const rejectFormBooking = () => {
 <style scoped>
 .fade-slide-enter-active, .fade-slide-leave-active { transition: all .2s ease; }
 .fade-slide-enter-from,  .fade-slide-leave-to      { opacity: 0; transform: translateY(-4px); }
+
+/* Small map container (e.g. 150x150 px) */
+#map-container {
+  position: relative;
+  width: 150px;
+  height: 150px;       /* important! */
+  overflow: hidden;    /* optional, keeps it clean in table cell */
+}
+
+/* The actual map div must fill the container */
+#client-location {
+  width: 100%;
+  height: 100%;        /* important! */
+}
+
+/* Overlay spinner */
+.spinner-overlay {
+  position: absolute;  /* overlay inside #map-container */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0b1618;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 4px solid #ccc;
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 </style>

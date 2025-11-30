@@ -5,7 +5,7 @@ const Recipient = require("../models/recipients");
 //const User = require('../models/users')
 
 router.get('/', async(req, res) => {
-    const providers = await Provider.find({}).populate('user').populate('timeoffer');
+    const providers = await Provider.find({}).populate('user').populate('timetable');
     res.send(providers)
 })
 

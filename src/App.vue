@@ -45,12 +45,17 @@
           <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
             <language-contents />
           </MDBNavbarItem>
+          <!--User-->
           <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle tag="a" class="nav-link" @click="userDropdown = !userDropdown">
                 <MDBIcon icon="user" class="icon" />
+                <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
+                <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="">
+                  <RouterLink to="/notifications" style="color: #ddd;" @click="handleShowNotifications">Viestit</RouterLink>
+                </MDBDropdownItem>
 <!--                <MDBDropdownItem href="#">Action</MDBDropdownItem>-->
                 <MDBDropdownItem style="color: #ddd;" href="">
                   <RouterLink :to="{name: 'calendar', params: {count: 10}}" style="color: #ddd;" >Kalenteri</RouterLink>
@@ -193,6 +198,7 @@ import userService from './service/users.js';
 import loginService from './service/login.js';
 import { useLoginStore } from "@/stores/login.js";
 import { useClientStore} from "@/stores/recipientStore.js";
+import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
 
 
@@ -203,6 +209,7 @@ import recipientService from './service/recipients.js'
 import providerService from './service/providers.js'
 import onMap from '@/components/controllers/distance'
 import socket from "@/socket";
+
 const router = useRouter();
 const route = useRoute();
 const userID = ref('');
@@ -213,8 +220,11 @@ import { useRoute, useRouter } from "vue-router";
 const { t } = useI18n();
 const client = useClientStore();
 const handleProvider = useProStore();
+const notificationStore = useNotificationStore();
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
+const { notifications, newNotesCount } = storeToRefs(notificationStore);
+
 const test = ref(null);
 const bb = ref(null)
 
@@ -243,6 +253,7 @@ onMounted (async () => {
     username.value = user.username;
     await client.orderList(user.id);
     await handleProvider.getProState(user.id);
+    await notificationStore.handleNotifications(user.id);
     //joinServer (user.id, user.username);
   }
 
@@ -279,6 +290,22 @@ const listen = async() => {
   socket.on('pro-handle-confirmed', async({sender, orderId, offerId}) => {
     console.log("PRO GOT IT - " + orderId);
     await handleProvider.handleConfirmed(orderId);
+  })
+  socket.on('handle client request', async ({bookingId}) => {
+    console.log("Requested booking id is " + bookingId);
+    const request = await recipientService.getBookingById(bookingId);
+    if (!request) return;
+    handleProvider.upsertBooking(request);
+  })
+  socket.on('handle client request confirm', async ({receiver, bId, _offer}) => {
+    console.log("XXXXX " + bId);
+    await client.handleConfirmedOffer(bId, _offer);
+  })
+  socket.on('handle client del map booking', async (receiver, bookingId, note) => {
+    console.log("Del map booking " + bookingId);
+    console.log("Note  " + note.id);
+    await handleProvider.removeBookingOffer(bookingId);
+    await notificationStore.localStateAddNotification(note);
   })
 }
 
@@ -405,15 +432,17 @@ const seeClientOffer = () => {
   console.log("opening the offer");
   router.push('/client-panel');
 }
+const handleShowNotifications = async () => {
+  if (newNotesCount.value > 0) {
+    await notificationStore.upsertNotificationStatus();
+    router.push('/notifications');
+  }
+}
 
 
 </script>
 
 <style>
 html, body { height: 100%; }            /* ensures the body can size to the viewport */
-body {
-  /* better on mobile (address bar) */
-  /* display: flex;
-  flex-direction: column; */
-}
+
 </style>

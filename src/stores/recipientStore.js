@@ -2,8 +2,11 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useLoginStore} from "@/stores/login.js";
 import clientService from '../service/recipients.js';
+import providerService from '../service/providers.js';
+import noteService from '../service/notifications.js';
 import offerService from '../service/offers.js';
 import socket from '@/socket';
+import { useRouter } from 'vue-router';
 
 export const useClientStore = defineStore('client', () => {
     //const clientAuth = useLoginStore();
@@ -13,7 +16,8 @@ export const useClientStore = defineStore('client', () => {
     const clientOffers = ref([]);
     const clientNewOffers = ref([]);
     const isLoading = ref(false)
-    const clientError = ref("" || null)
+    const clientError = ref("" || null);
+    const router = useRouter();
 
     const isBookings = computed(() => !!count.value)
     const clientNewOffersAmount = computed(() => clientNewOffers.value.length);
@@ -115,6 +119,45 @@ export const useClientStore = defineStore('client', () => {
         socket.emit('client-handle-offer', offer.sender, offer.bookingID, offer.id);
     }
 
+    const handleConfirmedOffer = async (bookingId, _offer) => {
+       // const _Offer = await offerService.addOffer(newContent);
+        const bookingsEdited = bookings.value.map(booking => booking.id === bookingId ? {...booking, status: 'confirmed', offer: _offer} : booking);
+        bookings.value = bookingsEdited;
+        
+    }
+
+    const removeConfirmedMapOffer = async (booking) => {
+        //await clientService.removeBooking(bookingId);
+        
+        // Add remove booking accessories like pictures etc.
+        bookings.value = bookings.value.filter(item => item.id !== booking.id);
+        if (bookings.value.length < 1) router.push('/');
+
+    }
+
+    // Client sending request to the provider via map
+    const onRequest = async(receiver, userId, proId, request) => {
+        console.log("Data in rec store " + receiver)
+        const newRequest = await clientService.addRecipient(userId, request);
+
+        if (!newRequest) return;
+        
+        const bookingId = newRequest.id;
+        const handleClient = await clientService.addProviderData(bookingId, proId);
+        const handlePro = await providerService.addProviderBooking(proId, bookingId);
+
+        if (!handleClient || !handlePro) return;
+        
+        console.log("Created request id: " + bookingId);
+
+        socket.emit("client made request", receiver, bookingId);
+
+        bookings.value.push(newRequest);
+        count.value = bookings.value.length;
+
+        router.push('client-panel');
+    }
+
     const testOffers = () =>{
         // Just a sample array.
         const bookings = [
@@ -171,6 +214,9 @@ export const useClientStore = defineStore('client', () => {
         bookings, 
         getBookingById, 
         confirmOffer, 
+        onRequest,
+        handleConfirmedOffer,
+        removeConfirmedMapOffer,
         clientOffers, 
         clientNewOffers, 
         clientNewOffersAmount, 

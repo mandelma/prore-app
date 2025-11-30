@@ -18,6 +18,24 @@
         console.log("Sender - " + sender);
         socket.to(sender).to(socket.userId).emit('pro-handle-confirmed', {sender, orderId, offerId})
     })
+
+
+    // See tuleb üle vaadata kas eksisteerib!!
+    socket.on("client made request", (receiver, bookingId) => {
+        console.log("Request: " + receiver + " - " + bookingId);
+        socket.to(receiver).to(socket.userId).emit('handle client request', {bookingId});
+    })
+
+    socket.on('on client request confirm', (receiver, bookingId, offer) => {
+        console.log("TEST")
+        console.log("Receiver id " + receiver + " ja booking id " + bookingId);
+        socket.to(receiver).to(socket.userId).emit('handle client request confirm', {receiver, bId: bookingId, _offer: offer})
+    })
+
+    socket.on('del client map booking', (bookingId, receiver, note) => {
+        console.log("Del map booking " + receiver + " " + bookingId);
+        socket.to(receiver).to(socket.userId).emit('handle client del map booking', receiver, bookingId, note);
+    })
 }
 
 module.exports = hs;

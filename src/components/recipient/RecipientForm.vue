@@ -3,6 +3,17 @@
 <!--    v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"-->
     <MDBContainer>
 <!--      g-3 needs-validation   -->
+
+      <HandleToast
+        v-model="toastModel"
+        :toast-name="toastState"
+        :icon-state="toastIcon"
+        :text="toastContent"
+      />
+
+      <!-- <button @click="testToast">Show toast</button> -->
+
+
       <div style="padding: 13px 0 20px 0;">
         <MDBToast
             v-model="isInitClientError"
@@ -254,6 +265,7 @@ import clientService from '../../service/recipients';
 import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 import RecipientPage from '@/components/recipient/RecipientPage.vue'
 
+import HandleToast from '@/components/helpers/ToastHandler.vue'
 import '@/styles/pro-select.css';
 defineOptions({
   name: 'recipient-form'
@@ -331,6 +343,21 @@ const lat = ref(null);
 const lng = ref(null);
 
 const o = ref(null);
+
+const toastModel = ref(false)
+const toastState = ref('')       // 'success' | 'danger' | 'info' | etc.
+const toastIcon = ref('')        // optional
+const toastContent = ref('')
+
+
+function testToast() {
+  toastState.value = 'danger'
+  toastIcon.value = 'fas fa-check fa-lg me-2'
+  toastContent.value = 'Hallo Helsinki'
+  toastModel.value = true
+}
+
+
 
 const mdbLocale = computed(() => {
   const map = { en: 'en', fi: 'fi', sv: 'sv', et: 'et' }
@@ -625,15 +652,15 @@ const createClient = async() => {
   opacity: 0.5;
 }
 
-  .mapGif {
-    width: 40px;
-    cursor: pointer;
-  }
-  @media (max-width: 480px) {
-    /*.mapGif {*/
-    /*  width: 30px;*/
-    /*}*/
-  }
+.mapGif {
+  width: 40px;
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  /*.mapGif {*/
+  /*  width: 30px;*/
+  /*}*/
+}
 
 
 .hideInput {
