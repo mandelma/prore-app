@@ -34,7 +34,7 @@ router.get('/:id/by-provider-id', async (req, res) => {
         //.populate('booking')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
-        .populate({timetable})
+        .populate('timetable')
         //.populate({path: 'booking', populate: {path: 'image'}}).exec()
 
     //const provider = await Provider.findById(req.params.id)

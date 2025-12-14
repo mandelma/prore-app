@@ -18,7 +18,7 @@ router.get('/user/:id', async (req, res) => {
     const recipients = await Recipient.find({user: req.params.id})
         .populate('user')
         .populate('ordered')
-        // .populate({path: 'ordered', populate: {path: 'user'}} )
+        .populate({path: 'ordered', populate: {path: 'user'}} )
         // .populate({path: 'ordered', populate: {path: 'reference'}})
         // .populate('image')
         .populate('offers')
@@ -55,6 +55,7 @@ router.post('/:id', async (req, res, next) => {
         //console.log(formatted)               // → 09/26/2025
         console.log("DateObj " + body.created)
         const recipient = new Recipient({
+            author_id: body.author_id,
             started: new Date(),
             created: body.created,
             created_ms: body.created_ms,

@@ -15,6 +15,9 @@ const messageSchema = new Schema({
     isLink: {
         type: Boolean
     },
+    title: {
+        type: String
+    },
     content: {
         type: String
     },

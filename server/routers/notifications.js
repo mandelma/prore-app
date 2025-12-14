@@ -34,6 +34,7 @@ messageRouter.post('/:id/notification', async (req, res) => {
             bookingId: body.bookingId,
             isNewMsg: body.isNewMsg,
             isLink: body.isLink,
+            title: body.title,
             content: body.content,
             reason: body.reason,
             author: body.sender,
