@@ -11,6 +11,13 @@
         :text="toastContent"
       />
 
+      <!-- <HandleMapErrorToast
+        v-model="mapToastModel"
+        :toast-name="mapToastState"
+        :icon-state="mapToastIcon"
+        :text="mapToastContent" 
+      /> -->
+
       <!-- <button @click="testToast">Show toast</button> -->
 
 
@@ -161,6 +168,8 @@
                   size="lg"
                   label="Valitse tehtävän päivämäärä ja aika"
                   v-model="form.dateTime"
+                  :toggleButton="false"
+                  inputToggle
 
                   :datepicker="{
                   ...L
@@ -185,11 +194,11 @@
 
           <div class="field-wrapper">
             <MDBCheckbox
-                label="Vastaukset voi lähettää sähköpostiin!"
-                name="agreement_as_client"
-                v-model="isClientContactAgreement"
-                value="true"
-                wrapperClass="mb-4"
+              label="Vastaukset voi lähettää sähköpostiin!"
+              name="agreement_as_client"
+              v-model="isClientContactAgreement"
+              value="true"
+              wrapperClass="mb-4"
             />
           </div>
 
@@ -239,7 +248,7 @@
 
           </MDBRow>
 
-          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">Submit</MDBBtn>
+          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">Lähetä tilaus</MDBBtn>
 
         </form>
 <!--        <recipient-page :header="form.address"/>-->
@@ -264,9 +273,10 @@ import { useI18n } from 'vue-i18n';
 import clientService from '../../service/recipients';
 import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 import RecipientPage from '@/components/recipient/RecipientPage.vue'
-
+import HandleMapErrorToast from '@/components/helpers/ToastHandler.vue'
 import HandleToast from '@/components/helpers/ToastHandler.vue'
 import '@/styles/pro-select.css';
+
 defineOptions({
   name: 'recipient-form'
 });
@@ -288,11 +298,11 @@ const errors = reactive({});
 
 
 const validateForm = () => {
-  errors.profession = form.profession ? "" : "Profession is required";
-  errors.orderHeader = form.orderHeader ? "" : "Header is required";
-  errors.address = form.address ? "" : "Address is required";
-  errors.dateTime = form.dateTime ? "" : "Date is required";
-  errors.explanation = form.explanation ? "" : "Kuvaus is required";
+  errors.profession = form.profession ? "" : "Ammatti on pakollinen kenttä";
+  errors.orderHeader = form.orderHeader ? "" : "Avainsana on pakollinen kenttä";
+  errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
+  errors.dateTime = form.dateTime ? "" : "Päivämäära on pakollinen kenttä";
+  errors.explanation = form.explanation ? "" : "Kuvaus on pakollinen kentta";
 
   return !errors.profession && !errors.orderHeader && !errors.address && !errors.dateTime && !errors.explanation;
 }
@@ -337,6 +347,7 @@ const myLocation = ref("");
 const isClientContactAgreement = ref(false);
 const professions = proList;
 const mapImage = map_image;
+const mapError = ref(false);
 const desiredRange = ref("")
 //const range = ref(null);
 const lat = ref(null);
@@ -349,10 +360,15 @@ const toastState = ref('')       // 'success' | 'danger' | 'info' | etc.
 const toastIcon = ref('')        // optional
 const toastContent = ref('')
 
+const mapToastModel = ref(false);
+const mapToastState = ref('');
+const mapToastIcon = ref('');
+const mapToastContent = ref('');
+
 
 function testToast() {
-  toastState.value = 'danger'
-  toastIcon.value = 'fas fa-check fa-lg me-2'
+  toastState.value = 'success'
+  toastIcon.value = 'fas fa-exclamation-circle fa-lg me-2'
   toastContent.value = 'Hallo Helsinki'
   toastModel.value = true
 }
@@ -482,6 +498,7 @@ onMounted(async() => {
 })
 
 const validateMaps = async() => {
+  mapError.value = false;
   try {
     await loadGoogleMaps();
     console.log("Map is inited in Recipient form! ✅");
@@ -516,7 +533,11 @@ const validateMaps = async() => {
     })
   } catch (err) {
     console.error('Google Maps failed to load ❌', err);
-    mapsError.value = true;
+    mapError.value = true;
+    mapToastModel.value = true;
+    mapToastState.value = 'danger';
+    mapToastIcon.value = 'fas fa-check fa-lg me-2';
+    mapToastContent = 'Internet yhteys puuttuu!';
   }
 }
 
@@ -618,6 +639,7 @@ const createClient = async() => {
     }
 
     const client = {
+      author_id: userAuth.user.id,
       created: dateObj,
       created_ms: ms,
       dateStr: form.dateTime,
@@ -647,6 +669,7 @@ const createClient = async() => {
 </script>
 
 <style >
+
 .message-counter {
   float: right;
   opacity: 0.5;

@@ -1,10 +1,25 @@
 <template>
   <MDBContainer>
+    <MDBToast
+      :stacking="false"
+      autohide
+      :delay="3000"
+      v-model="isConfirmed"
+      toast="success"
+      icon="fas fa-check fa-lg me-2"
+    >
+      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+      <template #title> PROKEIKKATORI </template>
+      <!-- <template #small> 11 mins ago </template> -->
+      {{ confirmedMessage }}
+    </MDBToast>
     <div v-if="isRecipientContent">
       <recipient-content
         :booking="selectedBooking"
         @updateOfferState="handleUpdateOfferState"
-        @canselRecipientContent="handleCanselRecipientContent"
+        @cancelRecipientContent="handleCancelRecipientContent"
+        @out-here="handleOutHere"
+        @canselRecipientContentConfirmed="handleCanselRecipientContentConfirmed"
       />
     </div>
     <div v-else>
@@ -12,6 +27,7 @@
 <!--      <div v-if="isSpinner" class="spinner-border" role="status">-->
 <!--        <span class="visually-hidden">Loading...</span>-->
 <!--      </div>-->
+      
       <div>
 
         <MDBRow>
@@ -47,9 +63,6 @@
 
                         <p class="booking_time">
                           {{booking.date}}
-                          <!-- klo
-                          {{new Date(booking.created).getHours() >= 10 ? new Date(booking.created).getHours() : "0" + new Date(booking.created).getHours() }} :
-                          {{new Date(booking.created).getMinutes() >= 10 ? new Date(booking.created).getMinutes() : "0" + new Date(booking.created).getMinutes() }} -->
                         </p>
                       </MDBCol>
                       <MDBCol>
@@ -66,10 +79,10 @@
                           >
                             Poistu
                           </MDBBtn>
-                          <MDBBtn v-else color="danger" @click="handleQuitSelectedBooking(booking.id)" >{{t('recipient_panel_quit_order')}}</MDBBtn>
+                          <MDBBtn v-else color="danger" rounded @click="handleQuitSelectedBooking(booking.id)" >{{t('recipient_panel_quit_order')}}</MDBBtn>
                         </div>
 
-                        <MDBBtn v-else rounded  outline="" size="lg" @click="handleRecipientResult(booking.id, booking)" style="width: 100%;">
+                        <MDBBtn v-else rounded  color="primary" size="lg" @click="handleRecipientResult(booking.id, booking)" style="width: 100%;">
                           <span :class="{date_expired: booking.created_ms - new Date().getTime() <= 0}" >{{t('recipient_panel_order')}}</span>
                           <MDBBadge v-if="booking.offers.filter(offer => offer.isNewOffer).length > 0" color="danger"  class="ms-2" >
                             {{booking.offers.filter(offer => offer.isNewOffer).length}}
@@ -78,6 +91,11 @@
 
                       </MDBCol>
                     </MDBRow>
+
+
+
+
+
                     <MDBRow v-if="selBookingId === booking.id && !booking.isIncludeOffers">
 
                       <MDBCol lg="8" style="text-align: center;">
@@ -122,7 +140,7 @@
 </template>
 
 <script setup>
-import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBBadge } from 'mdb-vue-ui-kit';
+import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBBadge, MDBToast } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
 import { ref, computed } from 'vue';
 import RecipientContent from "../recipient/RecipientContent.vue";
@@ -146,12 +164,16 @@ const selectedBooking = ref(null);
 const clientStore = useClientStore();
 const notificationStore = useNotificationStore();
 
+const isConfirmed = ref(false);
+const confirmedMessage = ref("TEST")
+
 const isQuitBooking = ref(false);
 const selBookingId = ref(null);
 const clientQuitBookingReason = ref("");
 
 
 const { bookings } = storeToRefs(clientStore);
+const { userId } = storeToRefs(notificationStore);
 
 const handleRecipientResult = (id, booking) => {
   console.log("Booking id - " + id); 
@@ -167,9 +189,22 @@ const handleUpdateOfferState = (bookingId, offerId) => {
   selectedBooking.value = clientStore.getBookingById(bookingId);
 }
 
-const handleCanselRecipientContent = () => {
+const handleCancelRecipientContent = () => {
+  console.log("CANCEL")
   isRecipientContent.value = false;
-  //0E1218FF
+}
+
+const handleOutHere = () => {
+  console.log("OUT")
+  isRecipientContent.value = false;
+}
+
+const handleCanselRecipientContentConfirmed = (pro) => {
+  isRecipientContent.value = false;
+
+  // Show success toast after confirmation
+  isConfirmed.value = true;
+  confirmedMessage.value = `${pro} vahvistettu`;
 }
 
 const handleQuitSelectedBooking = (id) => {
@@ -185,10 +220,14 @@ const canselQuitSelectedBooking = () => {
 
 const clientRejectMapBooking = async (booking) => {
   console.log("Quit bbb " + booking.header);
-  console.log("Selected booking pro user - " + booking.ordered[0].user);
-  const addressaat = booking.ordered[0].user;
+  console.log("Selected booking pro user - " + booking.ordered[0].user.id);
+  const addressaat = booking.ordered[0].user.id;
+  const reason = clientQuitBookingReason.value;
+  const sender = booking.user.username;
   await clientStore.removeConfirmedMapOffer(booking);
-  await notificationStore.addNotification(booking, clientQuitBookingReason.value, addressaat);
+
+  const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
+  await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
 }
 
 

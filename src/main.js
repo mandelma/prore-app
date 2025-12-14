@@ -1,6 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import 'mdb-vue-ui-kit/css/mdb.min.css'
+//import 'mdb-vue-ui-kit/css/mdb.min.css'
+
+
+import 'mdb-vue-ui-kit/css/mdb.min.css';
 
 import i18n from './components/controllers/i18n.js'
 import PrimeVue from 'primevue/config'

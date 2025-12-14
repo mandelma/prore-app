@@ -1,7 +1,7 @@
 <template>
   <MDBContainer v-if="isOfferContent">
     <div >
-      <offer-content :offerId="offerId" @quit-content="handleQuitOfferContent" />
+      <offer-content :offerId="offerId" @quit-content="isOfferContent = false" @quit-content-confirmed="handleQuitOfferContentConfirmed" />
     </div>
   </MDBContainer>
   <MDBContainer v-else>
@@ -10,11 +10,11 @@
       <MDBBtnClose
           white
           style="cursor: pointer;"
-          @click="canselResult"
+          @click="handleQuitContent"
       />
     </div>
 
-    <div v-if="!booking" class="spinner-border" role="status">
+    <div v-if="!bookings" class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
     <div v-else class="booking-content">
@@ -223,7 +223,7 @@
         </MDBCol>
 
         <MDBCol lg="6">
-          <div v-if="booking.offers.length > 0" class="offer-list">
+          <div v-if="booking.offers.length > 0" class="form-card">
             <h3 style="padding: 13px;">Tehtyjä tarjouksia</h3>
             <MDBSelect theme="dark" size="lg" style="margin-bottom: 17px;" white  v-model:options = filterOptions label="Filter" />
 
@@ -235,7 +235,7 @@
                   <div class="w-100 position-relative">
                     <MDBBtn
                       class="provider-selection"
-                      color="primary"
+                      outline="info"
                       block
                       size="lg"
                       @click="getProviderInfo(offer.provider, offer)"
@@ -268,9 +268,6 @@
                     </span>
                   </MDBBadge>
                   </div>
-                
-
-                  
 
                 </td>
 
@@ -281,9 +278,22 @@
           </div>
           <div v-else>
             <h2 style="width: 100%; margin-top: 12px;">{{ t('recipient_result_waiting_offers') }}</h2>
+            <img :src="loadOffers" alt="loading_offers" />
           </div>
           
-          <MDBBtn style="float: right; margin-top: 27px;" color="danger" size="lg" @click="removeOfferedBookings">{{ t('recipient_result_remove_order') }}</MDBBtn>
+          <!-- <MDBBtn style="float: right; margin-top: 27px;" color="danger" size="lg" @click="removePublicBooking">{{ t('recipient_result_remove_order') }}</MDBBtn> -->
+          <MDBPopconfirm 
+            modal 
+            style="float: right; margin-top: 27px;" 
+            class="pc-trigger-danger" 
+            message="Oletko varma, että haluat poista tilauksen?" 
+            cancelText="En" 
+            confirmBtnClasses="popconfirm-ok-btn"
+            confirmText="Poista tilaus" 
+            tag="button" 
+            @confirm="removePublicBooking">
+              {{ t('recipient_result_remove_order') }}
+          </MDBPopconfirm>
         </MDBCol>
 
         
@@ -301,18 +311,19 @@
 </template>
 
 <script setup>
-import {MDBContainer, MDBRow, MDBCol, MDBBtnClose, MDBBtn, MDBTable, MDBBadge, MDBSelect} from 'mdb-vue-ui-kit';
+import {MDBContainer, MDBRow, MDBCol, MDBBtnClose, MDBBtn, MDBTable, MDBBadge, MDBSelect, MDBPopconfirm} from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
 import { ref, toRefs} from 'vue';
 import { useClientStore } from '@/stores/recipientStore';
 import OfferContent from './OfferContent.vue';
 import { storeToRefs } from 'pinia';
+import load_offers from '@/assets/load-pro-offers.gif';
 import '@/styles/theme.css';
 //import '@/styles/form.css';
 defineOptions({
   name: "recipient-content"
 });
-defineProps({
+const props = defineProps({
   booking: {type: Object},
   bIndex: {type: Number}
 })
@@ -323,13 +334,14 @@ defineProps({
 
 const { booking } = toRefs(_props) */
 
-const emit = defineEmits(['canselRecipientContent', 'updateOfferState'])
+const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState'])
 
 const {t} = useI18n();
 const clientStore = useClientStore();
 const booking_offers = ref([])
 const offerId = ref("");
 const isOfferContent = ref(false);
+const loadOffers = load_offers;
 const filterOptions = ref([
   {text: "Distance", value: 25 }
 ])
@@ -348,14 +360,22 @@ const getProviderInfo = async (proID, offer) => {
   emit('updateOfferState', offer.bookingID, offer.id);
 }
 
-const handleQuitOfferContent = (confirm) => {
-  console.log("Quitting content!")
-  isOfferContent.value = false;
-  if (confirm) canselResult();
+const handleQuitContent = () => {
+  emit ('cancelRecipientContent');
 }
 
-const canselResult = () => {
-  emit('canselRecipientContent');
+const handleQuitOfferContentConfirmed = (pro) => {
+  console.log("Quitting content! " + pro)
+  isOfferContent.value = false;
+  emit('canselRecipientContentConfirmed', pro);
+}
+
+
+const removePublicBooking = async () => {
+  console.log("BOOKING ID " + props.booking.id)
+  
+  await clientStore.onRemovePublicBooking(props.booking.id);
+  emit('out-here');
 }
 
 </script>
@@ -372,11 +392,25 @@ const canselResult = () => {
   color: #fff !important;
 }
 .booking-content {
-  background-color: green;
+  background-color: #102226;
+  border: 1px solid #153036;
   padding: 13px;
 }
 .offer-list {
   background-color: blue;
   padding: 13px;
 }
+
+/* Popconfirm button color */
+:deep(.pc-trigger-danger.btn-primary),
+:deep(.pc-trigger-danger.btn-primary:hover),
+:deep(.pc-trigger-danger.btn-primary:focus),
+:deep(.pc-trigger-danger.btn-primary:active) {
+background-color: #e05b69 !important;
+border-color: #dc3545 !important;
+box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
+}
+
+
+
 </style>

@@ -92,6 +92,45 @@
 
 }
 
+/* :root [data-theme="dark"] {
+  --mdb-danger: #f8d7da;
+  --mdb-success: #d1e7dd;
+  --mdb-warning: #fff3cd;
+  --mdb-info: #cff4fc;
+} */
+
+/* GLOBAL Popconfirm Styles */
+.popconfirm {
+  background-color: #27383f !important;
+  border: 1px solid #3c5f6e;
+  color: #fff !important;
+}
+
+/* .popconfirm-buttons-container button {
+  background-color: #555 !important;
+  border-color: #555 !important;
+} */
+
+.popconfirm-buttons-container button:first-child {
+  /* Cancel */
+  background-color: #404352 !important;
+  color: red;
+}
+
+
+
+/* Add spacing below the message */
+.popconfirm .popconfirm-message {
+  margin-bottom: 1rem !important; /* or 12px, 16px, etc. */
+}
+
+/* Add padding above the buttons container */
+.popconfirm .popconfirm-buttons-container {
+  padding-top: 0.75rem !important;
+}
+
+
+
 .app-shell {
     min-height: 100vh;
     display: flex;

@@ -28,19 +28,62 @@ export const useNotificationStore = defineStore('notifications', () => {
             isNotesLoading.value = false;
         }
     }
-    const addNotification = async (booking, reason, receiver) => {
+    //bookingId, provider.value.pName, header, noteContent, addressaat
+    // Client rejects own booking - notification to pro
+    const addNotification = async (booking_id, author, header, text, receiver) => {
         const newNote = await noteService.createMessage(receiver, {
-            bookingId: booking.id,
+            bookingId: booking_id,
             isNewMsg: true,
             isLink: false,
-            content: `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`,
-            reason: reason,
-            sender: booking.user.username,
+            title: header,
+            content: text,
+            reason: '',
+            sender: author,
         });
         if (newNote) {
-            socket.emit("del client map booking", booking.id, receiver, newNote);
+            socket.emit("del client map booking", booking_id, receiver, newNote);
             
         }
+    }
+
+    const onProRejectClientMapOrderNote = async (booking_id, author, header, text, receiver) => {
+        const proNote = await noteService.createMessage(receiver, {
+            bookingId: booking_id,
+            isNewMsg: true,
+            isLink: false,
+            title: header,
+            content: text,
+            reason: '',
+            sender: author,
+        });
+        if (proNote) {
+            socket.emit('pro del client map order notification', booking_id, receiver, proNote);
+        }
+    }
+    // Pro orders, pro confirms client deal
+    const localConfirmDealNotification = async (booking_id, proId, clientId, notes) => {
+        const clientSide = await noteService.createMessage(clientId, notes.cNote);
+        //const proSide = await noteService.createMessage(proId, notes.pNote);
+        if (!clientSide) return;
+        //notes.pNote = proSide;
+        notes.cNote = clientSide;
+
+        socket.emit('on-confirmed-deal-notification', booking_id, proId, clientId, notes);
+
+        //localStateAddNotification(notes.pNote);
+    } 
+
+    const clientConfirmDealNotification = async (bookingId, receiver, note) => {
+        // --Tegemisel--
+        const dealNotification = await noteService.createMessage(receiver, note);
+        if (!dealNotification) return;
+        note.id = dealNotification.id;
+        socket.emit('on-client-confirmed-deal-motification', receiver, bookingId, note);
+    }
+
+    const clientPublicBookingDelNotification = async (receiver, bookingId, note) => {
+        // Notificatio to providers who had done offer
+        socket.emit('on-client-del-public-booking-notification', receiver, bookingId, note);
     }
 
     const localStateAddNotification = async (newNote) => {
@@ -48,6 +91,7 @@ export const useNotificationStore = defineStore('notifications', () => {
             ...notifications.value,
             newNote
         ];
+        //const confirmNote = await noteService.createMessage()
     }
     const upsertNotificationStatus = async () => {
         for (const note of notifications.value) {
@@ -68,9 +112,13 @@ export const useNotificationStore = defineStore('notifications', () => {
     return {
         handleNotifications,
         addNotification,
+        onProRejectClientMapOrderNote,
+        localConfirmDealNotification,
         localStateAddNotification,
         upsertNotificationStatus,
         removeNotification,
+        clientPublicBookingDelNotification,
+        clientConfirmDealNotification,
         userId,
         notifications,
         notesCount,

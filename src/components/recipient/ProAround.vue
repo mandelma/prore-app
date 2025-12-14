@@ -87,6 +87,8 @@
                   size="lg"
                   label="Valitse tehtävän päivämäärä ja aika"
                   v-model="dt"
+                  :toggleButton="false"
+                  inputToggle
 
                   :datepicker="{
                   ...L,
@@ -173,14 +175,15 @@
         v-model="displayProPanel"
       >
         <MDBModalHeader>
-          <h2>Pro data here</h2>
+          <h2>{{ onProvider.pName }}</h2>
         </MDBModalHeader>
         <MDBModalBody>
           <p>Tällä - {{ onProvider.pName }} - tiedot...</p>
           <request-form  
-          :target="target" 
-          :date="dt" 
-          @sendRequest="handleSendRequest"
+            v-if="target.id !== providerId"
+            :target="target" 
+            :date="dt" 
+            @sendRequest="handleSendRequest"
           />
         </MDBModalBody>
         <!-- <MDBModalFooter>
@@ -217,8 +220,10 @@ import providerService from '@/service/providers'
 import match from '@/components/controllers/compare_dt'
 import { useClientStore } from '@/stores/recipientStore';
 import { useLoginStore } from '@/stores/login';
+import { useProStore } from '@/stores/providerStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
+import { storeToRefs } from 'pinia';
 
 //import { useMapStore } from '@/stores/mapStore';
 //const location = useMapStore();
@@ -257,6 +262,10 @@ const rs_success_msg = ref("");
 
 const clientStore = useClientStore();
 const auth = useLoginStore();
+const providerStore = useProStore();
+
+const { user } = storeToRefs(auth);
+const { providerId } = storeToRefs(providerStore);
 
 
 /* const toastModel = ref(false)
@@ -780,6 +789,7 @@ const handleSendRequest = async (_form) => {
   }
 
   const request = {
+    author_id: userId,
     created: dateObj,
     created_ms: ms,
     dateStr: dt.value,
@@ -799,7 +809,7 @@ const handleSendRequest = async (_form) => {
   displayProPanel.value = false;
   //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!"
   //isRequestSent.value = true;
-  clientStore.onRequest(receiverId, userId, target.value.id, request);
+  clientStore.onRequest(receiverId, userId, target.value, user.value, request);
 
   /* toastState.value = 'danger'
   toastIcon.value = 'fas fa-check fa-lg me-2'

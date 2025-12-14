@@ -108,14 +108,14 @@
         </tbody>
       </MDBTable>
       <div style="display: flex; justify-content: right;">
-        <MDBBtn color="primary" class="mb-3">
+        <MDBBtn :disabled="isDisabled" color="primary" class="mb-3" @click="onChat">
           <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
         </MDBBtn>
       </div>
       <div v-if="client.isIncludeOffers" style="margin-bottom: 20px;">
         <div v-if="!client.offers.some(offer => offer.bookingID === client.id)">
           <MDBBtn
-              :disabled="isDisableProNotOfferBtns"
+              :disabled="isDisabled"
               class="mb-3"
               block
               color="primary"
@@ -124,6 +124,8 @@
           >
             Tee Hintatarjous
           </MDBBtn>
+
+          
 
           <transition
               name="fade-slide"
@@ -141,7 +143,7 @@
                     <MDBBtnClose white @click="isHandleOffer = false"/>
                   </div>
 
-                  <form>
+                  <form class="form-card">
                     <MDBInput type="number" label="Tarjoa hintasi" v-model="offerPrice" wrapperClass="mb-4" />
                     <div style="text-align: left; margin-bottom: 10px;">
                       <MDBRadio
@@ -172,7 +174,7 @@
 
                     </MDBTextarea>
                     <MDBBtn
-                        :disabled="isDisableProNotOfferBtns"
+                        :disabled="isDisabled"
                         v-if="offerPrice"
                         label="Anna hintatarjous"
                         block size="lg"
@@ -184,7 +186,7 @@
                     </MDBBtn>
                   </form>
 
-
+                  
 
                 </div>
               </div>
@@ -192,16 +194,19 @@
           </transition>
 
 
-<!--          <MDBCollapse-->
-<!--              v-if="isHandleOffer"-->
-<!--              class="card card-body"-->
-<!--              id="collapsibleContent5"-->
-<!--              v-model="isHandleOffer"-->
-<!--          >-->
+          
 
-<!--          </MDBCollapse>-->
+          <div>
 
-          <MDBBtn v-if="!isHandleOffer" :disabled="isDisableProNotOfferBtns" block outline="danger" @click="rejectFormBooking" size="lg">Poista tilaus</MDBBtn>
+          </div>
+
+          <MDBBtn v-if="!isHandleOffer" :disabled="isDisabled" block outline="danger" @click="rejectFormBooking">
+            Poista tilaus
+          </MDBBtn>
+ 
+          
+          
+          
         </div>
       </div>
       <!--:::With offers::-->
@@ -219,10 +224,21 @@
           Varmista tilaus
         </MDBBtn>
 
-        <div v-if="isQuitClientBooking" style="padding: 13px; margin-top: 13px; border: 1px solid blue;">
+        <transition
+            name="fade-slide"
+            @before-enter="onResize"
+            @enter="onResize"
+            @after-enter="onUnlock"
+            @before-leave="onResize"
+            @leave="onResize"
+            @after-leave="onUnlock"
+          >
+          <div v-if="isQuitClientBooking" style="padding: 13px; margin-top: 13px; border: 1px solid grey;" class="form-card">
           <div style="display: flex; justify-content: right; margin-bottom: 7px;">
-            <MDBBtnClose white @click="isQuitClientBooking = false"/>
+            <MDBBtnClose white @click="undoRejectMapOffer"/>
           </div>
+
+          
 
           <MDBTextarea
               style=""
@@ -233,24 +249,26 @@
 
           </MDBTextarea>
           <MDBBtn
-              v-if="reason.length > 1"
-              :disabled="isDisableProNotMapBtns"
+              :disabled="reason.length < 3"
               block size="lg"
-              outline="success"
+              color="success"
               style="margin-top: 12px;"
-              @click="confirmRejectBookingNoOffers(booking)"
+              @click="confirmRejectMapBooking"
           >
             Varmista
           </MDBBtn>
         </div>
+        </transition>
+
+        
 <!--        :disabled="isDisableProNotMapBtns"-->
         <MDBBtn
             v-if="!isQuitClientBooking"
-
+            
             block
             outline="danger"
             size="lg"
-            @click="quitOffer"
+            @click="quitMapOffer"
         >
           Poista tilaus
         </MDBBtn>
@@ -262,13 +280,15 @@
 </template>
 
 <script setup>
-import {MDBTable, MDBToast, MDBBtn, MDBSpinner, MDBBtnClose, MDBTextarea, MDBInput, MDBRadio, MDBIcon, MDBCollapse} from 'mdb-vue-ui-kit';
+import {MDBTable, MDBToast, MDBBtn, MDBSpinner, MDBBtnClose, MDBTextarea, MDBInput, MDBRadio, MDBIcon, MDBCollapse, MDBPopconfirm} from 'mdb-vue-ui-kit';
 import { ref, nextTick, inject, toRefs, onMounted, computed } from 'vue';
 import handleLocation from '../controllers/distance.js';
+import { useNotificationStore } from '@/stores/notificationStore.js';
 import { useProStore } from '@/stores/providerStore.js';
 import { useClientStore } from '@/stores/recipientStore.js';
 import { useLoginStore } from '@/stores/login.js';
 import { storeToRefs } from 'pinia';
+import clientService from '@/service/recipients.js';
 import socket from "@/socket";
 import {loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 
@@ -283,11 +303,15 @@ defineOptions({
 const _props = defineProps({
   client: { type: Object, default: () => ({}) },
   open: { type: Boolean, default: false },
+  isDisabled: {type: Boolean}
 })
+
+const emit = defineEmits(['confirmed-order-toast', 'just-test'])
 
 const { client, open } = toRefs(_props)
 
 const sender = useLoginStore();
+const notificationStore = useNotificationStore();
 const proStore = useProStore();
 const clientStore = useClientStore();
 
@@ -327,20 +351,7 @@ const final = ref(null);
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
 //const road = computed(async() => await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]))
 
-const offer = {
-    bookingID: client.value.id,
-    sender: user.value.id,
-    isNewOffer: true,
-    name: provider.value.pName,
-    placeOrGo: offerPlace.value,
-    area: client.value.zone,
-    distance: roadDistance?.value,
-    duration: roadDuration?.value,
-    price: offerPrice.value,
-    description: offerAbout.value,
-    place: offerPlace.value,
-    provider: providerId.value
-  }    
+
 
 
 onMounted(async() => {
@@ -407,6 +418,9 @@ const validateMaps = async() => {
   }
 }
 
+const onChat = () => {
+  console.log("Chat btn");
+}
 
 const makeOfferBtn = () => {
   console.log("Make offer!");
@@ -416,8 +430,23 @@ const createOffer = () => {
   
   console.log("Creating offer! " + offerPrice.value);
 
-  
-  const addressee = client.value.user.id;
+
+  const offer = {
+    bookingID: client.value.id,
+    sender: user.value.id,
+    isNewOffer: true,
+    name: provider.value.pName,
+    placeOrGo: offerPlace.value,
+    area: client.value.zone,
+    distance: roadDistance?.value,
+    duration: roadDuration?.value,
+    price: offerPrice.value,
+    description: offerAbout.value,
+    place: offerPlace.value,
+    provider: providerId.value
+  }    
+  console.log("Client in top: " + {client}.value);
+  const addressee = client.value.author_id;
   console.log("Addressee - " + addressee);
   //clientStore.addOffer(client.value.id, offer);
   proStore.addProviderOffer(client.value.id, addressee, offer);
@@ -425,36 +454,151 @@ const createOffer = () => {
 
 }
 // On single offer from map
-const quitOffer = () => {
-  //isQuitClientBooking = true;
+const quitMapOffer = async () => {
+  isQuitClientBooking.value = true;
+  
+}
+
+const confirmRejectMapBooking = async () => {
   if (confirm("Oletko varmaa että tilaus poistetaan?")) {
-    console.log("Quit offer");
+    console.log("Quit offer user - " + client.value.author_id);
+    console.log(Object.keys(client.value.user));
+    const bookingId = client.value.id;
+    const addressaat = client.value.author_id;
+    const header = "Tilaus hylätty!"
+    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
+    console.log("111")
+
+    await proStore.removeMapOffer(bookingId, addressaat);
+    console.log("222")
+    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
   } else {
     console.log("Keskeytetty poistaminen!");
   }
 }
 
-const confirmClientBooking = async () => {
-  console.log("client user id: " + client.value.user.id);
-  const receiver = client.value.user.id;
-  const bookingId = client.value.id;
-  await proStore.onConfirmClientBooking(client.value.id, offer);
-  socket.emit('on client request confirm', receiver, bookingId, offer);
+const undoRejectMapOffer = () => {
+  isQuitClientBooking.value = false;
+  reason.value = "";
 }
 
-const rejectFormBooking = () => {
-  console.log("Reject / poista");
-  if (confirm("Oletko varmaa, että haluat poistaa tilauksen!?") === true) {
+const confirmClientBooking = async () => {
+  // author_id ???
+  console.log("client user id: " + client.value.author_id);
+  console.log("Client user name?? " + client.value.user.firstName);
+  const receiver = client.value.author_id;
+  const myself = user.value.id;
+  const bookingId = client.value.id;
+  const header = "Sopimus tehty!";
+  const clientContent = `${provider.value.pName} on vahvistanut tilauksen - "${client.value.header}". Tarkemmat tiedot kalenterissa!`;
+  const proContent = `Tilaus "${client.value.header}" on vahvistettu. Tiedot kalenterissa!`;
+  
 
+  const offer = {
+    bookingID: client.value.id,
+    sender: user.value.id,
+    isNewOffer: true,
+    name: provider.value.pName,
+    placeOrGo: offerPlace.value,
+    area: client.value.zone,
+    distance: roadDistance?.value,
+    duration: roadDuration?.value,
+    price: offerPrice.value,
+    description: offerAbout.value,
+    place: offerPlace.value,
+    provider: providerId.value
+  }    
+
+  const notificationForClient = {
+      bookingId: bookingId,
+      isNewMsg: true,
+      isLink: true,
+      title: header,
+      content: clientContent,
+      reason: '',
+      sender: provider.value.pName,
+  };
+
+  const notificationForPro = {
+      bookingId: bookingId,
+      isNewMsg: true,
+      isLink: true,
+      title: header,
+      content: proContent,
+      reason: '',
+      sender: provider.value.pName,
+  };
+
+  const notes = {
+    cNote: notificationForClient,
+    pNote: notificationForPro
+
+  }
+
+
+  
+
+
+  console.log('Button clicked in child')
+
+  try {
+    const confirmation = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' })
+    const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer)
+
+    if (!confirmation || !addConfirmation) return;
+
+    emit('just-test')
+
+    await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, notes);
+
+    console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
+
+    console.log('API results:', { confirmation, addConfirmation })
+  } catch (e) {
+    console.error('API error in child:', e)
+  }
+
+  
+  //emit('confirmed-order-toast')
+
+
+  /* const confirmation = await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
+  const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer);
+  
+  
+  if (!confirmation  || !addConfirmation) return;
+  
+
+  await proStore.onConfirmClientBooking(client.value.id, offer, myself, client.value.author_id, notes);
+
+  console.log('Child about to emit confirmed-order-toast')
+
+  emit('onConfirmedOrderToast'); */
+
+
+
+
+
+
+  
+  //await notificationStore.localConfirmDealNotification(bookingId, myself, client.value.author_id, notes);
+
+  
+  //socket.emit('on client request confirm', receiver, bookingId, offer);
+}
+
+const rejectFormBooking = async () => {
+  if (confirm("Oletko varmaa, että haluat poistaa tilauksen kokonaan?")) {
     isQuitClientBooking.value = true;
     console.log("Reject");
-    proStore.removeBookingOffer(client.value.id)
-    //emit('quit-booking-order');
-    //this.$emit("rejectFormBooking", booking);
-
+    const receiver = client.value.author_id;
+    console.log("RECEIVER - " + receiver);
+    await proStore.removeBookingPublicOffer(client.value.id, receiver);
   } else {
-    console.log("You canceled!")
+    console.log("Cancelled")
   }
+  
+
 }
 </script>
 
@@ -503,6 +647,16 @@ const rejectFormBooking = () => {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Popconfirm button color */
+:deep(.pc-trigger-danger.btn-primary),
+:deep(.pc-trigger-danger.btn-primary:hover),
+:deep(.pc-trigger-danger.btn-primary:focus),
+:deep(.pc-trigger-danger.btn-primary:active) {
+background-color: #e05b69 !important;
+border-color: #dc3545 !important;
+box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
 }
 
 </style>

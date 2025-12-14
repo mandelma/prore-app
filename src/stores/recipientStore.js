@@ -1,16 +1,23 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useLoginStore} from "@/stores/login.js";
-import clientService from '../service/recipients.js';
+import { storeToRefs } from 'pinia';
+
 import providerService from '../service/providers.js';
 import noteService from '../service/notifications.js';
+import { useNotificationStore } from './notificationStore.js';
 import offerService from '../service/offers.js';
+import clientService from '../service/recipients.js';
 import socket from '@/socket';
 import { useRouter } from 'vue-router';
 
 export const useClientStore = defineStore('client', () => {
-    //const clientAuth = useLoginStore();
+    
+    const clientAuth = useLoginStore();
+    const { user } = storeToRefs(clientAuth);
+    const notificationStore = useNotificationStore();
     const bookings = ref([])
+
     const count = ref(null)
     const bookingsWithOffers = ref(null);
     const clientOffers = ref([]);
@@ -22,6 +29,7 @@ export const useClientStore = defineStore('client', () => {
     const isBookings = computed(() => !!count.value)
     const clientNewOffersAmount = computed(() => clientNewOffers.value.length);
     const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed') || []);
+    const liveBookings = computed(() => bookings.value.filter(booking => booking.status !== 'confirmed') || []);
     
     const confirmedOffer = 0
     const getBookingById = (id) => {
@@ -112,10 +120,9 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const confirmOffer = async (offer) => {
-        await clientService.updateRecipientStatus(offer.bookingID, {status: 'confirmed'});
-        await clientService.addConfirmedOffer(offer.bookingID, offer);
         const changedStatus = bookings.value.map(order => order.id === offer.bookingID ? {...order, status: 'confirmed'} : order);
         bookings.value = changedStatus;
+
         socket.emit('client-handle-offer', offer.sender, offer.bookingID, offer.id);
     }
 
@@ -127,28 +134,83 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const removeConfirmedMapOffer = async (booking) => {
-        //await clientService.removeBooking(bookingId);
+        await clientService.removeBooking(booking.id);
         
-        // Add remove booking accessories like pictures etc.
+        // Add -- remove booking accessories like pictures, offers etc.
         bookings.value = bookings.value.filter(item => item.id !== booking.id);
+        //socket.emit("client remove map booking", booking.id);
         if (bookings.value.length < 1) router.push('/');
 
     }
 
+    const removeProRejectedMapOffer_ls = async (offerId) => {
+        bookings.value = bookings.value.filter(item => item.id !== offerId);
+        await clientService.removeBooking(offerId);
+        //socket.emit("client remove map booking", booking.id);
+        //if (bookings.value.length < 1) router.push('/');
+    }
+
+    const onRemovePublicBooking = async (bookingId) => {
+        //TODO all including contents neet to have removed with booking
+        const booking = bookings.value.find(b => b.id === bookingId);
+        const bOffers = booking.offers;
+        const bGetters = booking.ordered;
+        const notification = {
+            bookingId: bookingId,
+            isNewMsg: true,
+            isLink: false,
+            title: 'Tilaus on poistettu!',
+            content: `Käyttäjä ${user.value.firstName} on peruuttanut tilauksen "${booking.header}".`,
+            reason: '',
+            sender: "xxx",
+        }
+        if (bOffers.length) {
+            
+            for (let offer of bOffers) {
+                const receiver = offer.sender;
+                const created = await noteService.createMessage(receiver, notification);
+                if (created) notification.id = created.id;
+                await notificationStore.clientPublicBookingDelNotification(receiver, bookingId, notification);
+            }
+            await offerService.deleteBookingOffers(bookingId);
+        } else {
+            for (let pro of bGetters) {
+                // notification currently not send id no offer done.
+                console.log("Pro user id -- " + pro.user.id);
+                const addressaat = pro.user.id;
+                socket.emit('on-client-del-public-booking', addressaat, bookingId);
+            }
+        }
+        
+        bookings.value = bookings.value.filter(item => item.id !== bookingId);
+        count.value = bookings.value.length;
+        await clientService.removeBooking(bookingId);
+    }
+
+    const localRemovePublicBooking = async (id) => {
+        bookings.value = bookings.value.filter(item => item.id !== id);
+    }
+
     // Client sending request to the provider via map
-    const onRequest = async(receiver, userId, proId, request) => {
+    const onRequest = async(receiver, userId, pro, user, request) => {
         console.log("Data in rec store " + receiver)
         const newRequest = await clientService.addRecipient(userId, request);
 
         if (!newRequest) return;
         
         const bookingId = newRequest.id;
-        const handleClient = await clientService.addProviderData(bookingId, proId);
-        const handlePro = await providerService.addProviderBooking(proId, bookingId);
+        const handleClient = await clientService.addProviderData(bookingId, pro.id);
+        const handlePro = await providerService.addProviderBooking(pro.id, bookingId);
+
+        console.log("USER -- " + user.username);
+
+        newRequest.ordered.push(pro);
+        newRequest.user = user;
 
         if (!handleClient || !handlePro) return;
         
         console.log("Created request id: " + bookingId);
+        
 
         socket.emit("client made request", receiver, bookingId);
 
@@ -212,11 +274,15 @@ export const useClientStore = defineStore('client', () => {
         readOffer, 
         getOfferById, 
         bookings, 
+        liveBookings,
         getBookingById, 
         confirmOffer, 
+        removeProRejectedMapOffer_ls,
         onRequest,
         handleConfirmedOffer,
         removeConfirmedMapOffer,
+        onRemovePublicBooking,
+        localRemovePublicBooking,
         clientOffers, 
         clientNewOffers, 
         clientNewOffersAmount, 

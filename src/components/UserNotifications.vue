@@ -2,9 +2,12 @@
     <MDBContainer>
         <div v-for="note in notifications" :key="note.id">
             <MDBCard text="center">
+                <MDBCardHeader style="display: flex; justify-content: right; color: limegreen; padding-right: 20px;">
+                    <p style="cursor:pointer;" @click="removeNote(note.id)">Selvä</p>
+                </MDBCardHeader>
                 <MDBCardBody>
-                    <MDBCardTitle style="display: flex; justify-content: right; color: limegreen; padding-right: 20px;">
-                        <p style="cursor:pointer;" @click="removeNote(note.id)">Selvä</p>
+                    <MDBCardTitle style="color: burlywood">
+                        {{ note.title }}
                     </MDBCardTitle>
                     <MDBCardText>
                         {{ note.content }}

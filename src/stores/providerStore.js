@@ -5,10 +5,14 @@ import offerService from '../service/offers.js';
 import timetableService from '../service/timetable.js';
 import socket from '@/socket'
 import clientService from "@/service/recipients.js";
+import notificationService from '../service/notifications.js';
+import { useNotificationStore } from './notificationStore.js';
 import { useRouter } from 'vue-router';
+//import { aW } from '@fullcalendar/core/internal-common.js';
 
 export const useProStore = defineStore("pro", () => {
     const router = useRouter();
+    const notificationStore = useNotificationStore();
     const loading = ref(false);
     const provider = ref(null);
     const providerId = ref(null);
@@ -30,6 +34,7 @@ export const useProStore = defineStore("pro", () => {
     //const proTimetable = computed(() => provider.timetable);
 
     const getIncomOfferById = (id) => {
+        console.log("INCOMINGOFFERS ID - " + id)
         return incomingOffers.value.find(o => o.id === id);;
     }
 
@@ -115,18 +120,58 @@ export const useProStore = defineStore("pro", () => {
         }
          
     }
-    const removeBookingOffer = async(id) => {
+    const removeBookingPublicOffer = async(id, receiver) => {
 
         console.log("Does proStore remove works?" + id);
         await providerService.removeProviderBooking(providerId.value, id);
-        
-        //incomingOffers.value = incomingOffers.value.filter(iov => iov.id !== id);
-        //incomingOffersCount.value = incomingOffers.value.length;
+        await clientService.removeBooking(id);
+    
         const targetId = String(id);
         const getId = (b) => String(b?.id ?? b?._id);
         const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         incomingOffers.value = next;
         incomingOffersCount.value = next.length;
+
+        console.log("Receiver ID - " + receiver);
+        socket.emit('on-pro-remove-public-offer', id, receiver);
+
+        if (incomingOffersCount.value < 1) {
+            router.push('/');
+        }
+    }
+
+    const removeLocalBooking = async (id) => {
+        console.log("Pro id " + providerId.value);
+        console.log("Booking id " + id);
+        await providerService.removeProviderBooking(providerId.value, id);
+        // Here probably local state to delete booking??
+        const targetId = String(id);
+        const getId = (b) => String(b?.id ?? b?._id);
+        const next = incomingOffers.value.filter(b => getId(b) !== targetId);
+        incomingOffers.value = next;
+        incomingOffersCount.value = next.length;
+    }
+    const disableLocalBooking = async (id) => {
+        console.log("Disabled booking id " + id);
+        const targetId = String(id);
+        const getId = (b) => String(b?.id ?? b?._id);
+        //const next = incomingOffers.value.filter(b => getId(b) !== targetId);
+        //incomingOffers.value = next;
+        const next = incomingOffers.value.map(item => getId(item) === targetId ? {...item, disabled: true} : {...item, disabled: false});
+        incomingOffers.value = next;
+        incomingOffersCount.value = next.length;
+        await providerService.removeProviderBooking(providerId.value, id);
+    }
+    const removeMapOffer = async (id, addressaat) => {
+        console.log("REM " + id)
+        //await clientService.removeBooking(id);
+        console.log("IS DEL???")
+        await removeLocalBooking(id);
+        await socket.emit('del pro-side map booking', addressaat, id);
+        
+        
+        if (!incomingOffers.value.length) router.push('/');
+        
     }
     const handleConfirmed = (bookingId) => {
         const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
@@ -134,26 +179,35 @@ export const useProStore = defineStore("pro", () => {
         incomingOffersCount.value = incomingOffers.value.length;
     }
     // Confirming client offer sended from map
-    const onConfirmClientBooking = async(bookingId, offer) => {
-        console.log("Booking id is " + bookingId)
-        await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
+    const onClientBooking = async(bookingId, offer, myself, clientId, notes) => {
+        console.log("CLIENT id is " + bookingId)
+        //const confirmation = await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
+        //const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer);
         
         //const _offerMade = await offerService.addOffer(offer);
         
+        //if (!confirmation  || !addConfirmation) return;
+
         const offerId = Date.now().toString(36) + Math.random().toString(36).slice(2);
         offer.id = offerId;
         // siin teha...
         //await clientService.createOffer(bookingId, offerId);
-        await clientService.addConfirmedOffer(bookingId, offer);
+        
+        await notificationStore.localConfirmDealNotification(bookingId, myself, clientId, notes);
+
+
         const confirmed = incomingOffers.value.find(item => item.id === bookingId);
         const currentList = incomingOffers.value.filter(confirmed => confirmed.id !== bookingId);
         incomingOffers.value = currentList;
         incomingOffersCount.value = incomingOffers.value.length;
 
         proCalendarEvents.value = proCalendarEvents.value.concat(confirmed);
+
+        socket.emit('on client request confirm', clientId, bookingId, offer);
+
         
         if (incomingOffersCount.value < 1) {
-            router.push('/');
+            //router.push('/');
         }
     }
     const updateCredit = async(creditDaysCovered, credit_ms) => {
@@ -226,7 +280,10 @@ export const useProStore = defineStore("pro", () => {
         getProState,
         upsertBooking,
         addProviderOffer,
-        removeBookingOffer,
+        removeBookingPublicOffer,
+        removeLocalBooking,
+        disableLocalBooking,
+        removeMapOffer,
         updateCredit,
         addVisitorForBooking,
         getIncomOfferById,
@@ -234,7 +291,7 @@ export const useProStore = defineStore("pro", () => {
         onEdit,
         onDelete,
         handleConfirmed,
-        onConfirmClientBooking,
+        onClientBooking,
         providerId,
         isUserPro,
         provider,

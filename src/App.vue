@@ -53,8 +53,12 @@
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
-                <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="">
-                  <RouterLink to="/notifications" style="color: #ddd;" @click="handleShowNotifications">Viestit</RouterLink>
+                <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="" @click="handleShowNotifications">
+                  <RouterLink to="/notifications" style="color: #ddd;" >
+                    Viestit
+                    <MDBBadge v-if="notifications.length" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
+                     
+                  </RouterLink>
                 </MDBDropdownItem>
 <!--                <MDBDropdownItem href="#">Action</MDBDropdownItem>-->
                 <MDBDropdownItem style="color: #ddd;" href="">
@@ -63,7 +67,7 @@
                 </MDBDropdownItem>
 <!--                <MDBDropdownItem href="#">Something else here</MDBDropdownItem>-->
                 <MDBDropdownItem v-if="client.isBookings" href="#">
-                  <RouterLink to="/client-panel">Tilaukset</RouterLink>
+                  <RouterLink to="/client-panel" style="color: #ddd;">Tilaukset</RouterLink>
                 </MDBDropdownItem>
                 <MDBDropdownItem style="color: #ddd;" href="#" @click="logOut">Log out</MDBDropdownItem>
               </MDBDropdownMenu>
@@ -76,6 +80,21 @@
         </MDBNavbarNav>
       </div>
     </MDBNavbar>
+
+    <MDBToast
+      :stacking="false"
+      autohide
+      :delay="3000"
+      v-model="isOrderConfirmed"
+      position="top-center"
+      toast="success"
+      icon="fas fa-check fa-lg me-2"
+    >
+      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+      <template #title> PROKEIKKATORI </template>
+      <!-- <template #small> 11 mins ago </template> -->
+      {{ confirmedOrderMessage }}
+    </MDBToast>
     <!--      <MDBNavbarItem href="#" class="me-3 me-lg-0">-->
     <!--        <img-->
     <!--            src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"-->
@@ -102,6 +121,9 @@
             @over="handleOver"
 
             @createPro="handleCreatePro"
+
+            @confirm-order-toast="hConfirmOrderToast"
+
             :provider="provider"
 
             :offersIn="incomingOffers ?? []"
@@ -110,6 +132,8 @@
         />
       </RouterView>
     </main>
+
+    <!-- <chat-widget /> -->
 
 <!--    <h2>is user pro  {{isUserPro}}</h2><br>-->
 <!--    <h2>incoming offers {{incomingOffers}}</h2><br>-->
@@ -151,9 +175,13 @@
 <!--          </p>-->
 <!--        </section>-->
         <!-- Section: CTA -->
+         <section>
+
+         </section>
       </MDBContainer>
       <!-- Grid container -->
       <!-- Copyright -->
+      
       <div
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
@@ -187,6 +215,7 @@ import {
   MDBBadge,
   MDBInput,
   MDBCollapse,
+  MDBToast,
   MDBFooter,
   MDBContainer
 } from 'mdb-vue-ui-kit';
@@ -196,6 +225,7 @@ import { storeToRefs } from 'pinia';
 import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
 import loginService from './service/login.js';
+import ChatWidget from './components/ChatWidget.vue';
 import { useLoginStore } from "@/stores/login.js";
 import { useClientStore} from "@/stores/recipientStore.js";
 import { useNotificationStore } from './stores/notificationStore';
@@ -224,6 +254,9 @@ const notificationStore = useNotificationStore();
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
+
+const isOrderConfirmed = ref(false);
+const confirmedOrderMessage = ref("");
 
 const test = ref(null);
 const bb = ref(null)
@@ -285,6 +318,9 @@ const listen = async() => {
   })
   socket.on('client use offer', async(bookingID, offer) => {
     console.log("I got the offer - " + offer.name);
+    const target = await providerService.getProvByProvId(offer.provider);
+    if (target) offer.provider = target;
+    
     await client.getProviderOffer(bookingID, offer);
   })
   socket.on('pro-handle-confirmed', async({sender, orderId, offerId}) => {
@@ -304,13 +340,55 @@ const listen = async() => {
   socket.on('handle client del map booking', async (receiver, bookingId, note) => {
     console.log("Del map booking " + bookingId);
     console.log("Note  " + note.id);
-    await handleProvider.removeBookingOffer(bookingId);
+    //await handleProvider.removeBookingOffer(bookingId);
     await notificationStore.localStateAddNotification(note);
+  })
+
+  socket.on('handle-pro-remove-public-offer', async (bookingId) => {
+    console.log("REMOVE " + bookingId);
+    await client.localRemovePublicBooking(bookingId);
+  })
+
+
+  socket.on('handle pro-side del map booking', async (receiver, bookingId) => {
+    console.log("Pro-side remove booking " + bookingId);
+    await client.removeProRejectedMapOffer_ls(bookingId);
+  })
+
+  socket.on('on pro del client map order note', async (receiver, bookingId, note) => {
+    await notificationStore.localStateAddNotification(note);
+  })
+
+  socket.on('local-confirmed-deal-notification', async (bookingId, notes) => {
+    console.log("Confirmed booking id - " + bookingId);
+    await notificationStore.localStateAddNotification(notes.cNote);
+  })
+
+  socket.on('local-handle-del-client-public-booking', async (bookingId, note) => {
+    console.log("Notification locally added - " + note.content);
+    await handleProvider.removeLocalBooking(bookingId);
+    await notificationStore.localStateAddNotification(note);
+  })
+  // Same, only no offers
+  socket.on('local-client-del-public-booking', async (bookingId) => {
+    //await handleProvider.removeLocalBooking(bookingId);
+    await handleProvider.disableLocalBooking(bookingId);
+  })
+
+  socket.on('local-handle-client-confirmed-deal', (bookingId, notification) => {
+    // --Tegemisel--
+    console.log("Notification name - " + notification.author);
   })
 }
 
 const handleCreatePro = (pro) => {
   handleProvider.createPro(pro);
+}
+
+const hConfirmOrderToast = () => {
+  console.log("CONFIRM TOAST");
+  isOrderConfirmed.value = true;
+  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
 }
 
 // Client created booking and finding matching providers to send this booking to
@@ -335,7 +413,7 @@ const handleCreateBookingMultiple = async (booking) => {
 
   for (let i = 0; i < providersForBooking.length; i++) {
     if (providersForBooking[i].user.id !== userID.value) {
-
+      console.log("")
     }
 
     destination = [providersForBooking[i].latitude, providersForBooking[i].longitude];
@@ -343,15 +421,15 @@ const handleCreateBookingMultiple = async (booking) => {
     //if (providersForBooking[i].user.id !== userInID.value) {
       if (booking.zone === 0) {
 
-        if (providersForBooking[i].user.id !== userID) {
-          console.log("PRP ID, zone is 0: " + providersForBooking[i].user.id)
+        if (providersForBooking[i].user.id !== userID.value) {
+          console.log("PRP ID: " + providersForBooking[i].user.id);
 
           orderedBookings = [
             ...orderedBookings,
             providersForBooking[i]
           ]
 
-          if (providersForBooking[i].user.id !== userID) {
+          if (providersForBooking[i].user.id !== userID.value) {
             proIdArr = [
               ...proIdArr,
               providersForBooking[i].user.id
@@ -373,7 +451,7 @@ const handleCreateBookingMultiple = async (booking) => {
                   ...booking.ordered,
                   providersForBooking[i]
                 ]
-                if (providersForBooking[i].user.id !== userID) {
+                if (providersForBooking[i].user.id !== userID.value) {
                   console.log("PRP ID: " + providersForBooking[i].user.id)
                   proIdArr = [
                     ...proIdArr,

@@ -2,7 +2,7 @@
 
   <MDBContainer>
     <div style="padding-top: 17px;">
-
+      
       <MDBToast
           v-model="noLimitWarning"
           autohide
@@ -12,7 +12,7 @@
           toast="danger"
           icon="fas fa-exclamation-circle fa-lg me-2"
       >
-        <template #title>LUOTTO!! </template>
+        <template #title>PROKEIKKATORI</template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
         Luotto on vanhentunut, et voi enää toimia!
@@ -21,18 +21,18 @@
         </div>
 
       </MDBToast>
-
-      <div v-if="!isOpenBooking">
+      <!-- !isOpenBooking -->
+      <div v-if="safeOffers.length">
         <div v-for="(booking, index) in safeOffers " :key="index" >
 
 
-          <div v-if="!booking.visitors.some(id => id === provider.id)" class="booking-row-new"  :class="[{ activePanel: booking.id === bookingID }]">
+          <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new"  :class="[{ activePanel: booking.id === bookingID }]">
             <div class="line">
             <span class="left-item">
               {{timeAgo(booking.started)}}
             </span>
               <span v-if="parentOpen && booking.id === bookingID" class="right-item">
-              <MDBBtnClose white @click="parentOpen=!parentOpen"/>
+              <MDBBtnClose  white @click="parentOpen=!parentOpen"/>
             </span>
             </div>
             <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
@@ -48,6 +48,9 @@
                 </span>
               </span>
             </span>
+            <div v-if="booking?.disabled" style=" padding-top: 33px;">
+              <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}<strong>Go</strong></p>
+            </div>
             <MDBCollapse
                 v-if="booking.id === bookingID"
                 id="collapsibleContent1"
@@ -59,10 +62,11 @@
                     :open="childOpen"
                     @resize-parent="syncParentHeight"
                     @unlock-parent="unlockParentHeight"
+                    :is-disabled="booking?.disabled"
                     :client="client"
                 />
 
-                <p>{{booking.header}}</p>
+                
               </div>
             </MDBCollapse>
           </div>
@@ -73,7 +77,7 @@
                 {{timeAgo(booking.started)}}
               </span>
                 <span v-if="parentOpen && booking.id === bookingID" class="right-item">
-                <MDBBtnClose white @click="parentOpen=!parentOpen"/>
+                <MDBBtnClose style="color: red;" white @click="parentOpen=!parentOpen"/>
               </span>
               </div>
               
@@ -94,6 +98,12 @@
               </span>
 
             </span>
+            <div v-if="booking?.disabled" style=" padding-top: 33px;">
+              <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}<strong style="color: blue;">Gooooo</strong></p>
+              <p>hhh</p>
+            </div>
+
+            <!-- @confirmed-order-toast="(...args) => { console.log('raw event in parent', args); handleConfirmedOrderToast() }" -->
             <MDBCollapse
                 v-if="booking.id === bookingID"
                 id="collapsibleContent2"
@@ -106,6 +116,9 @@
                     :open="childOpen"
                     @resize-parent="syncParentHeight"
                     @unlock-parent="unlockParentHeight"
+                    @confirmed-order-toast="handleConfirmedOrderToast"
+                    :is-disabled="booking?.disabled"
+                    @just-test="hJustTest"
                     :client="client"
                 />
 
@@ -118,8 +131,22 @@
 
       </div>
       <div v-else>
-        <p style="text-align: right; color: forestgreen; padding-bottom: 50px;" @click="quitBookingOffer">Poistu</p>
-        <h2>Booking info</h2>
+        <MDBToast
+          :stacking="false"
+          autohide
+          :delay="3000"
+          v-model="isOrderConfirmed"
+          position="top-center"
+          toast="success"
+          icon="fas fa-check fa-lg me-2"
+        >
+          <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+          <template #title> PROKEIKKATORI </template>
+          <!-- <template #small> 11 mins ago </template> -->
+          {{ confirmedOrderMessage }}
+        </MDBToast>
+        <p style="text-align: right; color: forestgreen; padding-bottom: 50px;" @click="quitBookingOffers">Poistu</p>
+        <h2>Ei tarjouksia!</h2>
       </div>
 
     </div>
@@ -148,6 +175,8 @@ const _props = defineProps({
   credit: {type: Number}
 })
 
+const emit = defineEmits(['confirm-order-toast'])
+
 // keep them reactive
 const { offersIn, isPro, credit } = toRefs(_props);
 
@@ -166,6 +195,9 @@ const childOpen = ref(false)
 const collapseEl = ref(null)    // <div ref="collapseEl">
 const bookingID = ref(0);
 const bookingIndex = ref(0);
+
+const isOrderConfirmed = ref(false);
+const confirmedOrderMessage = ref("");
 
 const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : [])
 
@@ -224,51 +256,19 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { ro && ro.disconnect() })
 
+const hJustTest = () => {
+  console.log("JUST TEST");
+  emit('confirm-order-toast')
+  isOrderConfirmed.value = true;
+  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
+}
 
-// // ——— Height sync helpers (sync + rAF; no async/await) ———
-// let raf1 = 0, raf2 = 0
-//
-// function resizeParent () {
-//   // bail if closed or element missing
-//   if (!parentOpen.value || !collapseEl.value) return
-//
-//   // cancel any pending frames
-//   if (raf1) cancelAnimationFrame(raf1)
-//   if (raf2) cancelAnimationFrame(raf2)
-//
-//   // double-rAF to measure AFTER Vue/transition writes
-//   raf1 = requestAnimationFrame(() => {
-//     raf2 = requestAnimationFrame(() => {
-//       const el = collapseEl.value
-//       if (!el || !parentOpen.value) return
-//       el.style.height = el.scrollHeight + 'px'
-//     })
-//   })
-// }
-//
-// function unlockParent () {
-//   if (raf1) cancelAnimationFrame(raf1)
-//   if (raf2) cancelAnimationFrame(raf2)
-//   requestAnimationFrame(() => {
-//     const el = collapseEl.value
-//     if (!el) return
-//     el.style.height = '' // let MDB manage height next time
-//   })
-// }
-//
-// // Expose to children via provide/inject
-// provide('resizeParent', resizeParent)
-// provide('unlockParent', unlockParent)
-//
-// // Optional: keep synced if content grows after open (images, async)
-// let ro
-// onMounted(() => {
-//   if ('ResizeObserver' in window && collapseEl.value) {
-//     ro = new ResizeObserver(() => resizeParent())
-//     ro.observe(collapseEl.value)
-//   }
-// })
-// onBeforeUnmount(() => { ro && ro.disconnect() })
+const handleConfirmedOrderToast = () => {
+  console.log('Parent received confirmed-order-toast')
+  console.log("EMIT in list");
+  isOrderConfirmed.value = true;
+  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
+}
 
 function parseDmyTime(dmyStr) {
   // Example: "07/10/2025, 12:00"
@@ -278,38 +278,6 @@ function parseDmyTime(dmyStr) {
 
   return new Date(year, month - 1, day, hours, minutes)
 }
-
-// async function syncParentHeight () {
-//   await nextTick()
-//   if (!parentOpen.value || !collapseEl.value) return
-//   // lock parent to its content height during child transition
-//   collapseEl.value.style.height = collapseEl.value.scrollHeight + 'px'
-// }
-//
-// function unlockParentHeight () {
-//   if (!collapseEl.value) return
-//   // clear inline height after transition completes
-//   collapseEl.value.style.height = ''
-// }
-
-// const parseDmyTime = (str) => {
-//   const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
-//   if (!m) return null;
-//   const [, dd, mm, yyyy, HH, MM] = m.map(Number);
-//   return new Date(yyyy, mm - 1, dd, HH, MM);
-//
-//
-//   // const date = new Date()              // current date
-//   // const formatted = date.toLocaleDateString('en-US', {
-//   //   year: 'numeric',
-//   //   month: '2-digit',
-//   //   day: '2-digit'
-//   // })
-//   // console.log(formatted)               // → 09/26/2025
-//   //
-//   // date.toLocaleDateString('en-GB')     // → 26/09/2025
-//   // date.toLocaleDateString('de-DE')     // → 26.09.2025
-// }
 
 const addVisitor = async(id, visitor) => {
   const visited = await recipientService.addVisitor(id, visitor);
@@ -331,6 +299,7 @@ const openBookingOffer = async(booking, index) => {
     parentOpen.value = !parentOpen.value;
     //client.value = booking;
     client.value = proStore.getIncomOfferById(booking.id);
+    console.log("Client - " + {client})
     console.log("Here header: " + incomingOffers.value[0].header);
     //isOpenBooking.value = true;
 
@@ -347,9 +316,9 @@ const openBookingOffer = async(booking, index) => {
   }
 }
 
-
-const quitBookingOffer = () => {
-  isOpenBooking.value = false;
+const quitBookingOffers = () => {
+  //isOpenBooking.value = false;
+  router.go(-1);
 }
 const addCredit = () => {
   router.push('pay-plan');
