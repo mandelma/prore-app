@@ -81,7 +81,8 @@ app.use('/api/recipients', require('./routers/recipients'));
 app.use('/api/providers', require('./routers/providers'));
 app.use('/api/offer', offerRouter);
 app.use('/api/timeoffers', require('./routers/timetable'));
-app.use('/api/notifications', require('./routers/notifications'))
+app.use('/api/notifications', require('./routers/notifications'));
+app.use('/api/messages', require('./routers/messages'));
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
