@@ -13,7 +13,7 @@
         <template #title> TAPAHTUI VIRHE! </template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
-        Väärä käyttäjätunnus tai salasana!
+        {{ loginErrorMessage }}
       </MDBToast>
     </div>
 
@@ -68,6 +68,7 @@
         <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
       </div>
     </form>
+    loginError {{ loginError }}
   </div>
 </template>
 
@@ -90,6 +91,7 @@ const loginError = ref(false);
 const showError = () => { loginError.value = true }
 const hideError = () => { loginError.value = false }
 const isLoginError = ref(false);
+const loginErrorMessage = ref(false);
 
 const userLoginData = async () => {
   let user;
@@ -101,32 +103,27 @@ const userLoginData = async () => {
   console.log("Filled username: " + loginUsername.value);
 
   if (loginUsername.value !== "" && loginPassword.value !== "") {
-    const res = await loginService.login(userLogin);
+    loginError.value = false;
 
-    if (!res.token) {
-      // show error and DO NOT redirect
+    try {
+      const res = await loginService.login(userLogin);
+      console.log("RES", res);
+
+      if (!res?.token) {
+        loginError.value = true;
+        return;
+      }
+
+      userApp.onLogin(res);
+    } catch (err) {
+      console.log("Login request failed:", err);
+      loginErrorMessage.value = "Väärä käyttäjätunnus tai salasana!"
       loginError.value = true;
-      console.log("Login failed!");
-      //error.value = res.error ?? "Login failed";
-      return;
     }
-
-    userApp.onLogin(res);
-
-    /* if (user.error !== "login error") {
-      console.log("User just logged in!");
-      
-    } else {
-      console.log("No user logged in");
-      
-    } */
   } else {
-    console.log("Error - Kaikki kentät täytettävä!")
+    console.log("Error - Kaikki kentät ovat täytettävä!")
     loginError.value = true;
-    // this.loginErrorMessage = "kaikki kentät on täytettävä!"
-    // setTimeout(() => {
-    //   this.loginErrorMessage = null
-    // }, 2000);
+    loginErrorMessage.value = "kaikki kentät ovat täytettävä!"
   }
 
   //this.$emit('login:data', userLogin)
