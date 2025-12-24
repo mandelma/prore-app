@@ -1,5 +1,6 @@
-const axios = require('axios');
+//const axios = require('axios');
 //import axios from 'axios';
+import axios from 'axios';
 
 //import backendUrl from '@/url_config';
 //const baseUrl = `${backendUrl}/messages`;

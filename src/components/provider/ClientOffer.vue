@@ -17,7 +17,7 @@
         Please check your network connection and try again later.
       </MDBToast>
     </div>
-
+    
     <div v-if="!client.professional && !road">
       <MDBSpinner color="info" />
     </div>
@@ -107,10 +107,11 @@
         </tr>
         </tbody>
       </MDBTable>
-      <div style="display: flex; justify-content: right;">
+      <div v-if="!openChat" style="display: flex; justify-content: right;">
         <MDBBtn :disabled="isDisabled" color="primary" class="mb-3" @click="onChat">
           <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
         </MDBBtn>
+        
       </div>
       <div v-if="client.isIncludeOffers" style="margin-bottom: 20px;">
         <div v-if="!client.offers.some(offer => offer.bookingID === client.id)">
@@ -284,11 +285,13 @@ import {MDBTable, MDBToast, MDBBtn, MDBSpinner, MDBBtnClose, MDBTextarea, MDBInp
 import { ref, nextTick, inject, toRefs, onMounted, computed } from 'vue';
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
+import { useConversationStore } from '@/stores/conversationStore.js';
 import { useProStore } from '@/stores/providerStore.js';
 import { useClientStore } from '@/stores/recipientStore.js';
 import { useLoginStore } from '@/stores/login.js';
 import { storeToRefs } from 'pinia';
 import clientService from '@/service/recipients.js';
+//import ChatWidget from '../ChatWidget.vue';
 import socket from "@/socket";
 import {loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 
@@ -312,6 +315,7 @@ const { client, open } = toRefs(_props)
 
 const sender = useLoginStore();
 const notificationStore = useNotificationStore();
+const conversationStore = useConversationStore();
 const proStore = useProStore();
 const clientStore = useClientStore();
 
@@ -332,11 +336,15 @@ const roadDuration = ref(null);
 const isHandleOffer = ref(false);
 const { user } = storeToRefs(sender)
 const { providerId, provider } = storeToRefs(proStore);
+const { openChat } = storeToRefs(conversationStore);
+
 const offerPrice = ref(null);
 const offerPlace = ref('here');
 const offerAbout = ref('');
 const reason = ref('');
 const isQuitClientBooking = ref(false);
+
+//const isChatWindow = ref(false);
 
 const isMapLoading = ref(true);
 
@@ -418,8 +426,11 @@ const validateMaps = async() => {
   }
 }
 
-const onChat = () => {
+const onChat = async () => {
   console.log("Chat btn");
+  console.log("otheruserId - ", client.value.author_id);
+  
+  //conversationStore.openChatWidget()
 }
 
 const makeOfferBtn = () => {

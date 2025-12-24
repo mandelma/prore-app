@@ -101,19 +101,25 @@ const userLoginData = async () => {
   console.log("Filled username: " + loginUsername.value);
 
   if (loginUsername.value !== "" && loginPassword.value !== "") {
-    user = await loginService.login(userLogin)
-    if (user.error !== "login error") {
+    const res = await loginService.login(userLogin);
+
+    if (!res.token) {
+      // show error and DO NOT redirect
+      loginError.value = true;
+      console.log("Login failed!");
+      //error.value = res.error ?? "Login failed";
+      return;
+    }
+
+    userApp.onLogin(res);
+
+    /* if (user.error !== "login error") {
       console.log("User just logged in!");
-      userApp.onLogin(user);
-      //await router.push({name: 'Home'});
+      
     } else {
       console.log("No user logged in");
-      loginError.value = true;
-      // this.loginError = "Väärä Käyttäjätunnus tai salasana!"
-      // setTimeout(() => {
-      //   loginError.value = false;
-      // }, 2000);
-    }
+      
+    } */
   } else {
     console.log("Error - Kaikki kentät täytettävä!")
     loginError.value = true;

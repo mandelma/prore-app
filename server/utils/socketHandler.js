@@ -1,5 +1,7 @@
 
- const hs = (socket) => {
+const Dialog = require('../models/messages');
+
+const hs = (socket) => {
     socket.on("create booking multiple - pro", async(proIdArr, bookingId) => {
         console.log("Pro id arr length " + proIdArr.length);
         proIdArr.forEach(id => {
@@ -15,10 +17,10 @@
     })
     // Provider created offer
     socket.on('client get offer', (addressee, clientID, offer) => {
-         console.log("Offer to client " + offer.name);
-         socket.to(addressee).to(socket.userId).emit('client use offer', clientID, offer);
+            console.log("Offer to client " + offer.name);
+            socket.to(addressee).to(socket.userId).emit('client use offer', clientID, offer);
     })
-    
+
     socket.on('client-handle-offer', (sender, orderId, offerId) => {
         console.log("Sender - " + sender);
         socket.to(sender).to(socket.userId).emit('pro-handle-confirmed', {sender, orderId, offerId})
@@ -68,6 +70,19 @@
     socket.on('on-client-confirmed-deal-motification', (receiver, bookingId, notification) => {
         console.log("RECEIVER ID: " + receiver);
         socket.to(receiver).to(socket.userId).emit('local-handle-client-confirmed-deal', bookingId, notification);
+    })
+
+    // Chat
+    socket.on('set-otheruser-local-room', (otheruserId, rooms) => {
+        console.log("ROOM " + rooms.type);
+        console.log("Other user id - ", otheruserId);
+        socket.to(otheruserId).to(socket.userId).emit('update-other-user-local-room', rooms);
+
+    })
+    socket.on('send-message', (message) => {
+        console.log("Chat test 1 " + message.text);
+        socket.to('68f55189d68a61a40cf8dc36').to(socket.userId).emit("send-private-message", message);
+
     })
 }
 

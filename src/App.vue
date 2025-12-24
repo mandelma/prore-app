@@ -133,7 +133,11 @@
       </RouterView>
     </main>
 
-    <!-- <chat-widget /> -->
+    <!-- <chat-widget 
+      :isOpenWidget="openChat"
+    /> -->
+
+
 
 <!--    <h2>is user pro  {{isUserPro}}</h2><br>-->
 <!--    <h2>incoming offers {{incomingOffers}}</h2><br>-->
@@ -220,7 +224,7 @@ import {
   MDBContainer
 } from 'mdb-vue-ui-kit';
 
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, onBeforeMount,  computed } from "vue";
 import { storeToRefs } from 'pinia';
 import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
@@ -230,6 +234,7 @@ import { useLoginStore } from "@/stores/login.js";
 import { useClientStore} from "@/stores/recipientStore.js";
 import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
+import { useConversationStore } from './stores/conversationStore';
 
 
 import {useI18n} from "vue-i18n/dist/vue-i18n";
@@ -251,9 +256,12 @@ const { t } = useI18n();
 const client = useClientStore();
 const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
+const conversationStore = useConversationStore();
+
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
+const { openChat, isConversation } = storeToRefs(conversationStore);
 
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
@@ -272,6 +280,7 @@ const weekdays = ["Mon","Tue", "Wed"];
 //   }
 // }, { immediate: true })
 
+
 onMounted (async () => {
   console.log("Mounted on start!");
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
@@ -287,6 +296,7 @@ onMounted (async () => {
     await client.orderList(user.id);
     await handleProvider.getProState(user.id);
     await notificationStore.handleNotifications(user.id);
+    await conversationStore.getConversations();
     //joinServer (user.id, user.username);
   }
 
@@ -378,6 +388,16 @@ const listen = async() => {
   socket.on('local-handle-client-confirmed-deal', (bookingId, notification) => {
     // --Tegemisel--
     console.log("Notification name - " + notification.author);
+  })
+
+  // Conversations
+  socket.on('update-other-user-local-room', async (rooms) => {
+    //conversationStore.localOtheruserRoom(rooms);
+    //computed (() => conversationStore.getConversations());
+  })
+  socket.on('send-private-message', async (message) => {
+    console.log("Got message: " + message.text);
+    conversationStore.localMessage(message);
   })
 }
 

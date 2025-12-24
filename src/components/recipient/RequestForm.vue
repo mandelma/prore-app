@@ -1,49 +1,57 @@
 <template>
     <MDBContainer>
         <form style="background-color: #0b1618; padding: 17px; border: 1px solid #1B2330; border-radius: 8px;">
-            <div class="field-wrapper">
-            <p>{{ props.target?.address }}</p>
-            </div>
-            <div class="field-wrapper">
-                <p>{{ formatLocalDate(props.date) }}</p>
-            </div>
-            <div class="field-wrapper">
-                <MDBInput
-                    label="Syötä tilauksen avainsana *"
-                    v-model="form.requestHeader"
-                    size="lg"
-                    invalidFeedback="Ole hyvä ja kirjoita avainsana."
-                    validFeedback="Ok!"
-                    required
-
-                />
-                <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span>
-                <!-- custom error text -->
-                
-            <div style="margin-top: 17px;" class="field-wrapper">
-                <MDBTextarea
-                    maxlength="70"
-                    label="Kuvaus tilauksen sisällöstä *"
-                    rows="3"
-                    v-model="form.requestContent"
-                    invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
-                    validFeedback="Ok!"
-                    required
-                />
-                <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span>
-                <span class="message-counter"> {{form.requestContent.length}} / 70</span>
-                </div>
-
-            </div>
+          <div style="display: flex; justify-content: right;">
+            <MDBBtn color="dark">
+              <i class="far fa-comment"></i>
+            </MDBBtn>
             
-            <MDBBtn color="primary" @click="handleRequest">Kinnita</MDBBtn>
+          </div>
+        
+          <div class="field-wrapper">
+          <p>{{ props.target?.profession.join(', ')}}</p>
+          </div>
+          <div class="field-wrapper">
+              <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
+              <p>{{ props.date }}</p>
+          </div>
+          <div class="field-wrapper">
+              <MDBInput
+                  label="Syötä tilauksen avainsana *"
+                  v-model="form.requestHeader"
+                  size="lg"
+                  invalidFeedback="Ole hyvä ja kirjoita avainsana."
+                  validFeedback="Ok!"
+                  required
+
+              />
+              <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span>
+              <!-- custom error text -->
+              
+          <div style="margin-top: 17px;" class="field-wrapper">
+              <MDBTextarea
+                  maxlength="70"
+                  label="Kuvaus tilauksen sisällöstä *"
+                  rows="3"
+                  v-model="form.requestContent"
+                  invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
+                  validFeedback="Ok!"
+                  required
+              />
+              <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span>
+              <span class="message-counter"> {{form.requestContent.length}} / 70</span>
+              </div>
+
+          </div>
+          
+          <MDBBtn color="primary" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
         </form>
         
     </MDBContainer>
 </template>
 <script setup>
 import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
-import {MDBContainer, MDBTextarea, MDBInput, MDBBtn} from 'mdb-vue-ui-kit';
+import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon} from 'mdb-vue-ui-kit';
 defineOptions({
     name: 'request-form'
 })
@@ -60,9 +68,9 @@ const form = reactive({
 const errors = reactive({});
 
 const validateForm = () => {
-  errors.requestHeader = form.requestHeader ? "" : "Header is required";
+  errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
  
-  errors.requestContent = form.requestContent ? "" : "Kuvaus is required";
+  errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
 
   return !errors.requestHeader && !errors.requestContent;
 }

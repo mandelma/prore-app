@@ -20,42 +20,48 @@
         aria-modal="false"
     >
         <header class="chat-header">
-        <span>Support</span>
+        <!-- <span>Support</span> -->
+        <div class="dropdown" ref="root" @click.stop>
+          <button @click="open = !open" class="btn">
+            {{ selected || "Select option" }} ▾
+          </button>
+
+          <ul v-if="open" class="menu">
+            <li
+              v-for="(opt, i) in options"
+              :key="i"
+              @click="select(opt)"
+            >
+              {{ opt.participantIds[0] }}
+            </li>
+          </ul>
+        </div>
         <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
         </header>
 
-        <div ref="chatBody" class="chat-body">
-            <div
-                v-for="m in messages"
-                :key="m.id"
-                class="msg"
-                :class="{ me: m.role === 'me' }"
-            >
+
+        <div v-if="meId" ref="chatBody" class="chat-body">
+          <div
+            v-for="m in activeMessages"
+            :key="m.id || m._id"
+            class="msg"
+            :class="{ me: isMine(m) }"
+          >
             <div v-if="m.text">{{ m.text }}</div>
 
-            <!-- Images -->
-            <div v-for="(f, i) in m.files || []" :key="i">
-                <img
-                    v-if="f.isImage"
-                    :src="f.preview"
-                    class="chat-image"
-                    alt="sent image"
-                />
-            </div>
             
-
-            <!-- Non-image files -->
-                    
-            <div v-for="(f, i) in m.files || []" :key="i">
-                <div
-                    v-if="!f.isImage"
-                    class="file-attachment"
-                >
-                📄 {{ f.name }}
-                </div>
+            <div v-for="a in m.attachments || []" :key="a.id || a.key">
+              <img
+                v-if="a.isImage"
+                :src="a.url || a.preview"
+                class="chat-image"
+                alt="attachment"
+              />
+              <div v-else class="file-attachment">
+                📄 {{ a.name || "file" }}
+              </div>
             </div>
-            
-            </div>
+          </div>
         </div>
 
 
@@ -108,30 +114,242 @@
     </section>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { storeToRefs } from "pinia";
+import { useLoginStore } from "@/stores/login";
+import { useConversationStore } from "@/stores/conversationStore";
+import uploadService from "@/service/awsUploads"; // must return uploaded files array
+import socket from "@/socket";
+
+// stores
+const auth = useLoginStore();
+const convoStore = useConversationStore();
+const { user } = storeToRefs(auth);
+const { openChat, conversations, activeConversationId, activeMessages } = storeToRefs(convoStore);
+
+// local UI
+const draft = ref("");
+const files = ref([]);
+const chatBody = ref(null);
+const chatInput = ref(null);
+
+// Your dropdown vars (left as-is)
+//const options = ["Option 1", "Option 2", "Option 3"];
+const options = computed(() => conversations.value);
+const open = ref(false);
+const selected = ref(null);
+const root = ref(null);
+
+
+// show/hide widget (use store openChat as source of truth)
+const isOpen = computed(() => openChat.value);
+
+function toggle() {
+  openChat.value = !openChat.value;
+  if (openChat.value) nextTick(() => chatInput.value?.focus());
+}
+function close() {
+  openChat.value = false;
+  convoStore.closeChatWidget();
+}
+
+function scrollToBottom() {
+  const el = chatBody.value;
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+const meId = computed(() => user.value?.id ?? user.value?._id ?? null);
+
+const isMinex = (m) => {
+  if (!meId.value) return false;
+  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+  return String(senderId) === String(meId.value);
+};
+
+const isMine = (m) => {
+  const my = user.value.id;
+  if (!my) return false;
+
+  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+  if (!senderId) return false;
+
+  return String(senderId) === String(my);
+};
+
+/* function isMine(m) {
+  return String(m.senderId) === String(user.value?.id);
+} */
+
+// file picking (same logic as earlier)
+function onFileSelect(e) {
+  const selectedFiles = Array.from(e.target.files || []).map((file) => ({
+    file,
+    id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()),
+    isImage: file.type?.startsWith("image/"),
+    preview: file.type?.startsWith("image/") ? URL.createObjectURL(file) : null,
+  }));
+  files.value.push(...selectedFiles);
+  e.target.value = "";
+}
+
+function removeFile(index) {
+  const f = files.value[index];
+  if (f?.preview) URL.revokeObjectURL(f.preview);
+  files.value.splice(index, 1);
+}
+
+// dropdown
+function select(opt) {
+  selected.value = opt;
+  open.value = false;
+}
+function onClickOutside(e) {
+  if (root.value && !root.value.contains(e.target)) open.value = false;
+}
+
+// ✅ send: upload attachments → emit message → update local state
+async function send() {
+  const convoId = activeConversationId.value;
+  if (!convoId) {
+    console.warn("No active conversation selected");
+    return;
+  }
+  if (!draft.value.trim() && files.value.length === 0) return;
+
+  // optimistic (sender sees preview immediately)
+  const tempId = crypto.randomUUID?.() ?? String(Date.now());
+  const optimistic = {
+    id: tempId,
+    conversationId: convoId,
+    senderId: user.value?.id,
+    text: draft.value,
+    createdAt: new Date().toISOString(),
+    attachments: files.value.map((f) => ({
+      id: f.id,
+      name: f.file.name,
+      mime: f.file.type,
+      size: f.file.size,
+      isImage: f.isImage,
+      preview: f.preview, // local only
+      uploading: true,
+    })),
+  };
+
+  convoStore.addMessageLocal(optimistic);
+  draft.value = "";
+  await nextTick();
+  scrollToBottom();
+
+  // upload attachments if any
+  let uploadedFiles = [];
+  try {
+    if (files.value.length) {
+      const fd = new FormData();
+      // IMPORTANT: must match server array("files")
+      files.value.forEach((f) => fd.append("files", f.file));
+      fd.append("conversationId", convoId);
+
+      // Choose ONE return shape:
+      // - If service returns array directly: uploadedFiles = await uploadService.uploadChatImage(fd)
+      // - If service returns {files: [...] }: uploadedFiles = (await uploadService.uploadChatImage(fd)).files
+      const res = await uploadService.uploadChatImage(fd);
+      uploadedFiles = Array.isArray(res) ? res : (res?.files || []);
+    }
+  } catch (err) {
+    console.error("Upload failed:", err?.response?.data || err);
+    // optionally mark optimistic message failed
+    return;
+  }
+
+  // build final message payload with REAL URLs for recipients
+  const finalMsg = {
+    ...optimistic,
+    id: crypto.randomUUID?.() ?? tempId,
+    attachments: uploadedFiles.map((f) => ({
+      id: f.id || f._id || f.key,
+      key: f.key,
+      url: f.imageUrl || f.url, // your backend returns imageUrl
+      name: f.name,
+      mime: f.mime,
+      size: f.size,
+      isImage: f.isImage ?? (f.mime || "").startsWith("image/"),
+    })),
+  };
+
+  // Replace optimistic message locally (simple approach: add another “final”)
+  // Better approach: store by id and replace, but keeping it simple:
+  convoStore.addMessageLocal(finalMsg);
+
+  // Send to other user(s)
+  socket.emit("send-message", finalMsg);
+
+  // clear picker (do NOT revoke previews that are still used in optimistic UI if still shown)
+  files.value = [];
+
+  await nextTick();
+  scrollToBottom();
+}
+
+onMounted(() => {
+  document.addEventListener("click", onClickOutside);
+  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", onClickOutside);
+});
+</script>
+
+<!-- <script>
 import { ref } from "vue";
+import socket from "@/socket";
+import uploadService from '../service/awsUploads';
+import { useConversationStore } from '@/stores/conversationStore';
+import { storeToRefs } from "pinia";
 
 export default {
+  props: {
+    isOpenWidget: Boolean
+  },
+  
   setup() {
     const isOpen = ref(false);
     const draft = ref("");
-    const messages = ref([
-      { id: crypto.randomUUID?.() ?? String(Date.now()), role: "bot", text: "Hi! How can I help?" },
-    ]);
+    
     const files = ref([]);
+    const options = ['Option 1', 'Option 2', 'Option 3'];
+    const open = ref(false);
+    const selected = ref(null);
+    const root = ref(null);;
 
-    return { isOpen, draft, messages, files };
+    const conversationStore = useConversationStore();
+    const { messages } = storeToRefs(conversationStore);
+
+    return { isOpen, draft, files, options, open, selected, root, conversationStore, messages };
+  },
+
+  watch: {
+    isOpenWidget (val) {
+      console.log("VAL - ", val);
+      if (val) this.isOpen = true;
+    }
   },
 
   mounted() {
     this._onKeydown = (e) => {
       if (e.key === "Escape") this.close();
     };
+    this._onClickOutside = (e) => this.onClickOutside(e);
     document.addEventListener("keydown", this._onKeydown);
+    // For dropdown
+    document.addEventListener("click", this._onClickOutside);
   },
 
   beforeUnmount() {
     document.removeEventListener("keydown", this._onKeydown);
+    // For dropdown
+    document.removeEventListener("click", this._onClickOutside);
   },
 
   methods: {
@@ -165,10 +383,35 @@ export default {
       e.target.value = "";
     },
 
+    
+
+
     removeFile(index) {
       const f = this.files[index];
       if (f?.preview) URL.revokeObjectURL(f.preview);
       this.files.splice(index, 1);
+    },
+
+    // users dropdown
+    select(opt) {
+      this.selected = opt;
+      this.open = false;
+    },
+
+    // close when clicking outside
+    onClickOutside(e) {
+      // use the Composition ref you already have
+      if (this.root && !this.root.contains(e.target)) {
+        this.open = false; // close dropdown
+      }
+    },
+
+    /* openChat () {
+      this.isOpen = true;
+    },
+ */
+    close() {
+      this.isOpen = false;
     },
 
     async send() {
@@ -181,12 +424,28 @@ export default {
         preview: f.preview, // OK for local preview; backend should return URL later
       }));
 
-      this.messages.push({
+      const message = {
+        id: String(Date.now()),
+        role: "bot",
+        text: this.draft,
+        files: msgFiles,
+      }
+
+      /* this.messages.push({
         id: String(Date.now()),
         role: "me",
         text: this.draft,
         files: msgFiles,
-      });
+      }); */
+
+      //this.messages.push(message);
+
+      /* this.messageStore.localMessage({
+        id: String(Date.now()),
+        role: "me",
+        text: this.draft,
+        files: msgFiles,
+      }) */
 
       // Build multipart form
       const form = new FormData();
@@ -194,31 +453,135 @@ export default {
       this.files.forEach((f) => form.append("files", f.file));
 
       // clear input text
-      this.draft = "";
+
+      //this.draft = "";
 
       // NOTE: don't revoke previews immediately if you want them to keep showing
       // If you revoke here, images in the sent message may disappear.
       // So either:
       // 1) keep them, OR
       // 2) revoke later when message is removed / replaced with server URL.
-      //
+      //, 
       // For now, keep previews alive:
       this.files = [];
 
       this.$nextTick(this.scrollToBottom);
 
+
+      //const fd = new FormData();
+      //selectedFiles.forEach((file) => fd.append("files", file));
+
+
+
+
+
+
+
+
+
+    
+
+
+      //socket.emit('send-message', message);
+
+
+
+
+
+
+      const tempId = String(Date.now());
+
+      const meLocal = {
+        id: tempId,
+        /* chatId: this.chatId, */
+        /* senderId: this.userId, */
+        role: "me",
+        text: this.draft,
+        createdAt: Date.now(),
+        attachments: this.files.map((f) => ({
+          id: f.id,
+          name: f.file.name,
+          mime: f.file.type,
+          size: f.file.size,
+          isImage: f.isImage,
+          // local-only preview:
+          preview: f.preview,
+          uploading: true,
+        })),
+      };
+
+      this.conversationStore.localMessage(meLocal);
+
+      // 2) upload actual bytes
+      
+      let uploadedFiles = [];
+
+      if (this.files.length) {
+        const uploadedRes = await uploadService.uploadChatImage(form);
+        uploadedFiles = uploadedRes?.files;
+        console.log("uploadedRes:", uploadedRes);
+        if (!Array.isArray(uploadedFiles)) {
+          console.error("Expected uploadedRes.files to be an array, got:", uploadedFiles);
+          return; // or handle error UI
+        }
+      }
+
+      // 3) build final message with shareable URLs
+
+      /* const finalMsg = {
+        ...optimistic,
+        id: crypto.randomUUID?.() ?? tempId,
+        attachments: uploadedFiles.map((u) => ({
+          id: u.id,
+          key: u.key,
+          url: u.url,
+          name: u.name,
+          mime: u.mime,
+          size: u.size,
+          isImage: u.isImage,
+        })),
+      }; */
+
+      const youLocal = {
+        id: tempId,
+        /* chatId: this.chatId, */
+        /* senderId: this.userId, */
+        role: "bot",
+        text: this.draft,
+        createdAt: Date.now(),
+        attachments: uploadedFiles.map((u) => ({
+          id: u.id,
+          key: u.key,
+          url: u.imageUrl,
+          name: u.name,
+          mime: u.mime,
+          size: u.size,
+          isImage: u.isImage,
+        })),
+      };
+
+
+
+      socket.emit('send-message', youLocal);
+
+
+      this.draft = "";
+
+
+
+
       // await fetch("/api/chat", { method: "POST", body: form });
 
-      this.messages.push({
+      /* this.messages.push({
         id: String(Date.now() + 1),
         role: "bot",
         text: "Nice photo! 📸",
       });
-      this.$nextTick(this.scrollToBottom);
+      this.$nextTick(this.scrollToBottom); */
     },
   },
 };
-</script>
+</script> -->
 <style scoped>
     :root {
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
@@ -372,6 +735,37 @@ export default {
   padding: 6px 8px;
   border-radius: 8px;
   margin-top: 4px;
+}
+
+/* User dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.btn {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  margin-top: 6px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  list-style: none;
+  padding: 6px;
+  width: 180px;
+}
+
+.menu li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  background: #f3f4f6;
 }
 
 /* Mobile fullscreen mode */

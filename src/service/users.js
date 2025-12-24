@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+
 const baseUrl = '/api/users';
 
 const addUser = async newUser => {

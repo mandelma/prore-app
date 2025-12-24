@@ -105,28 +105,25 @@
               
             </div>
 
-            isDateNow {{ isDateNow }}
-            date {{ showDt }}
+    
 
             <div style="margin-top: 15px;">
               <MDBCheckbox
-                  label="Heti!"
-                  name="selection"
-                  v-model="isDateNow"
-                  value="true"
-                  @click="removeDateIfExist"
-                  wrapperClass="mb-4"
+                label="Heti!"
+                name="selection"
+                v-model="isDateNow"
+                value="true"
+                @click="removeDateIfExist"
+                wrapperClass="mb-4"
               />
             </div>
-
-            dt {{ dt }}
 
           </div>
 
 
         </div>
         
-        <MDBSelect size="sm" white v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
+        <MDBSelect size="sm" v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
           
       </div>
       <!--Displaying when no main panel open-->
@@ -175,10 +172,18 @@
         v-model="displayProPanel"
       >
         <MDBModalHeader>
-          <h2>{{ onProvider.pName }}</h2>
+          <div style="display: flex; justify-content:space-between; align-items: center; gap: 23px;">
+            <img
+              src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
+              class="rounded-circle"
+              height="53"
+              alt=""
+              loading="lazy"
+            />
+            <h2>{{ onProvider.pName }}</h2>
+          </div>
         </MDBModalHeader>
         <MDBModalBody>
-          <p>Tällä - {{ onProvider.pName }} - tiedot...</p>
           <request-form  
             v-if="target.id !== providerId"
             :target="target" 
@@ -210,7 +215,7 @@
 //   lng: { type: Number, required: true },
 // });
 import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, createApp } from 'vue';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
 //import { Loader } from "@googlemaps/js-api-loader"; // official way
@@ -224,6 +229,7 @@ import { useProStore } from '@/stores/providerStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
 import { storeToRefs } from 'pinia';
+import Stars from '../Stars.vue';
 
 //import { useMapStore } from '@/stores/mapStore';
 //const location = useMapStore();
@@ -281,6 +287,7 @@ function testToast() {
 }
 
 const rangeOptions = ref([
+  {text: '0 km', value: 1},
   {text: '1 km', value: 1},
   {text: '10 km', value: 10},
   {text: '20 km', value: 20},
@@ -577,6 +584,12 @@ const otherUserLocations = async (providers, profession, dist) => {
             count ++;
 
             let marker;
+
+            const clientDate = parseDmyTime(dt.value);
+
+            console.log("Cliend date format: ", clientDate);
+
+            let matching = false;
             
             // text: "Saatavilla!"
             if (providers[pos].isAvailable24_7) {
@@ -591,19 +604,26 @@ const otherUserLocations = async (providers, profession, dist) => {
             } else {
               if (providers[pos].timetable.length > 0) {
                 providers[pos].timetable.map(time => {
-                  console.log("Date: " + time.start)
+                  console.log("Date: " + clientDate)
+                  console.log("Start: " + time.start);
                   console.log("Fitting datetime: " +
                       handleMatch.providerMatchingForClient(
-                          date,
+                          clientDate,
                           time.start,
                           time.end
                       )
 
                   )
 
+                  matching = handleMatch.providerMatchingForClient(
+                          clientDate,
+                          time.start,
+                          time.end
+                      ) ? "Saatavilla" : "Sovitaessa";
 
+                  console.log("Matching - ", matching)
                   if (handleMatch.providerMatchingForClient(
-                      date,
+                      clientDate,
                       time.start,
                       time.end
                   ) || providers[pos].isAvailable24_7) {
@@ -645,64 +665,130 @@ const otherUserLocations = async (providers, profession, dist) => {
               ? this.openMarker.bind(this)
               : (idx) => handleSelectedPro(providers[idx])//console.log('openMarker fallback', idx);
 
-            const infowindow = new google.maps.InfoWindow();
 
-            /* const infowindow = new google.maps.InfoWindow({
-              content: `
-                <div class="custom-info">
-                  <div style="display: flex; justify-content: right;">
-                    <button id="custom-close">×</button>
-                  </div>
-                  
-                  <h3>My Place</h3>
-                  <p>Hello world!</p>
-                  
-                </div>
-                `
-            }); */
-
-            // hide Google’s built-in close button when ready
-            infowindow.addListener("domready", () => {
-              const closeBtn = document.querySelector(".gm-ui-hover-effect");
-              if (closeBtn) closeBtn.style.display = "none";
-
-              document
-                .getElementById("custom-close")
-                ?.addEventListener("click", () => infowindow.close());
+            //const infowindow = new google.maps.InfoWindow();
+            const infowindow = new google.maps.InfoWindow({
+              pixelOffset: new google.maps.Size(0, -10) // tweak value to taste
             });
 
-            marker.addListener('click', () => {
-              console.log('POOOOS', pos);
-              const p = pos; // snapshot if this is inside a loop
+            let prev_infowindow = null;
+            let starsApp = null;
+
+            // ✅ add ONCE (outside marker click)
+            infowindow.addListener("domready", () => {
+
+              const mountEl = document.getElementById("stars-mount");
+
+              // unmount previous (important when reopening)
+              if (starsApp) {
+                starsApp.unmount();
+                starsApp = null;
+              }
+
+              if (mountEl) {
+                starsApp = createApp(Stars, { rating: 4 }); // optional props
+                starsApp.mount(mountEl);
+              }
+
+              document.getElementById("custom-close")?.addEventListener(
+                "click",
+                () => {
+                  starsApp?.unmount();
+                  starsApp = null;
+                  infowindow.close();
+                },
+                { once: true }
+              );
+
+
+              // hide default close
+              const defaultClose = document.querySelector(".gm-ui-hover-effect");
+              if (defaultClose) defaultClose.style.display = "none";
+
+              const iw = document.getElementById("custom-iw");
+              const closeBtn = document.getElementById("custom-close");
+              if (!iw) return;
+
+              // animate in
+              iw.classList.remove("iw-close");
+              void iw.offsetWidth; // force reflow
+              iw.classList.add("iw-open");
+
+              // close (avoid piling listeners)
+              closeBtn?.addEventListener(
+                "click",
+                () => {
+                  iw.classList.remove("iw-open");
+                  iw.classList.add("iw-close");
+                  setTimeout(() => infowindow.close(), 190);
+                },
+                { once: true }
+              );
+            });
+
+            // ✅ marker click ONLY opens
+            marker.addListener("click", () => {
+              const p = pos;
 
               if (prev_infowindow) prev_infowindow.close();
               prev_infowindow = infowindow;
 
-              infowindow.setContent(
-                
-                `
-                <div class="custom-info">
-                  <div style="display: flex; justify-content: right;">
-                    <button id="custom-close">×</button>
-                  </div>
-                  
-                  <h3>My Place</h3>
-                  <p>Hello world!</p>
-                  <div>
-                  <p style="color: green;">${providers[p].pName}</p>
-                  <p style="color: red;" onclick="myGlobalFunction(${p})">Tiedot</p>
-                </div>
-                </div>
-                `
-              );
+              infowindow.setContent(`
+                <div class="custom-info-window" id="custom-iw">
+                  <button id="custom-close" class="close-btn" aria-label="Close">×</button>
 
-              // Newer signature is safe and avoids oddities
-              infowindow.open({
-                anchor: marker,
-                map,
-                shouldFocus: false
-              });
+                  <div class="header">
+                    <div id="stars-mount"></div>
+                  </div>
+
+                  <table class="info-table" role="presentation">
+                    <tr>
+                      <td>
+                        <img
+                          src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
+                          class="rounded-circle"
+                          height="33"
+                          alt=""
+                          loading="lazy"
+                        />
+                      </td>
+                      <td>
+                        ${providers[p].description}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>${matching}</th>
+                      <td>${dt.value}</td>
+                    </tr>
+
+                      <th>${providers[p].profession.join(', ')}</th>
+                      <td class="provider">${providers[p].pName}</td>
+                    </tr>
+                    <tr>
+                      <th>Tiedot</th>
+                      <td><span class="info-link">Kotisivu</span></td>
+                    </tr>
+                    <tr>
+                      <th>${providers[p].priceByHour ? "Tuntihinta" : ""}</th>
+                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : ""}</td>
+                    </tr>
+                  </table>
+
+                  <button class="bottom-btn" onclick="myGlobalFunction(${p})">
+                    TEE TILAUS
+                  </button>
+                </div>
+              `);
+
+              infowindow.open({ map, anchor: marker, shouldFocus: false });
+              if (window.innerWidth <= 480) {
+                map.panTo(marker.getPosition());
+                map.panBy(0, -140); // move marker down so bubble sits more centered
+              }
             });
+
+
+            
 
           }
 
@@ -931,6 +1017,7 @@ const pinSymbol = (color, stroke_color) => {
 
 .custom-info {
   position: relative;
+  background-color: grey;
   padding: 8px 12px;
   font-family: sans-serif;
 }
@@ -947,6 +1034,244 @@ const pinSymbol = (color, stroke_color) => {
   width: 24px;
   height: 24px;
   cursor: pointer;
+}
+
+/* Infowindow */
+
+/* 1) Kill Google's white bubble */
+:deep(.gm-style .gm-style-iw-c) {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;   /* optional */
+  overflow: visible !important;  /* allow your arrow */
+}
+
+/* 2) Remove the inner scroll wrapper background/clipping */
+:deep(.gm-style .gm-style-iw-d) {
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+/* 3) Hide default close button */
+:deep(.gm-ui-hover-effect) {
+  display: none !important;
+}
+
+:deep(.gm-style .gm-style-iw-c) {
+  padding: 0 !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+}
+
+:deep(.gm-style .gm-style-iw-d) {
+  overflow: visible !important;
+}
+
+:deep(.gm-ui-hover-effect) {
+  display: none !important;
+}
+
+:deep(.custom-info-window) { 
+  position: relative;
+  width: min(320px, calc(100vw - 32px));
+  max-width: 340px;
+  background: rgb(34, 80, 80);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+  padding: 14px 14px 12px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+
+  opacity: 1; 
+  transform: translateY(0) 
+  scale(1); 
+  transition: 
+  opacity 190ms ease, 
+  transform 190ms ease; }
+
+:deep(.custom-info-window.iw-open) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+:deep(.custom-info-window.iw-close) {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+}
+
+/* :deep(.custom-info-window::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-60%);
+  width: 0; height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 14px solid cyan;
+} */
+
+
+
+
+
+/* :deep(.custom-info-window::before) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 12px;
+  background: cyan;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+} */
+
+/* ...and the rest of classes the same way (close-btn, header, etc) */
+
+/* Close button (bigger tap target for mobile) */
+:deep(.close-btn) {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 700;
+
+  display: grid;
+  place-items: center;
+}
+
+:deep(.close-btn:active) {
+  transform: scale(0.98);
+}
+
+/* Header */
+:deep(.header) {
+  padding-right: 42px; /* leave room for close button */
+}
+:deep(.header h3) {
+  margin: 6px 0 4px;
+  font-size: 18px;
+}
+:deep(.header p) {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+/* Table */
+:deep(.info-table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 8px 0 12px;
+}
+
+:deep(.info-table th) {
+  text-align: left;
+  font-weight: 700;
+  padding: 6px 0;
+  width: 42%;
+  vertical-align: top;
+}
+
+:deep(.info-table) td {
+  padding: 6px 0;
+  vertical-align: top;
+}
+
+:deep(.provider) {
+  color: #d68d5c;
+  font-weight: 600;
+}
+
+:deep(.info-link) {
+  color: #bd6161;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+/* Bottom button */
+:deep(.bottom-btn) {
+  width: 100%;
+  min-height: 44px; /* mobile tap target */
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+
+  background: #0b63ff;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+:deep(.bottom-btn:active) {
+  transform: scale(0.99);
+}
+
+/* :deep(.custom-info-window) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 190ms ease, transform 190ms ease;
+} */
+
+
+
+/* :deep(.modal-header .btn-close) {
+  color: #fff;
+  opacity: 1;
+} */
+
+/* Mobile tweaks */
+@media (max-width: 420px) {
+
+  :deep(.custom-info-window) { 
+    position: relative;
+    width: min(320px, calc(100vw - 80px));
+    max-width: 340px;
+    background: rgb(34, 80, 80);
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    padding: 14px 14px 12px;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+
+    opacity: 1; 
+    transform: translateY(0) 
+    scale(1); 
+    transition: 
+    opacity 190ms ease, 
+    transform 190ms ease; 
+  }
+  
+  :deep(.custom-info-window::before,
+  .custom-info-window::after) {
+    left: 39% !important;  /* try 60%–75% */
+  }
+  :deep(.custom-info-window) {
+    padding: 12px 12px 12px;
+    border-radius: 16px;
+  }
+  :deep(.header h3) {
+    font-size: 17px;
+  }
+  :deep(.info-table, .header p) {
+    font-size: 13.5px;
+  }
 }
 
 /* .hideMainPanel {

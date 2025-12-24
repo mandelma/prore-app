@@ -12,11 +12,7 @@ loginRouter.post('/', async (request, response) => {
         : await bcrypt.compare(body.password, user.passwordHash)
 
     if (!(user && passwordCorrect)) {
-        // return response.status(401).json({
-        //     error: 'invalid username or password'
-        // })
-        console.log("ERROR")
-        return response.send({error: "login error"})
+        return response.status(401).json({ error: "invalid username or password" });
     }
 
     const userForToken = {
@@ -29,7 +25,6 @@ loginRouter.post('/', async (request, response) => {
         userForToken,
         process.env.SECRET,
         {expiresIn: "48h"})
-    // expiresIn: "1h"
     response
         .status(200)
         .send({
@@ -47,12 +42,11 @@ loginRouter.post('/', async (request, response) => {
 // 60 * 60
 // Validate token
 loginRouter.post('/:token', async(req, res) => {
-    //const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+    
 
     try {
         const decodedToken = jwt.verify(req.params.token, process.env.SECRET)
         if (!decodedToken) {
-            //return res.status(401).json({ error: 'token invalid' })
             console.log("Invalid token!")
             res.json({error: 'token invalid'})
 
@@ -62,7 +56,6 @@ loginRouter.post('/:token', async(req, res) => {
             .send({ result: decodedToken })
     } catch (err) {
         console.log(err.message)
-        //return res.status(401).json({error: 'token expired'})
         console.log("Token expired!")
         res.json({result: 'token expired'})
     }

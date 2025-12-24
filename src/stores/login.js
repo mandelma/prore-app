@@ -31,7 +31,7 @@ export const useLoginStore = defineStore('login', () => {
         localStorage.removeItem('loggedAppUser');
         router.push('/');
     }
-    const hydrate = async () => {
+    /* const hydrate = async () => {
 
         const raw = localStorage.getItem('loggedAppUser');
         if (raw) {
@@ -48,12 +48,19 @@ export const useLoginStore = defineStore('login', () => {
             user.value = null;
             router.push('/');
         }
-        // try {
-        //     user.value = JSON.parse(raw)
-        // } catch (_) {
-        //     console.log("Error: not found user.")
-        //     // ignore bad JSON
-        // }
-    }
+    
+    } */
+
+        const hydrate = async () => {
+            const raw = localStorage.getItem("loggedAppUser");
+            if (!raw) {
+                user.value = null;
+                router.push("/");
+                return;
+            }
+
+            const appUser = JSON.parse(raw);
+            user.value = appUser; // optimistic
+        };
     return { user, token, isAuthenticated, onLogin, onLogOut, hydrate }
 })
