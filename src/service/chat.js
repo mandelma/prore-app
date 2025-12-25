@@ -18,17 +18,33 @@ export const chatService = {
     return data;
   },
 
-  listMessages(conversationId, { limit = 30, before } = {}) {
+  async listMessages (conversationId, { limit = 30, before } = {}) {
+    const params = { limit };
+    if (before) params.before = before;
+    const { data } = await chatApi.get(`/conversations/${conversationId}/messages`, { params });
+    return data;
+  },
+
+  /* listMessages(conversationId, { limit = 30, before } = {}) {
     const params = { limit };
     if (before) params.before = before;
     return chatApi.get(`/conversations/${conversationId}/messages`, { params }).then((r) => r.data);
+  }, */
+
+  async sendMessage (conversationId, payload) {
+    const { data } = await chatApi.post(`/conversations/${conversationId}/messages`, payload);
+    return data;
   },
 
-  sendMessage(conversationId, payload) {
+  /* sendMessage(conversationId, payload) {
     return chatApi.post(`/conversations/${conversationId}/messages`, payload).then((r) => r.data);
-  },
+  }, */
 
-  markRead(conversationId) {
+  async markRead (conversationId) {
+    const { data } = await chatApi.post(`/conversations/${conversationId}/read`);
+    return data;
+  }
+  /* markRead(conversationId) {
     return chatApi.post(`/conversations/${conversationId}/read`).then((r) => r.data);
-  },
+  }, */
 };

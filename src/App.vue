@@ -397,7 +397,7 @@ const listen = async() => {
   })
   socket.on('send-private-message', async (message) => {
     console.log("Got message: " + message.text);
-    conversationStore.localMessage(message);
+    //conversationStore.localMessage(message);
   })
 }
 

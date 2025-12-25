@@ -39,29 +39,34 @@
         <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
         </header>
 
+        <!-- activeMessages {{ activeMessages }} -->
 
         <div v-if="meId" ref="chatBody" class="chat-body">
-          <div
-            v-for="m in activeMessages"
-            :key="m.id || m._id"
-            class="msg"
-            :class="{ me: isMine(m) }"
-          >
-            <div v-if="m.text">{{ m.text }}</div>
+          <div >
+            <div
+              v-for="(m) in activeMessages.items"
+              
+              :key="m.id || m._id"
+              class="msg"
+              :class="{ me: isMine(m) }"
+            >
+              <div v-if="m.text">{{ m.text }}</div>
 
-            
-            <div v-for="a in m.attachments || []" :key="a.id || a.key">
-              <img
-                v-if="a.isImage"
-                :src="a.url || a.preview"
-                class="chat-image"
-                alt="attachment"
-              />
-              <div v-else class="file-attachment">
-                📄 {{ a.name || "file" }}
+              
+              <div v-for="a in m.attachments || []" :key="a.id || a.key">
+                <img
+                  v-if="a.isImage"
+                  :src="a.url || a.preview"
+                  class="chat-image"
+                  alt="attachment"
+                />
+                <div v-else class="file-attachment">
+                  📄 {{ a.name || "file" }}
+                </div>
               </div>
             </div>
           </div>
+          
         </div>
 
 
@@ -168,7 +173,7 @@ const isMinex = (m) => {
 };
 
 const isMine = (m) => {
-  const my = user.value.id;
+  const my = meId.value;  // use computed meId
   if (!my) return false;
 
   const senderId = m.senderId ?? m.sender?._id ?? m.sender;
@@ -176,6 +181,18 @@ const isMine = (m) => {
 
   return String(senderId) === String(my);
 };
+
+/* const isMine = (m) => {
+  const my = user.value.id;
+  if (!my) return false;
+
+  if (!activeMessages.value.length) return;
+
+  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+  if (!senderId) return false;
+
+  return String(senderId) === String(my);
+}; */
 
 /* function isMine(m) {
   return String(m.senderId) === String(user.value?.id);
@@ -201,12 +218,20 @@ function removeFile(index) {
 
 // dropdown
 function select(opt) {
-  selected.value = opt;
+  console.log("Opt id is " + opt._id);
+  const participantId = opt.participantIds.find(id => id !== user.value.id);
+  console.log("Part id - ", participantId);
+  convoStore.openCreateRoom(participantId);
+  selected.value = opt._id;
   open.value = false;
 }
 function onClickOutside(e) {
   if (root.value && !root.value.contains(e.target)) open.value = false;
 }
+
+
+
+
 
 // ✅ send: upload attachments → emit message → update local state
 async function send() {

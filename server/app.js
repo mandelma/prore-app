@@ -7,6 +7,8 @@ const cors = require('cors');
 const history = require('connect-history-api-fallback');
 const path = require("path");
 
+
+
 require('dotenv').config();
 const handleSocket = require('./utils/socketHandler')
 const handleChatSockets = require('./utils/socketChathandler')
@@ -126,7 +128,7 @@ io.on("connection", (socket) => {
     socket.emit("test", socket.userId);
 
     handleSocket(socket);
-    handleChatSockets(socket);
+    handleChatSockets(io, socket);
 });
 
 

@@ -62,35 +62,42 @@ export const useConversationStore = defineStore("conversation", () => {
 
   // ---- Create or get DM, then select it
   const openCreateRoom = async (otherUserId) => {
-    const convo = await chatService.openDM(otherUserId);  // should return ONE convo
-    console.log("openDM returned keys:", Object.keys(convo || {}));
-    const convoId = convo?._id ?? convo?.id ?? convo?.conversation?._id ?? convo?.conversation?.id;
 
-    console.log("openDM returned:", convo);
+    const res = await chatService.openDM(otherUserId); // could be convo or { conversation: ... }
+
+    const conversation = res.conversation ?? res; // unwrap if needed
+    const convoId = conversation._id ?? conversation.id;
+
+    console.log("openDM conversation:", conversation);
     console.log("CONVO ID:", convoId);
 
     if (!convoId) throw new Error("openDM did not return conversation id");
-    //upsertConversation(convo);
-    await selectConversation(convo.id);
 
-    // Tell other user to refresh conversations (or server will do it)
-
-    //socket.emit("dm-opened", { conversationId: convo.id, otherUserId });
+    upsertConversation(conversation);
+    await selectConversation(convoId);
   };
 
   // ---- Local add message + update conversation preview list
   const addMessageLocal = (message) => {
     const convoId = String(message.conversationId);
-    const existing = messagesById.value[convoId] || [];
-    messagesById.value = { ...messagesById.value, [convoId]: [...existing, message] };
+    const current = messagesById.value?.[convoId];
+    const existing = Array.isArray(current) ? current : [];
+
+    messagesById.value = {
+      ...messagesById.value,
+      [convoId]: [...existing, message],
+    };
 
     bumpConversationOnMessage(message);
   };
 
   // ---- Helpers
   const upsertConversation = (convo) => {
-    const id = String(convo._id);
-    const idx = conversations.value.findIndex(c => String(c._id) === id);
+    const id = String(convo._id ?? convo.id);
+    const idx = conversations.value.findIndex(
+      c => String(c._id ?? c.id) === id
+    );
+
     if (idx === -1) {
       conversations.value = [convo, ...conversations.value];
     } else {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import loginService from '@/service/login'
 import { useRoute, useRouter } from 'vue-router'
+import { jwtDecode } from "jwt-decode"; // npm install jwt-decode
 
 export const useLoginStore = defineStore('login', () => {
     // --state--
@@ -52,6 +53,42 @@ export const useLoginStore = defineStore('login', () => {
     } */
 
         const hydrate = async () => {
+        const raw = localStorage.getItem("loggedAppUser");
+
+        if (!raw) {
+            user.value = null;
+            return;
+        }
+
+        const appUser = JSON.parse(raw);         // { token, username, ... }
+        const token = appUser?.token;
+
+        if (!token) {
+            onLogOut();
+            return;
+        }
+
+        // decode JWT
+        try {
+            const decoded = jwtDecode(token);      // { exp, iat, ... }
+            
+            const now = Date.now() / 1000;
+            if (decoded.exp < now) {               // token expired
+            console.log("Token expired — logging out");
+            onLogOut();
+            return;
+            }
+
+            // Token valid → restore user
+            user.value = appUser;
+
+        } catch (err) {
+            console.log("Invalid token — logging out");
+            onLogOut();
+        }
+        };
+
+        /* const hydrate = async () => {
             const raw = localStorage.getItem("loggedAppUser");
             if (!raw) {
                 user.value = null;
@@ -59,8 +96,10 @@ export const useLoginStore = defineStore('login', () => {
                 return;
             }
 
+            
+
             const appUser = JSON.parse(raw);
             user.value = appUser; // optimistic
-        };
+        }; */
     return { user, token, isAuthenticated, onLogin, onLogOut, hydrate }
 })
