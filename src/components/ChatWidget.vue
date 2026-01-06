@@ -7,9 +7,22 @@
         :aria-expanded="String(isOpen)"
         @click="toggle"
     >
-        <span v-if="!isOpen">💬</span>
-        <span v-else>✕</span>
+      <span class="icon-wrapper">
+        💬
+
+        <!-- unread bubble -->
+        <span v-if="!isOpen && totalUnread" class="badge">
+          {{ totalUnread }}
+        </span>
+      </span>
+
+      <span v-if="isOpen">✕</span>
+      
     </button>
+
+    
+
+    <!-- class="chat-header" -->
 
     <!-- Window -->
     <section
@@ -20,31 +33,36 @@
         aria-modal="false"
     >
         <header class="chat-header">
-        <!-- <span>Support</span> -->
-        <div class="dropdown" ref="root" @click.stop>
-          <button @click="open = !open" class="btn">
-            {{ selected || "Select option" }} ▾
-          </button>
 
-          <ul v-if="open" class="menu">
+          <ul class="chat-dropdown horizontal">
             <li
-              v-for="(opt, i) in options"
-              :key="i"
-              @click="select(opt)"
+              v-for="opt in convo_options"
+              :class="{ active: opt.conversationId === activeConversationId }"
+              :key="opt.conversationId"
+              @click="selectConversation(opt.conversationId)"
             >
-              {{ opt.participantIds[0] }}
+              <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
+               <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
+                <div style="margin-top: 17px; margin-left: -17px; ">
+                {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
+              </div>
+              <span>{{ opt.name }}</span>
+
+              <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
             </li>
+            
           </ul>
-        </div>
-        <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
+
+          <div style="display: flex; justify-content: right;  margin-top: -27px;">
+            <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
+          </div>
+          
         </header>
 
-        <!-- activeMessages {{ activeMessages }} -->
-
         <div v-if="meId" ref="chatBody" class="chat-body">
-          <div >
+          <!-- <div > -->
             <div
-              v-for="(m) in activeMessages.items"
+              v-for="(m) in activeMessages"
               
               :key="m.id || m._id"
               class="msg"
@@ -65,7 +83,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          <!-- </div> -->
           
         </div>
 
@@ -91,10 +109,11 @@
             </div>
         </div>
 
-        <form class="chat-input" @submit.prevent="send">
+        <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
             <!-- Attachment button -->
-            <label class="attach-btn" aria-label="Attach file">
-                📎
+            <label  aria-label="Attach file">
+                <!-- 📎 -->
+                <i class="fas fa-images"></i>
                 <input
                     type="file"
                     hidden
@@ -109,504 +128,336 @@
                 ref="chatInput"
                 v-model="draft"
                 type="text"
-                placeholder="Type a message…"
+                placeholder="Kirjoita viesti…"
                 autocomplete="off"
             />
 
             <!-- Send -->
-            <button type="submit">Send</button>
+            <button type="submit">Lähetä</button>
         </form>
     </section>
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
-import { storeToRefs } from "pinia";
-import { useLoginStore } from "@/stores/login";
-import { useConversationStore } from "@/stores/conversationStore";
-import uploadService from "@/service/awsUploads"; // must return uploaded files array
-import socket from "@/socket";
+  import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBIcon } from "mdb-vue-ui-kit";
+  import { ref, computed, nextTick, onMounted, onUpdated, onBeforeUnmount, watch } from "vue";
+  import { storeToRefs } from "pinia";
+  import { useLoginStore } from "@/stores/login";
+  import { useConversationStore } from "@/stores/conversationStore";
+  import { usePresenceStore } from '@/stores/presenceStore';
+  import uploadService from "@/service/awsUploads"; // must return uploaded files array
+  import userService from "@/service/users";
+  import socket from "@/socket";
 
-// stores
-const auth = useLoginStore();
-const convoStore = useConversationStore();
-const { user } = storeToRefs(auth);
-const { openChat, conversations, activeConversationId, activeMessages } = storeToRefs(convoStore);
+  // stores
+  const auth = useLoginStore();
+  const convoStore = useConversationStore();
+  const presenceStore = usePresenceStore();
+  const { user } = storeToRefs(auth);
+  
+  const { openChat, conversations, me_id, activeConversationId, activeMessages, otherChatUsers, totalUnread } = storeToRefs(convoStore);
+  const { isOnline } = presenceStore;
 
-// local UI
-const draft = ref("");
-const files = ref([]);
-const chatBody = ref(null);
-const chatInput = ref(null);
+  // local UI
+  const draft = ref("");
+  const files = ref([]);
+  const chatBody = ref(null);
+  const chatInput = ref(null);
+  const ddChat = ref(false);
 
-// Your dropdown vars (left as-is)
-//const options = ["Option 1", "Option 2", "Option 3"];
-const options = computed(() => conversations.value);
-const open = ref(false);
-const selected = ref(null);
-const root = ref(null);
-
-
-// show/hide widget (use store openChat as source of truth)
-const isOpen = computed(() => openChat.value);
-
-function toggle() {
-  openChat.value = !openChat.value;
-  if (openChat.value) nextTick(() => chatInput.value?.focus());
-}
-function close() {
-  openChat.value = false;
-  convoStore.closeChatWidget();
-}
-
-function scrollToBottom() {
-  const el = chatBody.value;
-  if (el) el.scrollTop = el.scrollHeight;
-}
-
-const meId = computed(() => user.value?.id ?? user.value?._id ?? null);
-
-const isMinex = (m) => {
-  if (!meId.value) return false;
-  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
-  return String(senderId) === String(meId.value);
-};
-
-const isMine = (m) => {
-  const my = meId.value;  // use computed meId
-  if (!my) return false;
-
-  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
-  if (!senderId) return false;
-
-  return String(senderId) === String(my);
-};
-
-/* const isMine = (m) => {
-  const my = user.value.id;
-  if (!my) return false;
-
-  if (!activeMessages.value.length) return;
-
-  const senderId = m.senderId ?? m.sender?._id ?? m.sender;
-  if (!senderId) return false;
-
-  return String(senderId) === String(my);
-}; */
-
-/* function isMine(m) {
-  return String(m.senderId) === String(user.value?.id);
-} */
-
-// file picking (same logic as earlier)
-function onFileSelect(e) {
-  const selectedFiles = Array.from(e.target.files || []).map((file) => ({
-    file,
-    id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()),
-    isImage: file.type?.startsWith("image/"),
-    preview: file.type?.startsWith("image/") ? URL.createObjectURL(file) : null,
-  }));
-  files.value.push(...selectedFiles);
-  e.target.value = "";
-}
-
-function removeFile(index) {
-  const f = files.value[index];
-  if (f?.preview) URL.revokeObjectURL(f.preview);
-  files.value.splice(index, 1);
-}
-
-// dropdown
-function select(opt) {
-  console.log("Opt id is " + opt._id);
-  const participantId = opt.participantIds.find(id => id !== user.value.id);
-  console.log("Part id - ", participantId);
-  convoStore.openCreateRoom(participantId);
-  selected.value = opt._id;
-  open.value = false;
-}
-function onClickOutside(e) {
-  if (root.value && !root.value.contains(e.target)) open.value = false;
-}
+  // Your dropdown vars (left as-is)
+  //const options = ["Option 1", "Option 2", "Option 3"];
+  //const options = computed(() => conversations.value);
+  const options = computed(() => {
+    return conversations.value.map(cv => {
+      const otherId = cv.participantIds.find(id => id !== meId.value);
+      const user = otherChatUsers.value[otherId]; // cached user
+      
+      return {
+        id: otherId,
+        name: user?.firstName || "Unknown User",
+        username: user?.username || "Unknown username",
+        avatar: user?.avatar,
+        conversationId: cv._id,
+      };
+    });
+  });
 
 
 
+  const convo_options = computed(() => {
+    const myId = me_id.value;
 
+    return conversations.value.map(cv => {
+      const otherId = String(
+        cv.participantIds.find(id => String(id) !== myId)
+      );
 
-// ✅ send: upload attachments → emit message → update local state
-async function send() {
-  const convoId = activeConversationId.value;
-  if (!convoId) {
-    console.warn("No active conversation selected");
-    return;
-  }
-  if (!draft.value.trim() && files.value.length === 0) return;
+      const otherUser = otherChatUsers?.value?.[otherId];
 
-  // optimistic (sender sees preview immediately)
-  const tempId = crypto.randomUUID?.() ?? String(Date.now());
-  const optimistic = {
-    id: tempId,
-    conversationId: convoId,
-    senderId: user.value?.id,
-    text: draft.value,
-    createdAt: new Date().toISOString(),
-    attachments: files.value.map((f) => ({
-      id: f.id,
-      name: f.file.name,
-      mime: f.file.type,
-      size: f.file.size,
-      isImage: f.isImage,
-      preview: f.preview, // local only
-      uploading: true,
-    })),
+      const myUnread = cv.unread?.[myId] || 0;
+
+      return {
+        conversationId: cv._id,
+        otherId,
+        name: otherUser?.firstName || otherUser?.username || "Tuntematon",
+        username: otherUser?.username || "",
+        avatar: otherUser?.avatar,
+        unread: myUnread,
+      };
+    });
+  });
+
+  const selectConversation = (id) => {
+    convoStore.selectConversation(id);
   };
+  
+  const open = ref(false);
+  const selected = ref(null);
+  const openOption = ref(null);
+  const root = ref(null);
 
-  convoStore.addMessageLocal(optimistic);
-  draft.value = "";
-  await nextTick();
-  scrollToBottom();
 
-  // upload attachments if any
-  let uploadedFiles = [];
-  try {
-    if (files.value.length) {
-      const fd = new FormData();
-      // IMPORTANT: must match server array("files")
-      files.value.forEach((f) => fd.append("files", f.file));
-      fd.append("conversationId", convoId);
+  // show/hide widget (use store openChat as source of truth)
+  const isOpen = computed(() => openChat.value);
 
-      // Choose ONE return shape:
-      // - If service returns array directly: uploadedFiles = await uploadService.uploadChatImage(fd)
-      // - If service returns {files: [...] }: uploadedFiles = (await uploadService.uploadChatImage(fd)).files
-      const res = await uploadService.uploadChatImage(fd);
-      uploadedFiles = Array.isArray(res) ? res : (res?.files || []);
+
+  async function scrollToBottomWithImages() {
+    await nextTick();
+
+    const imgs = chatBody.value?.querySelectorAll('img') ?? [];
+    if (imgs.length === 0) return scroll();
+
+    let loaded = 0;
+    imgs.forEach(img => {
+      if (img.complete) loaded++;
+      else img.onload = () => { loaded++; if (loaded === imgs.length) scroll(); };
+    });
+    if (loaded === imgs.length) scroll();
+
+    function scroll() {
+      requestAnimationFrame(() => {
+        chatBody.value.scrollTop = chatBody.value.scrollHeight;
+      });
     }
-  } catch (err) {
-    console.error("Upload failed:", err?.response?.data || err);
-    // optionally mark optimistic message failed
-    return;
   }
 
-  // build final message payload with REAL URLs for recipients
-  const finalMsg = {
-    ...optimistic,
-    id: crypto.randomUUID?.() ?? tempId,
-    attachments: uploadedFiles.map((f) => ({
-      id: f.id || f._id || f.key,
-      key: f.key,
-      url: f.imageUrl || f.url, // your backend returns imageUrl
-      name: f.name,
-      mime: f.mime,
-      size: f.size,
-      isImage: f.isImage ?? (f.mime || "").startsWith("image/"),
-    })),
+  watch(
+    () => activeMessages.value.length,
+    () => scrollToBottomWithImages()
+  );
+
+
+
+
+
+  /* async function scrollToBottomSmooth() {
+    await nextTick();                      // wait DOM update
+    requestAnimationFrame(() => {          // wait browser paint
+      if (chatBody.value)
+        chatBody.value.scrollTop = chatBody.value.scrollHeight;
+    });
+  }
+
+  watch(
+    () => activeMessages.value.length,
+    () => scrollToBottomSmooth()
+  ); */
+
+  function toggle() {
+    openChat.value = !openChat.value;
+    if (openChat.value) nextTick(() => chatInput.value?.focus());
+  }
+  function close() {
+    openChat.value = false;
+    convoStore.closeChatWidget();
+  }
+
+  /* function scrollToBottom() {
+    const el = chatBody.value;
+    if (el) el.scrollTop = el.scrollHeight;
+  } */
+
+  const meId = computed(() => user.value?.id ?? user.value?._id ?? null);
+
+  const isMinex = (m) => {
+    if (!meId.value) return false;
+    const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+    return String(senderId) === String(meId.value);
   };
 
-  // Replace optimistic message locally (simple approach: add another “final”)
-  // Better approach: store by id and replace, but keeping it simple:
-  convoStore.addMessageLocal(finalMsg);
+  const isMine = (m) => {
+    const my = meId.value;  // use computed meId
+    if (!my) return false;
 
-  // Send to other user(s)
-  socket.emit("send-message", finalMsg);
+    const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+    if (!senderId) return false;
 
-  // clear picker (do NOT revoke previews that are still used in optimistic UI if still shown)
-  files.value = [];
+    return String(senderId) === String(my);
+  };
 
-  await nextTick();
-  scrollToBottom();
-}
+  /* const isMine = (m) => {
+    const my = user.value.id;
+    if (!my) return false;
 
-onMounted(() => {
-  document.addEventListener("click", onClickOutside);
-  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
-});
+    if (!activeMessages.value.length) return;
 
-onBeforeUnmount(() => {
-  document.removeEventListener("click", onClickOutside);
-});
+    const senderId = m.senderId ?? m.sender?._id ?? m.sender;
+    if (!senderId) return false;
+
+    return String(senderId) === String(my);
+  }; */
+
+  /* function isMine(m) {
+    return String(m.senderId) === String(user.value?.id);
+  } */
+
+  // file picking (same logic as earlier)
+  function onFileSelect(e) {
+    const selectedFiles = Array.from(e.target.files || []).map((file) => ({
+      file,
+      id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()),
+      isImage: file.type?.startsWith("image/"),
+      preview: file.type?.startsWith("image/") ? URL.createObjectURL(file) : null,
+    }));
+    files.value.push(...selectedFiles);
+    e.target.value = "";
+  }
+
+  function removeFile(index) {
+    const f = files.value[index];
+    if (f?.preview) URL.revokeObjectURL(f.preview);
+    files.value.splice(index, 1);
+  }
+
+  const chatUserName = async (id) => {
+    const participant = await userService.getUser(id);
+    return participant.firstName;
+  }
+
+  // dropdown
+  function select(opt) {
+    console.log("Opt id is " + opt._id);
+    
+    openOption.value = opt.id;
+    selected.value = opt.name;
+
+    convoStore.openCreateRoom(opt.id);
+    
+    open.value = false;
+  }
+  function onClickOutside(e) {
+    if (root.value && !root.value.contains(e.target)) open.value = false;
+  }
+
+
+
+
+
+  // ✅ send: upload attachments → emit message → update local state
+  async function send() {
+    const convoId = activeConversationId.value;
+    if (!convoId) {
+      console.warn("No active conversation selected");
+      return;
+    }
+    if (!draft.value.trim() && files.value.length === 0) return;
+
+    // optimistic (sender sees preview immediately)
+    const tempId = crypto.randomUUID?.() ?? String(Date.now());
+    const optimistic = {
+      id: tempId,
+      conversationId: convoId,
+      senderId: user.value?.id,
+      text: draft.value,
+      createdAt: new Date().toISOString(),
+      attachments: files.value.map((f) => ({
+        id: f.id,
+        name: f.file.name,
+        mime: f.file.type,
+        size: f.file.size,
+        isImage: f.isImage,
+        preview: f.preview, // local only
+        uploading: true,
+      })),
+    };
+
+    //convoStore.addMessageLocal(optimistic);
+
+    draft.value = "";
+    //await nextTick();
+    //scrollToBottom();
+
+    // upload attachments if any
+    let uploadedFiles = [];
+    try {
+      if (files.value.length) {
+        const fd = new FormData();
+        // IMPORTANT: must match server array("files")
+        files.value.forEach((f) => fd.append("files", f.file));
+        fd.append("conversationId", convoId);
+
+        // Choose ONE return shape:
+        // - If service returns array directly: uploadedFiles = await uploadService.uploadChatImage(fd)
+        // - If service returns {files: [...] }: uploadedFiles = (await uploadService.uploadChatImage(fd)).files
+        const res = await uploadService.uploadChatImage(fd);
+        uploadedFiles = Array.isArray(res) ? res : (res?.files || []);
+      }
+    } catch (err) {
+      console.error("Upload failed:", err?.response?.data || err);
+      // optionally mark optimistic message failed
+      return;
+    }
+
+    // build final message payload with REAL URLs for recipients
+    const finalMsg = {
+      ...optimistic,
+      id: crypto.randomUUID?.() ?? tempId,
+      attachments: uploadedFiles.map((f) => ({
+        id: f.id || f._id || f.key,
+        key: f.key,
+        url: f.imageUrl || f.url, // your backend returns imageUrl
+        name: f.name,
+        mime: f.mime,
+        size: f.size,
+        isImage: f.isImage ?? (f.mime || "").startsWith("image/"),
+      })),
+    };
+
+    // Replace optimistic message locally (simple approach: add another “final”)
+    // Better approach: store by id and replace, but keeping it simple:
+
+
+    //convoStore.addMessageLocal(finalMsg);
+
+    // Send to other user(s)
+
+    socket.emit("send-message", finalMsg);
+
+    console.log("Active messages - ", [activeMessages.value])
+
+    // clear picker (do NOT revoke previews that are still used in optimistic UI if still shown)
+    files.value = [];
+
+   
+  }
+
+  onMounted(() => {
+    document.addEventListener("click", onClickOutside);
+    document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+
+    convoStore.getConversations();
+    //scrollToBottomSmooth();
+    presenceStore.initPresenceSocket(socket);
+    scrollToBottomWithImages()
+    
+  });
+
+  onBeforeUnmount(() => {
+    document.removeEventListener("click", onClickOutside);
+  });
 </script>
 
-<!-- <script>
-import { ref } from "vue";
-import socket from "@/socket";
-import uploadService from '../service/awsUploads';
-import { useConversationStore } from '@/stores/conversationStore';
-import { storeToRefs } from "pinia";
-
-export default {
-  props: {
-    isOpenWidget: Boolean
-  },
-  
-  setup() {
-    const isOpen = ref(false);
-    const draft = ref("");
-    
-    const files = ref([]);
-    const options = ['Option 1', 'Option 2', 'Option 3'];
-    const open = ref(false);
-    const selected = ref(null);
-    const root = ref(null);;
-
-    const conversationStore = useConversationStore();
-    const { messages } = storeToRefs(conversationStore);
-
-    return { isOpen, draft, files, options, open, selected, root, conversationStore, messages };
-  },
-
-  watch: {
-    isOpenWidget (val) {
-      console.log("VAL - ", val);
-      if (val) this.isOpen = true;
-    }
-  },
-
-  mounted() {
-    this._onKeydown = (e) => {
-      if (e.key === "Escape") this.close();
-    };
-    this._onClickOutside = (e) => this.onClickOutside(e);
-    document.addEventListener("keydown", this._onKeydown);
-    // For dropdown
-    document.addEventListener("click", this._onClickOutside);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener("keydown", this._onKeydown);
-    // For dropdown
-    document.removeEventListener("click", this._onClickOutside);
-  },
-
-  methods: {
-    toggle() {
-      this.isOpen = !this.isOpen;
-      if (this.isOpen) this.$nextTick(() => this.$refs.chatInput?.focus());
-    },
-
-    close() {
-      this.isOpen = false;
-    },
-
-    scrollToBottom() {
-      const el = this.$refs.chatBody;
-      if (el) el.scrollTop = el.scrollHeight;
-    },
-
-    onFileSelect(e) {
-      const selected = Array.from(e.target.files || []).map((file) => ({
-        file,
-        id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()),
-        isImage: file.type?.startsWith("image/"),
-        preview: file.type?.startsWith("image/") ? URL.createObjectURL(file) : null,
-      }));
-
-      // IMPORTANT: in Vue, refs returned from setup are unwrapped on `this`,
-      // so this.files is the array directly.
-      this.files.push(...selected);
-
-      // allow selecting the same file again
-      e.target.value = "";
-    },
-
-    
-
-
-    removeFile(index) {
-      const f = this.files[index];
-      if (f?.preview) URL.revokeObjectURL(f.preview);
-      this.files.splice(index, 1);
-    },
-
-    // users dropdown
-    select(opt) {
-      this.selected = opt;
-      this.open = false;
-    },
-
-    // close when clicking outside
-    onClickOutside(e) {
-      // use the Composition ref you already have
-      if (this.root && !this.root.contains(e.target)) {
-        this.open = false; // close dropdown
-      }
-    },
-
-    /* openChat () {
-      this.isOpen = true;
-    },
- */
-    close() {
-      this.isOpen = false;
-    },
-
-    async send() {
-      if (!this.draft.trim() && !this.files.length) return;
-
-      // Put attachments into the message for UI rendering
-      const msgFiles = this.files.map((f) => ({
-        name: f.file.name,
-        isImage: f.isImage,
-        preview: f.preview, // OK for local preview; backend should return URL later
-      }));
-
-      const message = {
-        id: String(Date.now()),
-        role: "bot",
-        text: this.draft,
-        files: msgFiles,
-      }
-
-      /* this.messages.push({
-        id: String(Date.now()),
-        role: "me",
-        text: this.draft,
-        files: msgFiles,
-      }); */
-
-      //this.messages.push(message);
-
-      /* this.messageStore.localMessage({
-        id: String(Date.now()),
-        role: "me",
-        text: this.draft,
-        files: msgFiles,
-      }) */
-
-      // Build multipart form
-      const form = new FormData();
-      form.append("message", this.draft);
-      this.files.forEach((f) => form.append("files", f.file));
-
-      // clear input text
-
-      //this.draft = "";
-
-      // NOTE: don't revoke previews immediately if you want them to keep showing
-      // If you revoke here, images in the sent message may disappear.
-      // So either:
-      // 1) keep them, OR
-      // 2) revoke later when message is removed / replaced with server URL.
-      //, 
-      // For now, keep previews alive:
-      this.files = [];
-
-      this.$nextTick(this.scrollToBottom);
-
-
-      //const fd = new FormData();
-      //selectedFiles.forEach((file) => fd.append("files", file));
-
-
-
-
-
-
-
-
-
-    
-
-
-      //socket.emit('send-message', message);
-
-
-
-
-
-
-      const tempId = String(Date.now());
-
-      const meLocal = {
-        id: tempId,
-        /* chatId: this.chatId, */
-        /* senderId: this.userId, */
-        role: "me",
-        text: this.draft,
-        createdAt: Date.now(),
-        attachments: this.files.map((f) => ({
-          id: f.id,
-          name: f.file.name,
-          mime: f.file.type,
-          size: f.file.size,
-          isImage: f.isImage,
-          // local-only preview:
-          preview: f.preview,
-          uploading: true,
-        })),
-      };
-
-      this.conversationStore.localMessage(meLocal);
-
-      // 2) upload actual bytes
-      
-      let uploadedFiles = [];
-
-      if (this.files.length) {
-        const uploadedRes = await uploadService.uploadChatImage(form);
-        uploadedFiles = uploadedRes?.files;
-        console.log("uploadedRes:", uploadedRes);
-        if (!Array.isArray(uploadedFiles)) {
-          console.error("Expected uploadedRes.files to be an array, got:", uploadedFiles);
-          return; // or handle error UI
-        }
-      }
-
-      // 3) build final message with shareable URLs
-
-      /* const finalMsg = {
-        ...optimistic,
-        id: crypto.randomUUID?.() ?? tempId,
-        attachments: uploadedFiles.map((u) => ({
-          id: u.id,
-          key: u.key,
-          url: u.url,
-          name: u.name,
-          mime: u.mime,
-          size: u.size,
-          isImage: u.isImage,
-        })),
-      }; */
-
-      const youLocal = {
-        id: tempId,
-        /* chatId: this.chatId, */
-        /* senderId: this.userId, */
-        role: "bot",
-        text: this.draft,
-        createdAt: Date.now(),
-        attachments: uploadedFiles.map((u) => ({
-          id: u.id,
-          key: u.key,
-          url: u.imageUrl,
-          name: u.name,
-          mime: u.mime,
-          size: u.size,
-          isImage: u.isImage,
-        })),
-      };
-
-
-
-      socket.emit('send-message', youLocal);
-
-
-      this.draft = "";
-
-
-
-
-      // await fetch("/api/chat", { method: "POST", body: form });
-
-      /* this.messages.push({
-        id: String(Date.now() + 1),
-        role: "bot",
-        text: "Nice photo! 📸",
-      });
-      this.$nextTick(this.scrollToBottom); */
-    },
-  },
-};
-</script> -->
 <style scoped>
     :root {
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
@@ -634,6 +485,45 @@ export default {
 .chat-launcher:focus {
   outline: 3px solid rgba(59, 130, 246, 0.6);
   outline-offset: 2px;
+}
+
+
+
+.icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* 🔥 unread bubble style */
+.badge {
+  position: absolute;
+  top: -9px;
+  right: -8px;
+  background: #ff3b30;   /* iOS red */
+  color: white;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+/* hover optional */
+.chat-launcher:hover .badge {
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 
@@ -672,18 +562,26 @@ export default {
   }
 }
 
+.active-item {
+  background-color: green;
+}
+
 .chat-header {
-  padding: 12px 14px;
+ /*  padding: 12px 14px; */
+  height: 60px;
+  padding-bottom: 0;
   background: #111827;
+  
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 1px;
   font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 .chat-close {
   border: 0;
+  height: 30px;
   background: transparent;
   color: #fff;
   font-size: 18px;
@@ -700,7 +598,7 @@ export default {
   padding: 12px;
   flex: 1;
   overflow: auto;
-  background: #f9fafb;
+  background: #ddd;
   font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 .msg {
@@ -708,14 +606,14 @@ export default {
   padding: 10px 12px;
   border-radius: 14px;
   margin: 8px 0;
-  background: #fff;
+  background: #3a4b72;
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 .msg.me {
   margin-left: auto;
-  background: #111827;
+  background: #1b253a;
   color: #fff;
-  border: 0;
+  border: 1px solid #2a354e;
 }
 
 .chat-input {
@@ -723,7 +621,7 @@ export default {
   padding: 10px;
   display: flex;
   gap: 8px;
-  background: #fff;
+  background: #4c6774;
 }
 .chat-input input {
   flex: 1;
@@ -733,11 +631,11 @@ export default {
   font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 .chat-input button {
-  border: 0;
+  border: 1px solid #4f7cff;
   border-radius: 12px;
   padding: 10px 14px;
   cursor: pointer;
-  background: #2563eb;
+  background: #3a4b72;
   color: #fff;
   font: 600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
@@ -763,7 +661,7 @@ export default {
 }
 
 /* User dropdown */
-.dropdown {
+/* .dropdown {
   position: relative;
   display: inline-block;
 }
@@ -776,12 +674,12 @@ export default {
 .menu {
   position: absolute;
   margin-top: 6px;
-  background: #fff;
+  background: #192235;
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0,0,0,.15);
   list-style: none;
   padding: 6px;
-  width: 180px;
+  min-width: 180px;
 }
 
 .menu li {
@@ -790,7 +688,156 @@ export default {
 }
 
 .menu li:hover {
-  background: #f3f4f6;
+  background: #111827;
+} */
+
+
+
+/* Newer chat dropdown variant */
+.chat-dropdown {
+  max-height: 320px;
+  overflow-y: auto;
+  background: #222d44;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  padding: 4px 0;
+}
+
+
+
+.chat-dropdown.horizontal {
+  height: 53px;
+  margin-top: 17px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  overflow-x: auto;    /* horizontal scrolling */
+  overflow-y: hidden;
+  white-space: nowrap;
+  width: 100%;         /* or custom width */
+  /* background: #222d44; */
+  background: transparent;
+  border-radius: 8px;
+}
+
+
+.chat-dropdown.horizontal .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+
+
+
+
+.chat-dropdown.horizontal li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #2f3b57;
+  transition: background-color .2s;
+}
+
+/* hover state */
+.chat-dropdown.horizontal li:hover {
+  background: #1d2638;
+}
+
+/* 🔥 ACTIVE SELECTED CHAT */
+.chat-dropdown.horizontal li.active {
+  background: #3a4b72;
+  color: #fff;
+  font-weight: 600;
+  border: 2px solid #4f7cff;
+}
+
+/* optional - brighten unread */
+.chat-dropdown.horizontal li.active .chat-unread-badge {
+  background: #ff6b4a;
+}
+
+
+
+
+
+
+/* .unread-badge {
+  background: #ff3b30;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+} */
+
+
+
+
+
+
+
+
+.chat-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.chat-dropdown-item:hover {
+  background: #2f3c58;
+}
+
+.chat-dropdown-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chat-user-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chat-user-username {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* 🔴 per conversation unread badge */
+.chat-unread-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  margin-top: -17px;
+  margin-left: 7px;
+  border-radius: 999px;
+  background: #ff3b30;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* Mobile fullscreen mode */

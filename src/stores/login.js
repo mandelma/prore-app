@@ -8,7 +8,6 @@ export const useLoginStore = defineStore('login', () => {
     // --state--
     const user = ref(null);
     const token = ref(null);
-
     const route = useRoute();
     const router = useRouter();
 
@@ -32,27 +31,8 @@ export const useLoginStore = defineStore('login', () => {
         localStorage.removeItem('loggedAppUser');
         router.push('/');
     }
-    /* const hydrate = async () => {
-
-        const raw = localStorage.getItem('loggedAppUser');
-        if (raw) {
-            const appUser = JSON.parse(raw);
-            const tokenValid = await loginService.verifyToken(appUser.token);
-            if (tokenValid.result === "token expired") {
-                localStorage.removeItem('loggedAppUser');
-                user.value = null;
-            } else {
-                user.value = appUser;
-            }
-        } else {
-            console.log("User is not logged in!");
-            user.value = null;
-            router.push('/');
-        }
     
-    } */
-
-        const hydrate = async () => {
+    const hydrate = async () => {
         const raw = localStorage.getItem("loggedAppUser");
 
         if (!raw) {
@@ -82,24 +62,13 @@ export const useLoginStore = defineStore('login', () => {
             // Token valid → restore user
             user.value = appUser;
 
+            console.log("Hydrating from storage:", appUser);
+
         } catch (err) {
             console.log("Invalid token — logging out");
             onLogOut();
         }
-        };
+    };
 
-        /* const hydrate = async () => {
-            const raw = localStorage.getItem("loggedAppUser");
-            if (!raw) {
-                user.value = null;
-                router.push("/");
-                return;
-            }
-
-            
-
-            const appUser = JSON.parse(raw);
-            user.value = appUser; // optimistic
-        }; */
     return { user, token, isAuthenticated, onLogin, onLogOut, hydrate }
 })

@@ -24,8 +24,9 @@ conversationSchema.index({ participantIds: 1, lastMessageAt: -1 });
 conversationSchema.set('toJSON', {
     transform: (document, returnedObject) => {
         returnedObject.id = returnedObject._id
-        delete returnedObject._id
+        //delete returnedObject._id
         delete returnedObject.__v
+        return returnedObject
     }
 })
 

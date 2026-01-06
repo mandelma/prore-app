@@ -452,7 +452,44 @@ body[data-mdb-theme='dark'] .timepicker .form-control {
     border-color: #2a2f3a !important;
 }
 
+.my-toast {
+  /* make header + body consistent */
+  --mdb-toast-color: #fff;
+  --mdb-toast-border-color: transparent;
+}
 
+/* "danger" should be lighter/pinkish, not hard red */
+/* .my-toast--danger {
+  --mdb-toast-bg: rgba(211, 135, 143, 0.2);          
+  --mdb-toast-header-bg: rgba(182, 129, 134, 0.15);   
+  --mdb-toast-header-color: #fff;
+} */
+
+.my-toast--danger {
+  --mdb-toast-bg: rgb(240, 192, 192);          /* light pinkish */
+  --mdb-toast-header-bg: rgb(240, 192, 192);   /* slightly different */
+  --mdb-toast-box-shadow: 0 2px 15px -3px rgba(189, 79, 77, 0.75), 0 10px 20px -2px rgba(238, 227, 227, 0.5);
+  --mdb-toast-header-border-color: #e29898;
+
+  --mdb-toast-header-color: #b43838;
+  --mdb-toast-color: #9b2d2d;
+}
+
+/* if you need success too */
+/* .my-toast--success {
+  --mdb-toast-bg: rgba(91, 206, 152, 0.2);
+  --mdb-toast-header-bg: rgba(25, 135, 84, 0.15);
+  --mdb-toast-header-color: #fff;
+} */
+
+.my-toast--success {
+  --mdb-toast-bg: rgb(168, 236, 168);
+  --mdb-toast-header-bg: rgb(168, 236, 168);
+  --mdb-toast-header-border-color: rgb(133, 216, 133);
+  --mdb-toast-box-shadow: 0 2px 15px -3px rgba(133, 216, 133, 0.75), 0 10px 20px -2px rgba(138, 227, 227, 0.5);
+  --mdb-toast-header-color: green;
+  --mdb-toast-color: rgb(3, 95, 3);
+}
 
 
 /* Google dropdown container background */

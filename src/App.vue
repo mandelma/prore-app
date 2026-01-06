@@ -53,23 +53,69 @@
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
-                <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="" @click="handleShowNotifications">
+
+                <!-- <MDBDropdownItem href="#">
+                  <RouterLink to="/profile" style="color: #ddd;">Profile</RouterLink>
+                </MDBDropdownItem> -->
+                <MDBDropdownItem :tag="RouterLink" to="/profile" class="dd-item">
+                  Profile
+                </MDBDropdownItem>
+
+                <MDBDropdownItem v-if="notifications.length" :tag="RouterLink" class="dd-item" @click="handleShowNotifications">
+                  Viestit
+                  <MDBBadge v-if="notifications.length" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
+                </MDBDropdownItem>
+
+                <!-- <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="" @click="handleShowNotifications">
                   <RouterLink to="/notifications" style="color: #ddd;" >
                     Viestit
                     <MDBBadge v-if="notifications.length" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
                      
                   </RouterLink>
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem :tag="RouterLink" to="/calendar" class="dd-item">
+                  Kalenteri
                 </MDBDropdownItem>
-<!--                <MDBDropdownItem href="#">Action</MDBDropdownItem>-->
-                <MDBDropdownItem style="color: #ddd;" href="">
+
+                <!-- <MDBDropdownItem style="color: #ddd;" href="">
                   <RouterLink :to="{name: 'calendar', params: {count: 10}}" style="color: #ddd;" >Kalenteri</RouterLink>
 
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem :tag="RouterLink" to="/rules" class="dd-item">
+                  Säännöt
                 </MDBDropdownItem>
-<!--                <MDBDropdownItem href="#">Something else here</MDBDropdownItem>-->
-                <MDBDropdownItem v-if="client.isBookings" href="#">
+
+                <!-- <MDBDropdownItem href="#">
+                  <RouterLink to="/rules" style="color: #ddd;">Rules</RouterLink>
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem :tag="RouterLink" to="/manual" class="dd-item">
+                  Manual
+                </MDBDropdownItem>
+
+
+                <!-- <MDBDropdownItem href="#">
+                  <RouterLink to="/manual" style="color: #ddd;">Manual</RouterLink>
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem v-if="client.isBookings" :tag="RouterLink" to="/client-panel" class="dd-item">
+                  Tilaukset
+                </MDBDropdownItem>
+
+
+                <!-- <MDBDropdownItem v-if="client.isBookings" href="#">
                   <RouterLink to="/client-panel" style="color: #ddd;">Tilaukset</RouterLink>
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem :tag="RouterLink" to="/" @click="logOut" class="dd-item">
+                  Kirjaudu ulos
                 </MDBDropdownItem>
-                <MDBDropdownItem style="color: #ddd;" href="#" @click="logOut">Log out</MDBDropdownItem>
+
+
+                
+                <!-- <MDBDropdownItem style="color: #ddd;"  @click="logOut">Log out</MDBDropdownItem> -->
               </MDBDropdownMenu>
             </MDBDropdown>
           </MDBNavbarItem>
@@ -133,9 +179,12 @@
       </RouterView>
     </main>
 
-    <!-- <chat-widget 
+    <chat-widget 
+      v-if="login.isAuthenticated && conversations.length"
       :isOpenWidget="openChat"
-    /> -->
+    />
+    
+    
 
 
 
@@ -231,6 +280,7 @@ import userService from './service/users.js';
 import loginService from './service/login.js';
 import ChatWidget from './components/ChatWidget.vue';
 import { useLoginStore } from "@/stores/login.js";
+import { useUserStore } from './stores/userStore';
 import { useClientStore} from "@/stores/recipientStore.js";
 import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
@@ -240,9 +290,10 @@ import { useConversationStore } from './stores/conversationStore';
 import {useI18n} from "vue-i18n/dist/vue-i18n";
 import LanguageContents from "@/components/LanguageContents.vue";
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
-import recipientService from './service/recipients.js'
-import providerService from './service/providers.js'
-import onMap from '@/components/controllers/distance'
+import recipientService from './service/recipients.js';
+import providerService from './service/providers.js';
+import { chatService } from './service/chat';
+import onMap from '@/components/controllers/distance';
 import socket from "@/socket";
 
 const router = useRouter();
@@ -253,6 +304,8 @@ let userDropdown = ref(false);
 const login = useLoginStore();
 import { useRoute, useRouter } from "vue-router";
 const { t } = useI18n();
+
+const userStore = useUserStore();
 const client = useClientStore();
 const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
@@ -261,7 +314,7 @@ const conversationStore = useConversationStore();
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
-const { openChat, isConversation } = storeToRefs(conversationStore);
+const { openChat, conversations, totalUnread } = storeToRefs(conversationStore);
 
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
@@ -286,17 +339,22 @@ onMounted (async () => {
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
 
-
+  // if(login.isAuthenticated)
   await login.hydrate();
   if (login.user) {
     const user = login.user;
+
+    userStore.fetchMe();
 
     userID.value = user.id;
     username.value = user.username;
     await client.orderList(user.id);
     await handleProvider.getProState(user.id);
     await notificationStore.handleNotifications(user.id);
+    conversationStore.initSocket();
     await conversationStore.getConversations();
+
+    //await conversationStore.initSocket();
     //joinServer (user.id, user.username);
   }
 
@@ -311,6 +369,11 @@ onMounted (async () => {
 
 })
 
+const goProfile = () => {
+  console.log("goProfile");
+  router.push("/profilex");
+};
+
 const joinServer = () => {
 
   listen();
@@ -323,7 +386,7 @@ const listen = async() => {
     bb.value = b
     if (userID.value === id) {
       //await handleProvider.addBooking(bookingID);
-      await handleProvider.upsertBooking(b);
+      handleProvider.upsertBooking(b);
     }
   })
   socket.on('client use offer', async(bookingID, offer) => {
@@ -399,6 +462,30 @@ const listen = async() => {
     console.log("Got message: " + message.text);
     //conversationStore.localMessage(message);
   })
+
+  socket.on('message:new', async (msg) => {
+    //conversationStore.addMessageLocal(msg);
+    const convoId = String(msg.conversationId);
+    const myId = conversationStore.me_id;       // computed
+    const isFromMe = String(msg.senderId) === myId;
+    const isActive = String(conversationStore.activeConversationId) === convoId;
+    const isOpen = openChat.value;  // ref
+
+    // If message is from someone else, and I'm currently viewing this convo,
+    // tell the server "I have read it"
+    if (!isFromMe && isActive && isOpen) {
+      try {
+        await chatService.markRead(convoId);
+      } catch (e) {
+        console.error("markRead failed", e);
+      }
+    }
+  })
+
+  /* socket.on('conversation-upsert', (newConvo) => {
+    console.log("Peaks siin upsertima convo-")
+    conversationStore.upsertConversation(newConvo);
+  }) */
 }
 
 const handleCreatePro = (pro) => {
@@ -519,7 +606,7 @@ const handleOver = (greeting) => {
 }
 const logOut = () => {
   login.onLogOut()
-  router.push('/');
+  //router.push('/');
 }
 
 const onIconBell = () => {
@@ -542,5 +629,7 @@ const handleShowNotifications = async () => {
 
 <style>
 html, body { height: 100%; }            /* ensures the body can size to the viewport */
-
+.dd-item {
+  color: #ddd !important;
+}
 </style>

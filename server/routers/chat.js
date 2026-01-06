@@ -115,7 +115,7 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
 router.post("/conversations/:conversationId/read", async (req, res) => {
   const me = String(req.user.id);
   const conversationId = new mongoose.Types.ObjectId(req.params.conversationId);
-
+  console.log("XXXXXXXXXXXXXX - ", me)
   await Conversation.updateOne({ _id: conversationId }, { $set: { [`unread.${me}`]: 0 } });
   res.json({ ok: true });
 });

@@ -181,17 +181,9 @@ export const useProStore = defineStore("pro", () => {
     // Confirming client offer sended from map
     const onClientBooking = async(bookingId, offer, myself, clientId, notes) => {
         console.log("CLIENT id is " + bookingId)
-        //const confirmation = await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
-        //const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer);
-        
-        //const _offerMade = await offerService.addOffer(offer);
-        
-        //if (!confirmation  || !addConfirmation) return;
 
         const offerId = Date.now().toString(36) + Math.random().toString(36).slice(2);
         offer.id = offerId;
-        // siin teha...
-        //await clientService.createOffer(bookingId, offerId);
         
         await notificationStore.localConfirmDealNotification(bookingId, myself, clientId, notes);
 
@@ -208,6 +200,13 @@ export const useProStore = defineStore("pro", () => {
         
         if (incomingOffersCount.value < 1) {
             //router.push('/');
+        }
+    }
+    const updateAddress = async (payload) => {
+        if (provider.value) {
+            const proWithNewAddress = await providerService.editAddress(provider.value.id, payload);
+            provider.value.address = payload.address;
+            return proWithNewAddress;
         }
     }
     const updateCredit = async(creditDaysCovered, credit_ms) => {
@@ -284,6 +283,7 @@ export const useProStore = defineStore("pro", () => {
         removeLocalBooking,
         disableLocalBooking,
         removeMapOffer,
+        updateAddress,
         updateCredit,
         addVisitorForBooking,
         getIncomOfferById,

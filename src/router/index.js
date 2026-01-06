@@ -42,7 +42,7 @@ const routes = [
         component: () => import('../components/FollowUserPosition.vue')
     },
     {
-        path: "/calendar/:count",
+        path: "/calendar",
         name: "calendar",
         component: () => import("../components/Calendar.vue"),
         props: route => ({
@@ -86,7 +86,23 @@ const routes = [
         path: "/notifications",
         name: "notifications",
         component: () => import("../components/UserNotifications.vue")
-    }
+    },
+
+    {
+        path: "/manual",
+        name: "manual",
+        component: () => import("../components/Manual.vue")
+    },
+    {
+        path: "/rules",
+        name: "rules",
+        component: () => import("../components/Rules.vue")
+    },
+    {
+        path: "/profile",
+        name: "profile",
+        component: () => import("../components/Profile.vue")
+    } 
 
 ];
 

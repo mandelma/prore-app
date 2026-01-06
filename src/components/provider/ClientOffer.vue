@@ -429,8 +429,9 @@ const validateMaps = async() => {
 const onChat = async () => {
   console.log("Chat btn");
   console.log("otheruserId - ", client.value.author_id);
-  
-  //conversationStore.openChatWidget()
+  const otherId = client.value.author_id;
+  conversationStore.openCreateRoom(otherId);
+  conversationStore.openChatWidget();
 }
 
 const makeOfferBtn = () => {

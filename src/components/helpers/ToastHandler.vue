@@ -5,14 +5,15 @@
     :delay="3000"
     :stacking="false"
     position="top-center"
-    :color="props.toastName"
+    
     :icon="props.iconState"
+    :class="`my-toast--${props.toastName}`"
   >
     <template #title>PROKEIKKATORI</template>
     {{ props.text }}
   </MDBToast>
 </template>
-
+<!-- :class="`my-toast--${props.toastName}`" -->
 <script setup>
 import { MDBToast } from 'mdb-vue-ui-kit';
 import { computed } from 'vue'

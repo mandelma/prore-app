@@ -1,4 +1,4 @@
-/* ---------- Forms (dark) ---------- */
+form-data/* ---------- Forms (dark) ---------- */
 :root[data-theme="dark"] {
     --form-field-bg: var(--bg-surface-2);
     --form-field-border: var(--border);
