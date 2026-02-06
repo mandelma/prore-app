@@ -80,12 +80,10 @@ app.use(history());
 const distPath = path.join(__dirname, "dist"); // since dist is in server/dist
 
 //app.use("/assets", express.static(path.join(distPath, "assets")));
-app.use('/assets', express.static(path.resolve(__dirname, 'uploads')));
-app.use(express.static(distPath));
 
 // ...your API routes here...
 
-app.get("/*", (req, res) => {
+app.get(/^\/(?!api|assets).*/, (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
 });
 
@@ -124,6 +122,10 @@ app.use('/api/aws-uploads', require('./routers/awsUploads'));
 const httpAuth = require('./middleware/httpAuth');
 
 app.use('/api/chat', httpAuth, require('./routers/chat'));
+
+
+app.use("/assets", express.static(path.join(distPath, "assets")));
+app.use(express.static(distPath));
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
