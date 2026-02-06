@@ -76,10 +76,25 @@ app.use(bodyParser.json());
 app.use(history());
 //app.use(serveStatic(path.join(__dirname, '../dist')));
 
-app.use(express.static(path.join(__dirname, "dist")));
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const distPath = path.join(__dirname, "dist"); // if dist is inside server/
+
+app.use("/assets", express.static(path.join(distPath, "assets")));
+app.use(express.static(distPath)); // serves index.html, favicon, etc.
+
+//app.use(express.static(path.join(__dirname, "dist")));
+
 app.get(/^\/(?!api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "dist", "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
 });
+
+//app.get(/^\/(?!api).*/, (req, res) => {
+//    res.sendFile(path.join(__dirname, "dist", "index.html"));
+//});
 
 
 /* app.use((req, res, next) => {
