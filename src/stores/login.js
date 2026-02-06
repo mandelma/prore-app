@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import loginService from '@/service/login'
 import { useRoute, useRouter } from 'vue-router'
 import { jwtDecode } from "jwt-decode"; // npm install jwt-decode
+import { useConversationStore } from './conversationStore';
 
 export const useLoginStore = defineStore('login', () => {
     // --state--
@@ -10,25 +11,33 @@ export const useLoginStore = defineStore('login', () => {
     const token = ref(null);
     const route = useRoute();
     const router = useRouter();
+    
+    const hydrated = ref(false);
 
     // --getters--
     const isAuthenticated = computed(() => !!user.value )
 
     // --actions--
-    const onLogin = (payload) => {
+    const onLogin = async (payload) => {
         user.value = payload;
         token.value = payload.token ?? null;
         localStorage.setItem('loggedAppUser', JSON.stringify(payload));
-        if(route.query.redirect) {
+        /* if(route.query.redirect) {
             router.push(route.query.redirect)
         }else{
             window.location.replace("/");
-        }
+        } */
+
+        const target = route.query.redirect || "/";
+        await router.replace(target);
     }
     const onLogOut = () => {
         user.value = null
         token.value = null
+        const conversationStore = useConversationStore();
         localStorage.removeItem('loggedAppUser');
+        conversationStore.disconnect();
+        conversationStore.reset();
         router.push('/');
     }
     
@@ -37,31 +46,33 @@ export const useLoginStore = defineStore('login', () => {
 
         if (!raw) {
             user.value = null;
+            token.value = null;
             return;
         }
 
-        const appUser = JSON.parse(raw);         // { token, username, ... }
-        const token = appUser?.token;
+        const appUser = JSON.parse(raw); 
+        const savedToken = appUser?.token;
 
-        if (!token) {
+        if (!savedToken) {
             onLogOut();
             return;
         }
 
         // decode JWT
         try {
-            const decoded = jwtDecode(token);      // { exp, iat, ... }
+            const decoded = jwtDecode(savedToken); 
             
             const now = Date.now() / 1000;
-            if (decoded.exp < now) {               // token expired
+            if (decoded.exp < now) { 
             console.log("Token expired — logging out");
             onLogOut();
             return;
             }
 
-            // Token valid → restore user
-            user.value = appUser;
+            hydrated.value = true;
 
+            user.value = appUser;
+            token.value = savedToken;
             console.log("Hydrating from storage:", appUser);
 
         } catch (err) {
@@ -70,5 +81,5 @@ export const useLoginStore = defineStore('login', () => {
         }
     };
 
-    return { user, token, isAuthenticated, onLogin, onLogOut, hydrate }
+    return { user, hydrated, token, isAuthenticated, onLogin, onLogOut, hydrate }
 })

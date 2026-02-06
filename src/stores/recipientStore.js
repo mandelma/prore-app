@@ -8,6 +8,7 @@ import noteService from '../service/notifications.js';
 import { useNotificationStore } from './notificationStore.js';
 import offerService from '../service/offers.js';
 import clientService from '../service/recipients.js';
+import uploadService from '../service/awsUploads.js'
 import socket from '@/socket';
 import { useRouter } from 'vue-router';
 
@@ -37,6 +38,8 @@ export const useClientStore = defineStore('client', () => {
 
         return booking;
     }
+
+    
     const getOfferById = (offerId) => {
         return clientOffers.value.find(co => co.id === offerId);
     }
@@ -220,6 +223,28 @@ export const useClientStore = defineStore('client', () => {
         router.push('client-panel');
     }
 
+    const updateMain = async (bookingId, payload) => {
+        console.log("Booking id " + bookingId);
+        //const photoIds = (payload?.photos || []).map(ph => ph.id).filter(Boolean);
+        await clientService.updateMain(bookingId, payload);
+        
+        /* for (const id of photoIds) {
+            await clientService.addImage(bookingId, id);
+        } */
+        
+        /* const main = bookings.value.find(b => b.id === bookingId);
+        if (main) {
+            main.photos = payload.photos;        // [{id, imageUrl}]
+            main.description = payload.description;
+            main.date = payload.date;
+        }
+
+        console.log("Removed photo ids - ", payload.removedPhotoIds); */
+
+        //await uploadService.deleteImages(payload.removedPhotoIds);
+
+    }
+
     const testOffers = () =>{
         // Just a sample array.
         const bookings = [
@@ -283,6 +308,7 @@ export const useClientStore = defineStore('client', () => {
         removeConfirmedMapOffer,
         onRemovePublicBooking,
         localRemovePublicBooking,
+        updateMain,
         clientOffers, 
         clientNewOffers, 
         clientNewOffersAmount, 

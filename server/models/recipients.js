@@ -106,12 +106,15 @@ const recipientSchema = new Schema({
     zone: {
         type: Number
     },
-    // image: [
-    //     {
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         ref: 'upload'
-    //     }
-    // ],
+    /* photos: {
+        type: Array
+    }, */
+    photos: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'upload'
+        }
+    ],
 
     user: {
         type: mongoose.Schema.Types.ObjectId,

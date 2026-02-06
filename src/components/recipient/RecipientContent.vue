@@ -1,323 +1,119 @@
 <template>
-  <MDBContainer v-if="isOfferContent">
-    <div >
-      <offer-content :offerId="offerId" @quit-content="isOfferContent = false" @quit-content-confirmed="handleQuitOfferContentConfirmed" />
-    </div>
-  </MDBContainer>
-  <MDBContainer v-else>
-    
-    <div  style="display: flex; justify-content: right; padding: 20px;">
-      <MDBBtnClose
-          white
-          style="cursor: pointer;"
-          @click="handleQuitContent"
-      />
-    </div>
+  <div class="page">
+    <header class="page-header">
+      <h5 class="page-title">{{t('recipient_result_need_a_pro')}} - {{booking.professional[0]}}</h5>
+      <div class="page-actions">
+        <MDBBtnClose white @click="handleQuitContent" />
+      </div>
+    </header>
 
-    <div v-if="!bookings" class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-    <div v-else class="booking-content">
-      <h2 class="client-result-header">{{t('recipient_result_need_a_pro')}} - {{booking.professional[0]}}</h2>
+    <div class="layout">
+      <!-- Left: Order -->
+      <section class="panel panel--order">
+        <!-- your description + date edit content here -->
+        <booking-content :booking="booking"/>
+      </section>
 
-      <h5 v-if="booking.created_ms - new Date().getTime() <= 0 && booking.offers.length < 1" class="expired_date">
-        {{t('recipient_result_order_is_expired')}}
-      </h5>
-
-
-      <MDBRow style="margin-top: 50px;">
-        <MDBCol class="client-result">
-
-          <MDBTable borderless style="font-size: 14px; color: #dddddd; text-align: left;">
-            <tbody>
-            <tr>
-              <td v-if="!isEditDescription">
-                <p>{{booking.description}}</p>
-
-
-              </td>
-              <td v-else>
-                <MDBRow>
-
-                  <MDBCol >
-                    <MDBTextarea
-                        :label="t('recipient_result_edit_description')"
-                        white
-                        rows="4" v-model="description"
-                        style="font-size: 14px; padding: 20px;"
-                    />
-                  </MDBCol>
-                  <MDBCol col="1">
-                    <div style="display: flex; justify-content: right; cursor: pointer">
-                      <MDBBtnClose
-                          white
-                          @click="isEditDescription = false"
-                      />
-                    </div>
-
-                  </MDBCol>
-                </MDBRow>
-
-
-
-
-              </td>
-            </tr>
-            <tr v-if="booking.offers.length < 1">
-              <td v-if="!isEditDescription">
-                <MDBBtn outline="info" block size="lg" @click="pressedEditDescription">Muokkaa tehtävän kuvausta</MDBBtn>
-              </td>
-              <td v-else>
-                <MDBBtn outline="info" block size="lg" @click="saveEditedDescription">Tallenna tehtävän kuvaus</MDBBtn>
-              </td>
-            </tr>
-            <tr>
-              <td v-if="!isEditDate">
-                <p :class="{expired_date: booking.created_ms - new Date().getTime() <= 0 && booking.offers.length < 1}">
-                  {{booking.date}} &emsp;
-                  <!-- klo &nbsp;
-                  {{new Date(booking.created).getHours() < 10 ? "0" + new Date(booking.created).getHours() : new Date(booking.created).getHours()}}
-                  :
-                  {{new Date(booking.created).getMinutes() < 10 ? "0" + new Date(booking.created).getMinutes() : new Date(booking.created).getMinutes()}}
- -->
-                </p>
-                <MDBBtn v-if="booking.offers.length < 1" block size="lg" outline="info" @click="editDate">
-                  <span :class="{expired_warning: booking.created_ms - new Date().getTime() <= 0}">{{t('recipient_result_edit_date')}}</span>
-                </MDBBtn>
-              </td>
-              <td v-else>
-                <MDBRow>
-                  <MDBCol col="8">
-                    <h4 :class="{expired_date: booking.created_ms - new Date().getTime() <= 0}">
-                      {{bookingDateToDisplay}}<br>
-                      klo &nbsp;
-                      {{new Date(booking.created).getHours() < 10 ? "0" + new Date(booking.created).getHours() : new Date(booking.created).getHours()}}
-                      :
-                      {{new Date(booking.created).getMinutes() < 10 ? "0" + new Date(booking.created).getMinutes() : new Date(booking.created).getMinutes()}}
-                    </h4>
-
-                    <VueDatePicker
-                        style="margin-bottom: 20px;"
-                        dark
-                        v-model="bookingDate"
-                        :min-date="new Date()"
-                        :placeholder="t('recipient_result_select_date')"
-                        @internal-model-change="handleInternalDate"
-                        :state="isNoDate ? false : null"
-                    >
-
-                    </VueDatePicker>
-                  </MDBCol>
-                  <MDBCol col="4">
-                    <MDBBtnClose
-                        white
-                        @click="isEditDate = false"
-                        style="float: right; cursor: pointer"
-
-                    />
-                  </MDBCol>
-                </MDBRow>
-
-              </td>
-
-            </tr>
-
-            </tbody>
-          </MDBTable>
-          <!--require(`/server/uploads/${im.name}`)        -->
-
-
-          <!-- <div v-if="booking.offers.length < 1">
-            <div v-for="(item, i) in images" :key="i">
-              <img
-                  class="loading"
-                  style="width: 100%;"
-                  :src="item.blob ? item.blob : item.imageUrl"
-                  :alt="item.id"
-              />
-
-              <MDBBtn v-if="!isEditPanel" block outline="success" @click="pressEditPanel(i)">{{t('recipient_result_edit_picture')}}</MDBBtn>
-              <div class="edit-panel" v-if="isEditPanel && imageIndex === i">
-                <error-message :message = wrong_SizeType_Message />
-                <MDBRow v-if="booking.offers.length < 1">
-                  <MDBCol>
-                    <MDBBtnClose
-                        v-if="!value"
-                        white
-                        class="close-btn"
-                        style="float: right;"
-                        @click="closeEditPanel"
-                    />
-                    <input  id="file-upload" type="file" @change="handleFileChange($event, i)"/>
-                    <label  for="file-upload" class="custom-file-upload">
-                    <span v-if="value">
-                    {{t('recipient_result_edit_order_picture')}}: {{value.name}}
-
-                    </span>
-                      <span v-else>{{t('recipient_result_select_new_image')}}</span>
-                    </label>
-                    <MDBBtn v-if="isEditImage" block color="success" @click="uploadEditedImage(i, item.key)">{{ t('recipient_result_upload_edited_image') }}</MDBBtn>
-                    <MDBBtn class="btn" block size="lg" color="danger" @click="removeImg(i, item.key)">{{ t('recipient_result_remove_image') }}</MDBBtn>
-                  </MDBCol>
-                  <MDBCol v-if="value">
-                    <MDBBtnClose
-                        white
-                        class="close-btn"
-                        style="float: right;"
-                        @click="closeEditPanel"
-                    />
-                    <img
-                        style="width:100px; padding-top: 20px;"
-                        :src="this.showImage"
-                        alt="addEdit"
-                    />
-                  </MDBCol>
-                </MDBRow>
-
-              </div>
-
-            </div>
-          </div> -->
-
-          <!--New image-->
-
-
-          <!-- <MDBBtn v-if="!isPressedAddlmage & booking.offers.length < 1" block color="primary" @click="pressedAddImage">{{ t('recipient_result_add_image') }}</MDBBtn>
-          <div class="add-panel" v-if="isPressedAddlmage && isAddImagePanel">
-
-            <MDBRow>
-
-              <MDBCol>
-                <MDBBtnClose
-                    v-if="!value"
-                    white
-                    class="close-btn"
-                    @click="closeAddPanel"
-                />
-                <input   id="file-upload-x" type="file" @change="handleFileChange($event, i)"/>
-                <label  for="file-upload-x" class="custom-file-upload">
-                    <span v-if="value">
-                    Muokka tehtävän kuvausta: {{value.name}}
-  +
-                    </span>
-                  <span v-else>Valitse lisää kuva tehtävästä</span>
-                </label>
-                <MDBBtn v-if="isAddImage" block outline="primary" @click="addAdditionalImage">Tallenna kuva</MDBBtn>
-              </MDBCol>
-              <MDBCol v-if="value">
-                <MDBBtnClose
-                    class="close-btn"
-                    white
-                    @click="closeAddPanel"
-                />
-                <img
-                    style="width:100px"
-                    :src="this.showImage"
-                    alt="addShow"
-                />
-              </MDBCol>
-            </MDBRow>
-
-          </div> -->
-
-        </MDBCol>
-
-        <MDBCol lg="6">
-          <div v-if="booking.offers.length > 0" class="form-card">
-            <h3 style="padding: 13px;">Tehtyjä tarjouksia</h3>
-            <MDBSelect theme="dark" size="lg" style="margin-bottom: 17px;" white  v-model:options = filterOptions label="Filter" />
-
-            <MDBTable  style="width: 100%; font-size: 12px; text-align: center;">
-              <tbody>
-              <tr v-for="offer in booking.offers" :key="offer.id">
-
-                <td>
-                  <div class="w-100 position-relative">
-                    <MDBBtn
-                      class="provider-selection"
-                      outline="info"
-                      block
-                      size="lg"
-                      @click="getProviderInfo(offer.provider, offer)"
-                  >
-
-                      {{offer.name}} <br>
-                      <span style="font-size: 12px;">{{ t('recipient_result_distance') }} {{offer.distance}}</span><br>
-
-                    </MDBBtn>
-                    <MDBBadge
-                      v-if="offer.isNewOffer"
-                      color="danger"
-                      class="translate-middle p-2"
-                      pill
-                      notification
-                  >
-                    <span style=" font-size: 11px; ">
-                      {{t('recipient_result_new')}} <br>{{offer.price}} eur
-                    </span>
-                  </MDBBadge>
-                  <MDBBadge
-                      v-else
-                      color="info"
-                      class="position-absolute top-0 start-100 translate-middle"
-                      pill
-                      notification
-                  >
-                    <span style=" font-size: 11px; ">
-                      {{offer.price}} eur
-                    </span>
-                  </MDBBadge>
-                  </div>
-
-                </td>
-
-              </tr>
-              </tbody>
-            </MDBTable>
-
-          </div>
-          <div v-else>
-            <h2 style="width: 100%; margin-top: 12px;">{{ t('recipient_result_waiting_offers') }}</h2>
-            <img :src="loadOffers" alt="loading_offers" />
+      <!-- Offers -->
+      <section class="panel panel--offers">
+        <!-- your offers list here -->
+         <div class="offers-list">
+          <div style="padding: 7px 0 7px 0;">
+            <h5>Tarjoukset</h5>
           </div>
           
-          <!-- <MDBBtn style="float: right; margin-top: 27px;" color="danger" size="lg" @click="removePublicBooking">{{ t('recipient_result_remove_order') }}</MDBBtn> -->
-          <MDBPopconfirm 
-            modal 
-            style="float: right; margin-top: 27px;" 
-            class="pc-trigger-danger" 
-            message="Oletko varma, että haluat poista tilauksen?" 
-            cancelText="En" 
-            confirmBtnClasses="popconfirm-ok-btn"
-            confirmText="Poista tilaus" 
-            tag="button" 
-            @confirm="removePublicBooking">
-              {{ t('recipient_result_remove_order') }}
-          </MDBPopconfirm>
-        </MDBCol>
+          <div
+            v-for="offer in booking.offers"
+            :key="offer.id"
+            class="offer-item"
+            :class="{ 'is-new': offer.isNewOffer }"
+            @click="getProviderInfo(offer.provider, offer)"
+          >
+            <div class="offer-main">
+              <p class="offer-name">{{offer.name}}</p>
+              
+              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}}</p>
+            </div>
 
+            <div class="offer-price">
+              {{offer.price}} eur
+            </div>
+            <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
+            
+          </div>
+          
+
+        </div>
+        <div v-if="!booking.offers.length">No offers yet</div>
         
-      </MDBRow>
+      </section>
+
     </div>
+  </div>
+  <MDBModal
+    tabindex="-1"
+    class="modal-fade"
+    v-model="openProModal"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle >{{ selectedProvider.name }}</MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+      <div class="modal-pro-first">
+        <img
+          src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
+          class="rounded-circle"
+          height="53"
+          alt=""
+          loading="lazy"
+        />
 
-    
-
-    
-
-    <!--    Booking offers {{booking_offers}}-->
-    <!--  images {{images}}-->
-
-  </MDBContainer>
+        <div>
+          <stars :rating="3.5" />
+        </div>
+      </div>
+      
+      <offer-content :offerId="offerId" />
+    </MDBModalBody>
+    <MDBModalFooter>
+      <MDBBtn color="danger" @click="openProModal = false"> Close </MDBBtn>
+      <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
 </template>
 
 <script setup>
-import {MDBContainer, MDBRow, MDBCol, MDBBtnClose, MDBBtn, MDBTable, MDBBadge, MDBSelect, MDBPopconfirm} from 'mdb-vue-ui-kit';
+import {
+  MDBContainer, 
+  MDBRow,
+  MDBCol, 
+  MDBBtnClose, 
+  MDBBtn, 
+  MDBTable, 
+  MDBBadge, 
+  MDBSelect, 
+  MDBPopconfirm, 
+  MDBCard, 
+  MDBModal, 
+  MDBModalHeader, 
+  MDBModalTitle,
+  MDBModalBody,
+  MDBModalFooter
+} from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
 import { ref, toRefs} from 'vue';
 import { useClientStore } from '@/stores/recipientStore';
 import OfferContent from './OfferContent.vue';
 import { storeToRefs } from 'pinia';
 import load_offers from '@/assets/load-pro-offers.gif';
+import Stars from '../Stars.vue';
+import BookingContent from './BookingContent.vue';
+import { useLoginStore } from '@/stores/login';
+import { useNotificationStore } from '@/stores/notificationStore';
 import '@/styles/theme.css';
 //import '@/styles/form.css';
 defineOptions({
@@ -337,27 +133,78 @@ const { booking } = toRefs(_props) */
 const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState'])
 
 const {t} = useI18n();
+const auth = useLoginStore();
 const clientStore = useClientStore();
 const booking_offers = ref([])
 const offerId = ref("");
 const isOfferContent = ref(false);
+const selectedProvider = ref(null);
 const loadOffers = load_offers;
 const filterOptions = ref([
   {text: "Distance", value: 25 }
 ])
+const openProModal = ref(false);
+
 const isEditDate = ref(false);
 
+const { user } = storeToRefs(auth);
 const { bookings } = storeToRefs(clientStore);
+const notificationStore = useNotificationStore();
 
-
+//const offerContent = clientStore.getOfferById(offerId);
 
 const getProviderInfo = async (proID, offer) => {
   console.log("Provider info" + proID);
   console.log("booking id - " + offer.bookingID);
-  isOfferContent.value = true;
+
+  selectedProvider.value = offer;
+
+  openProModal.value = true;
+
+  //isOfferContent.value = true;
   offerId.value = offer.id;
   await clientStore.readOffer(offer);
   emit('updateOfferState', offer.bookingID, offer.id);
+}
+
+
+
+const orderProvider = async() => {
+  //const offerContent = clientStore.getOfferById(offerId);
+  console.log("Ordering the provider to the booking - " + selectedProvider.value.bookingID);
+
+  const receiver = selectedProvider.value.sender;
+  const myId = user.value.id;
+  const bookingId = selectedProvider.value.bookingID;
+  const header = "Sopimus tehty!";
+  const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
+  const clientContent = `Tilaus on vahvistettu. Tiedot kalenterissa!`;
+
+  openProModal.value = false;
+  selectedProvider.value = false;
+
+  emit('canselRecipientContentConfirmed', selectedProvider.value.name);
+
+  /* const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
+  const includeOffer = await clientService.addConfirmedOffer(offerContent.bookingID, offerContent);
+
+  if (!includeOffer) return;
+
+  const notification = {
+      bookingId: bookingId,
+      isNewMsg: true,
+      isLink: true,
+      title: header,
+      content: proContent,
+      reason: '',
+      sender: user.value.firstName,
+  }
+
+  await clientStore.confirmOffer(offerContent);
+  
+  await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification); */
+  handleQuitContent();
+  emit('quit-content-confirmed', selectedProvider.value.name);
 }
 
 const handleQuitContent = () => {
@@ -366,7 +213,10 @@ const handleQuitContent = () => {
 
 const handleQuitOfferContentConfirmed = (pro) => {
   console.log("Quitting content! " + pro)
-  isOfferContent.value = false;
+  //isOfferContent.value = false;
+  openProModal.value = false;
+  selectedProvider.value = false;
+  
   emit('canselRecipientContentConfirmed', pro);
 }
 
@@ -381,6 +231,199 @@ const removePublicBooking = async () => {
 </script>
 
 <style scoped>
+
+.page{
+  padding: 16px;
+}
+
+/* .page-header{
+  display: flex;
+  align-items: flex-start; 
+  gap: 12px;
+} */
+
+.page-header{
+  display: flex;
+  padding-bottom: 17px;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.page-title{
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.page-actions{
+  margin-left: auto;   /* <-- always pushes to the right */
+  flex: 0 0 auto;
+}
+
+/* Main layout */
+.layout{
+  display: grid;
+  grid-template-columns: minmax(320px, 520px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.panel{ min-width: 0; }
+
+/* .panel{
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  background: rgba(0,0,0,.15);
+  padding: 16px;
+} */
+
+/* make left/right feel like “sidebars” */
+.panel--order{
+  position: sticky;
+  
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+/* center stays scrollable naturally */
+.panel--offers{
+  min-width: 0;
+
+  position: relative;
+  z-index: 0;
+}
+
+
+/* the row that contains input + button(s) */
+:deep(.field-row){
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;   /* KEY */
+  align-items: center;
+}
+
+/* allow the input to shrink */
+:deep(.field-row > *){
+  min-width: 0;      /* KEY (flex children default min-width:auto) */
+}
+
+/* make the input take full remaining width */
+:deep(.field-row .input),
+:deep(.field-row input),
+:deep(.field-row .form-control){
+  flex: 1 1 220px;   /* grows, but can shrink */
+}
+
+/* buttons shouldn't force the row wider */
+:deep(.field-row .btn){
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 1100px){
+  .layout{
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 860px){
+  .layout{
+    grid-template-columns: 1fr;
+  }
+  .panel--order{
+    position: static;
+    margin: 0 -20px 0 -20px;
+    max-height: none;
+    overflow: visible;
+
+    /* max-height: calc(100vh - 24px);
+    display: flex;
+    flex-direction: column; */
+  }
+}
+
+
+
+.offer-item{
+  position: relative;
+  display:flex;
+  align-items:center;
+  text-align: left;
+  justify-content:space-between;
+  margin-bottom: 12px;
+  gap:12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  cursor:pointer;
+}
+
+.new-dot{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:#ff3b30;           /* red */
+  box-shadow:0 0 0 2px rgba(0,0,0,.25); /* ring so it pops on dark bg */
+}
+
+
+
+/* optional: make the whole card slightly highlighted if new */
+.offer-item.is-new{
+  border-color: rgba(255,59,48,.45);
+}
+
+.offer-main{
+  min-width:0;
+}
+
+.offer-name{
+  font-weight: 600;
+  margin: 0;
+}
+.offer-sub{
+  margin: 4px 0 0;
+  opacity: .75;
+  font-size: 12px;
+}
+
+.offer-price{
+  white-space:nowrap;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  font-size: 12px;
+}
+
+.offer-item:hover{
+  border-color: rgba(255,255,255,.18);
+}
+.offer-item.is-active{
+  border-color: rgba(13,202,240,.6); /* “info” vibe */
+}
+
+
+
+.modal-pro-first {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+
+
+
+
+
+
 .provider-selection {
   margin-top: 0;
 }

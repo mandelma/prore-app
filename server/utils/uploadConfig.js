@@ -46,8 +46,12 @@ const awsClientUpload = multer({
         bucket: process.env.AWS_S3_BUCKET_NAME,
 
         contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically detect content type
-        key: (req, file, cb) => {
+        /* key: (req, file, cb) => {
             cb(null, `${clientUpload}/${Date.now()}-${file.originalname}`);
+        }, */
+
+        key: (req, file, cb) => {
+            cb(null, `${clientUpload}/${Date.now()}-${randomUUID()}-${file.originalname}`);
         },
     }),
 });
@@ -59,7 +63,7 @@ const awsProUpload = multer({
 
         contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically detect content type
         key: (req, file, cb) => {
-            cb(null, `${proUpload}/${Date.now()}-${file.originalname}`);
+            cb(null, `${proUpload}/${Date.now()}-${randomUUID()}-${file.originalname}`);
         },
     }),
 });

@@ -621,12 +621,13 @@
   padding: 10px;
   display: flex;
   gap: 8px;
-  background: #4c6774;
+  background: #adadad;
 }
 .chat-input input {
   flex: 1;
   padding: 10px 12px;
   border-radius: 12px;
+  background-color: #ddd;
   border: 1px solid rgba(0, 0, 0, 0.15);
   font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }

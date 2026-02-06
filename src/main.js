@@ -32,7 +32,11 @@ const pinia = createPinia();
 //createApp(App).use(PrimeVue);
 //createApp(App).component('Dropdown', Select);
 //, {theme: {preset: Aura}}
-createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {theme: {preset: Aura, options: {
+createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {
+    zIndex: {
+        overlay: 3000 // make sure it's higher than your navbar
+    },
+    theme: {preset: Aura, options: {
             // pick a css class you’ll toggle to enable dark mode:
             darkModeSelector: '.select-dark'
         }}}).mount('#app')

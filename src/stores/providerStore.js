@@ -17,20 +17,31 @@ export const useProStore = defineStore("pro", () => {
     const provider = ref(null);
     const providerId = ref(null);
     //const isIncomingOffers = ref(null);
+
+
     const incomingOffers = ref([]);
+
+
     //const isNewIncomingOffers = ref();
     //const newOffersAmount = ref(0);
-    const incomingOffersCount = ref(incomingOffers.value.length)
+
+
+    //const incomingOffersCount = ref(incomingOffers.value.length)
+
+
     const proCalendarEvents = ref([]);
     const proTimetable = ref([]);
     const isProStateLoading = ref(false)
     const proCredit = ref(0)
+    
     const proError = ref("" || null)
     const addOfferError = ref("" || null);
 
     const isUserPro = computed(() => !!provider.value);
-    const isIncomingOffers = computed(() => incomingOffersCount.value > 0);
-    const newOffersAmount = computed(() => incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length)
+    const incomingOffersCount = computed(() => incomingOffers.value.length)
+    const isIncomingOffers = computed(() => incomingOffers.value.length > 0);
+    const newOffersAmount = computed(() => incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length);
+    const reference = computed(() => provider.value?.reference || []);
     //const proTimetable = computed(() => provider.timetable);
 
     const getIncomOfferById = (id) => {
@@ -41,7 +52,11 @@ export const useProStore = defineStore("pro", () => {
 
     //const newOffersAmount = computed(() => incomingOffers.value.filter(io => io.visitors.includes(providerId.value))).length
     const createPro = (created) => {
+        console.log("Created ", created);
+        console.log("Pro id in prostore created is " + created.id);
         provider.value = created;
+        proCredit.value = ((created.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((created.proTime - new Date().getTime()) / 86400000).toFixed();
+        providerId.value = created.id;
     }
     const addVisitorForBooking = (bId, offer) => {
         const index = incomingOffers.value.findIndex(inx => inx.id === bId);
@@ -65,7 +80,9 @@ export const useProStore = defineStore("pro", () => {
 
                 incomingOffers.value = offersToDisplay.sort((a, b) => b.created_ms - a.created_ms);
 
-                incomingOffersCount.value = incomingOffers.value.length;
+
+
+                //incomingOffersCount.value = incomingOffers.value.length;
 
                 
                 //newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
@@ -81,7 +98,7 @@ export const useProStore = defineStore("pro", () => {
         } catch (error) {
             proError.value = error.message;
             provider.value = {};
-            incomingOffersCount.value = null;
+            //incomingOffersCount.value = null;
             incomingOffers.value = [];
             throw error;
         } finally {
@@ -93,7 +110,8 @@ export const useProStore = defineStore("pro", () => {
         newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
         incomingOffers.value = incomingOffers.value.sort((a, b) => b.created_ms - a.created_ms);;
         // keep the counter in sync
-        incomingOffersCount.value = incomingOffers.value.length
+
+        //incomingOffersCount.value = incomingOffers.value.length
     }
     const addProviderOffer = async(id, addressee, newContent) => {
         if (loading.value) return;
@@ -105,10 +123,19 @@ export const useProStore = defineStore("pro", () => {
                 newContent.id = createdOffer.id;
                 const index = incomingOffers.value.findIndex(iov => iov.id === id);
                 const updatedOffer = incomingOffers.value[index];
-                updatedOffer.offers.push(newContent);
+
+                // adding local provider to offer
+                if (provider.value)
+                    createdOffer.provider = provider.value
+
+                //updatedOffer.offers.push(newContent);
+                updatedOffer.offers.push(createdOffer);
+
                 const updatedOffers = incomingOffers.value.map(item => item.id === id ? updatedOffer : item);
                 incomingOffers.value = updatedOffers.sort((a, b) => b.created_ms - a.created_ms);
-                socket.emit('client get offer', addressee, id, newContent);
+
+                //socket.emit('client get offer', addressee, id, newContent);
+                socket.emit('client get offer', addressee, id, createdOffer);
             } else {
                 
             }
@@ -130,7 +157,7 @@ export const useProStore = defineStore("pro", () => {
         const getId = (b) => String(b?.id ?? b?._id);
         const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         incomingOffers.value = next;
-        incomingOffersCount.value = next.length;
+        //incomingOffersCount.value = next.length;
 
         console.log("Receiver ID - " + receiver);
         socket.emit('on-pro-remove-public-offer', id, receiver);
@@ -149,7 +176,7 @@ export const useProStore = defineStore("pro", () => {
         const getId = (b) => String(b?.id ?? b?._id);
         const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         incomingOffers.value = next;
-        incomingOffersCount.value = next.length;
+        //incomingOffersCount.value = next.length;
     }
     const disableLocalBooking = async (id) => {
         console.log("Disabled booking id " + id);
@@ -159,7 +186,7 @@ export const useProStore = defineStore("pro", () => {
         //incomingOffers.value = next;
         const next = incomingOffers.value.map(item => getId(item) === targetId ? {...item, disabled: true} : {...item, disabled: false});
         incomingOffers.value = next;
-        incomingOffersCount.value = next.length;
+        //incomingOffersCount.value = next.length;
         await providerService.removeProviderBooking(providerId.value, id);
     }
     const removeMapOffer = async (id, addressaat) => {
@@ -176,7 +203,7 @@ export const useProStore = defineStore("pro", () => {
     const handleConfirmed = (bookingId) => {
         const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
         incomingOffers.value = pendingOffers;
-        incomingOffersCount.value = incomingOffers.value.length;
+        //incomingOffersCount.value = incomingOffers.value.length;
     }
     // Confirming client offer sended from map
     const onClientBooking = async(bookingId, offer, myself, clientId, notes) => {
@@ -191,7 +218,7 @@ export const useProStore = defineStore("pro", () => {
         const confirmed = incomingOffers.value.find(item => item.id === bookingId);
         const currentList = incomingOffers.value.filter(confirmed => confirmed.id !== bookingId);
         incomingOffers.value = currentList;
-        incomingOffersCount.value = incomingOffers.value.length;
+        //incomingOffersCount.value = incomingOffers.value.length;
 
         proCalendarEvents.value = proCalendarEvents.value.concat(confirmed);
 
@@ -214,6 +241,18 @@ export const useProStore = defineStore("pro", () => {
         // protime past - 1761058143482
         await providerService.updateTimeCredit(providerId.value, {proTime: credit_ms});
         proCredit.value += creditDaysCovered;
+    }
+
+    const updateProviderPanel = async (id, payload) => {
+        console.log("Provider id - " + id);
+        console.log("Well, will update, ", payload);
+
+        const proMain = await providerService.updateProMain(id, payload);
+        console.log("PRO UPP -- ", proMain);
+
+        provider.value = proMain;
+
+        return proMain;
     }
 
     // Calendar data
@@ -285,6 +324,7 @@ export const useProStore = defineStore("pro", () => {
         removeMapOffer,
         updateAddress,
         updateCredit,
+        updateProviderPanel,
         addVisitorForBooking,
         getIncomOfferById,
         addAvailableTimeEvent,
@@ -296,6 +336,7 @@ export const useProStore = defineStore("pro", () => {
         isUserPro,
         provider,
         proCredit,
+        reference,
         isIncomingOffers,
         newOffersAmount,
         incomingOffers,
@@ -303,5 +344,6 @@ export const useProStore = defineStore("pro", () => {
         proCalendarEvents,
         proTimetable,
         isProStateLoading,
-        proError }
+        proError 
+    }
 })

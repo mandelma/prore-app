@@ -1,7 +1,14 @@
+
 <template>
   <div>
     <MDBContainer>
-      <div style="padding: 13px 0 20px 0;">
+      <div style="">
+        <toast-handler 
+          v-model="toastModel"
+          :toast-name="toastState"
+          :icon-state="toastIcon"
+          :text="toastContent"
+        />
         <MDBToast
             v-model="isInitProError"
             autohide
@@ -92,7 +99,7 @@
                 filter optionLabel="label"
                 optionGroupLabel="label"
                 optionGroupChildren="items"
-                placeholder="Anna om aammatti *"
+                placeholder="Anna oma aammatti *"
                 v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
                 class="w-full md:w-[30rem]"
 
@@ -168,10 +175,10 @@
 
             />
           </div>
-<!--          style="margin: 20px 0 20px 0; text-align: left;"-->
-          <div class="field-wrapper">
+
+          <!-- <div class="field-wrapper">
             <MDBCheckbox  label="Saatavilla 24/7"  v-model="isAvailable24_7" />
-          </div>
+          </div> -->
 
 
           <MDBBtn color="primary" type="submit">Luo tili</MDBBtn>
@@ -187,10 +194,12 @@ import { MDBContainer, MDBInput, MDBBtn, MDBRadio, MDBTextarea, MDBCheckbox, MDB
 import Select from 'primevue/select';
 import { useLoginStore } from "@/stores/login.js";
 import { useRouter } from 'vue-router';
+import { useProStore } from '@/stores/providerStore.js';
 import proList from '@/components/controllers/professions'
 import {computed, onMounted, reactive, watch, ref} from 'vue';
 import proService from '../../service/providers.js'
 import axios from "axios";
+import ToastHandler from '../helpers/ToastHandler.vue';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
 defineOptions({
   name: 'provider-form'
@@ -207,6 +216,7 @@ const pForm = reactive({
 
 const router = useRouter();
 const proAuth = useLoginStore();
+const proStore = useProStore();
 const pfErrors = reactive({});
 const isProAddress = ref(false);
 const isInitProError = ref(false);
@@ -225,6 +235,13 @@ const proDescription = ref("");
 const price = ref("");
 let inputValue = ref('');
 const mapsError = ref(false);
+
+
+const toastModel = ref(false)
+const toastState = ref('')
+const toastIcon = ref('')
+const toastContent = ref('')
+
 const filterInput = ref((event) => {
   // Filter out non-digit characters
   const raw = event.target.value;
@@ -265,28 +282,7 @@ watch(() => pForm.ideNum, () => (pfErrors.ideNum = ""));
 watch(() => pForm.profession, () => (pfErrors.profession = ""));
 watch(() => pForm.address, () => (pfErrors.address = ""));
 
-// const dpOptions = computed(() => {
-//   const L = labels[locale.value] ?? labels.en
-//   return {
-//     firstDay: L.firstDay,
-//     monthsFull: L.monthsFull,
-//     monthsShort: L.monthsShort,
-//     weekdaysFull: L.weekdaysFull,
-//     weekdaysShort: L.weekdaysShort,
-//     // choose an input format you want (affects the text in the input)
-//     format: 'dd.mm.yyyy'
-//   }
-// })
-
 const isLocating = ref(false)                     // used to show the spinner
-
-// const showSpinner = computed(() => {
-//   const hasProAddress =
-//       typeof pForm.address === 'string'
-//           ? pForm.address.trim().length > 0
-//           : !!pForm.address
-//   return !hasProAddress && isLocating.value
-// })
 
 onMounted(async() => {
   await handleMaps();
@@ -328,6 +324,11 @@ const handleMaps = async() => {
     })
   } catch (err) {
     console.error('Google Maps failed to load ❌', err);
+    
+    toastModel.value = true;
+    toastState.value = 'danger'
+    toastIcon.value = "fas fa-check fa-lg me-2";
+    toastContent.value = 'Google Maps failed to load ❌. Check internet connection!'
     mapsError.value = true;
   }
 }
@@ -380,18 +381,6 @@ const parseDmyTime = (str) => {
   if (!m) return null;
   const [, dd, mm, yyyy, HH, MM] = m.map(Number);
   return new Date(yyyy, mm - 1, dd, HH, MM);
-
-
-  // const date = new Date()              // current date
-  // const formatted = date.toLocaleDateString('en-US', {
-  //   year: 'numeric',
-  //   month: '2-digit',
-  //   day: '2-digit'
-  // })
-  // console.log(formatted)               // → 09/26/2025
-  //
-  // date.toLocaleDateString('en-GB')     // → 26/09/2025
-  // date.toLocaleDateString('de-DE')     // → 26.09.2025
 }
 
 const submitPro = async() => {
@@ -415,14 +404,15 @@ const submitPro = async() => {
       priceByHour: about_price.value === "hour" ? price.value : null,
       range: range.value === null ? 0 : range.value,
       proLink: pro_link.value,
-      isAvailable24_7: isAvailable24_7.value,
+      isAvailable24_7: false,
     }
     const newProvider = await proService.addProvider(proAuth.user.id, provider);
     console.log("Added provider::: " + newProvider)
     if (newProvider) {
       newProvider.user = {id: proAuth.user.id, username: proAuth.user.username};
-      emit('createPro', newProvider);
-      router.push("/pro-panel");
+      //emit('createPro', newProvider);
+      proStore.createPro(newProvider);
+      router.push("/admin/provider");
     } else {
       console.log("Tapahtui virhe, yritä uudelleen!");
     }

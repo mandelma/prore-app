@@ -1,35 +1,3 @@
-/*html, body { margin: 0; }*/
-/*body { overflow-x: hidden; }*/
-/** { outline: 1px solid rgba(255,0,0,0.2); }*/
-
-
-
-/*.container,*/
-/*.container-fluid {*/
-/*    padding-left: var(--mdb-gutter-x, 0.75rem);*/
-/*    padding-right: var(--mdb-gutter-x, 0.75rem);*/
-/*    box-sizing: border-box;*/
-/*}*/
-
-/*!* keep a sane default gutter for rows *!*/
-/*.row {*/
-/*    --mdb-gutter-x: 1.5rem;*/
-/*    --mdb-gutter-y: 0;*/
-/*}*/
-
-
-/*html {*/
-/*    scrollbar-gutter: stable both-edges;*/
-/*}*/
-/*!* remove default gaps and prevent horizontal scroll *!*/
-/*html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }*/
-
-/*!* ensure dark background everywhere *!*/
-/*html[data-mdb-theme="dark"],*/
-/*html[data-mdb-theme="dark"] body { background: #0f1115; }*/
-
-/*!* MDB body var (helps some components) *!*/
-/*:root[data-mdb-theme="dark"] { --mdb-body-bg: #0f1115; }*/
 
 
 /* Navbar and page style */
@@ -136,12 +104,15 @@
     display: flex;
     flex-direction: column;
     background: var(--bg-app);
+    
     color: var(--text);
 }
 .page-card {
     background: var(--bg-surface-1);
     border: 1px solid var(--border);
-    border-radius: .75rem;
+    color: #ddd;
+    height: 100%;
+    border-radius: .75rem2
 }
 /* Navbar styling */
 .navbar.dark {
@@ -173,9 +144,14 @@
 .card,
 .modal-content,
 .navbar .dropdown-menu {
-    background-color: var(--bg-surface-3);
-    /*border-color: var(--nav-dd-border);*/
+    background-color: var(--bg-surface-2);
+    border-color: var(--nav-dd-border);
+    
+    /* color: red; */
 
+}
+.form-select {
+    color: red;
 }
 .navbar .dropdown-menu :hover {
     background-color: #447173;
@@ -237,13 +213,7 @@
 .btn:focus-visible{ box-shadow:0 0 0 .2rem var(--ring); }
 
 
-/* MDBSelect style */
 
-/* [data-mdb-theme='dark'] .select-input,
-[data-mdb-theme='dark'] .select-dropdown {
-  background-color: #0b1618 !important;
-  color: #fff !important;
-} */
 
 
  /*Calendar container*/
@@ -475,12 +445,6 @@ body[data-mdb-theme='dark'] .timepicker .form-control {
   --mdb-toast-color: #9b2d2d;
 }
 
-/* if you need success too */
-/* .my-toast--success {
-  --mdb-toast-bg: rgba(91, 206, 152, 0.2);
-  --mdb-toast-header-bg: rgba(25, 135, 84, 0.15);
-  --mdb-toast-header-color: #fff;
-} */
 
 .my-toast--success {
   --mdb-toast-bg: rgb(168, 236, 168);
@@ -489,6 +453,18 @@ body[data-mdb-theme='dark'] .timepicker .form-control {
   --mdb-toast-box-shadow: 0 2px 15px -3px rgba(133, 216, 133, 0.75), 0 10px 20px -2px rgba(138, 227, 227, 0.5);
   --mdb-toast-header-color: green;
   --mdb-toast-color: rgb(3, 95, 3);
+}
+
+.my-toast--info {
+
+    --mdb-toast-bg: rgb(213, 232, 248);
+    --mdb-toast-header-bg: rgb(213,
+        232,
+        248);
+    --mdb-toast-header-border-color: rgb(168, 186, 236);
+    /* --mdb-toast-box-shadow: 0 2px 15px -3px rgba(133, 216, 133, 0.75), 0 10px 20px -2px rgba(138, 227, 227, 0.5); */
+    --mdb-toast-header-color: rgb(114, 169, 221);
+    --mdb-toast-color: rgb(3, 20, 95);
 }
 
 
@@ -530,6 +506,24 @@ body[data-mdb-theme='dark'] .timepicker .form-control {
 /*Modals*/
 [data-mdb-theme='dark'] .modal-content {
     border: 1px solid #444;
+}
+
+
+.modal-header-custom {
+    position: relative;
+}
+
+/* style the X button */
+.modal-header-custom .btn-close {
+    filter: invert(1);
+    /* makes it white on dark bg */
+    opacity: 0.7;
+    transform: scale(1.2);
+}
+
+.modal-header-custom .btn-close:hover {
+    opacity: 1;
+    transform: scale(1.3);
 }
 
 

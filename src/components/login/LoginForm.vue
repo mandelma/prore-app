@@ -1,74 +1,75 @@
 <template>
-  <div>
-    <div style="padding: 13px 0 20px 0;">
-      <MDBToast
-          v-model="loginError"
-          autohide
-          :delay="3000"
-          :stacking="false"
-          position="top-center"
-          toast="danger"
-          icon="fas fa-exclamation-circle fa-lg me-2"
-      >
-        <template #title> TAPAHTUI VIRHE! </template>
-        <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
-        <template #small></template>
-        {{ loginErrorMessage }}
-      </MDBToast>
-    </div>
-
-
-
-    <form class="form-card" @submit.prevent="userLoginData" autocomplete="off">
-      <MDBInput
-          type="text"
-          size="lg"
-          label="Käyttäjätunnus"
-          id="loginUsername"
-          v-model="loginUsername"
-
-          wrapperClass="mb-4"
-      />
-
-      <!-- Password input -->
-      <MDBInput
-
-          type="password"
-          size="lg"
-          label="Salasana"
-          id="loginPassword"
-          v-model="loginPassword"
-          wrapperClass="mb-4"
-      />
-
-      <!-- 2 column grid layout for inline styling -->
-      <MDBRow class="mb-4">
-        <MDBCol class="d-flex justify-content-center">
-          <!-- Checkbox -->
-          <MDBCheckbox
-              label="Muista minut"
-              id="loginCheck"
-              v-model="loginCheck"
-              wrapperClass="mb-3 mb-md-0"
-          />
-        </MDBCol>
-
-        <MDBCol>
-          <!-- Simple link -->
-          <router-link to="/forgot_auth">Forgot password</router-link>
-          <!--          <a href="/recipients">Unohtuiko salasana?</a>-->
-        </MDBCol>
-      </MDBRow>
-
-      <!-- Submit button -->
-      <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> Kirjaudu </MDBBtn>
-
-      <!-- Register buttons -->
-      <div class="text-center">
-        <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
+  <div class="auth-page">
+    <MDBContainer class="auth-container">
+      <div style="padding: 13px 0 20px 0;">
+        <MDBToast
+            v-model="loginError"
+            autohide
+            :delay="3000"
+            :stacking="false"
+            position="top-center"
+            toast="danger"
+            icon="fas fa-exclamation-circle fa-lg me-2"
+        >
+          <template #title> TAPAHTUI VIRHE! </template>
+          <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+          <template #small></template>
+          {{ loginErrorMessage }}
+        </MDBToast>
       </div>
-    </form>
-    loginError {{ loginError }}
+
+
+
+      <form class="form-card" @submit.prevent="userLoginData" autocomplete="off">
+        <MDBInput
+            type="text"
+            size="lg"
+            label="Käyttäjätunnus"
+            id="loginUsername"
+            v-model="loginUsername"
+
+            wrapperClass="mb-4"
+        />
+
+        <!-- Password input -->
+        <MDBInput
+
+            type="password"
+            size="lg"
+            label="Salasana"
+            id="loginPassword"
+            v-model="loginPassword"
+            wrapperClass="mb-4"
+        />
+
+        <!-- 2 column grid layout for inline styling -->
+        <MDBRow class="mb-4">
+          <MDBCol class="d-flex justify-content-center">
+            <!-- Checkbox -->
+            <MDBCheckbox
+                label="Muista minut"
+                id="loginCheck"
+                v-model="loginCheck"
+                wrapperClass="mb-3 mb-md-0"
+            />
+          </MDBCol>
+
+          <MDBCol>
+            <!-- Simple link -->
+            <router-link to="/forgot_auth">Forgot password</router-link>
+            <!--          <a href="/recipients">Unohtuiko salasana?</a>-->
+          </MDBCol>
+        </MDBRow>
+
+        <!-- Submit button -->
+        <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> Kirjaudu </MDBBtn>
+
+        <!-- Register buttons -->
+        <div class="text-center">
+          <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
+        </div>
+      </form>
+    </MDBContainer>
   </div>
 </template>
 
@@ -136,5 +137,17 @@ const emptyLoginFields = () => {
 </script>
 
 <style scoped>
+.auth-page{
+  min-height: 100vh;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+  padding: 24px;
+}
 
+/* keep container from stretching wide */
+.auth-container{
+  width: 100%;
+  max-width: 520px; /* adjust */
+}
 </style>

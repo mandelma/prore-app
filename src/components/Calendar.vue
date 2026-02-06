@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: 60px;">
+  <div >
     <FullCalendar ref="calendarRef" :options="options" />
 
   </div>
@@ -15,7 +15,7 @@
       :keyboard="false"
       :focus="false"
   >
-    <MDBModalHeader>
+    <MDBModalHeader class="modal-header-custom">
       <MDBModalTitle>Uusi merkintä</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
@@ -73,7 +73,7 @@
       :keyboard="false"
       :focus="false"
   >
-    <MDBModalHeader>
+    <MDBModalHeader class="modal-header-custom">
       <MDBModalTitle>Muokka merkintä</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
@@ -166,7 +166,7 @@
   >
   
   <!-- formatEventDate(new Date(selectedEvent.start)) -->
-    <MDBModalHeader>
+    <MDBModalHeader class="modal-header-custom">
       <MDBModalTitle>{{ selectedEvent?.title || 'Event' }}</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
@@ -2331,20 +2331,12 @@ const options = computed(() => ({
   flex: 1;
   height: 100%;
 }
-
-/* Hide titles inside dayGrid and timeGrid cells */
-/* .fc-event-title {
-  display: none !important;
-} */
-
-
-/* .cell-type-bar {
-  box-shadow: 0 -1px 3px rgba(255,255,255,0.2);
-} */
-
-
-/* +n popover */
-/* make the +N more popover compact and pretty */
+.fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
+  padding: 7px;
+}
+.fc-header-toolbar {
+  color: red;
+}
 .fc-popover {
   max-width: 200px !important;   /* 👈 controls popover width */
   width: auto !important;
@@ -2366,7 +2358,6 @@ const options = computed(() => ({
 /* make the event list smaller inside */
 .fc-popover .fc-popover-body {
   padding: 6px;
-  
   font-size: 0.8rem;
 }
 
@@ -2385,13 +2376,6 @@ const options = computed(() => ({
     max-width: 90vw !important;
   }
 }
-
-
-/* ensure modal appears above the popover */
-/* .fc-popover { z-index: 1100; }
-.modal, .modal-backdrop { z-index: 2000; } */
-
-
 
 
 /* note */
@@ -2491,37 +2475,6 @@ const options = computed(() => ({
   .fc .fc-button { padding: 2px 8px; font-size: .75rem; }
 
 
-
-  /*.fc-theme-standard td {*/
-  /*  background-color: #161A22FF;*/
-  /*}*/
-
-
-  /* vertical borders (between days) */
-  /*.fc-theme-standard .fc-timegrid-col-frame {*/
-  /*  border-color: #304649;  !* your custom color *!*/
-  /*}
-
-  /* horizontal borders (between time slots) */
-  /*.fc-theme-standard .fc-timegrid-slot {*/
-  /*  border-color: #284549;*/
-  /*}*/
-
-  /*Header row vert borders*/
-  /*.fc-theme-standard th {*/
-  /*  border-color: #00bcd4;*/
-  /*}*/
-
-  /*.fc .fc-button {*/
-  /*  background:#2a2f3a;*/
-  /*  border:none;*/
-  /*  font-size:.8rem;*/
-  /*  padding:4px 10px;*/
-  /*}*/
-  /*.fc .fc-button:active {*/
-  /*  background:#3b4250; !* pressed *!*/
-  /*}*/
-
   /* buttons */
 
   /* highlight day cell when tapped */
@@ -2546,12 +2499,6 @@ const options = computed(() => ({
     filter: brightness(1.2);
     transform: scale(0.97);
   }
-
-  /* days & time slots */
-  /* .fc .fc-daygrid-day:active,
-  .fc .fc-timegrid-slot:active {
-    
-  } */
 }
 
 /* Keep anything inside the event box from spilling */
@@ -2576,17 +2523,6 @@ const options = computed(() => ({
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* .fc-dayGridMonth-view  {
-  border: 1px solid rgb(38, 82, 122);
-} */
-
-/* Remove the top and left outer borders of the calendar grid */
-/* .fc-theme-standard td,
-.fc-theme-standard th {
-  border-top: none !important;
-  border-left: none !important;
-} */
 
 /* Color classes (use your dark palette) */
 .fc-event.event-offer  { background:#48769c; border:none; color:#fff; }

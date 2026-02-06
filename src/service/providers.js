@@ -37,6 +37,12 @@ const addProvider = async (id, newProvider) => {
     return provider.data;
 }
 
+
+const updateProMain = async (id, payload) => {
+    const updated = await axios.put(`${baseUrl}/${id}/main-update`, payload);
+    return updated.data;
+}
+
 const updatePortfolio = async (id, newPortfolio) => {
     const portfolio = await axios.put(`${baseUrl}/${id}/edit-portfolio`, newPortfolio);
     return portfolio.data;
@@ -132,6 +138,7 @@ export default {
     getProvByProvId,
     getProvidersMatchingByProfession,
     addProvider,
+    updateProMain,
     updatePortfolio,
     updateProvider,
     updateTimeCredit,

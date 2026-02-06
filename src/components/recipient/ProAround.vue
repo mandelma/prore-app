@@ -171,7 +171,7 @@
         centered
         v-model="displayProPanel"
       >
-        <MDBModalHeader>
+        <MDBModalHeader class="modal-header-custom">
           <div style="display: flex; justify-content:space-between; align-items: center; gap: 23px;">
             <img
               src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"

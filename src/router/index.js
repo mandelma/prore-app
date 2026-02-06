@@ -57,10 +57,17 @@ const routes = [
             requiresAuth: true
         }
     },
+    /* {
+        path: "/pro-panel",
+        name: "pro-panel",
+        component: () => import("../components/provider/ProviderPanel.vue")
+    }, */
     {
-      path: "/pro-panel",
-      name: "pro-panel",
-      component: () => import("../components/provider/ProviderPanel.vue")
+    
+        path: "/admin/provider",
+        name: "providerAdmin",
+        component: () => import("../components/provider/ProviderAdminPage.vue"),
+        props: true
     },
     {
         path: "/client-offers",

@@ -28,104 +28,6 @@
        </main>
      </div>
 
-<!--     <div>-->
-<!--       <img :src="logo" class="main-logo" style="" alt="App logo" />-->
-<!--     </div>-->
-
-
-
-
-
-<!--     <div>-->
-<!--       <div class="home-vert-fit">-->
-<!--         <div class="logo-hero">-->
-<!--           <img class="logo-hero__img"-->
-<!--                :src="logo"-->
-<!--                alt="Prokeikkatori logo" width="1024" height="549" />-->
-<!--         </div>-->
-<!--       </div>-->
-
-
-
-
-
-
-
-       <!--     <div class="logo-mask" style="&#45;&#45;logo: url('src/assets/logo_trans_main-edited.png')"></div>-->
-
-
-
-       <!--     #dd7052-->
-       <!--     <h1 style="color: #B45309;text-shadow: 2px 2px 5px #0E7490; font-family: fantasy, Papyrus;">PROKEIKKATORI</h1>-->
-
-
-
-
-
-
-
-<!--     <div>-->
-<!--         <h1 class="app-title">-->
-<!--           <span class="app-title__word" data-text="PROKEIKKATORI">PROKEIKKATORI</span>-->
-<!--         </h1>-->
-<!--       </div>-->
-
-
-
-
-
-
-
-<!--       <div class="home-vert-fit">-->
-<!--         <p class="tagline">Nopeus on tärkein!</p>-->
-<!--       </div>-->
-
-
-
-
-
-
-
-
-       <!--     <div class="hero-actions">-->
-<!--              <button class="btn-hero btn-hero&#45;&#45;primary">-->
-<!--                <span class="btn-hero__icon">🔍</span> ETSIN PALVELUA-->
-<!--              </button>-->
-
-       <!--       <button class="btn-hero btn-hero&#45;&#45;accent">-->
-       <!--         <span class="btn-hero__icon btn-hero__icon&#45;&#45;accent">＋</span> TARJOAN PALVELUA-->
-       <!--       </button>-->
-       <!--     </div>-->
-
-
-
-
-
-
-
-
-
-       <!--     <h2 style="" class="title">{{t('home_title')}}</h2>-->
-<!--       <div>-->
-<!--         <div style="" class="action-panel">-->
-
-<!--           <button class="btn-hero btn-hero&#45;&#45;primary">-->
-<!--             <span class="btn-hero__icon">🔍</span> ETSIN PALVELUA-->
-<!--           </button>-->
-
-<!--           <button class="btn-hero btn-hero&#45;&#45;accent">-->
-<!--             <span class="btn-hero__icon btn-hero__icon&#45;&#45;accent">＋</span> TARJOAN PALVELUA-->
-<!--           </button>-->
-
-<!--           &lt;!&ndash;       <MDBBtn color="primary" rounded size="lg" class="action-button" style="" @click="clientInitial">&ndash;&gt;-->
-<!--           &lt;!&ndash;         <MDBIcon icon="search" class="icon" style="color: #8eeaff;"/>&nbsp; &nbsp; {{t('home_client_btn')}}</MDBBtn>&ndash;&gt;-->
-<!--           &lt;!&ndash;       <MDBBtn color="primary" rounded size="lg" class="action-button" @click="proInitial">&ndash;&gt;-->
-<!--           &lt;!&ndash;         <MDBIcon icon="plus" class="icon" size="lg" style="color: #ff8a3d;"/>&nbsp; &nbsp;{{t('home_pro_btn')}}</MDBBtn>&ndash;&gt;-->
-<!--         </div>-->
-<!--       </div>-->
-
-<!--     </div>-->
-
 
 
    </MDBContainer>
@@ -139,8 +41,9 @@
 import { MDBContainer, MDBBtn, MDBIcon } from 'mdb-vue-ui-kit'
 import { ref } from 'vue'
 import { useCounterStore } from '@/stores/counter'
-import { mapStores, mapActions } from 'pinia'
+import { storeToRefs, mapStores, mapActions } from 'pinia'
 import { useLoginStore } from '@/stores/login'
+import { useUserStore } from '@/stores/userStore'
 import loginService from "@/service/login.js";
 import {useProStore} from "@/stores/providerStore.js";
 import '@/styles/theme.css'
@@ -153,9 +56,13 @@ defineOptions({
 })
 
 const counter = useCounterStore();
+const auth = useLoginStore()
+const proAdmin = useUserStore();
 const router = useRouter();
 const { t } = useI18n();
 const proStore = useProStore();
+
+const { profile } = storeToRefs(proAdmin);
 
 const clientInitial = () => {
   console.log("Recipient form.");
@@ -164,7 +71,8 @@ const clientInitial = () => {
 const proInitial = () => {
   console.log("Pro form");
   if (proStore.isUserPro) {
-    router.push('/pro-panel');
+    //router.push('/pro-panel');
+    router.push('/admin/provider')
   } else {
     router.push('/pro-form');
   }

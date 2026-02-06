@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
 
-
+        .populate({path: 'proposal', populate: {path: 'photos'}})
         .populate({path: 'proposal', populate: {path: 'offers', populate: {path: 'provider'}}})
         .populate({path: 'proposal', populate: {path: 'ordered'}})
         //
@@ -78,7 +78,7 @@ router.post('/:id', async(req, res) =>{
             isAvailable24_7: body.isAvailable24_7,
             pro_link: body.proLink,
             //timeoffer: body.timeId,
-            proTime: new Date().getTime() + (86400000),
+            proTime: new Date().getTime() + (3 * 86400000),
             credit: 30,
             rating: {
                 positive: 0,
@@ -119,6 +119,20 @@ router.post('/:id/booking', async(req, res) =>{
         res.json(savedProvider)
     } catch (exception) {
         console.log("Error in providers post: " + exception)
+    }
+})
+
+// Update pro main from pro page
+router.put('/:id/main-update', async(req, res) => {
+    try {
+        const updatedAt = await Provider.findByIdAndUpdate(
+            req.params.id, req.body, {new: true}
+        )
+
+        res.send(updatedAt);
+    } catch (err) {
+        console.log("No pro updated date!")
+        res.send({error: err.message})
     }
 })
 

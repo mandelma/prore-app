@@ -9,6 +9,14 @@ const providerSchema = new Schema({
     created: {
         type: Date
     },
+    status: {
+        type: String,
+        default: 'Sovitaessa'
+    },
+    updatedAt:  {
+        type: Date,
+        default: new Date()
+    },
     ide: {
         type: String
     },
@@ -118,6 +126,10 @@ const providerSchema = new Schema({
             }
         }
     ],
+
+    notes: {
+        type: String
+    },
 
     /*rating: {
         positive: {

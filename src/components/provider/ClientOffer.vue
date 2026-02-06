@@ -21,9 +21,9 @@
     <div v-if="!client.professional && !road">
       <MDBSpinner color="info" />
     </div>
-    <div v-else style="border-top: 1px solid grey;">
+    <div v-else style="border-top: 1px solid grey; width: 100%;">
 
-      <MDBTable borderless style="font-size: 12px; color: #dddddd; text-align: left;">
+      <MDBTable borderless class="booking-table--stack" style="font-size: 12px; color: #dddddd; text-align: left;">
         <tbody>
         <tr>
           <td>
@@ -59,11 +59,31 @@
           </td>
         </tr>
         <tr>
-          <td>
+          <td v-if="client.photos.length">
             Kuvat tehtävästä:
           </td>
           <td>
-
+            <MDBLightbox> 
+              <MDBRow class="g-2 mx-0">
+                <MDBCol
+                  lg="4"
+                  md="4"
+                  sm="6"
+                  xs="6"
+                  v-for="(photo, idx) in client.photos"
+                  :key="idx"
+                  class="px-1"
+                >
+                  <div class="lightbox-thumb">
+                    <MDBLightboxItem
+                      :src="photo.imageUrl || photo.previewUrl"
+                      :fullScreenSrc="photo.imageUrl || photo.previewUrl"
+                      alt="Booking photo"
+                    />
+                  </div>
+                </MDBCol>
+              </MDBRow>
+            </MDBLightbox>
           </td>
         </tr>
         <tr>
@@ -111,10 +131,11 @@
         <MDBBtn :disabled="isDisabled" color="primary" class="mb-3" @click="onChat">
           <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
         </MDBBtn>
+
         
       </div>
       <div v-if="client.isIncludeOffers" style="margin-bottom: 20px;">
-        <div v-if="!client.offers.some(offer => offer.bookingID === client.id)">
+        <div v-if="!client.offers.some(offer => offer.bookingID === client.id && offer.provider.id === providerId)">
           <MDBBtn
               :disabled="isDisabled"
               class="mb-3"
@@ -145,7 +166,7 @@
                   </div>
 
                   <form class="form-card">
-                    <MDBInput type="number" label="Tarjoa hintasi" v-model="offerPrice" wrapperClass="mb-4" />
+                    <MDBInput type="text" label="Tarjoa hintasi" @input="filterInput" :value="offerValueFiltered" v-model="offerPrice" wrapperClass="mb-4" />
                     <div style="text-align: left; margin-bottom: 10px;">
                       <MDBRadio
                           label="Tarjoan palvelu asiakkaan luona"
@@ -281,7 +302,23 @@
 </template>
 
 <script setup>
-import {MDBTable, MDBToast, MDBBtn, MDBSpinner, MDBBtnClose, MDBTextarea, MDBInput, MDBRadio, MDBIcon, MDBCollapse, MDBPopconfirm} from 'mdb-vue-ui-kit';
+import {
+  MDBTable, 
+  MDBToast, 
+  MDBBtn, 
+  MDBSpinner, 
+  MDBBtnClose, 
+  MDBTextarea, 
+  MDBInput, 
+  MDBRadio, 
+  MDBIcon, 
+  MDBCollapse, 
+  MDBPopconfirm,
+  MDBRow,
+  MDBCol,
+  MDBLightbox,
+  MDBLightboxItem
+} from 'mdb-vue-ui-kit';
 import { ref, nextTick, inject, toRefs, onMounted, computed } from 'vue';
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
@@ -343,6 +380,8 @@ const offerPlace = ref('here');
 const offerAbout = ref('');
 const reason = ref('');
 const isQuitClientBooking = ref(false);
+
+const offerValueFiltered = ref('');
 
 //const isChatWindow = ref(false);
 
@@ -425,6 +464,29 @@ const validateMaps = async() => {
     if (spinner) spinner.style.display = "none";
   }
 }
+
+const filterInput = ref((event) => {
+  // Filter out non-digit characters
+  const raw = event.target.value;
+
+  // Only allow digits and a single dot
+  let filtered = raw.replace(/[^0-9.]/g, '');
+
+  // Only allow one dot
+  const parts = filtered.split('.');
+  if (parts.length > 2) {
+    filtered = parts[0] + '.' + parts.slice(1).join('');
+  }
+
+  // Prevent leading dot (e.g., ".5" becomes "0.5")
+  if (filtered.startsWith('.')) {
+    filtered = '0' + filtered;
+  }
+
+  // Update input field directly
+  event.target.value = filtered;
+  offerValueFiltered.value = filtered;
+})
 
 const onChat = async () => {
   console.log("Chat btn");
@@ -626,6 +688,30 @@ const rejectFormBooking = async () => {
   overflow: hidden;    /* optional, keeps it clean in table cell */
 }
 
+@media (max-width: 470px){
+  .booking-table--stack tbody tr{
+    display: block;
+    padding: .5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .booking-table--stack tbody td{
+    display: block;
+    width: 100%;
+    padding: .2rem 0;
+  }
+
+  /* first td becomes the label */
+  .booking-table--stack tbody td:first-child{
+    font-weight: 600;
+    opacity: .9;
+  }
+}
+
+/* .page-wrap{
+  overflow-x: hidden;
+} */
+
 /* The actual map div must fill the container */
 #client-location {
   width: 100%;
@@ -644,6 +730,43 @@ const rejectFormBooking = async () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.photo-card {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(0,0,0,.02);
+}
+
+.photo-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.lightbox-thumb{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;     /* 👈 perfect square */
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* MDBLightboxItem renders an img inside */
+.lightbox-thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* 👈 crop like your photo-grid */
+  display: block;
 }
 
 .spinner {

@@ -4,8 +4,8 @@ import axios from 'axios';
 //const baseUrl = `${backendUrl}/aws_upload`;
 const baseUrl = '/api/aws-uploads';
 
-const uploadClientImage = async (newImageData) => {
-    const result = await axios.post(`${baseUrl}/upload-client`, newImageData)
+const uploadClientImage = async (imageData) => {
+    const result = await axios.post(`${baseUrl}/upload-client`, imageData)
     return result.data
 }
 
@@ -48,6 +48,11 @@ const deleteImage = async (id, key) => {
     await axios.delete(`${baseUrl}/delete-image/${id}/${key}`);
 }
 
+// Batch delete endpoint
+const deleteImages = async (imageIds) => {
+    await axios.post(`${baseUrl}/delete-images`, imageIds);
+}
+
 export default { uploadClientImage,
     editClientImage,
     uploadProImage,
@@ -56,5 +61,6 @@ export default { uploadClientImage,
     uploadAvatarImage,
     editAvatarImage,
     deleteAvatar,
-    deleteImage
+    deleteImage,
+    deleteImages
 };

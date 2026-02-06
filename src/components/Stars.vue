@@ -57,19 +57,19 @@ export default {
 
 <style scoped>
 .full-star {
-  font-size: 37px;
+  font-size: 24px;
   color: yellow;
 
 }
 .half-star {
-  font-size: 37px;
+  font-size: 24px;
   background: linear-gradient(to right, yellow 50%, darkgrey 50%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
 }
 .star {
-  font-size: 37px;
+  font-size: 24px;
   color: darkgrey;
   display: inline-block;
 }

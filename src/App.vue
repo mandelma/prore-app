@@ -37,7 +37,7 @@
             <MDBBadge  notification color="danger" pill>{{clientNewOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
           <!-- Provider incomed offers-->
-          <MDBNavbarItem  v-if="isIncomingOffers" @click="onIconBell" class="me-3 me-lg-5" linkClass="link-secondary">
+          <MDBNavbarItem  v-if="newOffersAmount > 0" @click="onIconBell" class="me-3 me-lg-5" linkClass="link-secondary">
             <MDBIcon  icon="bell" style="color: orange;" class="icon"/>
             <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
@@ -61,9 +61,9 @@
                   Profile
                 </MDBDropdownItem>
 
-                <MDBDropdownItem v-if="notifications.length" :tag="RouterLink" class="dd-item" @click="handleShowNotifications">
+                <MDBDropdownItem v-if="notifications.length" :tag="RouterLink" to="/notifications" class="dd-item" @click="handleShowNotifications">
                   Viestit
-                  <MDBBadge v-if="notifications.length" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
+                  <MDBBadge v-if="newNotesCount > 0" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
                 </MDBDropdownItem>
 
                 <!-- <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="" @click="handleShowNotifications">
@@ -120,7 +120,10 @@
             </MDBDropdown>
           </MDBNavbarItem>
 
-          <MDBNavbarItem v-else to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
+          <!-- <MDBNavbarItem v-else to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
+            {{t('login')}}
+          </MDBNavbarItem> -->
+          <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
             {{t('login')}}
           </MDBNavbarItem>
         </MDBNavbarNav>
@@ -151,22 +154,18 @@
     <!--        />-->
     <!--      </MDBNavbarItem>-->
 
-<!--    <router-view />-->
-    <main class="container py-4" style=" flex: 1;">
-<!--      <RouterView-->
-<!--          style="padding-top: 50px; text-align: center;"-->
-<!--      />-->
+<!--    <router-view />   class="container py-4" -->
+    <main class="app-content" style=" flex: 1;">
+
       <RouterView
-          style="padding-top: 50px; text-align: center;"
           v-slot="{Component}">
-        <component
+        <div v-if="!$route.path.startsWith('/login')" class="page-wrap">
+          <component
             :is="Component"
             :days="weekdays"
             :bookings="bookings"
             @createBookingMultiple="handleCreateBookingMultiple"
             @over="handleOver"
-
-            @createPro="handleCreatePro"
 
             @confirm-order-toast="hConfirmOrderToast"
 
@@ -175,6 +174,11 @@
             :offersIn="incomingOffers ?? []"
             :isPro="isUserPro ?? false"
             :credit="proCredit ?? 0"
+          />
+        </div>
+        <component
+          v-else
+          :is="Component"
         />
       </RouterView>
     </main>
@@ -333,14 +337,77 @@ const weekdays = ["Mon","Tue", "Wed"];
 //   }
 // }, { immediate: true })
 
+/* watch(
+  async () => login.isAuthenticated,
+  async (isAuth) => {
+    if (isAuth) {
+      const user = login.user;
+
+    userStore.fetchMe();
+
+    userID.value = user.id;
+    username.value = user.username;
+    await client.orderList(user.id);
+    await handleProvider.getProState(user.id);
+    await notificationStore.handleNotifications(user.id);
+    conversationStore.initSocket();
+    await conversationStore.getConversations();
+    }
+  }
+) */
+
+let bootstrappedForUserId = null;
+
+watch(
+  () => login.isAuthenticated,
+  async (isAuth) => {
+    if (!isAuth) {
+      if (login.hydrated) {
+        conversationStore.disconnect?.();
+      }
+      bootstrappedForUserId = null;
+      // IMPORTANT: cleanup stuff that must stop on logout
+      //conversationStore.disconnect?.(); // if you have it
+      //notificationStore.reset?.();
+      return;
+    }
+
+    const u = login.user;
+    if (!u?.id) return;
+
+    // Prevent re-running everything if watcher fires again
+    if (bootstrappedForUserId === u.id) return;
+    bootstrappedForUserId = u.id;
+
+    userID.value = u.id;
+    username.value = u.username;
+
+    // If these are independent, run in parallel
+    await Promise.all([
+      userStore.fetchMe(),
+      client.orderList(u.id),
+      handleProvider.getProState(u.id),
+      notificationStore.handleNotifications(u.id),
+    ]);
+
+    if (login.isAuthenticated) {
+      conversationStore.initSocket();
+      await conversationStore.getConversations();
+    }
+
+    // If joinServer requires auth, do it here (not in onMounted)
+    // joinServer();
+  },
+  { immediate: true } // so it runs right after hydrate sets user
+);
 
 onMounted (async () => {
   console.log("Mounted on start!");
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
 
-  // if(login.isAuthenticated)
   await login.hydrate();
+  /* await login.hydrate();
   if (login.user) {
     const user = login.user;
 
@@ -353,10 +420,7 @@ onMounted (async () => {
     await notificationStore.handleNotifications(user.id);
     conversationStore.initSocket();
     await conversationStore.getConversations();
-
-    //await conversationStore.initSocket();
-    //joinServer (user.id, user.username);
-  }
+  } */
 
   joinServer();
 
@@ -488,9 +552,9 @@ const listen = async() => {
   }) */
 }
 
-const handleCreatePro = (pro) => {
+/* const handleCreatePro = (pro) => {
   handleProvider.createPro(pro);
-}
+} */
 
 const hConfirmOrderToast = () => {
   console.log("CONFIRM TOAST");
@@ -611,7 +675,7 @@ const logOut = () => {
 
 const onIconBell = () => {
   console.log("Clicked on icon ");
-  router.push("/client-offers");
+  router.push("/admin/provider");
 }
 const seeClientOffer = () => {
   console.log("opening the offer");
@@ -620,7 +684,7 @@ const seeClientOffer = () => {
 const handleShowNotifications = async () => {
   if (newNotesCount.value > 0) {
     await notificationStore.upsertNotificationStatus();
-    router.push('/notifications');
+    //router.push('/notifications');
   }
 }
 
@@ -629,7 +693,16 @@ const handleShowNotifications = async () => {
 
 <style>
 html, body { height: 100%; }            /* ensures the body can size to the viewport */
+.page-wrap {
+  padding-top: 30px;
+  /* remove this unless you really want it on ALL pages */
+  /* text-align: center; */
+}
+.app-content {
+  padding-top: 56px; /* navbar height */
+}
 .dd-item {
   color: #ddd !important;
+  cursor: pointer;
 }
 </style>

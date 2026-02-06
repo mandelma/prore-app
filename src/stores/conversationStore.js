@@ -15,7 +15,15 @@ export const useConversationStore = defineStore("conversation", () => {
   const activeConversationId = ref(null);    // selected conversation
   const messagesById = ref({});              // { [convoId]: Message[] }
 
-  const me_id = computed(() => String(user.value?.id ?? user.value?._id ?? ""));
+  const socketInited = ref(false);
+
+  //const me_id = computed(() => String(user.value?.id ?? user.value?._id ?? ""));
+
+  const me_id = computed(() => {
+    const login = useLoginStore();          // grab store when computed runs
+    const u = login.user;                  // in setup stores, refs are auto-unwrapped
+    return String(u?.id ?? u?._id ?? "");
+  });
 
   const activeConversation = computed(
     () => conversations.value.find(c => String(c._id) === String(activeConversationId.value)) || null
@@ -95,26 +103,7 @@ export const useConversationStore = defineStore("conversation", () => {
         conversations.value.map(convo => ensureOtherUserLoaded(convo))
       );
     
-     /*  const myId = me_id.value;
-      for (const convo of conversations.value) {
-        const otherId = String(
-          convo.participantIds.find(id => String(id) !== myId)
-        );
-
-        if (otherId && !otherChatUsers.value[otherId]) {
-          try {
-            const user = await userService.getUser(otherId);
-            otherChatUsers.value[otherId] = user;
-            
-          } catch (e) {
-            console.error(
-              "[conversationStore] getUser failed for",
-              otherId,
-              e
-            );
-          }
-        }
-      } */
+     
 
     } catch (e) {
       console.error("[conversationStore] getConversations FAILED:", e);
@@ -256,9 +245,23 @@ export const useConversationStore = defineStore("conversation", () => {
       .sort((a, b) => new Date(b.lastMessageAt || b.updatedAt) - new Date(a.lastMessageAt || a.updatedAt));
   };
 
+  const onConversationUpsert = (convo) => {
+    if (!me_id.value) return;
+    upsertConversation(convo);
+    ensureOtherUserLoaded(convo);
+  };
+
+  const onMessageNew = (message) => {
+    addMessageLocal(message);
+  };
+
+  const onConversationRefresh = async () => {
+    await getConversations();
+  };
+
   // ---- Socket listeners (call this once from App.vue after login)
   const initSocket = () => {
-    socket.on("conversation-upsert", (convo) => {
+    /* socket.on("conversation-upsert", (convo) => {
       console.log("UPSERT???")
       upsertConversation(convo);
       ensureOtherUserLoaded(convo);
@@ -270,7 +273,36 @@ export const useConversationStore = defineStore("conversation", () => {
 
     socket.on("conversation:list:refresh", async () => {
       await getConversations();
-    });
+    }); */
+
+    if (socketInited.value) return;
+    socketInited.value = true;
+
+    socket.on("conversation-upsert", onConversationUpsert);
+    socket.on("message:new", onMessageNew);
+    socket.on("conversation:list:refresh", onConversationRefresh);
+  };
+
+  const disconnect = () => {
+    // ✅ remove only YOUR listeners (best practice)
+    socket.off("conversation-upsert", onConversationUpsert);
+    socket.off("message:new", onMessageNew);
+    socket.off("conversation:list:refresh", onConversationRefresh);
+
+    socketInited.value = false;
+
+    // optional: leave room
+    if (activeConversationId.value) {
+      socket.emit("leave-conversation", { conversationId: activeConversationId.value });
+    }
+  };
+
+  const reset = () => {
+    conversations.value = [];
+    activeConversationId.value = null;
+    messagesById.value = {};
+    otherChatUsers.value = {};
+    openChat.value = false;
   };
 
   return {
@@ -291,5 +323,7 @@ export const useConversationStore = defineStore("conversation", () => {
     upsertConversation,
     addMessageLocal,
     initSocket,
+    disconnect,
+    reset
   };
 });
