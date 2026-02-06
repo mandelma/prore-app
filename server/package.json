@@ -13,8 +13,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build:ui": "cd.. && rmdir /s /q dist && npm run build && xcopy dist server\\dist /E /H /C /I /Y",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:ui": "shx rm -rf dist && npm --prefix .. run build && shx cp -r ../dist/* dist/",
+    "build": "npm run build:ui"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.952.0",
