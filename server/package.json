@@ -13,9 +13,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build:ui": "shx rm -rf dist && npm --prefix .. run build && shx cp -r ../dist/* dist/",
-    "build": "npm run build:ui",
-    "postinstall": "npm ls shx || true"
+    "build:ui": "shx rm -rf dist && npm ci --prefix .. && npm --prefix .. run build && shx cp -r ../dist/* dist/",
+    "build": "npm run build:ui"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.952.0",
