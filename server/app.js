@@ -79,7 +79,8 @@ app.use(history());
 
 const distPath = path.join(__dirname, "dist"); // since dist is in server/dist
 
-app.use("/assets", express.static(path.join(distPath, "assets")));
+//app.use("/assets", express.static(path.join(distPath, "assets")));
+app.use('/assets', express.static(path.resolve(__dirname, 'uploads')));
 app.use(express.static(distPath));
 
 // ...your API routes here...
