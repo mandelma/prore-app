@@ -23,127 +23,66 @@
               :message = emailErrorMessage
           /> -->
           <MDBCol lg="4">
+            <div class="form-card d-flex justify-content-center">
+              <MDBCol lg="6" style="text-align: center;">
 
-            <div class="form-card">
-              <MDBCol lg="6">
-
-              <MDBRow>
-
-                <MDBCol  >
-                    <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
-
-                  <!-- <img
-
-                      :src="showImage ? showImage : avatar"
-                      alt="profile_img_blob"
-                      style="width: 100px; height: 100px; border: 1px solid darkgrey; border-radius: 50px; margin-bottom: 20px;"
-                  /> -->
-                </MDBCol>
-                <p>Edit, delete avatar panel</p>
-                <!-- <div v-if="showImage">
-                    <div v-if="!isOpenSetAvatar && isPressedEditProfile">
-                    <p @click="editProfileAvatar">Muokkaa</p>
-                    </div>
-                    <div v-else>
-                    <p v-if="isPressedEditProfile && !isOpenSetAvatar" @click="addNewAvatar">Lisää avatar</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <div v-if="avatarObject.isImage === true">
-                    <div v-if="isPressedEditProfile">
-                        <p @click="editProfileAvatar">Muokkaa</p>
-                    </div>
-
-                    </div>
-                    <div v-else>
-                    <p v-if="isPressedEditProfile && !isOpenSetAvatar" @click="addNewAvatar">Lisää avatar</p>
-                    </div>
-                </div> -->
-
-
-                <!-- <div class="edit-panel" v-if="(isOpenSetAvatar)  ">
-                  
-                  <div style="display: flex; justify-content: right;">
-                    <MDBBtnClose
-                        white
-                        class="close-btn"
-                        style="float: right;"
-                        @click="closeEditPanel"
-                    />
-                  </div>
-                  <MDBRow >
-                    <MDBCol>
-                      <input  id="avatar-upload" type="file" @change="handleFileChange($event, i)"/>
-                      <label  for="avatar-upload" class="profile-file-upload">
-                  <span v-if="value">
-                  Muokka tehtävän kuvausta
-
-                   </span>
-                        <span v-else>Valitse avatar</span>
-                      </label>
-
-                      <MDBBtn v-if="showImage || avatarObject.isImage === true" class="btn" block size="lg" color="danger" @click="removeProfileImage">Poista kuva</MDBBtn>
+                <MDBCard class="p-3">
+                  <MDBRow class="align-items-center g-3 ">
+                    <MDBCol lg="12" class="d-flex justify-content-center">
+                      <div class="avatar-wrap">
+                        <img :src="avatarSrc" class="avatar-img" alt="avatar" />
+                      </div>
                     </MDBCol>
 
-                  </MDBRow>
+                    <MDBCol>
+                      <div class="d-flex flex-column">
+                        <div class="fw-bold">Avatar</div>
+                        <small class="text-muted">Lisää, muokkaa tai poista profiilikuvasi.</small>
 
-                </div> -->
+                        <div class="d-flex gap-2 mt-2 flex-wrap d-flex justify-content-center">
+                          <MDBBtn v-if="!hasCustomAvatar" color="primary"  @click="openAvatarPicker">
+                            Lisää avatar
+                          </MDBBtn>
 
-                <MDBCol>
+                          <MDBBtn v-else color="primary" block @click="openAvatarEditPicker">
+                            Muokkaa avataria
+                          </MDBBtn>
 
-                    <p>Avatari all oleva info näitamine</p>
-
-                  <!-- <div v-if="!isPressedEditProfile">
-                    <div style="float: right; padding: 10px; width: 100%;">ˇ
-
-                      <div class="profile-info">
-                        <div v-if="pro" >
-                          <h3 >{{ pro.yritys }}</h3>
-                          <div style=" color: cadetblue;">
-
-                            <div
-                                v-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 0"
-                            >
-                              <p>Valitettavasti käyttö on päättynyt!</p>
-                              <p style="color: orangered; cursor: pointer;" @click="$router.push('/pay-plan')">Lattaa lisää aikaa!</p>
-                            </div>
-                            <div v-else-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 3
-                          && ((pro.proTime - new Date().getTime()) / 86400000).toFixed() > 0">
-                              <p>Käyttö</p>
-                              <p>{{((pro.proTime - new Date().getTime()) / 86400000).toFixed()}} päivää</p>
-                              <p style="color: orangered;  cursor: pointer;" @click="$router.push('/pay-plan')">Lattaa lisää aikaa!</p>
-                            </div>
-                            <div v-else>
-                              <div v-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() === 'NaN'" class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                              </div>
-                              <div v-else>
-                                <p>Käyttö: </p>
-                                <p>{{((pro.proTime - new Date().getTime()) / 86400000).toFixed()}} päivää</p>
-                              </div>
-                            </div>
-                          </div>
-
-
+                          <!-- <MDBBtn v-if="hasCustomAvatar" color="danger" block outline @click="removeAvatar">
+                            Poistaa avatar
+                          </MDBBtn> -->
+                          <p
+                            v-if="hasCustomAvatar"
+                            class="text-danger mt-3 ms-auto w-100 text-end"
+                            style="cursor:pointer;"
+                            @click="removeAvatar"
+                          >
+                            Poista avatar
+                          </p>
                         </div>
 
-                        <p v-if="client">Sinulla on varauksia ({{client.length}})</p>
+                        <input
+                          ref="avatarInput"
+                          class="sr-only"
+                          type="file"
+                          accept="image/*"
+                          @change="onAvatarSelected"
+                        />
+
+                        <input
+                          ref="avatarEditInput"
+                          class="sr-only"
+                          type="file"
+                          accept="image/*"
+                          @change="onAvatarEditSelected"
+                        />
                       </div>
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCard>
 
-                    </div>
-                  </div>
- -->
-
-
-
-                </MDBCol>
-              </MDBRow>
-
-            </MDBCol>
+              </MDBCol>
             </div>
-
-            
-
           </MDBCol>
           <MDBCol  lg="8">
             <div class="form-card">
@@ -197,16 +136,6 @@
                 </tbody>
               </MDBTable>
 
-              
-              <!-- <edit-profile
-                  v-else
-                  :loggedInUser = loggedInUser
-                  :userData=" userData"
-                  @goBackFromEditProfile = handleCloseEditProfile
-                  @profile:data = handleSaveProfile
-                  @saveProfileImg = handleSaveProfileImage
-              /> -->
-
               <edit-profile 
                 v-else
                 @close-edit-profile="closeEditProfile"
@@ -234,11 +163,12 @@
         MDBBtnClose
     //MDBInput
     } from "mdb-vue-ui-kit";
-    import { ref, onMounted, watch } from 'vue';
+    import { ref, onMounted, computed, onBeforeUnmount, watch } from 'vue';
     import { useRouter } from 'vue-router';
     import { storeToRefs } from "pinia";
     import ToastHandler from "./helpers/ToastHandler.vue";
     //import { loadGoogleMaps } from "./controllers/loadGoogleMap";
+    import avatarFallback from '@/assets/avatar-50.png'
     import { useLoginStore } from "@/stores/login";
     import { useUserStore } from "@/stores/userStore";
     import { useProStore } from "@/stores/providerStore";
@@ -260,6 +190,34 @@
     const { isUserPro, provider } = storeToRefs(proStore);
     
     const router = useRouter();
+    //const _avatar = avatar;
+
+    const avatarInput = ref(null);
+    const avatarEditInput = ref(null);
+    const localPreviewUrl = ref("");
+
+    const hasCustomAvatar = computed(() => !!profile.value?.avatar?.isImage);
+
+    const avatarSrc = computed(() => {
+      //if (!profile.value.avatar.imageUrl) return;
+      // 1) immediate local preview after selecting file
+      if (localPreviewUrl.value) return localPreviewUrl.value;
+
+      console.log("avatar snapshot", JSON.parse(JSON.stringify(profile.value?.avatar || null)));
+      console.log("imageUrl snapshot", profile.value?.avatar?.imageUrl);
+      // 2) if you store a real URL/path for uploaded image, use it
+      const url = profile.value?.avatar?.imageUrl || profile.value?.avatar?.path;
+      if (hasCustomAvatar.value && url) return url;
+      console.log("Profile avatar url " + url);
+      // 3) otherwise fallback to assets avatar
+      return avatarFallback;
+    });
+
+    /* const avatarSrc = computed(() => {
+      const url = profile.value?.avatar?.imageUrl || profile.value?.avatar?.path;
+      return url || avatarFallback;
+    }); */
+
     const isOpenSetAvatar = ref(false);
     //isOpenAdd: false,
     const isOpenEdit = ref(false);
@@ -304,7 +262,75 @@
       
     })
 
-    
+    function openAvatarPicker() {
+      avatarInput.value?.click();
+    }
+
+    const openAvatarEditPicker = () => {
+      avatarEditInput.value?.click();
+    } 
+
+    async function onAvatarSelected(e) {
+      const input = e.target;
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      // create/replace local preview
+      if (localPreviewUrl.value) URL.revokeObjectURL(localPreviewUrl.value);
+      localPreviewUrl.value = URL.createObjectURL(file);
+
+      try {
+        // Upload via API/store here.
+        // After success set user.avatar = { isImage:true, url:'...', name:file.name }
+
+        const uploadAvatar = await userStore.uploadAvatar(file);
+        console.log("Avatar is uploaded? - ", uploadAvatar);
+        //emit("avatar-uploaded", file);
+
+      } finally {
+        // allow selecting same file again
+        input.value = "";
+      }
+    }
+
+    const onAvatarEditSelected = async (e) => {
+      const input = e.target;
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      // create/replace local preview
+      if (localPreviewUrl.value) URL.revokeObjectURL(localPreviewUrl.value);
+      localPreviewUrl.value = URL.createObjectURL(file);
+
+      try {
+        // Upload via API/store here.
+        // After success set user.avatar = { isImage:true, url:'...', name:file.name }
+
+        const editAvatar = await userStore.editAvatar(file);
+        console.log("Avatar is uploaded? - ", editAvatar);
+
+      } finally {
+        // allow selecting same file again
+        input.value = "";
+      }
+    }
+
+    async function removeAvatar() {
+      // Delete via API/store here.
+      // After success set user.avatar = { isImage:false, name:'avatar.png' }
+      if (localPreviewUrl.value) {
+        URL.revokeObjectURL(localPreviewUrl.value);
+        localPreviewUrl.value = "";
+      }
+
+      const delAvatar = await userStore.deleteAvatar();
+      console.log("Avatar deleted?? ", delAvatar);
+      //emit("avatar-removed");
+    }
+
+    onBeforeUnmount(() => {
+      if (localPreviewUrl.value) URL.revokeObjectURL(localPreviewUrl.value);
+    });
 
     const validateUploadErrors = async (data, file, status) => {
       console.log("FILE " + file.type);
@@ -537,5 +563,26 @@
     }
 </script>
 <style scoped>
-  
+.avatar-panel {
+  display: flex; 
+  justify-content: center;
+}
+
+.avatar-wrap {
+  width: 73px;
+  height: 73px;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>

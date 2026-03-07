@@ -69,19 +69,7 @@ const providerSchema = new Schema({
             type: Object
         }
     ],
-    // rating: [
-    //     {
-    //         positive: {
-    //             type: Number
-    //         },
-    //         negative: {
-    //             type: Number
-    //         },
-    //         text: {
-    //             type: String
-    //         }
-    //     }
-    // ],
+    
     proTime: {
         type: Number
     },
@@ -89,26 +77,8 @@ const providerSchema = new Schema({
         type: Number
     },
     rating: {
-        positive: {
-            type: Number
-        },
-        negative: {
-            type: Number
-        },
-        count: {
-            type: Number,
-            default: 0
-        }
-        /*text: [
-            {
-                pos: {
-                    type: String
-                },
-                neg: {
-                    type: String
-                }
-            }
-        ]*/
+        type: Number,
+        default: 0
     },
 
     ratersCount: {
@@ -118,10 +88,13 @@ const providerSchema = new Schema({
 
     feedback: [
         {
-            pos: {
+            date: {
+                type: Date, required: true
+            },
+            sender: {
                 type: String
             },
-            neg: {
+            text: {
                 type: String
             }
         }
@@ -130,15 +103,6 @@ const providerSchema = new Schema({
     notes: {
         type: String
     },
-
-    /*rating: {
-        positive: {
-            type: Number
-        },
-        negative: {
-            type: Number
-        }
-    },*/
 
     reference: [
         {

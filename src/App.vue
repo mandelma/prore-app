@@ -49,7 +49,22 @@
           <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle tag="a" class="nav-link" @click="userDropdown = !userDropdown">
-                <MDBIcon icon="user" class="icon" />
+                <template v-if="profileLoaded">
+                  <MDBIcon v-if="!profile?.avatar?.isImage || avatarError" icon="user" class="icon" />
+                
+                  <img
+                    v-else
+                    :src="profile.avatar.imageUrl"
+                    class="rounded-circle"
+                    height="22"
+                    alt=""
+                    loading="lazy"
+                    @error="avatarError = true"
+                  />
+                </template>
+
+                
+                
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
@@ -78,27 +93,13 @@
                   Kalenteri
                 </MDBDropdownItem>
 
-                <!-- <MDBDropdownItem style="color: #ddd;" href="">
-                  <RouterLink :to="{name: 'calendar', params: {count: 10}}" style="color: #ddd;" >Kalenteri</RouterLink>
-
-                </MDBDropdownItem> -->
-
                 <MDBDropdownItem :tag="RouterLink" to="/rules" class="dd-item">
                   Säännöt
                 </MDBDropdownItem>
 
-                <!-- <MDBDropdownItem href="#">
-                  <RouterLink to="/rules" style="color: #ddd;">Rules</RouterLink>
-                </MDBDropdownItem> -->
-
                 <MDBDropdownItem :tag="RouterLink" to="/manual" class="dd-item">
                   Manual
                 </MDBDropdownItem>
-
-
-                <!-- <MDBDropdownItem href="#">
-                  <RouterLink to="/manual" style="color: #ddd;">Manual</RouterLink>
-                </MDBDropdownItem> -->
 
                 <MDBDropdownItem v-if="client.isBookings" :tag="RouterLink" to="/client-panel" class="dd-item">
                   Tilaukset
@@ -315,6 +316,7 @@ const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();
 
+const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
@@ -323,40 +325,20 @@ const { openChat, conversations, totalUnread } = storeToRefs(conversationStore);
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
 
+const profileLoaded = ref(false);
+
 const test = ref(null);
 const bb = ref(null)
 
+const avatarError = ref(false);
+
 const weekdays = ["Mon","Tue", "Wed"];
 
-// watch(() => login.user?.id, async (id) => {
-//   if (id) {
-//     await client.orderList(id)
-//     console.log("IsBookings - " + client.isBookings)
-//     console.log("AUTH " + login.isAuthenticated)
-//     console.log('Client orders count is', count.value)
-//   }
-// }, { immediate: true })
-
-/* watch(
-  async () => login.isAuthenticated,
-  async (isAuth) => {
-    if (isAuth) {
-      const user = login.user;
-
-    userStore.fetchMe();
-
-    userID.value = user.id;
-    username.value = user.username;
-    await client.orderList(user.id);
-    await handleProvider.getProState(user.id);
-    await notificationStore.handleNotifications(user.id);
-    conversationStore.initSocket();
-    await conversationStore.getConversations();
-    }
-  }
-) */
-
 let bootstrappedForUserId = null;
+
+watch(() => profile?.avatar?.imageUrl, () => {
+  avatarError.value = false
+})
 
 watch(
   () => login.isAuthenticated,
@@ -385,10 +367,13 @@ watch(
     // If these are independent, run in parallel
     await Promise.all([
       userStore.fetchMe(),
+      
       client.orderList(u.id),
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
     ]);
+
+    profileLoaded.value = true;
 
     if (login.isAuthenticated) {
       conversationStore.initSocket();
@@ -455,7 +440,7 @@ const listen = async() => {
   })
   socket.on('client use offer', async(bookingID, offer) => {
     console.log("I got the offer - " + offer.name);
-    const target = await providerService.getProvByProvId(offer.provider);
+    const target = await providerService.getProvByProvId(offer.provider.id);
     if (target) offer.provider = target;
     
     await client.getProviderOffer(bookingID, offer);
@@ -470,9 +455,11 @@ const listen = async() => {
     if (!request) return;
     handleProvider.upsertBooking(request);
   })
-  socket.on('handle client request confirm', async ({receiver, bId, _offer}) => {
+  socket.on('handle client request confirm', async ({receiver, bId, _providerId, _offer}) => {
     console.log("XXXXX " + bId);
-    await client.handleConfirmedOffer(bId, _offer);
+
+
+    await client.handleConfirmedOffer(bId, _providerId, _offer);
   })
   socket.on('handle client del map booking', async (receiver, bookingId, note) => {
     console.log("Del map booking " + bookingId);
@@ -545,6 +532,20 @@ const listen = async() => {
       }
     }
   })
+
+  /* socket.on('handle-pro-confirm-client', (providerId) => {
+    console.log("Provider id ---- ", providerId);
+    
+  }) */
+
+  socket.on('handle-booking-done', (bookingId) => {
+    console.log("Got booking done - " + bookingId);
+  })
+
+  socket.on('handle-archieve-booking', (bookingId) => {
+    console.log("Got booking id to archieve - " + bookingId);
+  })
+  
 
   /* socket.on('conversation-upsert', (newConvo) => {
     console.log("Peaks siin upsertima convo-")
@@ -699,7 +700,7 @@ html, body { height: 100%; }            /* ensures the body can size to the view
   /* text-align: center; */
 }
 .app-content {
-  padding-top: 56px; /* navbar height */
+  padding-top: 33px; /* navbar height */
 }
 .dd-item {
   color: #ddd !important;

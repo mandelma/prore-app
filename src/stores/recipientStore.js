@@ -29,9 +29,9 @@ export const useClientStore = defineStore('client', () => {
 
     const isBookings = computed(() => !!count.value)
     const clientNewOffersAmount = computed(() => clientNewOffers.value.length);
-    const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed') || []);
-    const liveBookings = computed(() => bookings.value.filter(booking => booking.status !== 'confirmed') || []);
-    
+    const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed' || order.status === 'done') || []);
+    const liveBookings = computed(() => bookings.value.filter(booking => booking.status === 'active') || []);
+    const archievedBookings = computed(() => bookings.value.filter(item => item.status === 'archieved') || []);
     const confirmedOffer = 0
     const getBookingById = (id) => {
         const booking = bookings.value.find(b => b.id === id);
@@ -91,6 +91,7 @@ export const useClientStore = defineStore('client', () => {
     }
     const getProviderOffer = async(bId, offer) => {
         console.log("Added order to booking id - " + bId);
+        console.log("Offer in client store - ", offer)
         //await clientService.createOffer(offer);
         const index = bookings.value.findIndex(inx => inx.id === bId);
         const offeredBooking = bookings.value[index];
@@ -123,14 +124,21 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const confirmOffer = async (offer) => {
+        console.log("R STORE ", offer)
         const changedStatus = bookings.value.map(order => order.id === offer.bookingID ? {...order, status: 'confirmed'} : order);
         bookings.value = changedStatus;
+
+        console.log("__ Client store socket receiver " + offer.sender)
 
         socket.emit('client-handle-offer', offer.sender, offer.bookingID, offer.id);
     }
 
-    const handleConfirmedOffer = async (bookingId, _offer) => {
+    const handleConfirmedOffer = async (bookingId, _providerId, _offer) => {
        // const _Offer = await offerService.addOffer(newContent);
+        const provider = await  providerService.getProvByProvId(_providerId);
+        if (provider) {
+            _offer.provider = provider;
+        }
         const bookingsEdited = bookings.value.map(booking => booking.id === bookingId ? {...booking, status: 'confirmed', offer: _offer} : booking);
         bookings.value = bookingsEdited;
         
@@ -223,7 +231,7 @@ export const useClientStore = defineStore('client', () => {
         router.push('client-panel');
     }
 
-    const updateMain = async (bookingId, payload) => {
+    const updateClientMain = async (bookingId, payload) => {
         console.log("Booking id " + bookingId);
         //const photoIds = (payload?.photos || []).map(ph => ph.id).filter(Boolean);
         await clientService.updateMain(bookingId, payload);
@@ -243,6 +251,28 @@ export const useClientStore = defineStore('client', () => {
 
         //await uploadService.deleteImages(payload.removedPhotoIds);
 
+    }
+
+    const handleEditStatus = async (bookingId, new_status) => {
+        const status = await clientService.updateRecipientStatus(bookingId, { status: new_status });
+        if (status) {
+            const booking = bookings.value.find(booking => booking.id === bookingId);
+            if (booking) booking.status = new_status;
+        }
+    }
+
+    const handleGivenFeedback = async (bookingId, target, status) => {
+        console.log("Handled giving feedback " + bookingId + " target - " + target);
+
+        await handleEditStatus(bookingId, status);
+
+        socket.emit('archieve-booking', target, bookingId);
+
+        /* const ended = await clientService.updateRecipientStatus(bookingId, { status: 'done' });
+        if (ended) {
+            const booking = bookings.value.find(booking => booking.id === bookingId);
+            if (booking) booking.status = 'done';
+        } */
     }
 
     const testOffers = () =>{
@@ -294,7 +324,8 @@ export const useClientStore = defineStore('client', () => {
         ]
     }
 
-    return { createBooking, 
+    return { 
+        createBooking, 
         getProviderOffer, 
         readOffer, 
         getOfferById, 
@@ -308,11 +339,14 @@ export const useClientStore = defineStore('client', () => {
         removeConfirmedMapOffer,
         onRemovePublicBooking,
         localRemovePublicBooking,
-        updateMain,
+        updateClientMain,
+        handleEditStatus,
+        handleGivenFeedback,
         clientOffers, 
         clientNewOffers, 
         clientNewOffersAmount, 
         clientConfirmed,
+        archievedBookings,
         isBookings, 
         count, 
         isLoading, 

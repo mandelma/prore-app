@@ -18,7 +18,7 @@ const hs = (socket) => {
     // Provider created offer
     socket.on('client get offer', (addressee, clientID, offer) => {
             console.log("Offer to client " + offer.name);
-            socket.to(addressee).to(socket.userId).emit('client use offer', clientID, offer);
+            socket.to(addressee).emit('client use offer', clientID, offer);
     })
 
     socket.on('client-handle-offer', (sender, orderId, offerId) => {
@@ -33,10 +33,10 @@ const hs = (socket) => {
         socket.to(receiver).to(socket.userId).emit('handle client request', {bookingId});
     })
 
-    socket.on('on client request confirm', (receiver, bookingId, offer) => {
+    socket.on('on client request confirm', (receiver, bookingId, providerId, offer) => {
         console.log("TEST")
         console.log("Receiver id " + receiver + " ja booking id " + bookingId);
-        socket.to(receiver).to(socket.userId).emit('handle client request confirm', {receiver, bId: bookingId, _offer: offer})
+        socket.to(receiver).emit('handle client request confirm', {receiver, bId: bookingId, _providerId: providerId,  _offer: offer})
     })
 
     socket.on('del client map booking', (bookingId, receiver, note) => {
@@ -83,6 +83,29 @@ const hs = (socket) => {
         console.log("Chat test 1 " + message.text);
         socket.to('68f55189d68a61a40cf8dc36').to(socket.userId).emit("send-private-message", message);
 
+    })
+
+    socket.on('client-report', (receiverId, profession, distance) => {
+        console.log("Report receiver id - ", receiverId);
+        const report = `Etsitaan ammattilaista - ${profession} etäisyydeltä - ${distance}`;
+        socket.to(receiverId).to(socket.userId).emit('handle-client-report', report);
+    })
+
+
+    /* socket.on('pro-confirm-client', (receiver, providerId) => {
+        console.log("Receiver --- ", receiver);
+        socket.to(receiver).emit('handle-pro-confirm-client', providerId);
+    }) */
+
+    /* Archieve */
+    socket.on('booking-done', (bookingId, target) => {
+        console.log("DONE - ", target);
+        socket.to(target).emit('handle-booking-done', bookingId);
+    })
+
+    socket.on('archieve-booking', (target, bookingId) => {
+        console.log("Target " + target);
+        socket.to(target).to(socket.userId).emit('handle-archieve-booking', bookingId);
     })
 }
 

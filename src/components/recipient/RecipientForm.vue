@@ -652,7 +652,7 @@ const createClient = async() => {
       professional: form.profession.label,
       isIncludeOffers: true,
       description: form.explanation,
-      status: "notSeen",
+      status: "active",
       //imageId: this.imgId ? this.imgId : []
     }
 

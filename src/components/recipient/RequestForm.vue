@@ -13,7 +13,8 @@
           </div>
           <div class="field-wrapper">
               <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
-              <p>{{ props.date }}</p>
+              <p v-if="props.date">{{ props.date }}</p>
+              <p v-else style="color: red;">Tehtävän päivämäärä ja kellonaika on pakollinen</p>
           </div>
           <div class="field-wrapper">
               <MDBInput
@@ -43,8 +44,8 @@
               </div>
 
           </div>
-          
-          <MDBBtn color="primary" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
+          <!-- Send booking if date is entered -->
+          <MDBBtn color="primary" :disabled="!props.date" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
         </form>
         
     </MDBContainer>

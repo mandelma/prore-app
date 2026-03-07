@@ -36,6 +36,7 @@ router.get('/user/:id', async (req, res) => {
         .populate('photos')
         .populate('offers')
         .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}})
+        .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference'}}})
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'reference'}}}).exec();
 
 
@@ -48,6 +49,7 @@ router.get('/booking/:id', async (req, res) => {
         //.populate('image')
         .populate('user')
         .populate('ordered')
+        
         .populate('photos')
         .populate({path: 'ordered', populate: {path: 'user'}})
         .populate('offers')
@@ -417,20 +419,42 @@ router.put('/:id/editBookingAddress', async (req, res) => {
     }
 })
 // Edit booking status
+
 router.put('/:id', async (req, res) => {
+    try {
+        console.log("PUT /recipients/:id", req.params.id, req.body);
+
+        const updated = await Recipient.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true, runValidators: true }
+        );
+
+        if (!updated) return res.status(404).json({ error: "Recipient not found" });
+
+        return res.status(200).json(updated);
+    } catch (err) {
+        console.log("Error:", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+
+
+/* router.put('/:id', async (req, res) => {
     const body = req.body
     const params = req.params;
-
+    console.log("Status: ", body)
     try {
         const updated = await Recipient.findByIdAndUpdate(
             params.id, body, { new: true }
         )
 
-        res.status(200).send(updated)     //.json(updated.toJSON())
+        res.status(200).send(updated)
     } catch (err) {
         console.log('Error: ', err)
     }
-})
+}) */
 
 // Delete booking
 router.delete('/:id', async (req, res) => {

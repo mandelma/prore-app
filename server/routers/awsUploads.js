@@ -18,6 +18,91 @@ uploadRouter.get('/images/:userId', async (req, res) => {
     res.json(images);
 });
 
+uploadRouter.post('/upload-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const userId = req.params.userID;
+    try {
+        console.log("User id " + userId);
+        const user = await User.findById(userId);
+
+        const items = user.avatar = {
+            isImage: true,
+            key: req.file.key,
+            imageUrl: req.file.location
+        };
+        await user.save();
+        console.log("User items - " + items);
+
+        res.json({ message: 'Image uploaded successfully', key: req.file.key, imageUrl: req.file.location });
+    } catch (err) {
+        console.log("Error: " + err.message);
+    }
+});
+
+uploadRouter.put('/update-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
+    const userId = req.params.userID;
+    const oldKey = req.body.oldKey;
+    if (!oldKey) return res.status(400).json({ error: "Missing oldKey" });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    
+    try {
+        console.log("User id " + userId);
+        // Delete old image
+        const deleteCommand = new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: oldKey,
+        });
+        await s3.send(deleteCommand);
+
+        console.log("HHHHH " + oldKey);
+        
+        const newUserAvatar = {
+            isImage: true,
+            key: req.file.key,
+            imageUrl: req.file.location
+        }
+        
+        await User.findByIdAndUpdate(
+            userId, { avatar: newUserAvatar }, { new: true }
+        )
+
+        res.json({ message: 'Avatar image updated', key: req.file.key, imageUrl: req.file.location });
+    } catch (error) {
+        res.status(500).json({ error: 'Error updating image', details: error.message });
+    }
+});
+
+// 📌 Delete Avatar Image
+uploadRouter.put('/delete-avatar/:userID', async (req, res) => {
+    const userId = req.params.userID;
+    const key = req.body.key
+
+    if (!key) return res.status(400).json({ error: "Missing key" });
+    console.log("Deleting avatar key: " + req.params.key);
+    try {
+        const command = new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: key,
+        });
+
+        await User.findByIdAndUpdate(
+            userId,
+            { avatar: { isImage: false, name: "avatar.png" } },
+
+            { new: true }
+        )
+
+        //await Upload.findOneAndDelete({ _id: id });
+        res.json({ message: "User avatar is replased!" });
+
+        await s3.send(command);
+
+        //res.json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting avatar', details: error.message });
+    }
+});
+
 // upload chat images (multiple)
 uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, res) => {
     if (!req.files || req.files.length === 0) {
@@ -350,99 +435,6 @@ uploadRouter.put('/update_pro/:id', awsProUpload.single('file'), async (req, res
 
 
 
-uploadRouter.post('/upload-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const userId = req.params.userID;
-    try {
-        console.log("User id " + userId);
-        const user = await User.findById(userId);
 
-        const items = user.avatar = {
-            isImage: true,
-            key: req.file.key,
-            imageUrl: req.file.location
-        };
-        await user.save();
-        console.log("User items - " + items);
-        // const newImage = new Upload({
-        //     imageUrl: req.file.location,
-        //     key: req.file.key, // Store file key for deletion
-        // });
-        // await newImage.save();
-
-        res.json({ message: 'Image uploaded successfully',  key: req.file.key, imageUrl: req.file.location });
-    } catch (err) {
-        console.log("Error: " + err.message);
-    }
-});
-
-uploadRouter.put('/update-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const userId = req.params.userID;
-    const key = req.params[0];
-    try {
-        console.log("User id " + userId);
-        // Delete old image
-        const deleteCommand = new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: key,
-        });
-        await s3.send(deleteCommand);
-
-        console.log("HHHHH " + key + " --- " + req.file.key);
-        // console.log("ID " + id);
-        //const user = await User.findById(userId);
-        const newUserAvatar = {
-            isImage: true,
-            key: req.file.key,
-            imageUrl: req.file.location
-        }
-        // user.avatar = newUserAvatar;
-        // await user.save();
-        await User.findByIdAndUpdate(
-            userId, {avatar: newUserAvatar}, {new: true}
-        )
-
-        // Update DB record with new image URL and key
-        // const updatedAvatar = await Upload.findOneAndUpdate(
-        //     { _id: id },
-        //     { imageUrl: req.file.location, key: req.file.key },
-        //     { new: true }
-        // );
-
-        res.json({ message: 'Avatar image updated', key: req.file.key,  imageUrl: req.file.location });
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating image', details: error.message });
-    }
-});
-
-// 📌 Delete Avatar Image
-uploadRouter.put('/delete-avatar/:userID', async (req, res) => {
-    const userId = req.params.userID;
-    const key = req.params[0]
-    console.log("Deleting avatar key: " + req.params.key);
-    try {
-        const command = new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: key,
-        });
-
-        await User.findByIdAndUpdate(
-            userId,
-            {avatar: {isImage: false, key: "000", name: "avatar.png"}},
-
-            {new: true}
-        )
-
-        //await Upload.findOneAndDelete({ _id: id });
-        res.json({message: "User avatar is replased!"});
-
-        await s3.send(command);
-
-        //res.json({ message: 'Image deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error deleting avatar', details: error.message });
-    }
-});
 
 module.exports = uploadRouter;

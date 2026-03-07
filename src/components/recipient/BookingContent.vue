@@ -10,7 +10,7 @@
 
       <!-- Edit toggle -->
       <button
-        class="btn btn--ghost"
+        class="btn btn-primary"
         type="button"
         @click="isEditing = !isEditing"
         :aria-pressed="isEditing ? 'true' : 'false'"
@@ -64,22 +64,6 @@
           >
             <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
 
-            <!-- <figcaption class="photo-actions">
-              <button class="icon-btn" type="button" @click="viewPhoto(photo)" aria-label="View">
-                👁️
-              </button>
-              <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="Replace">
-                ♻️
-              </button>
-              <button
-                class="icon-btn icon-btn--danger"
-                type="button"
-                @click="removeDraftPhoto(idx)"
-                aria-label="Delete"
-              >
-                🗑️
-              </button>
-            </figcaption> -->
           </figure>
         </div>
 
@@ -190,9 +174,6 @@
             >
               <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
               <figcaption class="photo-actions">
-                <button class="icon-btn" type="button" @click="viewPhoto(photo)" aria-label="View">
-                  👁️
-                </button>
                 <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="Replace">
                   ♻️
                 </button>
@@ -210,11 +191,11 @@
         </div>
 
         <div class="actions">
-          <button class="btn btn--ghost" type="button" @click="cancelEdits">
+          <button class="btn btn-danger" type="button" @click="cancelEdits">
             Peruuta
           </button>
 
-          <button class="btn btn--primary" type="submit" :disabled="!isDirty">
+          <button class="btn btn-success" type="submit" :disabled="!isDirty">
             Tallenna muutokset
           </button>
         </div>
@@ -285,6 +266,20 @@ function createDraftFromBookingx() {
   };
 }
 
+const normalizeForCompare = (img) => ({
+  id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
+  url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
+  // treat local uploads as "NEW"
+  isNew: !!img.file || (!!img.previewUrl && !img.imageUrl),
+});
+
+const signature = (arr) =>
+  (arr || [])
+    .map(normalizeForCompare)
+    .map(x => `${x.isNew ? "NEW" : x.id ?? ""}|${x.url ?? ""}`)
+    .join("||");
+
+
 // Dirty check (simple + practical)
 const isDirty = computed(() => {
   if (!draft.value) return false;
@@ -293,8 +288,11 @@ const isDirty = computed(() => {
   const sameDate = (draft.value.date || "") === (props.booking.date || "");
 
   // If you have stable ids for photos, compare ids instead of full JSON.
-  const a = JSON.stringify(draft.value.photos || []);
-  const b = JSON.stringify(props.booking.photos || []);
+  /* const a = JSON.stringify(draft.value.photos || []);
+  const b = JSON.stringify(props.booking.photos || []); */
+
+  const a = signature(draft.value.photos);
+  const b = signature(props.booking.photos);
 
   return !(sameDesc && sameDate && a === b);
 });
@@ -594,7 +592,7 @@ async function saveBookingEdits() {
 
     const payload = buildPayload(); // should allow photos: []
     console.log("Booking payload - ", payload)
-    await clientStore.updateMain(props.booking.id, payload);
+    await clientStore.updateClientMain(props.booking.id, payload);
 
     const main = clientStore.bookings.find(b => b.id === props.booking.id);
     if (main) {
@@ -1098,6 +1096,12 @@ onBeforeUnmount(() => {
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 13px;
 }
 
 /* Responsive */

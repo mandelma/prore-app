@@ -8,29 +8,42 @@
   <MDBContainer v-else fluid class="py-3 provider-admin">
     <!-- Top header (sticky on mobile) -->
 
-    
-
-    <div class="topbar d-flex align-items-center justify-content-between gap-2 mb-3">
-      <div class="min-w-0">
-        <div class="d-flex align-items-center gap-2 min-w-0">
-          <h5 class="mb-0 text-wrap text-start">{{ provider.pName || "Provider" }}</h5>
-          
+    <div class="header-stack">
+      <div class="topbar d-flex align-items-center justify-content-between gap-2">
+        <div class="min-w-0">
+          <div class="d-flex align-items-center gap-2 min-w-0">
+            <h5 class="mb-0 text-wrap text-start">{{ provider.pName || "Provider" }}</h5>
+            
+          </div>
+          <small class="text-muted d-block text-start">
+            <!-- Need to add provider database updatedAt field -->
+            • Päivitetty: {{ formatDateTime(provider.updatedAt) }}
+          </small>
         </div>
-        <small class="text-muted d-block text-start">
-          <!-- Need to add provider database updatedAt field -->
-          • Päivitetty: {{ formatDateTime(provider.updatedAt) }}
-        </small>
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          <MDBBadge v-if="provider.status" :color="provider.status === 'Saatavilla' ? 'success' : 'warning'">
+            {{ provider.status }}
+          </MDBBadge>
+        </div>
       </div>
-      <div class="d-flex align-items-center gap-2 flex-shrink-0">
-        <MDBBadge v-if="provider.status" :color="provider.status === 'Saatavilla' ? 'success' : 'warning'">
-          {{ provider.status }}
-        </MDBBadge>
+      <!-- Client action on map -->
+       
+      <div class="ticker">
+        <div class="ticker__row" :key="tickerKey">
+          <!-- <span>Your text row goes here — maybe include separators • • •</span> -->
+           <span>{{ clientReport }}</span>
+        </div>
+        
+         <div class="ticker-btn" >
+          
+         </div>
+        
+        
       </div>
     </div>
 
-
     <!-- Quick stats -->
-    <MDBRow class="g-2 mb-3">
+    <MDBRow class="g-2 mb-3 page-content">
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
@@ -50,8 +63,10 @@
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Valmis tehtävät</div>
-            <div class="fs-5 fw-semibold">{{ billing.openInvoices }}</div>
+            <div class="text-muted small">Valmis asiakkaat</div>
+            <MDBBtn color="secondary"><span style="color: greenyellow;">7</span></MDBBtn>
+            
+      
           </MDBCardBody>
         </MDBCard>
       </MDBCol>
@@ -63,23 +78,23 @@
              <div>
 
               <div
-                class="fs-5 fw-semibold"
+                class="fs-5"
                 v-if="credit <= 0"
               >
-                <p>Käyttöaika on päättynyt!</p>
+                <p class="small">Käyttöaika on päättynyt!</p>
                 <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa aikaa!</p>
               </div>
               <div v-else-if="credit <= 3 &&
                 credit > 0">
-                <p>{{ credit }} päivää</p>
+                <p class="small">{{ credit }} päivää</p>
                 <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa lisää aikaa!</p>
               </div>
               <div v-else>
-                <div v-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() === 'NaN'" class="spinner-border" role="status">
+                <!-- <div v-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() === 'NaN'" class="spinner-border" role="status">
                   <span class="visually-hidden">Loading...</span>
-                </div>
-                <div v-else>
-                  <p>{{ credit }} päivää</p>
+                </div> -->
+                <div>
+                  <p class="small">{{ credit }} päivää</p>
                 </div>
               </div>
             </div>
@@ -87,6 +102,25 @@
         </MDBCard>
       </MDBCol>
     </MDBRow>
+    
+    
+    <div style="display: flex; gap: 7px; margin-bottom: 17px;">
+      <div style="flex: 1;">
+        <p class="text-muted small btn-desc">Jotain....</p>
+        <MDBBtn color="dark" block @click="openReferences">Referenssit</MDBBtn>
+      </div>
+      <div style="flex: 1;">
+        <p class="text-muted small btn-desc" >Saatu palaute</p>
+        <MDBBtn color="dark" block @click="showFeedback">Palaute</MDBBtn>
+      </div>
+      <div style="flex: 1;">
+        <p class="text-muted small btn-desc">Asiakkaat kartalla</p>
+        <MDBBtn color="dark" block  @click="seeClients"><span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp;<img class="proMap" :src="pro_map" alt="from_map" /><MDBIcon></MDBIcon></MDBBtn>
+      </div>
+      
+    </div>
+      
+    
     <!-- Panel info {{ isPanelInfoEditSection }} -->
     <MDBRow class="g-3">
       <!-- Provider info (editable rows) -->
@@ -361,12 +395,7 @@
           <MDBCol class="extras-col" lg="6">
             <MDBCard class="h-100">
               <MDBCardBody>
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Referenssit</h6>
-                  <MDBBtn size="sm" color="primary" @click="addAlert">
-                    <MDBIcon icon="plus" class="me-1" /> Lisää kuva
-                  </MDBBtn>
-                </div>
+                
                 <div>
                   <pro-gallery :images="reference"/>
                 </div>
@@ -452,19 +481,25 @@ import Stars from "../Stars.vue";
 import { loadGoogleMaps } from "../controllers/loadGoogleMap";
 import { storeToRefs } from "pinia";
 import { useProStore } from "@/stores/providerStore";
-
+import map_image from '@/assets/map.gif'
 import ToastHandler from "../helpers/ToastHandler.vue";
 import Calendar from "../Calendar.vue";
 //import ClientOffer from "./ClientOffer.vue";
 import ClientOffersList from "./ClientOffersList.vue";
 import providerService from '../../service/providers'
+import socket from "@/socket";
 
 const providerStore = useProStore();
 const router = useRouter();
 const { incomingOffers, proCalendarEvents, reference } = storeToRefs(providerStore);
 
+const referenceToShow = computed(() => reference.value);
+
+const appeared = ref("Asiakas")
 const credit = computed(() => providerStore.proCredit);
 const provider = computed(() => providerStore.provider);
+
+const pro_map = map_image;
 
 const profession = ref("");
 const professions = professionList;
@@ -487,7 +522,7 @@ const pmForm = reactive({
 const pmError = reactive({});
 
 const mapError = ref(false);
-
+const isMainPanel = ref(true);
 
 
 // Local editable draft (always an object so inputs never crash)
@@ -502,6 +537,8 @@ const isCalendar = ref(false);
 const field = ref("");
 
 const clientOpen = ref(false);
+
+const clientReport = ref('');
 
 //const clients = ref([]);
 const clientQuery = ref("");
@@ -561,11 +598,16 @@ function markProviderDirty() {
   providerDirty.value = true;
 }
 
+const tickerKey = ref(0);
 
+function onClientReport(report) {
+  clientReport.value = String(report);
+  tickerKey.value++; // force restart animation
+}
 
 onMounted(() => {
-  console.log("Clients -- ", clients.value)
-  console.log("Confirmed clients - ", confirmedClients);
+  socket.off("handle-client-report", onClientReport);
+  socket.on("handle-client-report", onClientReport);
 })
 
 function onPlaceSelected(p) {
@@ -576,6 +618,28 @@ function onPlaceSelected(p) {
   // if you want to store it directly to your draft provider
   draftProvider.address = p.address
   markDirty("provider")
+}
+
+const showFeedback = () => {
+  router.push('/feedback');
+}
+
+const persistableImages = (arr) =>
+  (arr || []).map(img => ({
+    _id: img._id ?? img.imageId ?? null,
+    imageUrl: img.imageUrl ?? null,
+    key: img.key ?? null,
+  })).filter(x => x._id || x.imageUrl);
+
+const openReferences = () => {
+  //const imgs = reference.value ?? [];
+  //sessionStorage.setItem("referenceImages", JSON.stringify(persistableImages(imgs)));
+  router.push("/reference");
+}
+
+const seeClients = () => {
+  console.log("Display clients on map.");
+  router.push("/client-around");
 }
 
 async function onProfessionPicked (val) {
@@ -976,11 +1040,11 @@ function openBilling() {
   notify("Billing", "Open billing page (wire to your router).");
 }
 
-function addAlert() {
+/* function addAlert() {
   const id = `t_${Math.random().toString(16).slice(2)}`;
   alerts.value = [{ id, title: "New task", detail: "Follow up with provider about missing docs." }, ...alerts.value];
   notify("Added", "Task created.");
-}
+} */
 
 function completeAlert(t) {
   alerts.value = alerts.value.filter((x) => x.id !== t.id);
@@ -1137,13 +1201,86 @@ function sleep(ms) {
   max-width: 1200px;
 }
 
-.topbar {
+/* .topbar {
   position: sticky;
   top: 63px;
   z-index: 10;
   background: rgba(73, 67, 67, 0.92);
   backdrop-filter: blur(6px);
   padding: 0.5rem 0.50rem;
+} */
+
+:root {
+  --stack-top: 63px;     /* where it should sit from top */
+  --topbar-h: 60px;      /* adjust to your real height */
+  --ticker-h: 36px;
+}
+
+/* pinned container */
+.header-stack {
+  position: fixed;
+  top: 60px /*var(--stack-top);*/;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* topbar inside pinned container */
+.topbar {
+  position: relative; /* NOT sticky */
+  height: var(--topbar-h);
+  background: rgba(73, 67, 67, 0.92);
+  backdrop-filter: blur(6px);
+  padding: 0.5rem 0.5rem;
+  margin: 0;          /* 👈 important */
+}
+
+/* ticker under it */
+.ticker {
+  position: relative;
+  height: var(--ticker-h);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  background: rgba(36, 31, 31, 0.92);
+  backdrop-filter: blur(6px);
+}
+
+.ticker-btn{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;                /* above the sliding text */
+  display: flex;
+  align-items: center;
+}
+
+/* push the rest of the page below the fixed stack */
+.page-content {
+  padding-top: 73px;
+}
+
+/* slide once + disappear */
+.ticker__row {
+  white-space: nowrap;
+  will-change: transform, opacity;
+  animation: slide 12s linear forwards;
+}
+
+@keyframes slide {
+  0%   { transform: translateX(-100%);  }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(120vw); opacity: 0; visibility: hidden; }
+}
+
+.proMap {
+  width: 20px;
+  cursor: pointer;
 }
 
 .no-edit-panel {
@@ -1165,8 +1302,17 @@ function sleep(ms) {
   min-width: 180px;
 }
 
+@media (max-width: 500px) {
+  .map-client-text {
+    display: none;
+  }
+  .btn-desc {
+    font-size: 9px;
+  }
+}
+
 /* Stack the two "extras" columns earlier than lg */
-@media (max-width: 1200px) { /* choose your pixel */
+@media (max-width: 1250px) { /* choose your pixel */
   .extras-row > .extras-col {
     flex: 0 0 100%;
     max-width: 100%;
@@ -1245,4 +1391,30 @@ function sleep(ms) {
 .pac-container {
   z-index: 99999 !important;
 }
+
+/* Client actions*/
+/* .ticker {
+  position: fixed;          
+  top: 100px;                
+  left: 0;
+  width: 100%;
+  height: 60px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+
+  z-index: 9999;            
+}
+
+.ticker__row {
+  white-space: nowrap;
+  will-change: transform;
+  animation: slide 12s linear forwards;
+}
+
+@keyframes slide {
+  from { transform: translateX(-100%); } 
+  to   { transform: translateX(120vw); } 
+} */
 </style>

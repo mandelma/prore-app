@@ -36,6 +36,7 @@ export const useProStore = defineStore("pro", () => {
     
     const proError = ref("" || null)
     const addOfferError = ref("" || null);
+    const referenceNavImages = ref([]);
 
     const isUserPro = computed(() => !!provider.value);
     const incomingOffersCount = computed(() => incomingOffers.value.length)
@@ -76,7 +77,7 @@ export const useProStore = defineStore("pro", () => {
 
                 proCalendarEvents.value = incoming_offers_list.filter(e => e.status === 'confirmed');
 
-                const offersToDisplay = incoming_offers_list.filter(ol => ol.status !== 'confirmed');
+                const offersToDisplay = incoming_offers_list.filter(ol => ol.status === 'active');
 
                 incomingOffers.value = offersToDisplay.sort((a, b) => b.created_ms - a.created_ms);
 
@@ -167,6 +168,11 @@ export const useProStore = defineStore("pro", () => {
         }
     }
 
+    const handleRemoveDisabledBooking = (id) => {
+        const renewed = incomingOffers.value.filter(iov => iov.id !== id);
+        incomingOffers.value = renewed;
+    }
+
     const removeLocalBooking = async (id) => {
         console.log("Pro id " + providerId.value);
         console.log("Booking id " + id);
@@ -200,13 +206,17 @@ export const useProStore = defineStore("pro", () => {
         if (!incomingOffers.value.length) router.push('/');
         
     }
+    // Confirmed by client multi offer
     const handleConfirmed = (bookingId) => {
+        const confirmedOffer = incomingOffers.value.find(i => i.id === bookingId);
         const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
         incomingOffers.value = pendingOffers;
+        confirmedOffer.status = 'confirmed';
+        proCalendarEvents.value = proCalendarEvents.value.concat(confirmedOffer);
         //incomingOffersCount.value = incomingOffers.value.length;
     }
     // Confirming client offer sended from map
-    const onClientBooking = async(bookingId, offer, myself, clientId, notes) => {
+    const onClientBooking = async(bookingId, offer, myself, clientId, providerId, notes) => {
         console.log("CLIENT id is " + bookingId)
 
         const offerId = Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -222,7 +232,7 @@ export const useProStore = defineStore("pro", () => {
 
         proCalendarEvents.value = proCalendarEvents.value.concat(confirmed);
 
-        socket.emit('on client request confirm', clientId, bookingId, offer);
+        socket.emit('on client request confirm', clientId, bookingId, providerId, offer);
 
         
         if (incomingOffersCount.value < 1) {
@@ -305,7 +315,17 @@ export const useProStore = defineStore("pro", () => {
         }) */
     }
 
-    
+    const updateReference = async (payload) => {
+        const proId = providerId?.value;
+        console.log("Provider id value here: " + proId);
+        console.log("Reference payload: ", payload);
+
+        const referenceHandled = await providerService.handleReference(proId, payload);
+
+        
+        return referenceHandled;
+    }
+
 
     const onDelete = async (eventId) => {
         console.log("Del event id is: " + eventId);
@@ -332,11 +352,14 @@ export const useProStore = defineStore("pro", () => {
         onDelete,
         handleConfirmed,
         onClientBooking,
+        handleRemoveDisabledBooking,
+        updateReference,
         providerId,
         isUserPro,
         provider,
         proCredit,
         reference,
+        referenceNavImages,
         isIncomingOffers,
         newOffersAmount,
         incomingOffers,

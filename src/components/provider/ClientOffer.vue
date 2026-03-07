@@ -58,8 +58,8 @@
             {{client.description}}
           </td>
         </tr>
-        <tr>
-          <td v-if="client.photos.length">
+        <tr v-if="client.photos.length">
+          <td>
             Kuvat tehtävästä:
           </td>
           <td>
@@ -567,6 +567,7 @@ const confirmClientBooking = async () => {
   const clientContent = `${provider.value.pName} on vahvistanut tilauksen - "${client.value.header}". Tarkemmat tiedot kalenterissa!`;
   const proContent = `Tilaus "${client.value.header}" on vahvistettu. Tiedot kalenterissa!`;
   
+  const status = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
 
   const offer = {
     bookingID: client.value.id,
@@ -580,8 +581,11 @@ const confirmClientBooking = async () => {
     price: offerPrice.value,
     description: offerAbout.value,
     place: offerPlace.value,
-    provider: providerId.value
+    //provider: providerId.value
+    provider: provider.value
   }    
+
+  socket.emit('pro-confirm-client', receiver, providerId.value);
 
   const notificationForClient = {
       bookingId: bookingId,
@@ -623,7 +627,7 @@ const confirmClientBooking = async () => {
 
     emit('just-test')
 
-    await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, notes);
+    await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, providerId.value, notes);
 
     console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
 
@@ -783,6 +787,7 @@ const rejectFormBooking = async () => {
     transform: rotate(360deg);
   }
 }
+
 
 /* Popconfirm button color */
 :deep(.pc-trigger-danger.btn-primary),

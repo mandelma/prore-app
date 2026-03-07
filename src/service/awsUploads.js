@@ -34,13 +34,13 @@ const uploadAvatarImage = async (id,avatarImage) => {
     return avatar_img.data;
 }
 
-const editAvatarImage = async (userId, key, newAvatar) => {
-    const updatedAvatar = await axios.put(`${baseUrl}/update-avatar/${userId}/${key}`, newAvatar);
+const editAvatarImage = async (userId, newAvatar) => {
+    const updatedAvatar = await axios.put(`${baseUrl}/update-avatar/${userId}`, newAvatar);
     return updatedAvatar.data;
 }
 
 const deleteAvatar = async (userId, key) => {
-    const remove_avatar = await axios.put(`${baseUrl}/delete-avatar/${userId}/${key}`);
+    const remove_avatar = await axios.put(`${baseUrl}/delete-avatar/${userId}`, key);
     return remove_avatar.data;
 }
 

@@ -1,10 +1,8 @@
 <template>
  <div style="text-align: center;">
    <MDBContainer>
-
      <div class="center-page">
        <main class="page">
-<!--         class="logo-hero"-->
          <div class="logo-hero">
            <img class="logo-hero__img"
                 style="border-radius: 100%;"
@@ -23,17 +21,11 @@
              <MDBIcon></MDBIcon>
              TARJOAN PALVELUA
            </button>
-
          </div>
        </main>
      </div>
-
-
-
    </MDBContainer>
 
-<!--   <MDBBtn color="success" @click="counter.increment">Suurenda +</MDBBtn>-->
-<!--   ++{{counter.count}}-->
  </div>
 </template>
 
@@ -132,51 +124,6 @@ html, body, #app { height: 100%; }
 }
 
 
-
-
-
-
-/*.logo-mask{*/
-/*  --logo-color:#49d2ff;           !* change tint here *!*/
-/*  width: min(70vw, 760px);*/
-/*  aspect-ratio: 1024 / 549;       !* keep the PNG’s ratio *!*/
-/*  margin: 18px auto 8px;*/
-/*  background:*/
-/*      radial-gradient(60% 60% at 50% 45%, rgba(73,210,255,.20), transparent 70%),*/
-/*      var(--logo-color);*/
-/*  !* use the PNG as an alpha mask *!*/
-/*  -webkit-mask: var(--logo) center / contain no-repeat;*/
-/*  mask: var(--logo) center / contain no-repeat;*/
-/*  filter:*/
-/*      drop-shadow(0 0 10px rgba(73,210,255,.45))*/
-/*      drop-shadow(0 0 28px rgba(0,180,200,.25));*/
-/*  position: relative;*/
-/*}*/
-/*.logo-mask::after{*/
-/*  content:""; position:absolute; inset:-10%;*/
-/*  background: radial-gradient(60% 50% at 50% 45%, rgba(0,0,0,.25), transparent 70%);*/
-/*  z-index:-1;*/
-/*}*/
-
-
-/*@keyframes neonPulse {*/
-/*  0%, 100% { filter: drop-shadow(0 0 8px rgba(73,210,255,.35)) drop-shadow(0 0 22px rgba(0,180,200,.20)); }*/
-/*  50%      { filter: drop-shadow(0 0 12px rgba(73,210,255,.55)) drop-shadow(0 0 28px rgba(0,180,200,.35)); }*/
-/*}*/
-/*.logo-hero__img,*/
-/*.logo-mask { animation: neonPulse 3.6s ease-in-out infinite; }*/
-/*@media (prefers-reduced-motion: reduce){*/
-/*  .logo-hero__img, .logo-mask { animation: none; }*/
-/*}*/
-
-
-
-
-
-
-
-
-
 :root{
   --bg:#0c1117;
   --cyan:#49d2ff;
@@ -190,8 +137,7 @@ html, body, #app { height: 100%; }
   max-width: clamp(280px, 70vw, 760px);
   margin: 18px auto 8px;
 }
-.logo-hero::before{
-  /* cyan glow halo */
+/* .logo-hero::beforexx{
   content:"";
   position:absolute; inset: -6% -8% -2%;
   background:
@@ -199,7 +145,18 @@ html, body, #app { height: 100%; }
       radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.25), transparent 50%);
   filter: blur(4px);
   pointer-events:none;
+} */
+
+.logo-hero::before{
+  content:"";
+  position:absolute; inset:-6% -8% -2%;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgba(255,112,73,.18) 0%, transparent 60%),
+    radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.22) 0%, transparent 60%);
+  /* filter: blur(4px);  <-- remove */
+  pointer-events:none;
 }
+
 .logo-hero::after{
   /* dark vignette so the logo pops on any section */
   content:"";
@@ -224,10 +181,10 @@ html, body, #app { height: 100%; }
 
 
 :root{
-  --c-cyan:  #49d2ff;   /* sobib ikoonide ja nuppude tooniga */
+  --c-cyan:  #49d2ff;
   --c-cyan2: #8eeaff;
   --c-teal:  #00b4c8;
-  --c-orange:#ff8a3d;   /* sinu aktsent */
+  --c-orange:#ff8a3d;
 }
 
 /* konteiner – hoiab pealkirja keskel */
@@ -335,18 +292,21 @@ html, body, #app { height: 100%; }
   --btn-glow: rgba(73,210,255,.35);
   display:flex; align-items:center; justify-content:center;
   gap:.6rem;
-  /*width:100%;*/
+  
   width: 290px;
-  /*padding:.95rem 1.2rem;*/
+  
   padding: 33px 13px;
   border-radius:999px;
   font: 800 14px/1 "Inter", system-ui, sans-serif;
   letter-spacing:.08em;
   text-transform:uppercase;
   color:var(--text);
+  /* background:
+      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
+      linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
   background:
       radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #177da2 0%, #0f5a73 100%);
+      linear-gradient(180deg, #7295a5 0%, #0f5a73 100%); 
   border:1px solid rgba(142,234,255,.35);
   box-shadow:
       0 8px 18px rgba(0,0,0,.35),
@@ -394,6 +354,7 @@ html, body, #app { height: 100%; }
 }
 
 
+
 @media (max-width: 630px) {
   .main-logo {
 
@@ -413,19 +374,19 @@ html, body, #app { height: 100%; }
   .btn-hero{
     --btn-glow: rgba(73,210,255,.35);
     display:flex; align-items:center; justify-content:center;
-    /*gap:.6rem;*/
+    
     width:100%;
-    /*padding:.95rem 1.2rem;*/
+    
     padding: 23px 13px;
     margin-top: 17px;
     border-radius:999px;
-    font: 800 14px/1 "Inter", system-ui, sans-serif;
+    font: 800 12px/1 "Inter", system-ui, sans-serif;
     letter-spacing:.08em;
     text-transform:uppercase;
     color:var(--text);
-    background:
+    /* background:
         radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-        linear-gradient(180deg, #177da2 0%, #0f5a73 100%);
+        linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
     border:1px solid rgba(142,234,255,.35);
     box-shadow:
         0 8px 18px rgba(0,0,0,.35),
@@ -452,7 +413,7 @@ html, body, #app { height: 100%; }
 
 /* Keep everything tight on very small screens */
 @media (max-width:360px){
-  .btn-hero{ padding:.9rem 1rem; font-weight: 800; }
+  .btn-hero{ padding:.9rem 1rem; font-weight: 700; }
 }
 
 /* Optional: tiny orange underline under title if you want to mirror PROKEIKKATORI */

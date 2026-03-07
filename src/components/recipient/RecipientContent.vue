@@ -1,20 +1,68 @@
 <template>
   <div class="page">
     <header class="page-header">
-      <h5 class="page-title">{{t('recipient_result_need_a_pro')}} - {{booking.professional[0]}}</h5>
+      
+      <h6 class="page-title">{{ booking.header}} - {{booking.professional[0]}}</h6>
       <div class="page-actions">
         <MDBBtnClose white @click="handleQuitContent" />
       </div>
     </header>
 
-    <div class="layout">
-      <!-- Left: Order -->
+    <!-- <div class="layout">
+     
       <section class="panel panel--order">
-        <!-- your description + date edit content here -->
+        
         <booking-content :booking="booking"/>
       </section>
 
-      <!-- Offers -->
+      
+      <section class="panel panel--offers">
+       
+         <div class="offers-list">
+          <div style="padding: 7px 0 7px 0;">
+            <h5>Tarjoukset</h5>
+          </div>
+          
+          <div
+            v-for="offer in booking.offers"
+            :key="offer.id"
+            class="offer-item"
+            :class="{ 'is-new': offer.isNewOffer }"
+            @click="getProviderInfo(offer.provider, offer)"
+          >
+            <div class="offer-main">
+              <p class="offer-name">{{offer.name}}</p>
+              
+              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}}</p>
+            </div>
+
+            <div class="offer-price">
+              {{offer.price}} eur
+            </div>
+            <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
+            
+          </div>
+          
+
+        </div>
+        <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
+        
+      </section>
+      <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
+        Peruuta tilaus
+      </div>
+    </div> -->
+  </div>
+
+
+  <MDBRow>
+    <MDBCol lg="8">
+      <booking-content :booking="booking"/>
+      <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
+        Peruuta tilaus
+      </div>
+    </MDBCol>
+    <MDBCol>
       <section class="panel panel--offers">
         <!-- your offers list here -->
          <div class="offers-list">
@@ -44,12 +92,14 @@
           
 
         </div>
-        <div v-if="!booking.offers.length">No offers yet</div>
+        <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
         
       </section>
+      
+    </MDBCol>
+  </MDBRow>
 
-    </div>
-  </div>
+
   <MDBModal
     tabindex="-1"
     class="modal-fade"
@@ -63,9 +113,12 @@
       <MDBModalTitle >{{ selectedProvider.name }}</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
+
       <div class="modal-pro-first">
+        <MDBIcon v-if="!selectedProvider?.provider?.user?.avatar?.isImage"  icon="user" class="icon" />
         <img
-          src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
+        v-else
+          :src="selectedProvider?.provider?.user?.avatar?.imageUrl"
           class="rounded-circle"
           height="53"
           alt=""
@@ -73,15 +126,21 @@
         />
 
         <div>
-          <stars :rating="3.5" />
+          <stars :rating="selectedProvider?.provider?.rating" />
+          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.provider?.ratersCount }} arvioijaa</p>
         </div>
       </div>
       
       <offer-content :offerId="offerId" />
     </MDBModalBody>
     <MDBModalFooter>
-      <MDBBtn color="danger" @click="openProModal = false"> Close </MDBBtn>
-      <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+      <div style="display: flex; justify-content: right;">
+        <div style="display: flex; gap: 7px;">
+          <MDBBtn color="danger" @click="openProModal = false"> Peruuta </MDBBtn>
+          <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+        </div>
+      </div>
+      
     </MDBModalFooter>
   </MDBModal>
 </template>
@@ -114,6 +173,7 @@ import Stars from '../Stars.vue';
 import BookingContent from './BookingContent.vue';
 import { useLoginStore } from '@/stores/login';
 import { useNotificationStore } from '@/stores/notificationStore';
+import clientService from '../../service/recipients'
 import '@/styles/theme.css';
 //import '@/styles/form.css';
 defineOptions({
@@ -154,7 +214,7 @@ const notificationStore = useNotificationStore();
 //const offerContent = clientStore.getOfferById(offerId);
 
 const getProviderInfo = async (proID, offer) => {
-  console.log("Provider info" + proID);
+  console.log("Provider info", proID);
   console.log("booking id - " + offer.bookingID);
 
   selectedProvider.value = offer;
@@ -167,25 +227,85 @@ const getProviderInfo = async (proID, offer) => {
   emit('updateOfferState', offer.bookingID, offer.id);
 }
 
+// How to handle server error, one way
+/* const orderProvider = async () => {
+  try {
+    console.log("[1] Offer id", offerId.value);
+
+    const offerContent = clientStore.getOfferById(offerId.value);
+    console.log("[2] offerContent", offerContent);
+    console.log("[3] selectedProvider", selectedProvider.value);
+
+    console.log("[4] OfferContent booking id", offerContent?.bookingID);
+
+    console.log("[5] read receiver...");
+    const receiver = selectedProvider.value.sender;
+
+    console.log("[6] find booking...");
+    const booking = bookings.value.find(b => b.id === selectedProvider.value.bookingID);
+    if (!booking) {
+      console.error("No booking found:", selectedProvider.value.bookingID);
+      return;
+    }
+
+    console.log("[7] build content...");
+    const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${booking.header}". Tarkemmat tiedot kalenterissa!`;
+
+    console.log("[8] calling updateRecipientStatus...");
+
+    let confirmed;
+    try {
+      confirmed = await clientService.updateRecipientStatus(
+        offerContent.bookingID,
+        { status: "confirmed" }
+      );
+      console.log("[9] Confirmed ---", confirmed);
+    } catch (e) {
+      console.error("[8x] updateRecipientStatus failed:", e);
+    
+      console.error("response:", e?.response?.status, e?.response?.data);
+      console.error("request:", e?.request);
+      console.error("message:", e?.message);
+      throw e; 
+    }
+
+    console.log("[9] Confirmed ---", confirmed);
+
+  } catch (err) {
+    console.error("orderProvider crashed:", err);
+  }
+}; */
+
 
 
 const orderProvider = async() => {
-  //const offerContent = clientStore.getOfferById(offerId);
+  console.log("Offer id " + offerId.value)
+  const offerContent = clientStore.getOfferById(offerId.value);
   console.log("Ordering the provider to the booking - " + selectedProvider.value.bookingID);
+  console.log("OfferContent booking id ", offerContent.bookingID)
 
   const receiver = selectedProvider.value.sender;
   const myId = user.value.id;
   const bookingId = selectedProvider.value.bookingID;
   const header = "Sopimus tehty!";
+
+
+  const booking = bookings.value.find(b => b.id === selectedProvider.value.bookingID);
+  if (!booking) {
+    console.error("No booking found for bookingID:", selectedProvider.value.bookingID, bookings.value);
+    return;
+  }
+
   const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
   const clientContent = `Tilaus on vahvistettu. Tiedot kalenterissa!`;
 
-  openProModal.value = false;
-  selectedProvider.value = false;
+  
+  //selectedProvider.value = false;
 
-  emit('canselRecipientContentConfirmed', selectedProvider.value.name);
+  
 
-  /* const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
+  const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
+  console.log("Confirmed --- ", confirmed)
   const includeOffer = await clientService.addConfirmedOffer(offerContent.bookingID, offerContent);
 
   if (!includeOffer) return;
@@ -202,9 +322,12 @@ const orderProvider = async() => {
 
   await clientStore.confirmOffer(offerContent);
   
-  await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification); */
-  handleQuitContent();
-  emit('quit-content-confirmed', selectedProvider.value.name);
+  await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
+  //handleQuitContent();
+  emit('canselRecipientContentConfirmed', selectedProvider.value.name);
+  //emit('quit-content-confirmed', selectedProvider.value.name);
+
+  openProModal.value = false;
 }
 
 const handleQuitContent = () => {
@@ -264,7 +387,8 @@ const removePublicBooking = async () => {
 /* Main layout */
 .layout{
   display: grid;
-  grid-template-columns: minmax(320px, 520px) minmax(0, 1fr);
+  /* grid-template-columns: minmax(320px, 520px) minmax(0, 1fr); */
+  grid-template-columns: minmax(700px, 350px) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
@@ -292,7 +416,7 @@ const removePublicBooking = async () => {
 /* center stays scrollable naturally */
 .panel--offers{
   min-width: 0;
-
+  
   position: relative;
   z-index: 0;
 }
@@ -325,25 +449,23 @@ const removePublicBooking = async () => {
 }
 
 /* Responsive */
-@media (max-width: 1100px){
+@media (max-width: 1200px){
   .layout{
-    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    grid-template-columns: minmax(550px, 380px) minmax(0, 1fr);
   }
 }
 
-@media (max-width: 860px){
+@media (max-width: 1000px){
   .layout{
     grid-template-columns: 1fr;
   }
   .panel--order{
     position: static;
+    
     margin: 0 -20px 0 -20px;
     max-height: none;
     overflow: visible;
 
-    /* max-height: calc(100vh - 24px);
-    display: flex;
-    flex-direction: column; */
   }
 }
 

@@ -6,20 +6,24 @@
       
       <div v-if="isMainPanel" class="client-map-panel">
         
-        <div style="display: flex; justify-content: right;">
-          <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
-            <i class="fas fa-expand-arrows-alt"></i>
-          </MDBIcon>
-          <div>
-            <MDBBtnClose
-                white
-                style=" padding: 10px;"
-                size="sm"
-                @click="$router.go(-1)"
-            />
-          </div>
+        <div style="display: flex; justify-content: space-between;">
+          <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">Päivitä</p>
+          <div style="display: flex; justify-content: right;">
+            <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
+              <i class="fas fa-expand-arrows-alt"></i>
+            </MDBIcon>
+            <div>
+              <MDBBtnClose
+                  white
+                  style=" padding: 10px;"
+                  size="sm"
+                  @click="$router.go(-1)"
+              />
+            </div>
 
+          </div>
         </div>
+        
 
         <div :class="{hideClientInput: !address && isAddress}" style="width: 100%;" class="field-wrapper ">
           <div  class="input-group">
@@ -130,22 +134,13 @@
       <MDBBtn
         v-else
         color="primary"
-        style="position: absolute; opacity: 0.8; top: 60px; left: 80%; z-index: 2;"
+        style="position: absolute; opacity: 0.8; top: 60px; left: auto; z-index: 2;"
         @click="isMainPanel = true"
       >
         Paneeli
       </MDBBtn>
       
     </div>
-
-    /* <div style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
-      <HandleToast 
-      v-model="toastModel"
-      :toast-name="toastState"
-      :icon-state="toastIcon"
-      :text="toastContent"
-    />
-    </div> */
     
 
     <div style="padding: 13px 0 20px 0;">
@@ -173,8 +168,10 @@
       >
         <MDBModalHeader class="modal-header-custom">
           <div style="display: flex; justify-content:space-between; align-items: center; gap: 23px;">
+            <MDBIcon v-if="!onProvider?.user?.avatar?.isImage"  icon="user" class="icon" />
             <img
-              src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
+              v-else
+              :src="onProvider?.user?.avatar?.imageUrl"
               class="rounded-circle"
               height="53"
               alt=""
@@ -230,6 +227,8 @@ import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
 import { storeToRefs } from 'pinia';
 import Stars from '../Stars.vue';
+import ProReferencePublic from './ProReferencePublic.vue';
+import socket from '@/socket';
 
 //import { useMapStore } from '@/stores/mapStore';
 //const location = useMapStore();
@@ -304,6 +303,10 @@ const rangeOptions = ref([
 ])
 
 let map;
+let lastMapState = {
+  zoom: null,
+  center: null,
+};
 
 const getCurrentPosition = async() => {
   return new Promise((resolve, reject) => {
@@ -329,7 +332,7 @@ const getCurrentPosition = async() => {
 
 }) */
 
-watch(isMapLoaded, (ready) => {
+/* watch(isMapLoaded, (ready) => {
   if (ready) {
     console.log("Ready? " + ready)
     watch(selectedRange, (newVal) => {
@@ -337,7 +340,18 @@ watch(isMapLoaded, (ready) => {
       showClientLocationOnTheMap(profession.value.label, newVal)
     }, { immediate: true })
   }
-})
+}) */
+
+watch(
+  [isMapLoaded, selectedRange, profession],
+  ([ready, range, prof]) => {
+    if (!ready) return
+    if (!range) return
+    if (!prof || !prof.label) return
+    showClientLocationOnTheMap(prof.label, range.value ?? range)
+  },
+  { immediate: true }
+)
 
 watch(isDateNow, (state) => {
   if (state) {
@@ -438,6 +452,26 @@ const handleMaps = async() => {
     mapsError.value = true;
   }
 }
+
+const saveMapState = () => {
+  if (!map) return;
+
+  lastMapState.zoom = map.getZoom();
+  lastMapState.center = {
+    lat: map.getCenter().lat(),
+    lng: map.getCenter().lng(),
+  };
+
+  console.log("Saved map state:", lastMapState);
+};
+
+const restoreMapState = () => {
+  if (!map || !lastMapState.zoom || !lastMapState.center) return;
+
+  map.setZoom(lastMapState.zoom);
+  map.setCenter(lastMapState.center);
+};
+
 const userCurrentLocation =  () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
@@ -463,13 +497,25 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
 
     // 3) Create the map only once, then add listeners
     //const map = new google.maps.Map(el, { center: {lat: 60.17, lng: 24.94}, zoom: 12 });
-    const map = new google.maps.Map(document.getElementById("map"), {
+    map = new google.maps.Map(document.getElementById("map"), {
       zoom: 13,
       center: new google.maps.LatLng(latitude, longitude),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       accuracy: 50,
 
     });
+
+    if (!map) {
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 13,
+        center: { lat: latitude, lng: longitude },
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+      });
+
+      google.maps.event.addListenerOnce(map, "tilesloaded", () => {
+        isMapLoaded.value = true;
+      });
+    }
 
     const spinner = document.getElementById("spinner");
 
@@ -508,7 +554,7 @@ const getAddressFrom = (lat, long) => {
 
           console.log(response.data.error_message)
         } else {
-          const map = new google.maps.Map(document.getElementById("map"), {
+          map = new google.maps.Map(document.getElementById("map"), {
             zoom: 13,
             center: new google.maps.LatLng(lat, long),
             mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -524,7 +570,12 @@ const getAddressFrom = (lat, long) => {
       })
 }
 
+const notifyProvidersAboutInterest = (provider, profession, pcDist) => {
+  console.log("Message to " + provider.user.firstName + " and dist: " + pcDist);
+  const userId = provider.user.id;
 
+  socket.emit('client-report', userId, profession, pcDist);
+}
 
 const distanceBtw = (originLat, originLng, destLat, destLng) => {
   var origin = new google.maps.LatLng(originLat, originLng);
@@ -534,6 +585,8 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 
 const otherUserLocations = async (providers, profession, dist) => {
   //const client = new Client({});
+
+  
   if (!window.google || !window.google.maps) {
     console.error('Google Maps not loaded yet')
     return
@@ -542,7 +595,7 @@ const otherUserLocations = async (providers, profession, dist) => {
   console.log("lat - " + myLat.value)
   let prev_infowindow = false;
 
-  let map = new google.maps.Map(document.getElementById("map"), {
+  map = new google.maps.Map(document.getElementById("map"), {
     zoom: 11,
     center: new google.maps.LatLng(myLat.value, myLng.value),
     mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -560,6 +613,8 @@ const otherUserLocations = async (providers, profession, dist) => {
   if (providers.length > 0) {
     //this.target = {};
 
+    
+
     for (let pos = 0; pos < providers.length; pos++) {
       console.log("-----Firma------- " + providers[pos].pName);
       
@@ -568,7 +623,8 @@ const otherUserLocations = async (providers, profession, dist) => {
       providers[pos].profession.forEach(prof => {
         if (prof === profession) {
 
-
+          const proClientDist = distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude);
+          notifyProvidersAboutInterest(providers[pos], profession, proClientDist);
 
           //his.providers.push(providers[pos])
           console.log("Pro " + prof)
@@ -583,6 +639,11 @@ const otherUserLocations = async (providers, profession, dist) => {
           if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
             count ++;
 
+            /* markers.forEach(m => m.setMap(null));
+            markers = []; */
+
+            console.log("PROVIDER - ", providers[pos]);
+
             let marker;
 
             const clientDate = parseDmyTime(dt.value);
@@ -592,13 +653,13 @@ const otherUserLocations = async (providers, profession, dist) => {
             let matching = false;
             
             // text: "Saatavilla!"
-            if (providers[pos].isAvailable24_7) {
+            if (providers[pos].status === 'Saatavilla') {
               marker = new google.maps.Marker({
                 position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
                 accuracy: 50,
                 map: map,
-                title: providers[pos].yritys,
-                icon: this.pinSymbol('seagreen', 'darkgreen'),
+                title: providers[pos].pName,
+                icon: pinSymbol('seagreen', 'darkgreen'),
                 label: { color: 'green',  fontWeight: 'bold', fontSize: '14px', }
               })
             } else {
@@ -673,11 +734,13 @@ const otherUserLocations = async (providers, profession, dist) => {
 
             let prev_infowindow = null;
             let starsApp = null;
+            let referenceApp = null;
 
             // ✅ add ONCE (outside marker click)
             infowindow.addListener("domready", () => {
 
               const mountEl = document.getElementById("stars-mount");
+              const mountRefEl = document.getElementById("reference-mount");
 
               // unmount previous (important when reopening)
               if (starsApp) {
@@ -685,9 +748,20 @@ const otherUserLocations = async (providers, profession, dist) => {
                 starsApp = null;
               }
 
+              if (referenceApp) {
+                referenceApp.unmount();
+                referenceApp = null;
+              }
+
               if (mountEl) {
-                starsApp = createApp(Stars, { rating: 4 }); // optional props
+                starsApp = createApp(Stars, { rating: providers[pos].rating }); // optional props
                 starsApp.mount(mountEl);
+              }
+
+              // Reference mount
+              if (mountRefEl) {
+                referenceApp = createApp(ProReferencePublic, { references: providers[pos].reference});
+                referenceApp.mount(mountRefEl);
               }
 
               document.getElementById("custom-close")?.addEventListener(
@@ -695,6 +769,10 @@ const otherUserLocations = async (providers, profession, dist) => {
                 () => {
                   starsApp?.unmount();
                   starsApp = null;
+
+                  referenceApp?.unmount();
+                  referenceApp = null;
+
                   infowindow.close();
                 },
                 { once: true }
@@ -730,6 +808,28 @@ const otherUserLocations = async (providers, profession, dist) => {
             marker.addListener("click", () => {
               const p = pos;
 
+              const hasImage =
+                !!providers[p]?.user?.avatar?.isImage;
+
+              const hasReferenceImages =
+                !!providers[p].reference?.imageUrl;
+
+              const avatarHtml = hasImage
+                ? `<img
+                    src="${providers[p].user.avatar.imageUrl}"
+                    class="rounded-circle"
+                    height="33"
+                    width="33"
+                    style="object-fit:cover;"
+                    alt=""
+                    loading="eager"
+                  /><div class="provider">${providers[p].pName}</div>`
+                : `<i class="far fa-user icon"></i>`;
+
+              /* const referenceHtml = hasReferenceImages
+                ? `
+                ` */
+
               if (prev_infowindow) prev_infowindow.close();
               prev_infowindow = infowindow;
 
@@ -738,39 +838,42 @@ const otherUserLocations = async (providers, profession, dist) => {
                   <button id="custom-close" class="close-btn" aria-label="Close">×</button>
 
                   <div class="header">
-                    <div id="stars-mount"></div>
+                    <div class="stars" id="stars-mount"></div>
+                    <div class="raters-count text-semibold small">/ ${providers[p].ratersCount} arvostelijaa</div>
                   </div>
-
+    
                   <table class="info-table" role="presentation">
                     <tr>
                       <td>
-                        <img
-                          src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"
-                          class="rounded-circle"
-                          height="33"
-                          alt=""
-                          loading="lazy"
-                        />
+                        ${avatarHtml}
                       </td>
                       <td>
                         ${providers[p].description}
                       </td>
                     </tr>
                     <tr>
-                      <th>${matching}</th>
-                      <td>${dt.value}</td>
+                      <th>Saatavuus</th>
+                      <td>${matching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
                     </tr>
 
-                      <th>${providers[p].profession.join(', ')}</th>
-                      <td class="provider">${providers[p].pName}</td>
+                      <th>Ammatti</th>
+                      <td>${providers[p].profession.join(', ')}</td>
                     </tr>
                     <tr>
                       <th>Tiedot</th>
                       <td><span class="info-link">Kotisivu</span></td>
                     </tr>
                     <tr>
-                      <th>${providers[p].priceByHour ? "Tuntihinta" : ""}</th>
-                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : ""}</td>
+                      <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
+                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
+                    </tr>
+                    <tr>
+                      <th>Referenssit</th>
+                    </tr>
+                    <tr>
+                      <td colspan="2">
+                        <div id="reference-mount"></div>
+                      </td>
                     </tr>
                   </table>
 
@@ -800,7 +903,7 @@ const otherUserLocations = async (providers, profession, dist) => {
     visibleProCount.value = count;
 
     if (count > 0) {
-      console.log("Pro count existing...");
+      console.log("Pro count existing..." + count);
       isMainPanel.value = false;
       //this.isActiveProffs = true;
       //this.isMainPanel = false;
@@ -818,18 +921,19 @@ const otherUserLocations = async (providers, profession, dist) => {
 
 }
 
+const refreshMapState = async() => {
+  saveMapState();
+  await showClientLocationOnTheMap(currentProfession.value, selectedRange.value);
+
+  restoreMapState();
+}
+
 const showClientLocationOnTheMap = async(profession, range) => {
 
   console.log("Current distance herexx  ")
   const providers = await providerService.getProviders()
   if (providers) {
     otherUserLocations(providers, profession, range);
-    /* if (!window.google) {
-      this.otherUserLocations(providers, profession, range);
-    } else {
-      this.otherUserLocations(providers, profession, range);
-    } */
-
   }
 
 }
@@ -888,7 +992,7 @@ const handleSendRequest = async (_form) => {
     professional: profession.value.label,
     isIncludeOffers: false,
     description: _form.content,
-    status: "pending",
+    status: "active",
   }
 
 
@@ -941,6 +1045,22 @@ const pinSymbol = (color, stroke_color) => {
 </script>
 
 <style scoped>
+html {
+
+  overflow-y: scroll;
+}
+html, body { overflow-x: hidden; }
+
+:deep(.modal-dialog) {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: min(500px, 95vw) !important;
+}
+
+:deep(body.modal-open) { padding-right: 0 !important; }
+:deep(body.modal-open .fixed-top,
+body.modal-open .sticky-top,
+body.modal-open .navbar) { padding-right: 0 !important; }
 .client-map-panel {
   background-color: #1B2330;
   border-radius: 10px;
@@ -1036,6 +1156,8 @@ const pinSymbol = (color, stroke_color) => {
   cursor: pointer;
 }
 
+
+
 /* Infowindow */
 
 /* 1) Kill Google's white bubble */
@@ -1043,7 +1165,7 @@ const pinSymbol = (color, stroke_color) => {
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
-  border-radius: 0 !important;   /* optional */
+  border-radius: 0 !important;
   overflow: visible !important;  /* allow your arrow */
 }
 
@@ -1051,6 +1173,12 @@ const pinSymbol = (color, stroke_color) => {
 :deep(.gm-style .gm-style-iw-d) {
   background: transparent !important;
   overflow: visible !important;
+}
+
+:deep(.gm-style-iw-tc,
+.gm-style-iw-t::after,
+.gm-style-iw-t::before) {
+  display: none !important;
 }
 
 /* 3) Hide default close button */
@@ -1160,6 +1288,15 @@ const pinSymbol = (color, stroke_color) => {
 /* Header */
 :deep(.header) {
   padding-right: 42px; /* leave room for close button */
+  display: flex;
+  justify-content: space-between;
+}
+
+:deep(.header .stars) {
+  margin-top: 0;
+}
+:deep(.header .raters-count) {
+  margin-top: 7px;
 }
 :deep(.header h3) {
   margin: 6px 0 4px;
@@ -1176,6 +1313,10 @@ const pinSymbol = (color, stroke_color) => {
   border-collapse: collapse;
   font-size: 14px;
   margin: 8px 0 12px;
+}
+
+:deep(.info-table tr:nth-child(2)) {
+  border-top: 2px solid #ccc;
 }
 
 :deep(.info-table th) {
@@ -1235,6 +1376,10 @@ const pinSymbol = (color, stroke_color) => {
   color: #fff;
   opacity: 1;
 } */
+/* :deep(.modal) {
+  padding-right: 0 !important; 
+} */
+
 
 /* Mobile tweaks */
 @media (max-width: 420px) {
@@ -1249,7 +1394,8 @@ const pinSymbol = (color, stroke_color) => {
     padding: 14px 14px 12px;
     box-sizing: border-box;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
-
+    height: 450px;
+    overflow-y: scroll;
     opacity: 1; 
     transform: translateY(0) 
     scale(1); 

@@ -100,11 +100,11 @@ const removeProviderBooking = async (id, recipientId) => {
     return bookingResult.data;
 }
 
-const setPositiveRating = async (id, rating) => {
-    const ratingPos = await axios.put(`${baseUrl}/${id}/rating-plus`, rating);
-    return ratingPos.data;
+const setRating = async (id, rating) => {
+    const feedback = await axios.put(`${baseUrl}/${id}/feedback`, rating);
+    return feedback.data;
 }
-const setNegativeRating = async (id) => {
+/* const setNegativeRating = async (id) => {
     const ratingNeg = await axios.put(`${baseUrl}/${id}/rating-minus`);
     return ratingNeg.data;
 }
@@ -115,11 +115,16 @@ const addPositiveFeedback = async (id, feedbackPos) => {
 const addNegativeFeedback = async (id, feedbackNeg) => {
     const neg = await axios.put(`${baseUrl}/${id}/rating-neg`, feedbackNeg);
     return neg.data;
-}
+} */
 
-const addProSlide = async (id, slide) => {
+/* const addProSlide = async (id, slide) => {
     const addedSlide = await axios.post(`${baseUrl}/${id}/addSlide`, slide);
     return addedSlide.data;
+} */
+
+const handleReference = async (proId, payload) => {
+    const reference = await axios.put(`${baseUrl}/update-reference/${proId}`, payload);
+    return reference.data;
 }
 
 const editRange = async (id, new_range) => {
@@ -151,11 +156,11 @@ export default {
     removeProfession,
     addProviderBooking,
     removeProviderBooking,
-    setPositiveRating,
-    setNegativeRating,
-    addPositiveFeedback,
-    addNegativeFeedback,
-    addProSlide,
+    setRating,
+    //setNegativeRating,
+    //addPositiveFeedback,
+    //addNegativeFeedback,
+    handleReference,
     editRange,
     editPortfolio
 }

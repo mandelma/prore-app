@@ -1,6 +1,6 @@
 <template>
   <MDBContainer>
-    <div >
+    <div style="width: 100%;">
       <span
           v-for="(star, index) in stars"
           :key="index"
@@ -10,10 +10,9 @@
         <span v-if="star === 'full'" class="full-star">★</span>
         <span v-else-if="star === 'half'" class="half-star  ">★</span>
         <span v-else class="star">★</span>
-
-
       </span>
     </div>
+    
   </MDBContainer>
 </template>
 

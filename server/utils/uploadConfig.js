@@ -96,7 +96,7 @@ const awsAvatarUpload = multer({
 
         contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically detect content type
         key: (req, file, cb) => {
-            cb(null, `${avatarUpload}/${Date.now()}-${file.originalname}`);
+            cb(null, `${avatarUpload}/${Date.now()}-${randomUUID()}-${file.originalname}`);
         },
     }),
 });

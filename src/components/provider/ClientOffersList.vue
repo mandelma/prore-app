@@ -54,7 +54,7 @@
             </span>
             
             <div v-if="booking?.disabled" style=" padding-top: 33px;">
-              <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}<strong>Go</strong></p>
+              <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">Valmis</strong></p>
             </div>
             <MDBCollapse
                 v-if="booking.id === bookingID"
@@ -109,8 +109,8 @@
               </span>
               
               <div v-if="booking?.disabled" style=" padding-top: 33px;">
-                <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}<strong style="color: blue;">Gooooo</strong></p>
-                <p>hhh</p>
+                <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">Valmis</strong></p>
+                
               </div>
 
               <!-- @confirmed-order-toast="(...args) => { console.log('raw event in parent', args); handleConfirmedOrderToast() }" -->
@@ -337,6 +337,11 @@ const quitBookingOffers = () => {
 }
 const addCredit = () => {
   router.push('/pay-plan');
+}
+
+const bookingEnded = (bookingId) => {
+  console.log("Ended booking id " + bookingId);
+  proStore.handleRemoveDisabledBooking(bookingId);
 }
 
 const timeAgo = (iso) => {

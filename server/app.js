@@ -50,11 +50,7 @@ if (process.env.NODE_ENV === 'production') {
     mongo_access = process.env.MONGODB_URL_LOCAL
 }
 const connected = mongoose.connect(mongo_access, {
-    //useNewUrlParser: true,
-    //useUnifiedTopology: true,
-    //strictPopulate: false
-    //useCreateIndex: true,
-    //useFindAndModify: false
+    
 });
 
 if (connected) {
@@ -70,37 +66,34 @@ const corsOptions ={
     optionSuccessStatus: 200,
 }
 
-//app.use(express.json());
+app.use(express.json());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-app.use(history());
+
 //app.use(serveStatic(path.join(__dirname, '../dist')));
 
-const distPath = path.join(__dirname, "dist"); // since dist is in server/dist
-
-//app.use("/assets", express.static(path.join(distPath, "assets")));
-
-// ...your API routes here...
-
-app.get(/^\/(?!api|assets).*/, (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-});
-
-//app.get(/^\/(?!api).*/, (req, res) => {
-//    res.sendFile(path.join(__dirname, "dist", "index.html"));
-//});
 
 
-/* app.use((req, res, next) => {
-  console.log(req.method, req.url, req.token);
-  next();
-}); */
+
+
+
+
+const distPath = path.join(__dirname, "dist");
+
+
+
+
 
 app.use((req, res, next) => {
   const auth = req.headers.authorization ? "auth" : "no-auth";
   console.log(req.method, req.originalUrl, auth);
   next();
+});
+
+app.use((req, res, next) => {
+    console.log("HIT:", req.method, req.originalUrl);
+    next();
 });
 
 //  httpAuth,
@@ -124,8 +117,16 @@ const httpAuth = require('./middleware/httpAuth');
 app.use('/api/chat', httpAuth, require('./routers/chat'));
 
 
+
+
+app.use(history());
 app.use("/assets", express.static(path.join(distPath, "assets")));
 app.use(express.static(distPath));
+
+app.get(/^\/(?!api|assets).*/, (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+});
+
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;

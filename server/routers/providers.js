@@ -4,15 +4,31 @@ const Provider = require('../models/providers')
 const Recipient = require("../models/recipients");
 //const User = require('../models/users')
 
+const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const Upload = require("../models/awsUploads");
+
+const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    // endpoint: `https://s3.${process.env.AWS_REGION}.amazonaws.com`,  // Explicitly set the endpoint
+    forcePathStyle: true, // Ensures requests go to the correct endpoint
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+});
+
 router.get('/', async(req, res) => {
-    const providers = await Provider.find({}).populate('user').populate('timetable');
+    const providers = await Provider.find({})
+    .populate('user')
+    .populate('timetable')
+    .populate('reference');
     res.send(providers)
 })
 
 router.get('/:id', async (req, res) => {
     const provider = await Provider.findOne({user: req.params.id})
         .populate('timetable')
-        // .populate('reference')
+        .populate('reference')
         //.populate('proposal')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
@@ -80,11 +96,11 @@ router.post('/:id', async(req, res) =>{
             //timeoffer: body.timeId,
             proTime: new Date().getTime() + (3 * 86400000),
             credit: 30,
-            rating: {
+            /* rating: {
                 positive: 0,
                 negative: 0,
                 count: 0
-            },
+            }, */
             range: body.range,
             user: req.params.id
         })
@@ -136,6 +152,80 @@ router.put('/:id/main-update', async(req, res) => {
     }
 })
 
+// Updating pro reference
+router.put("/update-reference/:proId", async (req, res) => {
+    try {
+        const {
+            reference,               // final photos list (ids or objects)
+            removedPhotoIds, // ids to delete from Upload + S3
+        } = req.body;
+
+
+        console.log("Reference -- ", reference)
+        console.log("Removed photo ids - ", removedPhotoIds);
+
+        // 1) Normalize final photo ids (the ones to keep)
+        const photoIds = Array.isArray(reference)
+            ? reference
+                .map(p => (typeof p === "string" ? p : (p.id ?? p.imageId)))
+                .filter(Boolean)
+            : [];
+
+        // 2) Update provider first (remove references by overwriting final list)
+        const update = {
+            reference: photoIds,
+        };
+
+        const main = await Provider.findByIdAndUpdate(
+            req.params.proId,
+            { $set: update },
+            { new: true, runValidators: true }
+        );
+
+        if (!main) {
+            return res.status(404).json({ error: "Provider not found" });
+        }
+
+        // 3) Delete removed uploads (S3 + Upload collection)
+        const idsToDelete = Array.isArray(removedPhotoIds)
+            ? removedPhotoIds.filter(Boolean)
+            : [];
+
+        console.log("idsToDelete normalized:", idsToDelete);
+
+        if (idsToDelete.length) {
+            // find keys from DB
+            const docs = await Upload.find(
+                { _id: { $in: idsToDelete } },
+                { key: 1 }
+            ).lean();
+
+            console.log("Upload docs found for deletion:", docs.length, docs);
+
+            // delete from S3
+            await Promise.all(
+                docs.map(doc =>
+                    s3.send(
+                        new DeleteObjectCommand({
+                            Bucket: process.env.AWS_S3_BUCKET_NAME,
+                            Key: doc.key,
+                        })
+                    )
+                )
+            );
+
+            // delete Upload documents
+            await Upload.deleteMany({ _id: { $in: idsToDelete } });
+        }
+
+        return res.status(200).json(main);
+    } catch (err) {
+        console.log("Error to update client main!", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+
 // Adding recipient to providers booking array
 router.post('/:providerId/addRecipient/:id', async (req, res) => {
     try {
@@ -183,65 +273,168 @@ router.put('/set-availability/:id', async (req, res) => {
         console.log('Error: ', err)
     }
 })
-// Set positive rating number for provider
-router.put('/:id/rating-plus', async (req, res) => {
+// Set rating number and feedback for provider
+/* router.put('/:id/feedback', async (req, res) => {
     const body = req.body;
     const params = req.params;
     try {
         const provider = await Provider.findById(params.id)
-        //const rating = provider[0].rating
-        //const positive = rating.positive + 1
-        console.log("Positive.. " + provider.rating.positive)
+        
+        console.log("Given rating.. " + provider.rating)
+        console.log("Feedback ", body.content)
         const update = {
-            rating: {
-                positive: provider.rating.positive += body.star,
-                negative: provider.rating.negative,
-                count: provider.rating.count += 1
-            }
+            rating: provider.rating += body.star,
+            ratersCount: provider.ratersCount += 1
         }
-        /*const update = {
-            rating: {
-                positive: 9
-            }
-        }*/
+       
         const ratingPlus = await Provider.findByIdAndUpdate(
-            params.id, update, {new: true}
+            params.id,
+             update,
+            {
+                $push: {
+                    feedback: body.content
+                }
+            }, 
+             {new: true}
 
         )
-        // "rating.positive": 5
+        
         res.status(200).json(ratingPlus)
     } catch (err) {
         res.send("Rating positive error!")
     }
-})
-// Set negative rating number for provider
-router.put('/:id/rating-minus', async (req, res) => {
-    const body = req.body;
-    const params = req.params;
+}) */
+
+router.put('/:id/feedback', async (req, res) => {
+    const { star, content } = req.body
+    const { id } = req.params
+
+    const s = Number(star)
+    if (!Number.isFinite(s) || s < 1 || s > 5) {
+        return res.status(400).json({ error: 'star must be 1..5' })
+    }
+
+    const hasText =
+        typeof content?.text === 'string' &&
+        content.text.trim().length > 0
+
     try {
-        const provider = await Provider.findById(params.id)
-        //const rating = provider[0].rating
-        //const positive = rating.positive + 1
-        console.log("Negative.. " + provider.rating.negative)
-        const update = {
-            rating: {
-                positive: provider.rating.positive,
-                negative: provider.rating.negative + 1
+        const updatePipeline = [
+            {
+                $set: {
+                    ratersCount: { $add: ['$ratersCount', 1] },
+                    rating: {
+                        $divide: [
+                            { $add: [{ $multiply: ['$rating', '$ratersCount'] }, s] },
+                            { $add: ['$ratersCount', 1] }
+                        ]
+                    },
+
+                    // ONLY add feedback if text exists
+                    ...(hasText && {
+                        feedback: {
+                            $concatArrays: [
+                                { $ifNull: ['$feedback', []] },
+                                [{
+                                    date: content?.date
+                                        ? new Date(content.date)
+                                        : new Date(),
+                                    sender: content?.sender ?? null,
+                                    text: content.text.trim()
+                                }]
+                            ]
+                        }
+                    })
+                }
             }
-        }
+        ]
 
-        const ratingPlus = await Provider.findByIdAndUpdate(
-            params.id, update, {new: true}
-
+        const updated = await Provider.findByIdAndUpdate(
+            id,
+            updatePipeline,
+            { new: true }
         )
-        // "rating.positive": 5
-        res.status(200).json(ratingPlus)
-    } catch (err) {
-        res.send("Rating positive error!")
+
+        if (!updated)
+            return res.status(404).json({ error: 'Provider not found' })
+
+        res.json(updated)
+    } catch {
+        res.status(500).json({ error: 'Rating/feedback update failed' })
     }
 })
 
 
+
+
+
+
+
+/* router.put('/:id/feedbackxxxxx', async (req, res) => {
+    const { star, content } = req.body;
+    const { id } = req.params;
+
+    const s = Number(star);
+    if (!Number.isFinite(s) || s < 1 || s > 5) {
+        return res.status(400).json({ error: 'star must be 1..5' });
+    }
+
+    
+    let feedbackDate = new Date();
+    if (content?.date) {
+        const d = new Date(content.date);
+        if (!Number.isNaN(d.getTime())) feedbackDate = d;
+    }
+
+    try {
+        const updated = await Provider.findByIdAndUpdate(
+            id,
+            [
+                {
+                    $set: {
+                        
+                        ratersCount: { $add: [{ $ifNull: ['$ratersCount', 0] }, 1] },
+
+                        rating: {
+                            $let: {
+                                vars: {
+                                    oldCount: { $ifNull: ['$ratersCount', 0] },
+                                    oldRating: { $ifNull: ['$rating', 0] }
+                                },
+                                in: {
+                                    $divide: [
+                                        { $add: [{ $multiply: ['$$oldRating', '$$oldCount'] }, s] },
+                                        { $add: ['$$oldCount', 1] }
+                                    ]
+                                }
+                            }
+                        },
+
+                        feedback: {
+                            $concatArrays: [
+                                { $ifNull: ['$feedback', []] },
+                                [
+                                    {
+                                        date: feedbackDate,
+                                        sender: content?.sender ?? null,
+                                        text: content?.text ?? ''
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                }
+            ],
+            { new: true, runValidators: true }
+        );
+
+        if (!updated) return res.status(404).json({ error: 'Provider not found' });
+        return res.json(updated);
+    } catch (err) {
+        return res.status(500).json({ error: 'Rating/feedback update failed' });
+    }
+});
+ */
 // Add positive rating text to provider
 router.put('/:id/rating-pos', async (req, res) => {
     const body = req.body;
@@ -419,7 +612,7 @@ router.post('/:id/addRoom', async (req, res) => {
     }
 })
 // Add pro reference image id
-router.post('/:id/addSlide', async (req, res) => {
+/* router.post('/:id/addSlide', async (req, res) => {
     const params = req.params;
     const body = req.body;
     try {
@@ -435,7 +628,7 @@ router.post('/:id/addSlide', async (req, res) => {
         console.log("Error " + err.message)
         res.send("There is error to add slide!")
     }
-})
+}) */
 // Remove room from provider
 router.delete('/:id/remove-room', async (req,res) => {
     try {

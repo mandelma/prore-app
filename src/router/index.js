@@ -37,6 +37,11 @@ const routes = [
         component: () => import("../components/recipient/ProAround.vue")
     },
     {
+        path: "/client-around",
+        name: "client-around",
+        component: () => import("../components/provider/ClientAround.vue")
+    },
+    {
         path: "/follow-pos",
         name: "follow-user-position",
         component: () => import('../components/FollowUserPosition.vue')
@@ -63,11 +68,21 @@ const routes = [
         component: () => import("../components/provider/ProviderPanel.vue")
     }, */
     {
+        path: "/feedback",
+        name: "pro-feedback",
+        component: () => import("../components/provider/Feedback.vue")
+    },
+    {
     
         path: "/admin/provider",
         name: "providerAdmin",
         component: () => import("../components/provider/ProviderAdminPage.vue"),
         props: true
+    },
+    {
+        path: "/reference",
+        name: "pro-photos",
+        component: () => import('../components/provider/ProGallery.vue')
     },
     {
         path: "/client-offers",
@@ -109,7 +124,12 @@ const routes = [
         path: "/profile",
         name: "profile",
         component: () => import("../components/Profile.vue")
-    } 
+    },
+    {
+        path:"/c-history",
+        name: "client-history",
+        component: () => import("../components/recipient/ClientHistory.vue")
+    }
 
 ];
 
