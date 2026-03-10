@@ -109,6 +109,8 @@ app.use('/api/timeoffers', require('./routers/timetable'));
 app.use('/api/notifications', require('./routers/notifications'));
 //app.use('/api/messages', require('./routers/messages'));
 
+app.use('/api/client_history', require('./routers/client_history'));
+
 app.use('/api/login', require('./routers/login'));
 app.use('/api/aws-uploads', require('./routers/awsUploads'));
 
@@ -138,7 +140,9 @@ io.use((socket, next) => {
         socket.username = payload.username;
         next();
     } catch (e) {
-        next(new Error("Invalid token"));
+        //next(new Error("Invalid token"));
+        console.error("socket auth middleware error:", e);
+        next(new Error(e.message || "Socket authentication failed"));
     }
 });
 

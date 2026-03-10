@@ -2,7 +2,7 @@
     <MDBContainer>
         <form style="background-color: #0b1618; padding: 17px; border: 1px solid #1B2330; border-radius: 8px;">
           <div style="display: flex; justify-content: right;">
-            <MDBBtn color="dark">
+            <MDBBtn color="dark" @click="handleOpenChat">
               <i class="far fa-comment"></i>
             </MDBBtn>
             
@@ -53,6 +53,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
 import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon} from 'mdb-vue-ui-kit';
+import { useConversationStore } from '@/stores/conversationStore';
 defineOptions({
     name: 'request-form'
 })
@@ -66,6 +67,8 @@ const form = reactive({
   requestHeader: "",
   requestContent: ""
 });
+const conversationStore = useConversationStore();
+
 const errors = reactive({});
 
 const validateForm = () => {
@@ -134,6 +137,14 @@ const formatLocalDate = (value) => {
     hourCycle: 'h23',
   }).format(d);
 };
+
+const handleOpenChat = () => {
+  const otherId = props.target?.user?.id;
+  console.log("Open chat in request modal: " + otherId);
+  
+  conversationStore.openCreateRoom(otherId);
+  conversationStore.openChatWidget();
+}
 
 const handleRequest = () => {
 

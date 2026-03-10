@@ -15,6 +15,7 @@
             <h5 class="mb-0 text-wrap text-start">{{ provider.pName || "Provider" }}</h5>
             
           </div>
+          
           <small class="text-muted d-block text-start">
             <!-- Need to add provider database updatedAt field -->
             • Päivitetty: {{ formatDateTime(provider.updatedAt) }}
@@ -110,7 +111,7 @@
         <MDBBtn color="dark" block @click="openReferences">Referenssit</MDBBtn>
       </div>
       <div style="flex: 1;">
-        <p class="text-muted small btn-desc" >Saatu palaute</p>
+        <p class="text-muted small btn-desc" ><span style="color: yellow;">★</span> {{ provider?.rating }} / {{ provider?.ratersCount }}</p>
         <MDBBtn color="dark" block @click="showFeedback">Palaute</MDBBtn>
       </div>
       <div style="flex: 1;">

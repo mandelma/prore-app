@@ -124,13 +124,21 @@
             </label>
 
             <!-- Text input -->
-            <input
+            <!-- <input
                 ref="chatInput"
                 v-model="draft"
                 type="text"
                 placeholder="Kirjoita viesti…"
                 autocomplete="off"
-            />
+            /> -->
+            <textarea
+              ref="chatInput"
+              v-model="draft"
+              class="chat-textarea"
+              rows="1"
+              placeholder="Kirjoita viesti…"
+              @input="autoResize"
+            ></textarea>
 
             <!-- Send -->
             <button type="submit">Lähetä</button>
@@ -240,6 +248,12 @@
         chatBody.value.scrollTop = chatBody.value.scrollHeight;
       });
     }
+  }
+
+  const autoResize = () => {
+    const el = chatInput.value
+    el.style.height = "auto"
+    el.style.height = Math.min(el.scrollHeight, 120) + "px"
   }
 
   watch(
@@ -616,18 +630,30 @@
   border: 1px solid #2a354e;
 }
 
+.chat-textarea {
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.4;
+  min-height: 38px;
+  max-height: calc(1.4em * 4 + 12px); /* 4 lines max */
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
 .chat-input {
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   padding: 10px;
   display: flex;
   gap: 8px;
-  background: #adadad;
+  background: #22232c;
 }
 .chat-input input {
   flex: 1;
   padding: 10px 12px;
   border-radius: 12px;
-  background-color: #ddd;
+  background-color: #363744;
   border: 1px solid rgba(0, 0, 0, 0.15);
   font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }

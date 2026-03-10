@@ -33,6 +33,7 @@ export const useClientStore = defineStore('client', () => {
     const liveBookings = computed(() => bookings.value.filter(booking => booking.status === 'active') || []);
     const archievedBookings = computed(() => bookings.value.filter(item => item.status === 'archieved') || []);
     const confirmedOffer = 0
+    
     const getBookingById = (id) => {
         const booking = bookings.value.find(b => b.id === id);
 

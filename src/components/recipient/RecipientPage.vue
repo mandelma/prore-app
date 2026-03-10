@@ -334,12 +334,15 @@ const sortedBookings = computed(() => {
   }
 }) */
 
+
 // Test
 const handleDone = async (bookingId, target) => {
   isDone.value = true;
   await clientStore.handleEditStatus(bookingId, 'done');
 
   socket.emit("booking-done", bookingId, target);
+
+  console.log("DONE")
 
 }
 

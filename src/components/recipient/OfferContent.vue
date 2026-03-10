@@ -31,6 +31,14 @@
                     </tr>
                     <tr>
                         <td class="c-td">
+                            Tarjous hinta
+                        </td>
+                        <td class="text-muted">
+                            {{ offerContent.price }} eur
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="c-td">
                             Kuvaus
                         </td>
                         <td class="text-muted">
@@ -71,7 +79,7 @@
             </MDBTable>
             
             <div class="right-side">
-                <MDBBtn color="primary"><i class="far fa-comment"></i></MDBBtn>
+                <MDBBtn color="primary" @click="onChat"><i class="far fa-comment"></i></MDBBtn>
             </div>
             
         <!-- </MDBContainer> -->
@@ -88,6 +96,7 @@
     import { useClientStore } from '@/stores/recipientStore';
     import { useLoginStore } from '@/stores/login';
     import { useNotificationStore } from '@/stores/notificationStore';
+    import { useConversationStore } from '@/stores/conversationStore';
     import { storeToRefs } from 'pinia';
     defineOptions({
         name: 'offer-content'
@@ -97,6 +106,7 @@
     })
     const clientStore = useClientStore();
     const notificationStore = useNotificationStore();
+    const conversationStore = useConversationStore();
     const auth = useLoginStore();
 
     const { bookings } = storeToRefs(clientStore);
@@ -106,6 +116,14 @@
     const back = () => {
         emit('quit-content');
         console.log("Yees")
+    }
+
+    const onChat = () => {
+        console.log("Chat btn");
+        console.log("otheruserId - ", offerContent?.sender);
+        const otherId = offerContent?.sender;
+        conversationStore.openCreateRoom(otherId);
+        conversationStore.openChatWidget();
     }
 
 </script>

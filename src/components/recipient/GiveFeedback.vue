@@ -62,6 +62,7 @@ import { useProStore } from '@/stores/providerStore';
 import { useClientStore } from '@/stores/recipientStore';
 import { useUserStore } from '@/stores/userStore';
 import providerService from '../../service/providers';
+import clientHistoryService from '../../service/client_history'
 
 const props = defineProps({
   providerId: {type: String},
@@ -78,8 +79,9 @@ const feedbackContent = ref("");
 const { profile } = storeToRefs(userStore);
 
 const handleNoRating = async () => {
-  await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
-  emit('no-rating');
+  //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
+  //emit('no-rating');
+  await handleArchiveClient();
 }
 
 function formatDateTime(iso) {
@@ -95,6 +97,32 @@ function formatDateTime(iso) {
     hour12: false,
   });
 }
+
+const handleArchiveClient = async () => {
+  const booking = clientStore.getBookingById(props.booking_id);
+  const provider = await providerService.getProvByProvId(props.providerId);
+  if (booking && provider) {
+    const clientHistory = {
+        status: "",
+        header: booking.header,
+        proID: props.providerId,
+        company:  provider.pName,
+        id_number:  provider.ide,
+        rating: provider.rating,
+        address:  provider.address,
+        date:  booking.created,
+        professional:  provider.profession,
+        bookerId: profile.value.id
+      }
+
+      const complitedClientBooking = await clientHistoryService.updateClientHistory(clientHistory);
+      console.log("Client archieve - ", complitedClientBooking);
+  }
+  
+}
+
+
+
 
 const handleConfirmRating = async () => {
   console.log("Confirm feedback PROVIDER - ", props.providerId);
