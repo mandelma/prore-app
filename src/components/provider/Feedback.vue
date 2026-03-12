@@ -5,7 +5,9 @@
         </div>
         <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
             <MDBCard style="" v-if="fb?.text !==''">
+                
                 <MDBCardHeader>
+                    <!-- <Stars :rating="fb.rating" /> -->
                     <p class="text-muted">{{formatDateTime(fb.date)}}</p>
                 </MDBCardHeader>
                 <MDBCardBody>
@@ -47,6 +49,8 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia';
 import { useProStore } from '@/stores/providerStore';
+
+import Stars from '../Stars.vue';
 
 defineOptions ({
     name: 'pro-feedback'

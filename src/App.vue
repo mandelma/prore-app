@@ -290,6 +290,7 @@ import { useClientStore} from "@/stores/recipientStore.js";
 import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
 import { useConversationStore } from './stores/conversationStore';
+import { useClientArchiveStore } from './stores/cArchiveStore';
 
 
 import {useI18n} from "vue-i18n/dist/vue-i18n";
@@ -298,6 +299,7 @@ import LanguageContents from "@/components/LanguageContents.vue";
 import recipientService from './service/recipients.js';
 import providerService from './service/providers.js';
 import { chatService } from './service/chat';
+import clientHistoryService from './service/client_history'
 import onMap from '@/components/controllers/distance';
 import socket from "@/socket";
 
@@ -315,12 +317,14 @@ const client = useClientStore();
 const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();
+const clientArchiveStore = useClientArchiveStore();
 
 const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
 const { openChat, conversations, totalUnread } = storeToRefs(conversationStore);
+
 
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
@@ -368,9 +372,11 @@ watch(
     await Promise.all([
       userStore.fetchMe(),
       
+      clientHistoryService.setToken(login.token),
       client.orderList(u.id),
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
+      clientArchiveStore.initClientArchive()
     ]);
 
     profileLoaded.value = true;

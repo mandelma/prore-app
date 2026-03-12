@@ -47,7 +47,7 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/by-provider-id', async (req, res) => {
     const provider = await Provider.findOne({_id: req.params.id})
         //.populate('timeoffer')
-        //.populate('booking')
+        .populate('reference')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
         .populate('timetable')

@@ -2,7 +2,7 @@
   <div class="page">
     <header class="page-header">
       
-      <h6 class="page-title">{{ booking.header}} - {{booking.professional[0]}}</h6>
+      <h6 class="page-title">{{ booking.header}} → {{booking.professional[0]}}</h6>
       <div class="page-actions">
         <MDBBtnClose white @click="handleQuitContent" />
       </div>
@@ -80,7 +80,7 @@
             <div class="offer-main">
               <p class="offer-name">{{offer.name}}</p>
               
-              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}}</p>
+              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}} km</p>
             </div>
 
             <div class="offer-price">

@@ -61,6 +61,7 @@ import { storeToRefs } from 'pinia';
 import { useProStore } from '@/stores/providerStore';
 import { useClientStore } from '@/stores/recipientStore';
 import { useUserStore } from '@/stores/userStore';
+import { useClientArchiveStore } from '@/stores/cArchiveStore';
 import providerService from '../../service/providers';
 import clientHistoryService from '../../service/client_history'
 
@@ -73,14 +74,17 @@ const emit = defineEmits(['no-rating', 'rating-done'])
 const userStore = useUserStore();
 const providerStore = useProStore();
 const clientStore = useClientStore();
+const cArchiveStore = useClientArchiveStore();
 const rating = ref(0);
 const feedbackContent = ref("");
+
+const archivedClient = ref(null);
 
 const { profile } = storeToRefs(userStore);
 
 const handleNoRating = async () => {
-  //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
-  //emit('no-rating');
+  await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
+  emit('no-rating');
   await handleArchiveClient();
 }
 
@@ -116,7 +120,11 @@ const handleArchiveClient = async () => {
       }
 
       const complitedClientBooking = await clientHistoryService.updateClientHistory(clientHistory);
+
+      if (complitedClientBooking) cArchiveStore.addArchievedClientLocal(complitedClientBooking);
       console.log("Client archieve - ", complitedClientBooking);
+
+      archivedClient.value = complitedClientBooking;
   }
   
 }
@@ -140,10 +148,15 @@ const handleConfirmRating = async () => {
   });
 
   //console.log("Rated, ", rated)
-  await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
+  //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
   if (rated) {
     console.log("AAAAAAAAAAAAAAAA")
-    //await clientStore.handleGivenFeedback(props.booking_id, target, 'archieved');
+    await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
+    await handleArchiveClient();
+    
+
+    //console.log("Archieved client value - ", archivedClient);
+    
     emit('rating-done');
   }
 }

@@ -84,8 +84,8 @@
                   <h6>Kootut tilaukset</h6>
                   <div v-for="booking in sortedBookings" :key="booking.id" class="bookings">
 
-                    <h6  v-if="booking.isIncludeOffers" class="text-muted fw-semibold">Tilaus on lähetetty hintatarjousten pyytämistä varten</h6>
-                    <h6 v-else >Tilaus on lähetetty palveluntarjoajalle <span style="color:aquamarine;">{{ booking.ordered[0].pName }}</span></h6>
+                    <h6  v-if="booking.isIncludeOffers" class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty hintatarjousten pyytämistä varten</h6>
+                    <h6 v-else class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty palveluntarjoajalle <span style="color:aquamarine;">{{ booking.ordered[0].pName }}</span></h6>
                     
                     <fieldset class="fs-box">
                       <legend class="fs-legend">
@@ -191,9 +191,11 @@
                           {{ formatDateTime(a.created) }},
                         </div>
                         
-                        <MDBBtn v-if="!isDone"  color="info" block @click="handleDone(a.offer?.bookingID, a.offer?.provider?.user?.id)">Aeg läbi, töö tehtud</MDBBtn>
-                        <div v-else>
+                        <MDBBtn v-if="a.offer?.bookingID !== selectedBookingId && a.status !== 'done'"  color="info" block @click="handleDone(a.offer?.bookingID, a.offer?.provider?.user?.id)">Aeg läbi, töö tehtud</MDBBtn>
+                        <div v-if="a.status === 'done'">
+                          <!-- v-if="selectedBookingId === a.offer?.bookingID " -->
                           <MDBBtn 
+                            
                             style="margin-top: 7px;"  
                             outline="warning" ,
                             block 
@@ -237,7 +239,6 @@
 
     </div>
 
-    
 
     <MDBModal
       tabindex="-1"
@@ -269,12 +270,14 @@
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBCard,
   MDBCardBody, MDBBadge, MDBToast, MDBIcon, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import world from '@/assets/map.gif'
 import RecipientContent from "../recipient/RecipientContent.vue";
 import { useClientStore } from '@/stores/recipientStore';
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore';
+import { useClientArchiveStore } from '@/stores/cArchiveStore';
+import ClientHistory from './ClientHistory.vue';
 import { storeToRefs } from 'pinia'
 import socket from '@/socket';
 
@@ -294,10 +297,14 @@ const isRecipientContent = ref(false);
 const selectedBooking = ref(null);
 const clientStore = useClientStore();
 const notificationStore = useNotificationStore();
+const cArchiveStore = useClientArchiveStore();
+
 
 const _world = world
 const isConfirmed = ref(false);
 const confirmedMessage = ref("TEST")
+
+const selectedBookingId = ref("");
 
 const isQuitBooking = ref(false);
 const selBookingId = ref(null);
@@ -308,6 +315,8 @@ const isDone = ref(false);
 const { bookings, clientConfirmed, archievedBookings } = storeToRefs(clientStore);
 const { userId } = storeToRefs(notificationStore);
 
+const { cHistory } = storeToRefs(cArchiveStore);
+
 //const singleBookings = computed(() => bookings.value.filter(sb => sb.status !== 'confirmed' && !sb.isIncludeOffers));
 //const multiBookings = computed(() => bookings.value.filter(mp => mp.status !== 'confirmed' && mp.isIncludeOffers));
 
@@ -316,6 +325,8 @@ const company = ref("");
 const proId = ref("");
 const personalId = ref("");
 const bookingId = ref("");
+
+const c_archive = computed( async() => await cArchiveStore.initClientArchive());
 
 const sortedBookings = computed(() => {
   return [...bookings.value]
@@ -338,6 +349,7 @@ const sortedBookings = computed(() => {
 // Test
 const handleDone = async (bookingId, target) => {
   isDone.value = true;
+  selectedBookingId.value = bookingId;
   await clientStore.handleEditStatus(bookingId, 'done');
 
   socket.emit("booking-done", bookingId, target);
@@ -459,7 +471,7 @@ const callHistory = () => {
 .bookings {
   font-size: 16px;
   text-align: left;
-  margin-bottom: 13px;
+  margin: 13px 0 13px 0;
   /*padding: 5px;*/
 }
 .booking_time {

@@ -1,6 +1,6 @@
 <template>
   <div class="history">
-    <div style="display: flex; justify-content: right; cursor: pointer;">
+    <div v-if="!showDetails" style="display: flex; justify-content: right; cursor: pointer;">
         <MDBBtnClose white @click="router.go(-1)" />
     </div>
     <!-- LIST VIEW -->
@@ -15,13 +15,13 @@
       <!-- MOBILE: cards -->
       <div class="history__cards d-md-none">
         <div
-          v-for="b in recipientConfirmedBookings"
+          v-for="b in clientHistory"
           :key="b.id"
           class="historyCard"
         >
           <div class="historyCard__top">
             <div>
-              <div class="historyCard__date">{{ b.date }}</div>
+              <div class="historyCard__date">{{ formatDateTime(b.date) }}</div>
               <div class="historyCard__company">{{ b.company }}</div>
               <div class="historyCard__service">{{ b.header }}</div>
             </div>
@@ -49,8 +49,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="b in recipientConfirmedBookings" :key="b.id" class="historyTable__row">
-            <td class="history__muted">{{ b.date }}</td>
+          <tr v-for="b in clientHistory" :key="b.id" class="historyTable__row">
+            <td class="history__muted">{{ formatDateTime(b.date) }}</td>
             <td class="history__strong">{{ b.company }}</td>
             <td class="history__muted">{{ b.header }}</td>
             <td class="text-end">
@@ -102,6 +102,8 @@
           </div>
         </section>
 
+
+
         <!-- Provider details -->
         <section class="historySection">
           <h4 class="historySection__title">Palveluntarjoaja</h4>
@@ -141,8 +143,10 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
+import { useClientArchiveStore } from "@/stores/cArchiveStore"
+import { storeToRefs } from "pinia"
 
 // MDB components (names may vary slightly in your setup)
 import { MDBTable, MDBBtn, MDBBtnClose } from "mdb-vue-ui-kit"
@@ -158,8 +162,25 @@ const props = defineProps({
 
 const router = useRouter()
 
+const cArchiveStore = useClientArchiveStore();
 const showDetails = ref(false)
 const selectedBooking = ref(null)
+
+const { clientHistory } = storeToRefs(cArchiveStore);
+
+const formatDateTime = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+
+  return d.toLocaleString("fi-FI", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
 function openDetails(b) {
   selectedBooking.value = b

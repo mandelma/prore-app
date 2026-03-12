@@ -1,9 +1,11 @@
 const historyRouter = require('express').Router();
 const cHistory = require('../models/client_history');
+const httpAuth = require('../middleware/httpAuth')
 
 
-historyRouter.get('/', async (req, res) => {
-    const clientHistory = await cHistory.find({}).populate('user');
+historyRouter.get('/',httpAuth, async (req, res) => {
+    console.log("CLIENT ID ", req.user.id)
+    const clientHistory = await cHistory.find({bookerId: req.user.id});
     res.send(clientHistory);
 });
 historyRouter.post('/', async (req, res) => {

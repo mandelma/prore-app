@@ -4,6 +4,7 @@ import loginService from '@/service/login'
 import { useRoute, useRouter } from 'vue-router'
 import { jwtDecode } from "jwt-decode"; // npm install jwt-decode
 import { useConversationStore } from './conversationStore';
+import { useProStore } from './providerStore';
 
 export const useLoginStore = defineStore('login', () => {
     // --state--
@@ -35,9 +36,12 @@ export const useLoginStore = defineStore('login', () => {
         user.value = null
         token.value = null
         const conversationStore = useConversationStore();
+        const proStore = useProStore();
         localStorage.removeItem('loggedAppUser');
         conversationStore.disconnect();
         conversationStore.reset();
+
+        proStore.provider = null;
         router.push('/');
     }
     
