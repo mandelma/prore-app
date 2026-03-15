@@ -4,7 +4,7 @@
     
     <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
       
-      <div v-if="isMainPanel" class="client-map-panel">
+      <div v-show="isMainPanel" class="client-map-panel">
         
         <div style="display: flex; justify-content: space-between;">
           <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">Päivitä</p>
@@ -24,7 +24,6 @@
           </div>
         </div>
         
-
         <div :class="{hideClientInput: !address && isAddress}" style="width: 100%;" class="field-wrapper ">
           <div  class="input-group">
             <MDBInput
@@ -56,7 +55,7 @@
                 optionGroupLabel="label"
                 optionGroupChildren="items"
                 placeholder="Valitse ammattilainen *"
-
+                showClear
                 v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
                 class="w-full md:w-[30rem]"
 
@@ -78,17 +77,18 @@
                 </div>
               </template>
             </Select>
+            <p v-if="panelProError" style="color: red; margin: 0;">Ammatti on pakollinen!</p>
           </div>
         </div>
 
         <!--format: 'YYYY-MM-DD'-->
         <div  :class="{hideDistSelectPanel: !isDistSelection}">
-          <p style="text-align: left;">Valitse kiinnostavaa ajankohta tai heti!</p>
+          <p style="text-align: left; font-size: 14px;">Valitse kiinnostavaa ajankohta tai heti!</p>
           <div class="distSelectPanel">
 
             <div class="field-wrapper">
               <MDBDateTimepicker
-                  size="lg"
+                  size="sm"
                   label="Valitse tehtävän päivämäärä ja aika"
                   v-model="dt"
                   :toggleButton="false"
@@ -109,9 +109,7 @@
               
             </div>
 
-    
-
-            <div style="margin-top: 15px;">
+            <div style="margin-top: 0; color: white;">
               <MDBCheckbox
                 label="Heti!"
                 name="selection"
@@ -128,16 +126,24 @@
         </div>
         
         <MDBSelect size="sm" v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
-          
+        <p v-if="panelRangeError" style="color: red; margin: 0;">Etäisyys on pakollinen valinta!</p>
+
+        <div style="margin-top: 13px; display: flex; justify-content: space-between;">
+          <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="text-muted">
+            Ei ammattilaisia
+          </p>
+          <p v-else></p>
+          <MDBBtn color="primary" size="sm" @click="onGetProviders">Etsi</MDBBtn>
+        </div>
       </div>
       <!--Displaying when no main panel open-->
       <MDBBtn
-        v-else
-        color="primary"
-        style="position: absolute; opacity: 0.8; top: 60px; left: auto; z-index: 2;"
+        v-show="!isMainPanel"
+        color="dark"
+        style="position: absolute; opacity: 0.8; top: 60px; left: 13px; z-index: 2;"
         @click="isMainPanel = true"
       >
-        Paneeli
+        Valinta
       </MDBBtn>
       
     </div>
@@ -182,7 +188,7 @@
         </MDBModalHeader>
         <MDBModalBody>
           <request-form  
-            v-if="target.id !== providerId"
+            v-if="target?.id !== providerId"
             :target="target" 
             :date="dt" 
             @sendRequest="handleSendRequest"
@@ -198,10 +204,20 @@
   </div>
   
   <div id="map-container">
-    
-    <div id="map"></div>
-    <div id="spinner" class="spinner-overlay">
+    <div v-if="!startPos && isLocating" class="spinner-overlay">
       <div class="spinner"></div>
+    </div>
+
+    <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
+      <div class="location-error-box">
+        Sijaintia ei voitu hakea.
+      </div>
+    </div>
+
+    <div v-show="!!startPos" id="map"></div>
+
+    <div v-if="!!startPos && isLocating" class="locating-badge">
+      Päivitetään sijaintia...
     </div>
   </div>
 </template>
@@ -212,20 +228,22 @@
 //   lng: { type: Number, required: true },
 // });
 import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
-import { ref, onMounted, watch, createApp } from 'vue';
+import { ref, onMounted, watch, computed, createApp, nextTick } from 'vue';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
 //import { Loader } from "@googlemaps/js-api-loader"; // official way
 import axios from 'axios';
+import { storeToRefs } from 'pinia';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
 import providerService from '@/service/providers'
 import match from '@/components/controllers/compare_dt'
+import { useMapStore } from '@/stores/mapStore';
 import { useClientStore } from '@/stores/recipientStore';
 import { useLoginStore } from '@/stores/login';
 import { useProStore } from '@/stores/providerStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
-import { storeToRefs } from 'pinia';
+
 import Stars from '../Stars.vue';
 import ProReferencePublic from './ProReferencePublic.vue';
 import socket from '@/socket';
@@ -236,7 +254,13 @@ defineOptions({
   name: "pro-around"
 })
 
-const address = ref(null);
+const mapStore = useMapStore();
+
+const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
+
+const address = ref("");
+const selectedPlaceId = ref(null)
+const selectedAddressComponents = ref([])
 const myLat = ref( null);
 const myLng = ref(null);
 const mapsError = ref(false);
@@ -250,7 +274,7 @@ const selectedRange = ref(null);
 const distBtw = ref(0);
 const stateActive = ref(false);
 const isMainPanel = ref(true);
-const countOfSelectedProfessional = ref(null);
+const countOfSelectedProfessional = ref(0);
 const reInitKey = ref(0);
 const dt = ref(null);
 const showDt = ref(null);
@@ -260,9 +284,14 @@ const visibleProCount = ref(0);
 const isDateNow = ref(false);
 const displayProPanel = ref(false);
 
+const clickedPanelGet = ref(false);
+
 const onProvider = ref(null);
 const isRequestSent = ref(false);
 const rs_success_msg = ref("");
+
+const panelProError = ref(false);
+const panelRangeError = ref(false);
 
 
 const clientStore = useClientStore();
@@ -286,7 +315,7 @@ function testToast() {
 }
 
 const rangeOptions = ref([
-  {text: '0 km', value: 1},
+  {text: '0 km', value: 0},
   {text: '1 km', value: 1},
   {text: '10 km', value: 10},
   {text: '20 km', value: 20},
@@ -302,56 +331,144 @@ const rangeOptions = ref([
   {text: '300 km', value: 300},
 ])
 
-let map;
+const isMapReady = ref(false);
+const geocoder = ref(null)
+let map = null;
+let userMarker = null;
+let providerMarkers = [];
+let infoWindow = null;
+
+//const isLocating = ref(true)
+const locationFailed = ref(false)
+
 let lastMapState = {
   zoom: null,
   center: null,
 };
 
-const getCurrentPosition = async() => {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject("Geolocation not supported");
-    }
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          resolve({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
-        },
-        (err) => reject(err)
-    );
-  });
-}
+const startPos = computed(() => userPos.value || lastKnownPos.value)
 
-/* watch(selectedRange, (newVal) => {
+watch(selectedRange, (newVal) => {
   console.log("Dist is changed ", newVal);
   
-  showClientLocationOnTheMap(currentProfession.value, newVal);
+  //showClientLocationOnTheMap(currentProfession.value, newVal);
 
-}) */
+})
 
-/* watch(isMapLoaded, (ready) => {
-  if (ready) {
-    console.log("Ready? " + ready)
-    watch(selectedRange, (newVal) => {
-      console.log("Dist is changed ", newVal);
-      showClientLocationOnTheMap(profession.value.label, newVal)
-    }, { immediate: true })
+
+const initMap = (lat, lng) => {
+  if (map) return map
+
+  const el = document.getElementById('map')
+  if (!el) throw new Error('Map container not found')
+
+  map = new google.maps.Map(el, {
+    center: { lat, lng },
+    zoom: 13,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    mapId: "DEMO_MAP_ID",
+  })
+
+  infoWindow = new google.maps.InfoWindow()
+  isMapLoaded.value = true
+
+  return map
+}
+
+const getAddressFromCoords = async (lat, lng) => {
+  try {
+    if (!geocoder.value) {
+      geocoder.value = new google.maps.Geocoder()
+    }
+
+    const response = await geocoder.value.geocode({
+      location: { lat, lng },
+      region: "fi",
+    })
+
+    const result = response.results?.[0]
+    if (!result) return null
+
+    address.value = result.formatted_address
+    // save these if you need them
+    selectedPlaceId.value = result.place_id
+    selectedAddressComponents.value = result.address_components
+
+    return result
+  } catch (err) {
+    console.error("Reverse geocoding failed:", err)
+    return null
   }
-}) */
+}
 
-watch(
-  [isMapLoaded, selectedRange, profession],
-  ([ready, range, prof]) => {
+const initAutocomplete = async () => {
+  await nextTick();
+
+  const input = document.getElementById("client-input")
+  if (!input) return;
+
+  const center = userPos.value || lastKnownPos.value || { lat: 60.1699, lng: 24.9384 };
+  // centerMap()
+  const defaultBounds = {
+    north: center.lat + 0.1,
+    south: center.lat - 0.1,
+    east: center.lng + 0.1,
+    west: center.lng - 0.1,
+  };
+  const options = {
+    bounds: defaultBounds,
+    componentRestrictions: { country: "fi" },
+    fields: ["address_components", "geometry", "icon", "name", "place_id", "formatted_address"],
+    strictBounds: false,
+  };
+  const autocomplete = new google.maps.places.Autocomplete(input, options)
+  
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace()
+
+    if (!place.geometry) {
+      console.log("Place has no geometry")
+      return
+    }
+
+    myLat.value = place.geometry.location.lat()
+    myLng.value = place.geometry.location.lng()
+
+    address.value = place.formatted_address || "";
+    showUserMarker(myLat.value, myLng.value);
+      map.setCenter({
+      lat: myLat.value,
+      lng: myLng.value
+    });
+    selectedPlaceId.value = place.place_id || null
+    selectedAddressComponents.value = place.address_components || []
+
+    console.log("Address:", address.value)
+    console.log("Lat:", myLat.value)
+
+    
+  })
+}
+
+watch(isMainPanel, (val) => {
+  if(!val) {
+    panelProError.value = false;
+    panelRangeError.value = false;
+  }
+})
+
+/* watch(
+  [mapsReady, selectedRange, profession, userPos],
+  ([ready, range, prof, pos]) => {
     if (!ready) return
+    if (!pos) return
+    if (!map) return
     if (!range) return
-    if (!prof || !prof.label) return
-    showClientLocationOnTheMap(prof.label, range.value ?? range)
-  },
-  { immediate: true }
-)
+    if (!prof?.label) return
+
+    //showClientLocationOnTheMap(prof.label, range.value ?? range)
+  }
+) */
 
 watch(isDateNow, (state) => {
   if (state) {
@@ -378,6 +495,95 @@ watch(isDateNow, (state) => {
 })
 
 
+onMounted (async () => {
+  try {
+    const initPromise = mapStore.init()
+
+    await nextTick()
+
+    const pos = userPos.value || lastKnownPos.value
+    if (pos) {
+      myLat.value = pos.lat
+      myLng.value = pos.lng
+
+      if (address.value) {
+        console.log("Address is set " + address.value);
+      }
+      initMap(pos.lat, pos.lng)
+      showUserMarker(pos.lat, pos.lng)
+      //getAddressFrom(pos.lat, pos,lng);
+      await getAddressFromCoords(pos.lat, pos.lng);
+      await initAutocomplete()
+    }
+
+    await initPromise
+
+    const freshPos = userPos.value || lastKnownPos.value
+    if (freshPos && !map) {
+      myLat.value = freshPos.lat
+      myLng.value = freshPos.lng
+
+      initMap(freshPos.lat, freshPos.lng)
+      showUserMarker(freshPos.lat, freshPos.lng);
+      await getAddressFromCoords(freshPos.lat, freshPos.lng)
+      await initAutocomplete()
+    }
+  } catch (err) {
+    console.error('Map init failed:', err)
+  }
+})
+
+
+function applyUserPosition() {
+  if (!userPos.value) return
+  if (!map) return
+
+  myLat.value = userPos.value.lat
+  myLng.value = userPos.value.lng
+
+  centerMap(userPos.value.lat, userPos.value.lng)
+  showUserMarker(userPos.value.lat, userPos.value.lng)
+}
+
+watch(
+  userPos,
+  (pos) => {
+    if (!pos) return
+
+    myLat.value = pos.lat
+    myLng.value = pos.lng
+
+    if (!map) return
+
+    centerMap(pos.lat, pos.lng)
+    showUserMarker(pos.lat, pos.lng)
+  },
+  { immediate: true }
+)
+
+
+const hasProfession = computed(() => {
+  if (!profession.value) return false;
+
+  // PrimeVue object case
+  if (typeof profession.value === "object")
+    return !!profession.value.label;
+
+  // string case
+  if (typeof profession.value === "string")
+    return profession.value.trim() !== "";
+
+  return false;
+});
+
+watch(hasProfession, (ok) => {
+  if (!ok) {
+    selectedRange.value = 0;
+    profession.value = null;
+    showClientLocationOnTheMap(profession.value?.label, selectedRange.value);
+    
+  }
+});
 
 const changedProfession = () => {
       console.log("Changed " + profession.value.label);
@@ -396,6 +602,149 @@ function toPickerString(d = new Date()) {
   const mm = pad(d.getMinutes())
   return `${y}-${m}-${day}, ${hh}:${mm}`
 }
+
+const onGetProviders = () => {
+  clickedPanelGet.value = false;
+  panelProError.value = false;
+  panelRangeError.value = false;
+  let errors = false;
+  if (!profession.value) {
+    panelProError.value = true;
+    errors = true;
+    console.log("Get providers " + profession.value.label);
+    console.log("Sel range " + selectedRange.value);
+  };
+
+  if (selectedRange.value === 0) {
+    errors = true;
+    panelRangeError.value = true;
+    showClientLocationOnTheMap(profession.value?.label, selectedRange.value);
+  }
+
+  if (!errors) {
+    clickedPanelGet.value = true;
+    showClientLocationOnTheMap(profession.value.label, selectedRange.value);
+  }
+  
+  
+   
+}
+
+const centerMap = (lat, lng, zoom = 13) => {
+  if (!map) return;
+  map.setCenter({ lat, lng });
+  map.setZoom(zoom);
+};
+
+const showUserMarker = (lat, lng) => {
+  if (!map) return;
+
+  if (!userMarker) {
+    userMarker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: "Sinu asukoht",
+      icon: circleMarker('#3580E9')
+    });
+  } else {
+    userMarker.setPosition({ lat, lng });
+  }
+};
+
+const providerIcon = (provider) => {
+
+  if (provider.status === "Saatavilla") {
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: "green",
+      fillOpacity: 1,
+      strokeColor: "#003300",
+      strokeWeight: 2,
+      scale: 10
+    };
+  }
+
+  return {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: "orange",
+    fillOpacity: 1,
+    strokeColor: "#663300",
+    strokeWeight: 2,
+    scale: 10
+  };
+}
+
+function providerMarkerContent(provider) {
+  const root = document.createElement("div");
+  root.className = "provider-marker";
+
+  const avatar = document.createElement("div");
+  avatar.className = "provider-marker__avatar";
+
+  if (provider?.user?.avatar?.isImage && provider?.user?.avatar?.imageUrl) {
+    avatar.style.backgroundImage = `url("${provider.user.avatar.imageUrl}")`;
+    avatar.style.backgroundSize = "cover";
+    avatar.style.backgroundPosition = "center";
+    avatar.style.backgroundRepeat = "no-repeat";
+  } else {
+    avatar.innerHTML = `<i class="fas fa-user"></i>`;
+    avatar.classList.add("provider-marker__avatar--fallback");
+  }
+
+  const badge = document.createElement("div");
+  badge.className = "provider-marker__badge";
+  badge.classList.add(
+    provider.status === "Saatavilla" || provider.isAvailable24_7
+      ? "provider-marker__badge--available"
+      : "provider-marker__badge--negotiable"
+  );
+
+  root.appendChild(avatar);
+  root.appendChild(badge);
+
+  return root;
+}
+
+function providerMarkerContent_test(provider) {
+  const el = document.createElement("div");
+  el.style.width = "32px";
+  el.style.height = "32px";
+  el.style.borderRadius = "50%";
+  el.style.background = "red";
+  el.style.border = "2px solid white";
+  return el;
+}
+
+const clearProviderMarkers = () => {
+  providerMarkers.forEach(marker => {
+    marker.map = null;
+  });
+  providerMarkers = [];
+};
+
+const addProviderMarker = (provider) => {
+  if (!map) return null;
+
+  const lat = Number(provider.latitude);
+  const lng = Number(provider.longitude);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    console.log("Invalid provider coordinates", provider);
+    return null;
+  }
+
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position: { lat, lng },
+    title: provider.pName,
+    content: providerMarkerContent(provider),
+  });
+
+  providerMarkers.push(marker);
+  return marker;
+};
+
+
 
 const handleMaps = async() => {
   try {
@@ -419,20 +768,17 @@ const handleMaps = async() => {
       componentRestrictions: { country: "fi" },
       fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
       strictBounds: false,
-      //types: ["establishment"],
     };
     const autocomplete = new google.maps.places.Autocomplete(input, options)
-    //const autocomplete = client.places.Autocomplete(input, options);
-
+    
     autocomplete.addListener("place_changed", () => {
       let place = autocomplete.getPlace()
       myLat.value = place.geometry.location.lat();
       myLng.value = place.geometry.location.lng();
 
-      // getAddressFrom(place.geometry.location.lat(), place.geometry.location.lng())
-      //address.value = place.formatted_address;
       console.log("Address xxxx " + place.formatted_address)
       console.log("place-----lat------" + myLat.value)
+      //address.value = place.formatted_address;
     });
 
     try {
@@ -472,11 +818,11 @@ const restoreMapState = () => {
   map.setCenter(lastMapState.center);
 };
 
-const userCurrentLocation =  () => {
+/* const userCurrentLocation =  () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
       const { latitude, longitude } = position.coords;
-      // Show a map centered at latitude / longitude.
+      
       myLat.value = latitude
       myLng.value = longitude
       console.log("myLat " + latitude)
@@ -484,7 +830,9 @@ const userCurrentLocation =  () => {
     });
   }
 
-}
+} */
+
+
 // Kasutaja sihtkoht, otsitakse automaatselt
 const showUserLocationOnTheMap = (latitude, longitude) => {
   try {
@@ -504,6 +852,8 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
       accuracy: 50,
 
     });
+
+
 
     if (!map) {
       map = new google.maps.Map(document.getElementById("map"), {
@@ -543,29 +893,21 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
   getAddressFrom (latitude, longitude)
 }
 // Siis kui sisestada käsitsi aadress
-const getAddressFrom = (lat, long) => {
-  //const client = new Client({});
-  axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
+const getAddressFrom = async (lat, long) => {
+  await axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
       "," + long
       + "&key=" + import.meta.env.VITE_APP_MAP_KEY)
       .then(response => {
         if (response.data.error_message) {
-          //this.error = response.data.error_message;
-
           console.log(response.data.error_message)
-        } else {
-          map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 13,
-            center: new google.maps.LatLng(lat, long),
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-          });
-
+        } else {  
+          centerMap(lat, long, 13);
+          
           address.value = response.data.results[1].formatted_address
         }
 
       })
       .catch(error => {
-        //this.error = error.message
         console.log(error.message)
       })
 }
@@ -595,11 +937,13 @@ const otherUserLocations = async (providers, profession, dist) => {
   console.log("lat - " + myLat.value)
   let prev_infowindow = false;
 
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 11,
-    center: new google.maps.LatLng(myLat.value, myLng.value),
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  });
+  if (!window.google || !window.google.maps) return
+  if (!map) return
+  if (myLat.value == null || myLng.value == null) return
+
+  centerMap(myLat.value, myLng.value, 11)
+  clearProviderMarkers()
+
   console.log("Users count: " + providers.length)
   console.log("Current distance " + dist)
   let date;
@@ -611,10 +955,7 @@ const otherUserLocations = async (providers, profession, dist) => {
   let count = 0;
 
   if (providers.length > 0) {
-    //this.target = {};
-
     
-
     for (let pos = 0; pos < providers.length; pos++) {
       console.log("-----Firma------- " + providers[pos].pName);
       
@@ -628,99 +969,40 @@ const otherUserLocations = async (providers, profession, dist) => {
 
           //his.providers.push(providers[pos])
           console.log("Pro " + prof)
-          let providerLatLng = [providers[pos].latitude, providers[pos].longitude];
-          console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude));
+          //let providerLatLng = [providers[pos].latitude, providers[pos].longitude];
+          //console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude));
 
-          //distance.theDist()
-
-          //this.countOfSelectedClient++;
-          //this.isActiveProffs = true;
 
           if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
             count ++;
 
-            /* markers.forEach(m => m.setMap(null));
-            markers = []; */
-
             console.log("PROVIDER - ", providers[pos]);
-
-            let marker;
 
             const clientDate = parseDmyTime(dt.value);
 
             console.log("Cliend date format: ", clientDate);
-
+            let marker = null;
             let matching = false;
             
-            // text: "Saatavilla!"
             if (providers[pos].status === 'Saatavilla') {
-              marker = new google.maps.Marker({
-                position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
-                accuracy: 50,
-                map: map,
-                title: providers[pos].pName,
-                icon: pinSymbol('seagreen', 'darkgreen'),
-                label: { color: 'green',  fontWeight: 'bold', fontSize: '14px', }
-              })
+              matching = true;
+              marker = addProviderMarker(providers[pos], 'seagreen', 'darkgreen');
+            } else if (providers[pos].isAvailable24_7) {
+              matching = true;
+              marker = addProviderMarker(providers[pos], 'seagreen', 'darkgreen');
+            } else if (providers[pos].timetable.length > 0) {
+              matching = providers[pos].timetable.some(time =>
+                handleMatch.providerMatchingForClient(clientDate, time.start, time.end)
+              );
+
+              marker = matching
+                ? addProviderMarker(providers[pos], 'seagreen', 'darkgreen')
+                : addProviderMarker(providers[pos], 'orange', 'darkorange');
             } else {
-              if (providers[pos].timetable.length > 0) {
-                providers[pos].timetable.map(time => {
-                  console.log("Date: " + clientDate)
-                  console.log("Start: " + time.start);
-                  console.log("Fitting datetime: " +
-                      handleMatch.providerMatchingForClient(
-                          clientDate,
-                          time.start,
-                          time.end
-                      )
-
-                  )
-
-                  matching = handleMatch.providerMatchingForClient(
-                          clientDate,
-                          time.start,
-                          time.end
-                      ) ? "Saatavilla" : "Sovitaessa";
-
-                  console.log("Matching - ", matching)
-                  if (handleMatch.providerMatchingForClient(
-                      clientDate,
-                      time.start,
-                      time.end
-                  ) || providers[pos].isAvailable24_7) {
-
-                    marker = new google.maps.Marker({
-                      position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
-                      accuracy: 50,
-                      map: map,
-                      title: providers[pos].pName,
-                      icon: pinSymbol('seagreen', 'darkgreen'),
-                      //label: { color: '#79f759',  fontWeight: 'bold', fontSize: '14px', text: "Saatavilla!"}
-                    })
-                  } else {
-
-                    marker = new google.maps.Marker({
-                      position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
-                      accuracy: 50,
-                      map: map,
-                      title: providers[pos].pName,
-                      icon: pinSymbol('orange', 'darkorange'),
-                      //label: { color: '#f79859',  fontWeight: 'bold', fontSize: '14px', text: "Sovitaessa!"}
-                    })
-
-                  }
-                })
-              } else {
-                marker = new google.maps.Marker({
-                  position: new google.maps.LatLng(providers[pos].latitude, providers[pos].longitude),
-                  accuracy: 50,
-                  map: map,
-                  title: providers[pos].pName,
-                  icon: pinSymbol('orange', 'darkorange'),
-                  //label: { color: '#f79859',  fontWeight: 'bold', fontSize: '14px', text: "Sovitaessa!"}
-                })
-              }
+              marker = addProviderMarker(providers[pos], 'orange', 'darkorange');
             }
+
+            
 
             window.myGlobalFunction = this && this.openMarker
               ? this.openMarker.bind(this)
@@ -773,6 +1055,8 @@ const otherUserLocations = async (providers, profession, dist) => {
                   referenceApp?.unmount();
                   referenceApp = null;
 
+                  isMainPanel.value = true;
+
                   infowindow.close();
                 },
                 { once: true }
@@ -805,6 +1089,7 @@ const otherUserLocations = async (providers, profession, dist) => {
             });
 
             // ✅ marker click ONLY opens
+            if (!marker) return;
             marker.addListener("click", () => {
               const p = pos;
 
@@ -1007,12 +1292,6 @@ const handleSendRequest = async (_form) => {
   toastModel.value = true */
 } 
 
-onMounted (async () => {
-  //await displayPosition();
-  await handleMaps();
-
-})
-
 const showAddress = () => {
   isAddress.value = true;
   //userCurrentLocation();
@@ -1022,6 +1301,17 @@ const clearAddress = () => {
   isAddress.value = false;
   address.value = '';
 }
+
+
+
+const circleMarker = (color) => ({
+  path: google.maps.SymbolPath.CIRCLE,
+  fillColor: color,
+  fillOpacity: 1,
+  strokeColor: "#000",
+  strokeWeight: 1,
+  scale: 8
+});
 
 const pinSymbol = (color, stroke_color) => {
   const priceTag = document.createElement("div");
@@ -1065,7 +1355,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   background-color: #1B2330;
   border-radius: 10px;
   padding: 10px;
-  margin: 60px auto;
+  margin: 60px 17px 0 0;
   width: 30%;
   float: right;
 }
@@ -1084,46 +1374,8 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 }
 
 
-#map-container {
-  /* position: relative; */
-  width: 100%;
-  /* height: 500px; */
-}
 
-#map {
-  /* width: 100%;
-  height: 100%; */
 
-  position: absolute;
-
-  top: 60px;
-  right: 0;
-  bottom: 50px;
-  left: 0;
-}
-
-/* Overlay spinner */
-.spinner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #0b1618; /* your background color while map loads */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #ccc;
-  border-top-color: #4285f4;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
 @keyframes spin {
   to {
@@ -1420,8 +1672,118 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   }
 }
 
+
+
+
+
+#map-container {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+.spinner-overlay {
+  position: absolute;
+  inset: 0;
+  background: #0b1618;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+
+
+.location-error-box {
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+.locating-badge {
+  position: absolute;
+  right: 16px;
+  bottom: 50px;
+  z-index: 11;
+  background: rgba(11, 22, 24, 0.85);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
 /* .hideMainPanel {
   display: none;
 } */
+
+:deep(.provider-marker) {
+  position: relative;
+  width: 42px;
+  height: 42px;
+}
+
+:deep(.provider-marker__avatar) {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid black;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #444;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+:deep(.provider-marker__avatar--fallback) {
+  background-color: #4b5563;
+  color: white;
+}
+
+:deep(.provider-marker__badge) {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-sizing: border-box;
+}
+
+:deep(.provider-marker__badge--available) {
+  background: #00b14f;
+}
+
+:deep(.provider-marker__badge--negotiable) {
+  background: orange;
+}
 
 </style>

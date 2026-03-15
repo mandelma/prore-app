@@ -87,8 +87,8 @@
         <MDBSelect  size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi etäisyys" id="client-dist"/>
       </div>
       
-      <div v-if="isClients" style="display: flex; justify-content: center;">
-        {{ selectedClientsCount }}
+      <div v-if="isClients" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
+        <p class="text-muted semibold">Asiakkaita - {{ selectedClientsCount }}</p>
       </div>
       
         
@@ -125,38 +125,60 @@
     </MDBToast>
   </div>
   <!-- Map -->
-  <div id="map"></div>
-  <!-- Spinner -->
+   <div id="map-container">
+    <div v-if="!startPos && isLocating" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
+
+    <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
+      <div class="location-error-box">
+        Sijaintia ei voitu hakea.
+      </div>
+    </div>
+
+    <div v-show="!!startPos" id="map"></div>
+
+    <div v-if="!!startPos && isLocating" class="locating-badge">
+      Päivitetään sijaintia...
+    </div>
+  </div>
+  <!-- <div id="map"></div>
+  
   <div id="spinner" class="spinner-overlay">
     <div class="spinner"><img :src="spinner_world" alt="from_map" /></div>
-  </div>
+  </div> -->
 </div>
 
 </template>
 <script setup>
 import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
-import { ref, onMounted, watch, computed, reactive } from 'vue';
+import { ref, onMounted, watch, computed, reactive, nextTick } from 'vue';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
 import axios from 'axios';
+import { storeToRefs } from 'pinia';
 import { useClientStore } from '@/stores/recipientStore';
 import { useLoginStore } from '@/stores/login';
 import { useProStore } from '@/stores/providerStore';
 import spinnerWorld from '@/assets/map.gif'
 import ToastHandler from '../helpers/ToastHandler.vue';
 import recipientService from '../../service/recipients';
+import { useMapStore } from '@/stores/mapStore';
 
 defineOptions({
   name: "client-around"
 })
 
+const mapStore = useMapStore();
 const clientStore = useClientStore();
 const auth = useLoginStore();
 const providerStore = useProStore();
 const spinner_world = spinnerWorld;
 const address = ref(null);
 const isAddress = ref(false);
+const selectedPlaceId = ref(null)
+const selectedAddressComponents = ref([])
 const isMainPanel = ref(true);
 const selectedRange = ref(null);
 const myLat = ref( null);
@@ -170,6 +192,15 @@ const isMapLoaded = ref(false);
 const isClients = ref(false);
 const selectedClientsCount = ref(0);
 
+const isMapReady = ref(false);
+const geocoder = ref(null)
+
+let userMarker = null;
+let clientMarkers = [];
+
+const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
+
+const startPos = computed(() => userPos.value || lastKnownPos.value)
 
 const rangeOptions = reactive([
   {text: '0 km', value: 0},
@@ -188,7 +219,7 @@ const rangeOptions = reactive([
   {text: '300 km', value: 300},
 ])
 
-let map;
+let map = 0;
 let lastMapState = {
   zoom: null,
   center: null,
@@ -232,6 +263,22 @@ const hasProfession = computed(() => {
   }
 }) */
 
+watch(
+  userPos,
+  (pos) => {
+    if (!pos) return
+
+    myLat.value = pos.lat
+    myLng.value = pos.lng
+
+    if (!map) return
+
+    centerMap(pos.lat, pos.lng)
+    showUserMarker(pos.lat, pos.lng)
+  },
+  { immediate: true }
+)
+
 watch([profession, selectedRange, isMapLoaded], ([pro, dist, ready]) => {
   if (!ready) return;
   if (!pro?.label || dist == null) return;
@@ -259,8 +306,61 @@ watch(
 );
 
 onMounted (async () => {
-  await handleMaps();
+  //await handleMaps();
+  try {
+    const initPromise = mapStore.init()
+
+    await nextTick()
+
+    const pos = userPos.value || lastKnownPos.value
+    if (pos) {
+      myLat.value = pos.lat
+      myLng.value = pos.lng
+
+      if (address.value) {
+        console.log("Address is set " + address.value);
+      }
+      initMap(pos.lat, pos.lng)
+      showUserMarker(pos.lat, pos.lng)
+      
+      await getAddressFromCoords(pos.lat, pos.lng);
+      await initAutocomplete()
+    }
+
+    await initPromise
+
+    const freshPos = userPos.value || lastKnownPos.value
+    if (freshPos && !map) {
+      myLat.value = freshPos.lat
+      myLng.value = freshPos.lng
+
+      initMap(freshPos.lat, freshPos.lng)
+      showUserMarker(freshPos.lat, freshPos.lng);
+      await getAddressFromCoords(freshPos.lat, freshPos.lng)
+      await initAutocomplete()
+    }
+  } catch (err) {
+    console.error('Map init failed:', err)
+  }
 })
+
+const starMarker = (color) => ({
+  path: "M 0,-30 L 8,-10 L 30,-10 L 12,5 L 18,25 L 0,12 L -18,25 L -12,5 L -30,-10 L -8,-10 Z",
+  fillColor: color,
+  fillOpacity: 1,
+  strokeColor: "black",
+  strokeWeight: 2,
+  scale: 0.6
+});
+
+const circleMarker = (color) => ({
+  path: google.maps.SymbolPath.CIRCLE,
+  fillColor: color,
+  fillOpacity: 1,
+  strokeColor: "#000",
+  strokeWeight: 1,
+  scale: 8
+});
 
 const handleMaps = async() => {
   try {
@@ -320,6 +420,140 @@ const handleMaps = async() => {
   }
 }
 
+const initMap = (lat, lng) => {
+  if (map) return map
+
+  const el = document.getElementById('map')
+  if (!el) throw new Error('Map container not found')
+
+  map = new google.maps.Map(el, {
+    center: { lat, lng },
+    zoom: 13,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+  })
+
+  isMapLoaded.value = true
+
+  return map
+}
+
+const getAddressFromCoords = async (lat, lng) => {
+  try {
+    if (!geocoder.value) {
+      geocoder.value = new google.maps.Geocoder()
+    }
+
+    const response = await geocoder.value.geocode({
+      location: { lat, lng },
+      region: "fi",
+    })
+
+    const result = response.results?.[0]
+    if (!result) return null
+
+    address.value = result.formatted_address
+    // save these if you need them
+    selectedPlaceId.value = result.place_id
+    selectedAddressComponents.value = result.address_components
+
+    return result
+  } catch (err) {
+    console.error("Reverse geocoding failed:", err)
+    return null
+  }
+}
+
+const initAutocomplete = async () => {
+  await nextTick();
+
+  const input = document.getElementById("pro-input")
+  if (!input) return;
+
+  const center = userPos.value || lastKnownPos.value || { lat: 60.1699, lng: 24.9384 };
+  // centerMap()
+  const defaultBounds = {
+    north: center.lat + 0.1,
+    south: center.lat - 0.1,
+    east: center.lng + 0.1,
+    west: center.lng - 0.1,
+  };
+  const options = {
+    bounds: defaultBounds,
+    componentRestrictions: { country: "fi" },
+    fields: ["address_components", "geometry", "icon", "name", "place_id", "formatted_address"],
+    strictBounds: false,
+  };
+  const autocomplete = new google.maps.places.Autocomplete(input, options)
+  
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace()
+
+    if (!place.geometry) {
+      console.log("Place has no geometry")
+      return
+    }
+
+    myLat.value = place.geometry.location.lat()
+    myLng.value = place.geometry.location.lng()
+
+    address.value = place.formatted_address || "";
+    showUserMarker(myLat.value, myLng.value);
+      map.setCenter({
+      lat: myLat.value,
+      lng: myLng.value
+    });
+    selectedPlaceId.value = place.place_id || null
+    selectedAddressComponents.value = place.address_components || []
+
+    console.log("Address:", address.value)
+    console.log("Lat:", myLat.value)
+
+    
+  })
+}
+
+const centerMap = (lat, lng, zoom = 13) => {
+  if (!map) return;
+  map.setCenter({ lat, lng });
+  map.setZoom(zoom);
+};
+
+const showUserMarker = (lat, lng) => {
+  if (!map) return;
+
+  if (!userMarker) {
+    userMarker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+      title: "Sinu asukoht",
+      icon: circleMarker('orange')
+    });
+  } else {
+    userMarker.setPosition({ lat, lng });
+  }
+};
+
+const clearClientMarkers = () => {
+  clientMarkers.forEach(m => m.setMap(null));
+  clientMarkers = [];
+};
+
+const addClientMarker = (client, inner_color, outer_color) => {
+  const marker = new google.maps.Marker({
+    position: {
+      lat: Number(client.latitude),
+      lng: Number(client.longitude)
+    },
+    map,
+    title: "Tarvitaan " + client.professional[0],
+    /* icon: pinSymbol(inner_color, outer_color) */
+    icon: starMarker('#E23C89')
+  });
+
+  clientMarkers.push(marker);
+  return marker;
+};
+
 const userCurrentLocation =  () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
@@ -333,6 +567,26 @@ const userCurrentLocation =  () => {
   }
 
 }
+
+const pinSymbol = (color, stroke_color) => {
+  const priceTag = document.createElement("div");
+
+  priceTag.className = "price-tag";
+  priceTag.textContent = "$2.5M";
+  return {
+    path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: stroke_color,
+    strokeWeight: 2,
+    scale: 1,
+    labelOrigin: {
+      x: 60,
+      y: -25
+    }
+  };
+}
+
 // Kasutaja sihtkoht, otsitakse automaatselt
 const showUserLocationOnTheMap = (latitude, longitude) => {
   try {
@@ -343,15 +597,19 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
     if (!el) throw new Error('Map container #map not found');
     if (!(el instanceof HTMLElement)) throw new Error('Map container is not an HTMLElement');
 
+
+    
+
     // 3) Create the map only once, then add listeners
     //const map = new google.maps.Map(el, { center: {lat: 60.17, lng: 24.94}, zoom: 12 });
-    map = new google.maps.Map(document.getElementById("map"), {
+
+    /* map = new google.maps.Map(document.getElementById("map"), {
       zoom: 13,
       center: new google.maps.LatLng(latitude, longitude),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       accuracy: 50,
 
-    });
+    }); */
 
     if (!map) {
       map = new google.maps.Map(document.getElementById("map"), {
@@ -416,27 +674,30 @@ const showClientLocationOnTheMap = async(profession, dist) => {
 
 
   const recipients = await recipientService.getRecipients()
+  const activeRecipients = recipients.filter(client => client.status !== 'archived');
   if (recipients !== null) {
     otherUserLocations(recipients, profession, dist);
   }
 }
 
 const otherUserLocations = (recipients, profession, dist) => {
-  map = new google.maps.Map(document.getElementById("map"), {
+
+  if (!window.google || !window.google.maps) return
+  if (!map) return
+  if (myLat.value == null || myLng.value == null) return
+
+  centerMap(myLat.value, myLng.value, 11)
+  clearClientMarkers()
+
+
+ /*  map = new google.maps.Map(document.getElementById("map"), {
     zoom: 9,
     center: new google.maps.LatLng(myLat.value, myLng.value),
     mapTypeId: google.maps.MapTypeId.ROADMAP
-  });
+  }); */
   
   console.log("Users count: " + recipients.length);
   console.log("Current distance " + dist)
-  // new google.maps.Marker({
-  //   position: new google.maps.LatLng(this.myLat, this.myLng),
-  //   accuracy: 50,
-  //   map: map,
-  //   icon: this.pinSymbol('yellow'),
-  //   label: { color: '#00aaff', fontWeight: 'bold', fontSize: '14px', text: 'Olen tällä' }
-  // })
 
   let count = 0;
   if (recipients.length > 0) {
@@ -460,21 +721,17 @@ const otherUserLocations = (recipients, profession, dist) => {
 
 
           if (distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude) <= dist) {
-            //count ++;
-            count = recipientCount.length;
+            count ++;
+            //count = recipientCount.length + 1;
+            
+            addClientMarker(recipients[pos], 'green', 'green');
             /* new google.maps.Marker({
-              position: new google.maps.LatLng(recipients[pos].latitude, recipients[pos].longitude),
-              map: map
-            }) */
-
-            new google.maps.Marker({
               position: new google.maps.LatLng(recipients[pos].latitude, recipients[pos].longitude),
               accuracy: 50,
               map: map,
               title: "Tarvitaan " + recipients[pos].professional[0],
-              //icon: pinSymbol('orange', 'darkorange'),
               label: { color: '#f79859',  fontWeight: 'bold', fontSize: '11px', text: "Tarvitaan " + recipients[pos].professional[0]}
-            })
+            }) */
           }
 
         }
@@ -501,8 +758,8 @@ const otherUserLocations = (recipients, profession, dist) => {
 }
 
 const changedProfession = () => {
-      console.log("Changed in pro " + profession.value.label);
-      currentProfession.value = profession.value.label;
+      console.log("Changed in pro " + profession.value?.label);
+      currentProfession.value = profession.value?.label;
       //isDistSelection.value = true;
 }
 
@@ -539,6 +796,60 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 </script>
 <style scoped>
 
+#map-container {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+  width: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+.spinner-overlay {
+  position: absolute;
+  inset: 0;
+  background: #0b1618;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+
+
+.location-error-box {
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+.locating-badge {
+  position: absolute;
+  right: 16px;
+  bottom: 50px;
+  z-index: 11;
+  background: rgba(11, 22, 24, 0.85);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
 /* #map-container {
   width: 100%;
 }
@@ -551,18 +862,18 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
   left: 0;
 } */
 
-#map-container{
+/* #map-container{
   
-  position: relative;     /* needed for overlay + absolute map */
+  position: relative;
   width: 100%;
-  height: calc(100vh - 110px);  /* or any fixed height like 500px */
+  height: calc(100vh - 110px);
   overflow: hidden;
 }
 
 #map{
   position: absolute;
-  inset: 0;               /* replaces top/right/bottom/left */
-}
+  inset: 0;
+} */
 
 .pro-map-panel {
   background-color: #1B2330;
@@ -634,7 +945,7 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
   width: 37px;
 } */
 
-.spinner-overlay{
+/* .spinner-overlay{
   position: absolute;
   inset: 0;
   background: #0b1618;
@@ -646,7 +957,7 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 
 .spinner{
   width: 57px;
-}
+} */
 .spinner img{
   display:block;
   width:100%;

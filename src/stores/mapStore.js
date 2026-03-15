@@ -1,81 +1,103 @@
-import { defineStore } from 'pinia';
-import { ref, onMounted, computed } from 'vue';
-import axios from "axios";
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { loadGoogleMaps } from '@/components/controllers/loadGoogleMap'
 
-export const useMapStore = defineStore('g_map', () => {
-    const lat = ref(0);
-    const lng = ref(null);
-    const address = ref("");
-    const input = document.getElementById("location");
+export const useMapStore = defineStore('location', () => {
+    const mapsReady = ref(false)
 
-    /* Getters */
-    const location = computed(() => !!lat.value);
+    const userPos = ref(null)       // freshest location
+    const lastKnownPos = ref(null)  // cached location for instant map open
+    const isLocating = ref(false)
+    const locationError = ref('')
 
-    onMounted(() => {
-        getLocation()
-    })
-    const getLocation = (MAP_KEY) => {
-        clientCurrentLocation(MAP_KEY);
-        const center = { lat: 50.064192, lng: -130.605469 };
-        // Create a bounding box with sides ~10km away from the center point
-        const defaultBounds = {
-            north: center.lat + 0.1,
-            south: center.lat - 0.1,
-            east: center.lng + 0.1,
-            west: center.lng - 0.1,
-        };
+    const getCurrentPos = () => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation not supported'))
+                return
+            }
 
-        const options = {
-            bounds: defaultBounds,
-            componentRestrictions: { country: "fi" },
-            fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-            strictBounds: false,
-            //types: ["establishment"],
-        };
-        const autocomplete = new google.maps.places.Autocomplete(input, options);
-        // const autocomplete = client.places.autocomplete(input, options);
-
-        autocomplete.addListener("place_changed", () => {
-            let place = autocomplete.getPlace()
-            lat.value = place.geometry.location.lat()
-            lng.value = place.geometry.location.lng()
-
-            address.value = place.formatted_address
-            console.log(place)
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    resolve({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    })
+                },
+                (err) => {
+                    console.error('Geolocation error:', err.code, err.message)
+                    reject(err)
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 12000,
+                    maximumAge: 300000, // allow cached browser location up to 5 min
+                }
+            )
         })
     }
 
-    const clientCurrentLocation = async (MAP_KEY) => {
-        if (navigator.geolocation) {
-            await navigator.geolocation.getCurrentPosition(position => {
-                const { latitude, longitude } = position.coords;
-                // Show a map centered at latitude / longitude.
-                lat.value = latitude
-                lng.value = longitude
-                console.log("Latitude is: " + lat.value);
-                showClientLocationData (latitude, longitude, MAP_KEY);
-            });
+    const loadLastKnownPos = () => {
+        try {
+            const raw = localStorage.getItem('lastKnownPos')
+            if (!raw) return null
+            return JSON.parse(raw)
+        } catch {
+            return null
         }
     }
-    const showClientLocationData = (lat, long, MAP_KEY) => {
-        axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
-            "," + long
-            + "&key=" + MAP_KEY)
-            .then(response => {
-                if (response.data.error_message) {
-                    //this.error = response.data.error_message;
 
-                    console.log(response.data.error_message)
-                } else {
-                    address.value = response.data.results[1].formatted_address;
-                    console.log("Address now " + address.value);
-                }
-
-            })
-            .catch(error => {
-                //this.error = error.message
-                console.log(error.message)
-            })
+    const saveLastKnownPos = (pos) => {
+        try {
+            localStorage.setItem('lastKnownPos', JSON.stringify(pos))
+        } catch {
+            // ignore storage errors
+        }
     }
-    return { lat, lng, address, location, getLocation }
+
+    const init = async () => {
+        if (!mapsReady.value) {
+            await loadGoogleMaps()
+            mapsReady.value = true
+        }
+
+        // instant fallback from previous successful location
+        if (!lastKnownPos.value) {
+            lastKnownPos.value = loadLastKnownPos()
+        }
+
+        // if no fresh location yet, use cached one for initial render
+        if (!userPos.value && lastKnownPos.value) {
+            userPos.value = lastKnownPos.value
+        }
+
+        isLocating.value = true
+        locationError.value = ''
+
+        try {
+            const freshPos = await getCurrentPos()
+            userPos.value = freshPos
+            lastKnownPos.value = freshPos
+            saveLastKnownPos(freshPos)
+        } catch (e) {
+            console.error('Location init failed:', e)
+            locationError.value = e?.message || 'Location failed'
+
+            // keep cached location if available
+            if (!userPos.value && lastKnownPos.value) {
+                userPos.value = lastKnownPos.value
+            }
+        } finally {
+            isLocating.value = false
+        }
+    }
+
+    return {
+        mapsReady,
+        userPos,
+        lastKnownPos,
+        isLocating,
+        locationError,
+        init,
+    }
 })

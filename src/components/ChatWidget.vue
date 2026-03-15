@@ -8,8 +8,8 @@
         @click="toggle"
     >
       <span class="icon-wrapper">
-        💬
-
+        <!-- 💬 -->
+        <MDBIcon size="2x"><i class="far fa-comments"></i></MDBIcon>
         <!-- unread bubble -->
         <span v-if="!isOpen && totalUnread" class="badge">
           {{ totalUnread }}
@@ -470,22 +470,29 @@
   onBeforeUnmount(() => {
     document.removeEventListener("click", onClickOutside);
   });
+
+  // chat widget button 56px
 </script>
 
 <style scoped>
-    :root {
+:root {
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  
   --radius: 16px;
-  --btn: 56px;
+  --btn: 70px;
 }
+
+
 
 /* Launcher button */
 .chat-launcher {
   position: fixed;
-  right: 20px;
+  right: 60px;
   bottom: 20px;
-  width: var(--btn);
-  height: var(--btn);
+  /* width: var(--btn);
+  height: var(--btn); */
+  width: 57px;
+  height: 67px;
   border: 0;
   border-radius: 999px;
   cursor: pointer;
@@ -501,6 +508,11 @@
   outline-offset: 2px;
 }
 
+/* .chat-launcher {
+  width: 51px;
+  height: 67px;
+} */
+
 
 
 .icon-wrapper {
@@ -511,8 +523,8 @@
 /* 🔥 unread bubble style */
 .badge {
   position: absolute;
-  top: -9px;
-  right: -8px;
+  top: -10px;
+  right: -7px;
   background: #ff3b30;   /* iOS red */
   color: white;
   min-width: 18px;
@@ -551,7 +563,7 @@
   max-width: calc(100vw - 40px);
   height: 520px;
   max-height: calc(100vh - 120px);
-  border-radius: var(--radius);
+  border-radius: 16px;
   box-shadow: var(--shadow);
   background: #fff;
   overflow: hidden;
@@ -869,6 +881,24 @@
 
 /* Mobile fullscreen mode */
 @media (max-width: 640px) {
+  .chat-launcher {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  /* width: var(--btn);
+  height: var(--btn); */
+  width: 51px;
+  height: 67px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  background: #24304b;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
   .chat-window {
     right: 0;
     bottom: 0;

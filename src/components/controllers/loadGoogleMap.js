@@ -7,7 +7,8 @@ export function loadGoogleMaps() {
         const loader = new Loader({
             apiKey: import.meta.env.VITE_APP_MAP_KEY,
             version: 'weekly',
-            libraries: ['places', 'geometry'],
+            libraries: ['places', 'geometry', 'marker'],
+            
         });
         mapsPromise = loader.load();   // load once
     }

@@ -291,6 +291,7 @@ import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
 import { useConversationStore } from './stores/conversationStore';
 import { useClientArchiveStore } from './stores/cArchiveStore';
+import { useMapStore } from './stores/mapStore';
 
 
 import {useI18n} from "vue-i18n/dist/vue-i18n";
@@ -318,6 +319,7 @@ const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();
 const clientArchiveStore = useClientArchiveStore();
+const mapStore = useMapStore();
 
 const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
@@ -371,13 +373,17 @@ watch(
     // If these are independent, run in parallel
     await Promise.all([
       userStore.fetchMe(),
+
+      
       
       clientHistoryService.setToken(login.token),
       client.orderList(u.id),
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
-      clientArchiveStore.initClientArchive()
+      clientArchiveStore.initClientArchive(),
     ]);
+
+    
 
     profileLoaded.value = true;
 
@@ -398,6 +404,8 @@ onMounted (async () => {
   //client.orderList(login.user.id);
 
   await login.hydrate();
+
+  await mapStore.init();
   /* await login.hydrate();
   if (login.user) {
     const user = login.user;
