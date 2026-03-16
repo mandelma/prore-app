@@ -139,7 +139,7 @@ const handleConfirmRating = async () => {
   console.log("Booking id in feedback page " + props.booking_id);
 
   const rated = await providerService.setRating(props.providerId, {
-    star: rating.value,
+    star: Number(rating.value.toFixed(1)),
     content: {
       date: new Date().toISOString(),
       sender: profile.value?.firstName,
@@ -150,7 +150,7 @@ const handleConfirmRating = async () => {
   //console.log("Rated, ", rated)
   //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
   if (rated) {
-    console.log("AAAAAAAAAAAAAAAA")
+    
     await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
     await handleArchiveClient();
     

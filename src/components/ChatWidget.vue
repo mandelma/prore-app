@@ -488,7 +488,7 @@
 .chat-launcher {
   position: fixed;
   right: 60px;
-  bottom: 20px;
+  bottom: 60px;
   /* width: var(--btn);
   height: var(--btn); */
   width: 57px;
@@ -883,11 +883,11 @@
 @media (max-width: 640px) {
   .chat-launcher {
   position: fixed;
-  right: 20px;
+  right: 40px;
   bottom: 20px;
   /* width: var(--btn);
   height: var(--btn); */
-  width: 51px;
+  width: 57px;
   height: 67px;
   border: 0;
   border-radius: 999px;
@@ -914,10 +914,10 @@
     transform-origin: bottom center;
   }
 
-  .chat-launcher {
+  /* .chat-launcher {
     right: 16px;
     bottom: 16px;
-  }
+  } */
 }
 
 @keyframes slideUp {

@@ -292,7 +292,11 @@ watch(hasProfession, (ok) => {
     selectedRange.value = null;
     profession.value = null;
     showClientLocationOnTheMap(profession.value, selectedRange.value);
-    
+    updateMapDistance(
+    map,
+    { lat: myLat.value, lng: myLng.value },
+    1
+  );
   }
 });
 
@@ -304,6 +308,16 @@ watch(
     }
   }
 );
+
+watch(selectedRange, (range) => {
+  if (!range) return;
+
+  updateMapDistance(
+    map,
+    { lat: myLat.value, lng: myLng.value },
+    range
+  );
+});
 
 onMounted (async () => {
   //await handleMaps();
@@ -533,6 +547,28 @@ const showUserMarker = (lat, lng) => {
   }
 };
 
+let radiusCircle = null;
+
+const updateMapDistance = (map, clientLatLng, selectedKm) => {
+  //const clientLatLng = { lat: 60.1699, lng: 24.9384 }
+  if (radiusCircle) {
+    radiusCircle.setMap(null);
+  }
+
+  radiusCircle = new google.maps.Circle({
+    map,
+    center: clientLatLng,
+    radius: selectedKm * 1000,
+    strokeColor: "#2E7D32",
+    strokeOpacity: 0.9,
+    strokeWeight: 2,
+    fillColor: "#2E7D32",
+    fillOpacity: 0.12
+  });
+
+  map.fitBounds(radiusCircle.getBounds());
+}
+
 const clearClientMarkers = () => {
   clientMarkers.forEach(m => m.setMap(null));
   clientMarkers = [];
@@ -686,7 +722,7 @@ const otherUserLocations = (recipients, profession, dist) => {
   if (!map) return
   if (myLat.value == null || myLng.value == null) return
 
-  centerMap(myLat.value, myLng.value, 11)
+  
   clearClientMarkers()
 
 

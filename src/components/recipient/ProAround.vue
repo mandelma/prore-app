@@ -576,14 +576,14 @@ const hasProfession = computed(() => {
   return false;
 });
 
-watch(hasProfession, (ok) => {
+/* watch(hasProfession, (ok) => {
   if (!ok) {
     selectedRange.value = 0;
     profession.value = null;
     showClientLocationOnTheMap(profession.value?.label, selectedRange.value);
     
   }
-});
+}); */
 
 const changedProfession = () => {
       console.log("Changed " + profession.value.label);
@@ -623,7 +623,9 @@ const onGetProviders = () => {
 
   if (!errors) {
     clickedPanelGet.value = true;
+    
     showClientLocationOnTheMap(profession.value.label, selectedRange.value);
+    updateMapDistance(map, {lat: myLat.value, lng: myLng.value}, selectedRange.value);
   }
   
   
@@ -644,12 +646,34 @@ const showUserMarker = (lat, lng) => {
       position: { lat, lng },
       map,
       title: "Sinu asukoht",
-      icon: circleMarker('#3580E9')
+      icon: circleMarker('darkgrey')
     });
   } else {
     userMarker.setPosition({ lat, lng });
   }
 };
+
+let radiusCircle = null;
+
+const updateMapDistance = (map, clientLatLng, selectedKm) => {
+  //const clientLatLng = { lat: 60.1699, lng: 24.9384 }
+  if (radiusCircle) {
+    radiusCircle.setMap(null);
+  }
+
+  radiusCircle = new google.maps.Circle({
+    map,
+    center: clientLatLng,
+    radius: selectedKm * 1000,
+    strokeColor: "#2E7D32",
+    strokeOpacity: 0.9,
+    strokeWeight: 2,
+    fillColor: "#2E7D32",
+    fillOpacity: 0.12
+  });
+
+  map.fitBounds(radiusCircle.getBounds());
+}
 
 const providerIcon = (provider) => {
 
@@ -746,58 +770,7 @@ const addProviderMarker = (provider) => {
 
 
 
-const handleMaps = async() => {
-  try {
-    await loadGoogleMaps();
 
-
-    console.log("Map is inited in pro around! ✅");
-    userCurrentLocation();
-
-    const input = document.getElementById("client-input");
-
-    const center = { lat: 50.064192, lng: -130.605469 };
-    const defaultBounds = {
-      north: center.lat + 0.1,
-      south: center.lat - 0.1,
-      east: center.lng + 0.1,
-      west: center.lng - 0.1,
-    };
-    const options = {
-      bounds: defaultBounds,
-      componentRestrictions: { country: "fi" },
-      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-      strictBounds: false,
-    };
-    const autocomplete = new google.maps.places.Autocomplete(input, options)
-    
-    autocomplete.addListener("place_changed", () => {
-      let place = autocomplete.getPlace()
-      myLat.value = place.geometry.location.lat();
-      myLng.value = place.geometry.location.lng();
-
-      console.log("Address xxxx " + place.formatted_address)
-      console.log("place-----lat------" + myLat.value)
-      //address.value = place.formatted_address;
-    });
-
-    try {
-      new google.maps.Map(document.getElementById("map"), {
-        zoom: 13,
-        center: new google.maps.LatLng(myLat.value, myLng.value),
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        accuracy: 50,
-
-      });
-    } catch(err) {
-      console.log("Error to load map: " + err.message);
-    }
-
-  } catch (err) {
-    console.error('Google Maps failed to load ❌', err);
-    mapsError.value = true;
-  }
-}
 
 const saveMapState = () => {
   if (!map) return;
@@ -817,100 +790,6 @@ const restoreMapState = () => {
   map.setZoom(lastMapState.zoom);
   map.setCenter(lastMapState.center);
 };
-
-/* const userCurrentLocation =  () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-      const { latitude, longitude } = position.coords;
-      
-      myLat.value = latitude
-      myLng.value = longitude
-      console.log("myLat " + latitude)
-      showUserLocationOnTheMap (latitude, longitude)
-    });
-  }
-
-} */
-
-
-// Kasutaja sihtkoht, otsitakse automaatselt
-const showUserLocationOnTheMap = (latitude, longitude) => {
-  try {
-
-    console.log("Map is loading...")
-    
-    const el = document.getElementById('map');
-    if (!el) throw new Error('Map container #map not found');
-    if (!(el instanceof HTMLElement)) throw new Error('Map container is not an HTMLElement');
-
-    // 3) Create the map only once, then add listeners
-    //const map = new google.maps.Map(el, { center: {lat: 60.17, lng: 24.94}, zoom: 12 });
-    map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 13,
-      center: new google.maps.LatLng(latitude, longitude),
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      accuracy: 50,
-
-    });
-
-
-
-    if (!map) {
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 13,
-        center: { lat: latitude, lng: longitude },
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-      });
-
-      google.maps.event.addListenerOnce(map, "tilesloaded", () => {
-        isMapLoaded.value = true;
-      });
-    }
-
-    const spinner = document.getElementById("spinner");
-
-    // 4) Add listeners only on defined targets
-    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
-      console.log('tiles loaded');
-      spinner.style.opacity = "0";
-      setTimeout(() => spinner.style.display = "none", 400);
-        isMapLoaded.value = true;
-      });
-  } catch(err) {
-    console.log("Error to load map: " + err.message);
-  }
-
-
-  // new google.maps.Marker({
-  //   position: new google.maps.LatLng(latitude, longitude),
-  //   accuracy: 50,
-  //   map: map,
-  //   icon: this.pinSymbol('yellow'),
-  //   label: { color: '#00aaff', fontWeight: 'bold', fontSize: '14px', text: 'Olen tällä' }
-  // })
-
-
-  getAddressFrom (latitude, longitude)
-}
-// Siis kui sisestada käsitsi aadress
-const getAddressFrom = async (lat, long) => {
-  await axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
-      "," + long
-      + "&key=" + import.meta.env.VITE_APP_MAP_KEY)
-      .then(response => {
-        if (response.data.error_message) {
-          console.log(response.data.error_message)
-        } else {  
-          centerMap(lat, long, 13);
-          
-          address.value = response.data.results[1].formatted_address
-        }
-
-      })
-      .catch(error => {
-        console.log(error.message)
-      })
-}
 
 const notifyProvidersAboutInterest = (provider, profession, pcDist) => {
   console.log("Message to " + provider.user.firstName + " and dist: " + pcDist);
@@ -935,13 +814,12 @@ const otherUserLocations = async (providers, profession, dist) => {
   }
   console.log("Profession and dist... " + profession + " " + dist)
   console.log("lat - " + myLat.value)
-  let prev_infowindow = false;
 
   if (!window.google || !window.google.maps) return
   if (!map) return
   if (myLat.value == null || myLng.value == null) return
 
-  centerMap(myLat.value, myLng.value, 11)
+  
   clearProviderMarkers()
 
   console.log("Users count: " + providers.length)
@@ -955,6 +833,84 @@ const otherUserLocations = async (providers, profession, dist) => {
   let count = 0;
 
   if (providers.length > 0) {
+
+    const infowindow = new google.maps.InfoWindow({
+      pixelOffset: new google.maps.Size(0, -10)
+    });
+
+    let starsApp = null;
+    let referenceApp = null;
+    let currentProvider = null;
+    let currentMatching = false;
+    let currentPos = null;
+
+    infowindow.addListener("domready", () => {
+      const mountEl = document.getElementById("stars-mount");
+      const mountRefEl = document.getElementById("reference-mount");
+
+      // unmount old Vue apps first
+      if (starsApp) {
+        starsApp.unmount();
+        starsApp = null;
+      }
+
+      if (referenceApp) {
+        referenceApp.unmount();
+        referenceApp = null;
+      }
+
+      // mount stars
+      if (mountEl && currentProvider) {
+        starsApp = createApp(Stars, {
+          rating: currentProvider.rating
+        });
+        starsApp.mount(mountEl);
+      }
+
+      // mount references
+      if (mountRefEl && currentProvider) {
+        referenceApp = createApp(ProReferencePublic, {
+          references: currentProvider.reference
+        });
+        referenceApp.mount(mountRefEl);
+      }
+
+      document.getElementById("custom-close")?.addEventListener(
+        "click",
+        () => {
+          starsApp?.unmount();
+          starsApp = null;
+
+          referenceApp?.unmount();
+          referenceApp = null;
+
+          //isMainPanel.value = true;
+          infowindow.close();
+        },
+        { once: true }
+      );
+
+      const defaultClose = document.querySelector(".gm-ui-hover-effect");
+      if (defaultClose) defaultClose.style.display = "none";
+
+      const iw = document.getElementById("custom-iw");
+      const closeBtn = document.getElementById("custom-close");
+      if (!iw) return;
+
+      iw.classList.remove("iw-close");
+      void iw.offsetWidth;
+      iw.classList.add("iw-open");
+
+      closeBtn?.addEventListener(
+        "click",
+        () => {
+          iw.classList.remove("iw-open");
+          iw.classList.add("iw-close");
+          setTimeout(() => infowindow.close(), 190);
+        },
+        { once: true }
+      );
+    });
     
     for (let pos = 0; pos < providers.length; pos++) {
       console.log("-----Firma------- " + providers[pos].pName);
@@ -1002,6 +958,13 @@ const otherUserLocations = async (providers, profession, dist) => {
               marker = addProviderMarker(providers[pos], 'orange', 'darkorange');
             }
 
+
+            const orderButton = providers[pos].id !== providerId.value
+            ? `<button class="bottom-btn" onclick="myGlobalFunction(${pos})">
+                  TEE TILAUS
+              </button>`
+            : "";
+
             
 
             window.myGlobalFunction = this && this.openMarker
@@ -1009,174 +972,87 @@ const otherUserLocations = async (providers, profession, dist) => {
               : (idx) => handleSelectedPro(providers[idx])//console.log('openMarker fallback', idx);
 
 
-            //const infowindow = new google.maps.InfoWindow();
-            const infowindow = new google.maps.InfoWindow({
-              pixelOffset: new google.maps.Size(0, -10) // tweak value to taste
-            });
-
-            let prev_infowindow = null;
-            let starsApp = null;
-            let referenceApp = null;
-
-            // ✅ add ONCE (outside marker click)
-            infowindow.addListener("domready", () => {
-
-              const mountEl = document.getElementById("stars-mount");
-              const mountRefEl = document.getElementById("reference-mount");
-
-              // unmount previous (important when reopening)
-              if (starsApp) {
-                starsApp.unmount();
-                starsApp = null;
-              }
-
-              if (referenceApp) {
-                referenceApp.unmount();
-                referenceApp = null;
-              }
-
-              if (mountEl) {
-                starsApp = createApp(Stars, { rating: providers[pos].rating }); // optional props
-                starsApp.mount(mountEl);
-              }
-
-              // Reference mount
-              if (mountRefEl) {
-                referenceApp = createApp(ProReferencePublic, { references: providers[pos].reference});
-                referenceApp.mount(mountRefEl);
-              }
-
-              document.getElementById("custom-close")?.addEventListener(
-                "click",
-                () => {
-                  starsApp?.unmount();
-                  starsApp = null;
-
-                  referenceApp?.unmount();
-                  referenceApp = null;
-
-                  isMainPanel.value = true;
-
-                  infowindow.close();
-                },
-                { once: true }
-              );
-
-
-              // hide default close
-              const defaultClose = document.querySelector(".gm-ui-hover-effect");
-              if (defaultClose) defaultClose.style.display = "none";
-
-              const iw = document.getElementById("custom-iw");
-              const closeBtn = document.getElementById("custom-close");
-              if (!iw) return;
-
-              // animate in
-              iw.classList.remove("iw-close");
-              void iw.offsetWidth; // force reflow
-              iw.classList.add("iw-open");
-
-              // close (avoid piling listeners)
-              closeBtn?.addEventListener(
-                "click",
-                () => {
-                  iw.classList.remove("iw-open");
-                  iw.classList.add("iw-close");
-                  setTimeout(() => infowindow.close(), 190);
-                },
-                { once: true }
-              );
-            });
-
             // ✅ marker click ONLY opens
             if (!marker) return;
             marker.addListener("click", () => {
-              const p = pos;
+            const p = pos;
+            currentProvider = providers[p];
+            currentMatching = matching;
+            currentPos = p;
 
-              const hasImage =
-                !!providers[p]?.user?.avatar?.isImage;
+            const hasImage = !!providers[p]?.user?.avatar?.isImage;
 
-              const hasReferenceImages =
-                !!providers[p].reference?.imageUrl;
+            const avatarHtml = hasImage
+              ? `<img
+                  src="${providers[p].user.avatar.imageUrl}"
+                  class="rounded-circle"
+                  height="33"
+                  width="33"
+                  style="object-fit:cover;"
+                  alt=""
+                  loading="eager"
+                /><div class="provider">${providers[p].pName}</div>`
+              : `<i class="far fa-user icon"></i>`;
 
-              const avatarHtml = hasImage
-                ? `<img
-                    src="${providers[p].user.avatar.imageUrl}"
-                    class="rounded-circle"
-                    height="33"
-                    width="33"
-                    style="object-fit:cover;"
-                    alt=""
-                    loading="eager"
-                  /><div class="provider">${providers[p].pName}</div>`
-                : `<i class="far fa-user icon"></i>`;
-
-              /* const referenceHtml = hasReferenceImages
-                ? `
-                ` */
-
-              if (prev_infowindow) prev_infowindow.close();
-              prev_infowindow = infowindow;
-
-              infowindow.setContent(`
-                <div class="custom-info-window" id="custom-iw">
-                  <button id="custom-close" class="close-btn" aria-label="Close">×</button>
-
-                  <div class="header">
-                    <div class="stars" id="stars-mount"></div>
-                    <div class="raters-count text-semibold small">/ ${providers[p].ratersCount} arvostelijaa</div>
-                  </div>
-    
-                  <table class="info-table" role="presentation">
-                    <tr>
-                      <td>
-                        ${avatarHtml}
-                      </td>
-                      <td>
-                        ${providers[p].description}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Saatavuus</th>
-                      <td>${matching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
-                    </tr>
-
-                      <th>Ammatti</th>
-                      <td>${providers[p].profession.join(', ')}</td>
-                    </tr>
-                    <tr>
-                      <th>Tiedot</th>
-                      <td><span class="info-link">Kotisivu</span></td>
-                    </tr>
-                    <tr>
-                      <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
-                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
-                    </tr>
-                    <tr>
-                      <th>Referenssit</th>
-                    </tr>
-                    <tr>
-                      <td colspan="2">
-                        <div id="reference-mount"></div>
-                      </td>
-                    </tr>
-                  </table>
-
-                  <button class="bottom-btn" onclick="myGlobalFunction(${p})">
+            const orderButton = providers[p].id !== providerId.value
+              ? `<button class="bottom-btn" onclick="myGlobalFunction(${p})">
                     TEE TILAUS
-                  </button>
+                </button>`
+              : "";
+
+            infowindow.setContent(`
+              <div class="custom-info-window" id="custom-iw">
+                <button id="custom-close" class="close-btn" aria-label="Close">×</button>
+
+                <div class="header">
+                  <div class="stars" id="stars-mount"></div>
+                  <div class="raters-count text-semibold small">
+                    / ${providers[p].ratersCount} arvostelijaa
+                  </div>
                 </div>
-              `);
 
-              infowindow.open({ map, anchor: marker, shouldFocus: false });
-              if (window.innerWidth <= 480) {
-                map.panTo(marker.getPosition());
-                map.panBy(0, -140); // move marker down so bubble sits more centered
-              }
-            });
+                <table class="info-table" role="presentation">
+                  <tr>
+                    <td>${avatarHtml}</td>
+                    <td>${providers[p].description}</td>
+                  </tr>
+                  <tr>
+                    <th>Saatavuus</th>
+                    <td>${currentMatching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
+                  </tr>
+                  <tr>
+                    <th>Ammatti</th>
+                    <td>${providers[p].profession.join(', ')}</td>
+                  </tr>
+                  <tr>
+                    <th>Tiedot</th>
+                    <td><span class="info-link">Kotisivu</span></td>
+                  </tr>
+                  <tr>
+                    <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
+                    <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
+                  </tr>
+                  <tr>
+                    <th>Referenssit</th>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <div id="reference-mount"></div>
+                    </td>
+                  </tr>
+                </table>
 
+                ${orderButton}
+              </div>
+            `);
 
-            
+            infowindow.open({ map, anchor: marker, shouldFocus: false });
+
+            if (window.innerWidth <= 480 && marker.position) {
+              map.panTo(marker.position);
+              map.panBy(0, -140);
+            }
+          });
 
           }
 
@@ -1184,6 +1060,8 @@ const otherUserLocations = async (providers, profession, dist) => {
       })
 
     }
+
+
 
     visibleProCount.value = count;
 
@@ -1646,7 +1524,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
     padding: 14px 14px 12px;
     box-sizing: border-box;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
-    height: 450px;
+    max-height: 450px;
     overflow-y: scroll;
     opacity: 1; 
     transform: translateY(0) 
@@ -1721,7 +1599,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 .locating-badge {
   position: absolute;
   right: 16px;
-  bottom: 50px;
+  bottom: 100px;
   z-index: 11;
   background: rgba(11, 22, 24, 0.85);
   color: white;

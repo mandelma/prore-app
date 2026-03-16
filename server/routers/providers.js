@@ -273,37 +273,7 @@ router.put('/set-availability/:id', async (req, res) => {
         console.log('Error: ', err)
     }
 })
-// Set rating number and feedback for provider
-/* router.put('/:id/feedback', async (req, res) => {
-    const body = req.body;
-    const params = req.params;
-    try {
-        const provider = await Provider.findById(params.id)
-        
-        console.log("Given rating.. " + provider.rating)
-        console.log("Feedback ", body.content)
-        const update = {
-            rating: provider.rating += body.star,
-            ratersCount: provider.ratersCount += 1
-        }
-       
-        const ratingPlus = await Provider.findByIdAndUpdate(
-            params.id,
-             update,
-            {
-                $push: {
-                    feedback: body.content
-                }
-            }, 
-             {new: true}
 
-        )
-        
-        res.status(200).json(ratingPlus)
-    } catch (err) {
-        res.send("Rating positive error!")
-    }
-}) */
 
 router.put('/:id/feedback', async (req, res) => {
     const { star, content } = req.body
@@ -324,9 +294,14 @@ router.put('/:id/feedback', async (req, res) => {
                 $set: {
                     ratersCount: { $add: ['$ratersCount', 1] },
                     rating: {
-                        $divide: [
-                            { $add: [{ $multiply: ['$rating', '$ratersCount'] }, s] },
-                            { $add: ['$ratersCount', 1] }
+                        $round: [
+                            {
+                                $divide: [
+                                    { $add: [{ $multiply: ['$rating', '$ratersCount'] }, s] },
+                                    { $add: ['$ratersCount', 1] }
+                                ]
+                            },
+                            2
                         ]
                     },
 
@@ -364,77 +339,6 @@ router.put('/:id/feedback', async (req, res) => {
     }
 })
 
-
-
-
-
-
-
-/* router.put('/:id/feedbackxxxxx', async (req, res) => {
-    const { star, content } = req.body;
-    const { id } = req.params;
-
-    const s = Number(star);
-    if (!Number.isFinite(s) || s < 1 || s > 5) {
-        return res.status(400).json({ error: 'star must be 1..5' });
-    }
-
-    
-    let feedbackDate = new Date();
-    if (content?.date) {
-        const d = new Date(content.date);
-        if (!Number.isNaN(d.getTime())) feedbackDate = d;
-    }
-
-    try {
-        const updated = await Provider.findByIdAndUpdate(
-            id,
-            [
-                {
-                    $set: {
-                        
-                        ratersCount: { $add: [{ $ifNull: ['$ratersCount', 0] }, 1] },
-
-                        rating: {
-                            $let: {
-                                vars: {
-                                    oldCount: { $ifNull: ['$ratersCount', 0] },
-                                    oldRating: { $ifNull: ['$rating', 0] }
-                                },
-                                in: {
-                                    $divide: [
-                                        { $add: [{ $multiply: ['$$oldRating', '$$oldCount'] }, s] },
-                                        { $add: ['$$oldCount', 1] }
-                                    ]
-                                }
-                            }
-                        },
-
-                        feedback: {
-                            $concatArrays: [
-                                { $ifNull: ['$feedback', []] },
-                                [
-                                    {
-                                        date: feedbackDate,
-                                        sender: content?.sender ?? null,
-                                        text: content?.text ?? ''
-                                    }
-                                ]
-                            ]
-                        }
-                    }
-                }
-            ],
-            { new: true, runValidators: true }
-        );
-
-        if (!updated) return res.status(404).json({ error: 'Provider not found' });
-        return res.json(updated);
-    } catch (err) {
-        return res.status(500).json({ error: 'Rating/feedback update failed' });
-    }
-});
- */
 // Add positive rating text to provider
 router.put('/:id/rating-pos', async (req, res) => {
     const body = req.body;
