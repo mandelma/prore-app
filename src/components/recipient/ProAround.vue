@@ -140,7 +140,7 @@
       <MDBBtn
         v-show="!isMainPanel"
         color="dark"
-        style="position: absolute; opacity: 0.8; top: 60px; left: 13px; z-index: 2;"
+        style="position: absolute; opacity: 0.8; top: 60px; left: 10px; z-index: 2;"
         @click="isMainPanel = true"
       >
         Valinta
