@@ -1211,13 +1211,17 @@ const pinSymbol = (color, stroke_color) => {
 }
 
 </script>
-
+<style>
+html, body, #app {
+  overflow-x: hidden;
+  width: 100%;
+}
+</style>
 <style scoped>
 html {
 
   overflow-y: scroll;
 }
-html, body { overflow-x: hidden; }
 
 :deep(.modal-dialog) {
   margin-left: auto !important;
@@ -1358,36 +1362,6 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   transform: translateY(12px) scale(0.98);
 }
 
-/* :deep(.custom-info-window::after) {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
-  transform: translateX(-60%);
-  width: 0; height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-top: 14px solid cyan;
-} */
-
-
-
-
-
-/* :deep(.custom-info-window::before) {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -10px;
-  transform: translateX(-50%);
-  width: 26px;
-  height: 12px;
-  background: cyan;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-} */
-
-/* ...and the rest of classes the same way (close-btn, header, etc) */
 
 /* Close button (bigger tap target for mobile) */
 :deep(.close-btn) {
@@ -1494,24 +1468,28 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   transform: scale(0.99);
 }
 
-/* :deep(.custom-info-window) {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transition: opacity 190ms ease, transform 190ms ease;
-} */
-
-
-
-/* :deep(.modal-header .btn-close) {
-  color: #fff;
-  opacity: 1;
-} */
-/* :deep(.modal) {
-  padding-right: 0 !important; 
-} */
-
-
 /* Mobile tweaks */
+@media (max-width: 768px) {
+  :deep(input),
+  :deep(select),
+  :deep(textarea),
+  :deep(.form-control),
+  :deep(.form-select),
+  :deep(.p-select-label),
+  :deep(.p-inputtext),
+  :deep(.p-dropdown-label) {
+    font-size: 16px !important;
+  }
+
+  .client-map-panel {
+    width: calc(100vw - 32px);
+    max-width: 100%;
+    box-sizing: border-box;
+    float: none;
+    margin: 60px auto;
+  }
+}
+
 @media (max-width: 420px) {
 
   :deep(.custom-info-window) { 
