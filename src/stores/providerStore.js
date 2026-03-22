@@ -239,6 +239,15 @@ export const useProStore = defineStore("pro", () => {
             //router.push('/');
         }
     }
+    const updateStatus = async (payload) => {
+        if (provider.value) {
+            const edited = await providerService.setAvailability(provider.value.id, payload);
+            if (edited) {
+                console.log("E - " + edited);
+                provider.value.status = payload.status;
+            }
+        }
+    }
     const updateAddress = async (payload) => {
         if (provider.value) {
             const proWithNewAddress = await providerService.editAddress(provider.value.id, payload);
@@ -343,6 +352,7 @@ export const useProStore = defineStore("pro", () => {
         disableLocalBooking,
         removeMapOffer,
         updateAddress,
+        updateStatus,
         updateCredit,
         updateProviderPanel,
         addVisitorForBooking,

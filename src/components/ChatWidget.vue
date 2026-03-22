@@ -53,24 +53,22 @@
             
           </ul>
 
-          <div style="display: flex; justify-content: right;  margin-top: -27px;">
+          <div style="display: flex; justify-content: right;  margin-top: 0;">
             <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
           </div>
           
         </header>
 
         <div v-if="meId" ref="chatBody" class="chat-body">
-          <!-- <div > -->
-            <div
-              v-for="(m) in activeMessages"
-              
-              :key="m.id || m._id"
-              class="msg"
-              :class="{ me: isMine(m) }"
-            >
+          <div
+            v-for="m in activeMessages"
+            :key="m.id || m._id"
+            class="message-wrap"
+            :class="{ me: isMine(m) }"
+          >
+            <div class="msg">
               <div v-if="m.text">{{ m.text }}</div>
 
-              
               <div v-for="a in m.attachments || []" :key="a.id || a.key">
                 <img
                   v-if="a.isImage"
@@ -83,9 +81,22 @@
                 </div>
               </div>
             </div>
-          <!-- </div> -->
-          
+
+            <div class="message-meta" v-if="m.createdAt">
+              <span class="message-time">
+                {{ formatDateTime(m.createdAt) }}
+              </span>
+
+              <!-- <span v-if="isMine(m)" class="message-status">
+                {{ getMessageStatus(m) }}
+              </span> -->
+            </div>
+          </div>
         </div>
+
+        
+
+
 
 
         <div v-if="files.length" class="file-preview">
@@ -141,7 +152,7 @@
             ></textarea>
 
             <!-- Send -->
-            <button type="submit">Lähetä</button>
+            <button style="max-height: 50px;" type="submit">Lähetä</button>
         </form>
     </section>
 </template>
@@ -190,6 +201,21 @@
       };
     });
   });
+
+
+  const formatDateTime = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+
+  return d.toLocaleString("fi-FI", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
 
 
@@ -365,6 +391,12 @@
   }
 
 
+
+  const getMessageStatus = (m) => {
+    if (m.seenAt) return "✓✓ Seen";
+    if (m.deliveredAt) return "✓✓ Delivered";
+    return "✓ Sent";
+  }
 
 
 
@@ -607,20 +639,20 @@
 }
 .chat-close {
   border: 0;
-  height: 30px;
+  height: 40px;
   background: transparent;
   color: #fff;
-  font-size: 18px;
+  font-size: 21px;
   cursor: pointer;
   line-height: 1;
-  padding: 6px 8px;
+  padding: 7px 11px;
   border-radius: 10px;
 }
 .chat-close:hover {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.chat-body {
+/* .chat-body {
   padding: 12px;
   flex: 1;
   overflow: auto;
@@ -642,6 +674,71 @@
   border: 1px solid #2a354e;
 }
 
+.messageTimeStampRight {
+  align-self: flex-end;
+  color: #a0dde0;
+  font-size: 0.75em;
+  margin-top: 6px;
+  opacity: 0.8;
+} */
+
+.chat-body {
+  padding: 12px;
+  flex: 1;
+  overflow: auto;
+  background: #ddd;
+  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.message-wrap {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 80%;
+  margin: 8px 0;
+}
+
+.message-wrap.me {
+  margin-left: auto;
+  align-items: flex-end;
+}
+
+.msg {
+  padding: 10px 12px;
+  min-width: 80%;
+  border-radius: 14px;
+  background: #99b8e7;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #151d24;
+  word-break: break-word;
+}
+
+.message-wrap.me .msg {
+  background: #8ed1dd;
+  color: #151d24;
+  border: 1px solid #2a354e;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: #5f6b7a;
+}
+
+.message-time {
+  white-space: nowrap;
+}
+
+.message-status {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
 .chat-textarea {
   resize: none;
   overflow-y: auto;
@@ -649,6 +746,8 @@
   min-height: 38px;
   max-height: calc(1.4em * 4 + 12px); /* 4 lines max */
   padding: 6px 10px;
+  background-color: #ddd;
+  color: rgb(22, 31, 44);
   border-radius: 8px;
   border: 1px solid #ccc;
   width: 100%;
@@ -665,7 +764,7 @@
   flex: 1;
   padding: 10px 12px;
   border-radius: 12px;
-  background-color: #363744;
+  background-color: #ddd;
   border: 1px solid rgba(0, 0, 0, 0.15);
   font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }

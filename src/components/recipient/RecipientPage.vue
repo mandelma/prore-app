@@ -177,7 +177,7 @@
               <MDBCard class="h-100">
                 <MDBCardBody style="text-align: left;">
                   <MDBCardTitle>Vahvistetut tilaukset</MDBCardTitle>
-                  <div v-if="clientConfirmed.length" class="vstack gap-2 ">
+                  <div v-if="clientConfirmed.length" class="vstack gap-2 " style="margin-top: 13px;">
                     <div
                       v-for="a in clientConfirmed.slice(0, 5)"
                       :key="a.id"

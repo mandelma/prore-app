@@ -48,24 +48,28 @@
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Tulevat asiakkaat</div>
-            <div class="fs-5 fw-semibold">{{ clients.length }}</div>
+            <div class="text-muted small">Hallinta kartalla</div>
+            <!-- <div class="fs-5 fw-semibold">{{ clients.length }}</div> --> 
+            <MDBBtn v-if="provider.status === 'Saatavilla'" outline="success" size="md" block @click="handleAvailability">Saattavilla</MDBBtn>
+            <MDBBtn v-else outline="warning" size="md" block @click="handleAvailability">Sovittaessa</MDBBtn>
+            
           </MDBCardBody>
         </MDBCard>
       </MDBCol>
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Tehtävät asiakkaat</div>
-            <div class="fs-5 fw-semibold">{{ confirmedClients.length }}</div>
+            <div class="text-muted small">Vahvistetut tilaukset</div>
+            <MDBBtn outline="info" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')"><span >{{ confirmedClients.length }}</span></MDBBtn>
+            <!-- <div class="fs-5 fw-semibold">{{ confirmedClients.length }}</div> -->
           </MDBCardBody>
         </MDBCard>
       </MDBCol>
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Valmis asiakkaat</div>
-            <MDBBtn color="secondary"><span style="color: greenyellow;">7</span></MDBBtn>
+            <div class="text-muted small">Arkistoidut tilaukset</div>
+            <MDBBtn outline="secondary" size="md" block :disabled="true"><span style="">0</span></MDBBtn>
             
       
           </MDBCardBody>
@@ -74,15 +78,15 @@
       <MDBCol col="6" md="3">
         <MDBCard class="page-card">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">PRO Käyttöaika</div>
-            <!-- <div class="fs-5 fw-semibold">{{ alerts.length }}</div> -->
+            <!-- <div class="text-muted small">PRO Käyttöaika</div> -->
+            
              <div>
 
               <div
                 class="fs-5"
                 v-if="credit <= 0"
               >
-                <p class="small">Käyttöaika on päättynyt!</p>
+                <div style="font-size: 12px;">Käyttöaika on päättynyt!</div>
                 <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa aikaa!</p>
               </div>
               <div v-else-if="credit <= 3 &&
@@ -157,7 +161,7 @@
                 
               </div>
 
-              <MDBTable borderless style="color: #ddd;">
+              <!-- <MDBTable borderless style="color: #ddd;">
                 <tbody>
                   <tr>
                     <td style="text-align: left;">
@@ -179,7 +183,7 @@
                     </td>
                   </tr>
                 </tbody>
-              </MDBTable>
+              </MDBTable> -->
 
              
             </div>
@@ -315,14 +319,12 @@
          
         <MDBCard class="mb-3">
           <MDBCardBody>
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
-              <h6 class="mb-0">Asiakkaat</h6>
-
-              <div class="d-flex gap-2">
-                <div class="search-wrap">
-                  <MDBInput size="sm" label="Hakuasiakkaat..." v-model="clientQuery" />
+            <div class="d-flex flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
+              <h6 class="mb-0">Tilaukset</h6>
+              <div class="search-wrap">
+                  <MDBInput size="sm" label="Haku..." v-model="clientQuery" />
                 </div>
-              </div>
+              
             </div>
 
 
@@ -354,7 +356,7 @@
             <MDBCard v-if="isCalendar">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Tulevät tehtävät</h6>
+                  <h6 class="mb-0">Ajat</h6>
                   <p class="no-calendar" @click="isCalendar = false">Valmis</p>
                   <!-- <MDBBtn size="sm" color="light" outline @click="openSchedule">Hallita</MDBBtn> -->
                 </div>
@@ -367,17 +369,25 @@
             <MDBCard v-else class="h-100">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Tulevät tehtävät</h6>
+                  <h6 class="mb-0">Ajat</h6>
                   <MDBBtn size="sm" color="light" outline @click="openSchedule">Kalenteri</MDBBtn>
                 </div>
-
-                <div class="vstack gap-2">
+                <div style="text-align: left;">
+                  <div class="semibold" style="color: #708090;">
+                    Lisää aikoja kalenteriin
+                  </div>
+                  <div class="text-muted small">
+                    Auttaa parantamaan näkyvyyttä kartalla ja antaa sinulle etulyöntiaseman asiakkaiden löytämisessä. Voit myös tehdä merkintöjä kalenteriin omaan käyttöösi.
+                  </div>
+                </div>
+                
+                <!-- <div class="vstack gap-2">
                   <div v-for="a in proCalendarEvents.slice(0, 5)" :key="a.id"
                     class="p-2 rounded border d-flex justify-content-between align-items-start gap-2">
                     <div class="min-w-0">
                       <div class="fw-semibold text-truncate">{{ a.user.firstName }}</div>
                       <div class="small text-muted text-truncate">
-                        {{ formatDateTime(a.created) }} <!-- • {{ a.header }} -->
+                        {{ formatDateTime(a.created) }}
                       </div>
                     </div>
                     <MDBBadge :color="a.status === 'confirmed' ? 'success' : 'warning'">
@@ -387,8 +397,8 @@
 
                   <div v-if="proCalendarEvents.length === 0" class="text-muted small">
                     Ei tuleviä tehtäviä.
-                  </div>
-                </div>
+                  </div> 
+                </div> -->
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -398,7 +408,7 @@
               <MDBCardBody>
                 
                 <div>
-                  <pro-gallery :images="reference"/>
+                  --------------------<!-- <pro-gallery :images="reference"/> -->
                 </div>
                 <!-- <div class="vstack gap-2">
                   <div v-for="t in alerts" :key="t.id"
@@ -610,6 +620,24 @@ onMounted(() => {
   socket.off("handle-client-report", onClientReport);
   socket.on("handle-client-report", onClientReport);
 })
+
+const handleAvailability = async () => {
+  console.log("Availability " + provider.value?.status);
+  const status = provider.value?.status;
+  let current = "";
+  
+  if (status === 'Saatavilla') {
+    current = 'Sovittaessa'
+  } else {
+    current = "Saatavilla"
+  }
+
+  const statement = {
+    status: current
+  }
+
+  await providerStore.updateStatus(statement);
+}
 
 function onPlaceSelected(p) {
   pmForm.address = p.address
@@ -1033,7 +1061,7 @@ async function unlinkClient(c) {
 }
 
 function openSchedule() {
-  notify("Schedule", "Open schedule management (wire to your router).");
+  //notify("Schedule", "Open schedule management (wire to your router).");
   isCalendar.value = true;
 }
 

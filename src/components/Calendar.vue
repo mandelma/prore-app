@@ -4,7 +4,7 @@
 
   </div>
 
-  <!-- Creating event modal-->
+  <!-- Creating event modal in month view-->
   <MDBModal
       v-model="showCreate" center
       centered
@@ -46,20 +46,6 @@
       <MDBBtn color="primary" @click="saveEvent">Tallentaa</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
-
-
-
-  <!-- <MDBModal v-model="showDayEvents" centered>
-  <MDBModalHeader><MDBModalTitle>Päivän tapahtumat</MDBModalTitle></MDBModalHeader>
-  <MDBModalBody>
-    <ul>
-      <li v-for="ev in selectedDayEvents" :key="ev.id">
-        <strong>{{ ev.title }}</strong>
-        <div v-if="ev.extendedProps?.note" v-html="ev.extendedProps.note"></div>
-      </li>
-    </ul>
-  </MDBModalBody>
-</MDBModal> -->
 
 
   <!-- Edit event   :modelValue="true"-->
@@ -354,8 +340,8 @@ const events = computed(() => [
     start: toDate(cc.created),
     end: toDate(cc.created),
 
-    startEditable: false,            // drag (start/time) allowed?
-    durationEditable: false,         // resize allowed?
+    startEditable: false,
+    durationEditable: false,
     
     extendedProps: {
       type: "offer",
@@ -371,19 +357,20 @@ const events = computed(() => [
       `
     } 
   })),
+  // Confirmed offer in calendar
   ...proCalendarEvents.value.map(pce => {
     const offer = pce.offers?.find(o => o.sender === user.value.id)
     const place = offer?.placeOrGo || "";
     const dist = offer?.distance;
     const duration = offer?.duration;
-    const price = offer?.price;
+    const price = offer?.price || "";
     
     return {
       id: pce.id,
       title: pce.header,
       start: toDate(pce.created),
-      startEditable: false,            // drag (start/time) allowed?
-      durationEditable: false,         // resize allowed?
+      startEditable: false,
+      durationEditable: false,
       extendedProps: {
         type: "booking",
         canEdit: false,
@@ -414,8 +401,8 @@ const events = computed(() => [
     title: ppt.title,
     start: toDate(ppt.start),
     end: toDate(ppt.end),
-    startEditable: true,            // drag (start/time) allowed?
-    durationEditable: true,         // resize allowed?
+    startEditable: true,
+    durationEditable: true,
     allDay: ppt.isAllDay,
     extendedProps: {
       type: ppt.state,
@@ -443,35 +430,6 @@ const filteredEvents = computed(() =>
     return t >= new Date().getTime() //startOfToday.value
   })
 )
-
-//const filteredEvents = events.value.filter(e => new Date(e.start) >= today)
-/* const filteredEvents = computed(() => 
-  events.value.filter(e => new Date(e.start) >= today)
-) */
-
-/* const events = ref([
-  {
-    id: '1',
-    title: 'Saattavilla',
-    start: '2025-09-25T10:30:00',
-    end:   '2025-09-25T11:15:00',
-    extendedProps: { type: 'client', location: 'Room A', note: 'Se aika sopii tosi hyvin!!' }
-  },
-  {
-    id: '2',
-    title: 'Joustava',
-    start: '2025-09-25T13:30:00',
-    end:   '2025-09-25T17:00:00',
-    extendedProps: { type: 'vacation', location: 'Room A', note: '' }
-  },
-  {
-    id: '3',
-    title: 'Saattavilla',
-    start: '2025-09-27T13:30:00',
-    end:   '2025-09-27T14:00:00',
-    extendedProps: { type: 'client', location: 'Zoom', note: '' }
-  }
-]) */
 
 const stateOptions = ref([
   {text: "Saattavilla", value: "time"},
@@ -512,27 +470,17 @@ const editForm = ref({
 
 onMounted(() => {
   console.log("Mounted is on...");
-
-  /* const api = calendarRef.value?.getApi?.()
-  if (!api) return
-  api.setOption('moreLinkClick', handleMoreLinkClick) */
-
   const eventDate = new Date("2025-10-31T15:00:00.000Z")
   const now = new Date()
-
-  // whenever any event is removed, rebuild the bars
-  /* api.on('eventRemove', () => {
-    nextTick().then(refreshTypeBars);
-  }); */
 })
 
-const formatLocalDate_xx = (utcDate) => {
+/* const formatLocalDate_xx = (utcDate) => {
   return new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'long',
     timeStyle: 'short',
     timeZone: 'Europe/Helsinki'
   }).format(new Date(utcDate)).replace(' at ', ' klo ');
-}
+} */
 
 const formatLocalDate = (value) => {
   const d = fromLocalInput(value);
@@ -597,8 +545,8 @@ const saveEvent = async() => {
       title: f.title.trim(),
       start: f.start,
       end: f.end,
-      startEditable: true,            // drag (start/time) allowed?
-      durationEditable: true,         // resize allowed?
+      startEditable: true,
+      durationEditable: true,
       allDay: f.allDay,
       extendedProps: {
         type: f.type,
@@ -752,8 +700,6 @@ function openEventModal(eventLike) {
   api.unselect();
   
 }
-
-//function isValidDate(d) { return d instanceof Date && !isNaN(d); }
 
 /* Save edits: update FullCalendar event + mirror to our array */
 const saveEventEdits_old = async() => {
@@ -1076,12 +1022,11 @@ async function deleteFromPreviewxxx() {
 
 
 
-function clearAllTypeBars() {
-  //console.log("ID ")
+/* function clearAllTypeBars() {
   calendarRef.value?.$el
     ?.querySelectorAll('.cell-type-bar')
     .forEach(el =>  el.remove());
-}
+} */
 
 
 
@@ -1089,20 +1034,18 @@ function isEventApi(x) {
   return x && typeof x === 'object' && typeof x.remove === 'function';
 }
 
-function getTypexxx(ev) {
-  // Works for EventApi and plain objects
+/* function getTypexxx(ev) {
   return ev?.extendedProps?.type
       ?? ev?._def?.extendedProps?.type
       ?? null;
-}
+} */
 
-function getStartxxx(ev) {
-  // EventApi has ev.start (Date). Plain objects may have start or startStr
+/* function getStartxxx(ev) {
   if (ev?.start instanceof Date) return ev.start;
   if (typeof ev?.start === 'string') return new Date(ev.start);
   if (typeof ev?.startStr === 'string') return new Date(ev.startStr);
   return null;
-}
+} */
 
 // 1) tiny guards
 const isValidDate = (d) => d instanceof Date && !isNaN(+d);
@@ -1123,12 +1066,12 @@ function parseMaybeDate(v) {
 }
 
 
-function getStartxxxcccxxx(ev) {
+/* function getStartxxxcccxxx(ev) {
   return ev?.start instanceof Date ? ev.start
        : typeof ev?.start === 'string' ? new Date(ev.start)
        : typeof ev?.startStr === 'string' ? new Date(ev.startStr)
        : null;
-}
+} */
 
 function getType(ev) {
   return ev?.extendedProps?.type
@@ -1142,31 +1085,30 @@ function getStart(ev) {
       ?? null;
 }
 
-function getEndxxx(ev) {
+/* function getEndxxx(ev) {
   if (ev?.end instanceof Date) return ev.end;
   if (typeof ev?.end === 'string') return new Date(ev.end);
   if (typeof ev?.endStr === 'string') return new Date(ev.endStr);
   return null;
-}
+} */
 
-function getEndxxxxxx(ev) {
+/* function getEndxxxxxx(ev) {
   return ev?.end instanceof Date ? ev.end
        : typeof ev?.end === 'string' ? new Date(ev.end)
        : typeof ev?.endStr === 'string' ? new Date(ev.endStr)
        : null;
-}
+} */
 function getEnd(ev) {
   return parseMaybeDate(ev?.end)
       ?? parseMaybeDate(ev?.endStr)
       ?? null;
 }
 
-function getAllDayxx(ev) {
-  // EventApi has ev.allDay; fall back to _def or false
+/* function getAllDayxx(ev) {
   if (typeof ev?.allDay === 'boolean') return ev.allDay;
   if (typeof ev?._def?.allDay === 'boolean') return ev._def.allDay;
   return false;
-}
+} */
 
 function getAllDay(ev) {
   return typeof ev?.allDay === 'boolean'
@@ -2097,28 +2039,25 @@ const options = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
   nowIndicator: true,
-  datesSet() { refreshTypeBars() },   // fires on initial render & nav
-  //datesSet() { killPopovers(); refreshTypeBars() },
+  datesSet() { refreshTypeBars() },
+ 
 
   dayMaxEvents: true,       // 👈 enables the "+n more" link
   dayMaxEventRows: 3,       // (optional) maximum rows to show per day
   moreLinkClick:  'popover', 
-  aspectRatio: window.innerWidth < 640 ? 0.9 : 1, // 👈 smaller = taller cells, larger = flatter
+  aspectRatio: window.innerWidth < 640 ? 0.9 : 1,
 
 
   dayCellDidMount(info) {
-    // --- date key, normalized to YYYY-MM-DD (avoid TZ mismatch) ---
     const d = new Date(info.date);
     d.setHours(0,0,0,0);
-    //const key = d.toISOString().slice(0,10);
 
-    const key = ymdLocal(info.date); // using helper
+    const key = ymdLocal(info.date);
 
     const set = typeBarByDate.value.get(key);
     if (!set || set.size === 0) return;
 
-    // --- find a container to append into ---
-    // Prefer the frame, else fallback to the cell element
+   
     const frame =
       info.el.querySelector('.fc-daygrid-day-frame') ||
       info.el;
@@ -2128,17 +2067,14 @@ const options = computed(() => ({
       return;
     }
 
-    // ensure positioning context
     const style = frame.style;
     if (!style.position || style.position === 'static') {
       style.position = 'relative';
     }
 
-    // remove any previous bar (in case of re-render)
     const old = frame.querySelector('.cell-type-bar');
     if (old) old.remove();
 
-    // build bar
     const bar = document.createElement('div');
     bar.className = 'cell-type-bar';
 
@@ -2160,10 +2096,10 @@ const options = computed(() => ({
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
   },
 
-  eventTimeFormat: { // 👇 force HH:mm
+  eventTimeFormat: { 
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false  // set true for 12h format with AM/PM
+    hour12: false
   },
 
 
@@ -2186,58 +2122,46 @@ const options = computed(() => ({
     ? 'Koko päivän'
     : `${formatTime(start)}`
 
-      // access event type
+      
       const t = arg.event.extendedProps?.type;
 
-    // For example: hide titles for 'client' and 'vacation' events
     if (['offer', 'booking'].includes(t)) {
-      return { html: `<div class="event-time-only">${timeStrOnlyStart}</div>`}; // empty = hide text
+      return { html: `<div class="event-time-only">${timeStrOnlyStart}</div>`};
     }
     if (['time'].includes(t)) {
       return { html: `<div class="event-time-only">${timeStr}</div>`}
     }
 
-    // Otherwise show title normally
     return {
       html: `<div>${arg.event.title}</div>`
     };
   },
 
   eventDurationEditable: (event) => {
-    // Only allow resizing for specific events
     return event.extendedProps.canResize === true;
   },
 
 
 
   eventStartEditable: (event) => {
-    // Only allow dragging for specific events
+   
     return event.extendedProps.canEdit === true;
   },
 
-
-  /* onEventClick(arg) {
-    openEventModal(arg.event); // <-- pass EventApi, not arg
-
-    selectedDayEvents.value = [arg.event]
-    showDayEvents.value = true
-  }, */
-
   select(info) {
-    //if (!info.allDay) return;
+    const viewType = info.view.type;
 
-    //createAllDayEvent(info.start);
-
+    if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
+      return;
+    }
+    if (info.start < new Date()) {
+      return false;
+    }
     console.log('Start (Date):', info.start);
     console.log('End (Date):', info.end);
     console.log('AllDay:', info.allDay);
-    openCreate({ start: info.start, end: info.end, allDay: info.allDay })
+    openCreate({ start: info.start, end: info.end, allDay: info.allDay }) //From here event creating in month view
   },
-
-
-
-
-
 
 
   locales: [fiLocale, svLocale, etLocale, enLocale],
@@ -2250,49 +2174,88 @@ const options = computed(() => ({
 
   displayEventTime: true,
 
-  // Interactions
+  
   editable: false,
-  eventStartEditable: false,
-  eventDurationEditable: false,
+  //eventStartEditable: false,
+  //eventDurationEditable: false,
   droppable: false,
   selectable: isUserPro.value,
   selectMirror: true,
 
-  selectAllow(selectInfo) {
-    //return selectInfo.start >= new Date();
-    if (selectInfo.start < new Date()) return
-    // ... countAllDayOn() check here
-    const cal = calendarRef.value.getApi();
-    const dateStr = selectInfo.startStr.slice(0, 10);
-    
+  views: {
+    dayGridMonth: {
+      selectable: false,
+      dateClick(info) {
+        const cal = calendarRef.value?.getApi?.();
+        if (!cal) return;
 
+        const clickedDate = new Date(info.date);
+        const today = new Date();
+
+        // normalize both to midnight (IMPORTANT)
+        clickedDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        if (clickedDate < today) {
+           return false; // ❌ do nothing for past days
+        }
+        
+        console.log("Date click")
+        cal.changeView('timeGridDay', info.dateStr);
+      }
+    },
+
+    timeGridWeek: {
+      selectable: isUserPro.value
+    },
+
+    timeGridDay: {
+      selectable: isUserPro.value
+    }
+  },
+
+
+  selectAllow(selectInfo) {
+    const cal = calendarRef.value?.getApi?.();
+    if (!cal) return false;
+
+    const viewType = cal.view.type;
+
+    if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
+      return false;
+    }
+
+    if (selectInfo.start < new Date()) {
+      return false;
+    }
+
+    const dateStr = selectInfo.startStr.slice(0, 10);
     return countAllDayOn(cal, dateStr) < 1;
   },
 
   eventAllow: (dropInfo, draggedEvent) => {
-    // don’t allow crossing between all-day and timed
+    
     if (draggedEvent.allDay !== dropInfo.allDay) return false;
 
-    // only enforce the per-day limit for allDay drops
+    
+
+   
     if (!dropInfo.allDay) return true;
 
     const cal = calendarRef.value?.getApi?.();
     if (!cal) return true;
 
     const targetDate = ymdLocal(dropInfo.start);
-    // exclude the event being dragged
+  
     const count = countAllDayOn(cal, targetDate, draggedEvent.id);
 
-    // max 1 per day
     return count < 1;
   },
 
-  dateClick: (info) => {
-    //if (!info.allDay) return;
-
-    // Call your helper
-    //createAllDayEvent(info.date);
-  },
+  /* dateClick: (info) => {
+    console.log("Date click...");
+    
+  }, */
 
   eventClick: handleEventClick,
   eventResize: handleEventResize,
@@ -2308,6 +2271,201 @@ const options = computed(() => ({
     }
 
   }))
+
+
+
+
+
+
+
+
+  /* const options = computed(() => ({
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+
+    initialView: 'dayGridMonth',
+    nowIndicator: true,
+    datesSet() {
+      refreshTypeBars();
+    },
+
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+
+    locales: [fiLocale, svLocale, etLocale, enLocale],
+    locale: fcLocaleCode.value,
+
+    aspectRatio: window.innerWidth < 640 ? 0.9 : 1,
+
+    dayMaxEvents: true,
+    dayMaxEventRows: 3,
+    moreLinkClick: 'popover',
+
+    events: filteredEvents.value,
+
+    displayEventTime: true,
+    editable: false,
+    droppable: false,
+    selectMirror: true,
+
+    
+    selectable: false,
+
+    views: {
+      dayGridMonth: {
+        selectable: false,
+        dateClick(info) {
+          const cal = calendarRef.value?.getApi();
+          if (!cal) return;
+
+          cal.changeView('timeGridDay', info.dateStr);
+        }
+      },
+
+      timeGridWeek: {
+        selectable: isUserPro.value
+      },
+
+      timeGridDay: {
+        selectable: isUserPro.value
+      }
+    },
+
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
+
+    dayCellDidMount(info) {
+      const key = ymdLocal(info.date);
+      const set = typeBarByDate.value.get(key);
+      if (!set || set.size === 0) return;
+
+      const frame =
+        info.el.querySelector('.fc-daygrid-day-frame') ||
+        info.el;
+
+      if (!frame) {
+        console.warn('[typebar] no frame for', key, info.el);
+        return;
+      }
+
+      if (!frame.style.position || frame.style.position === 'static') {
+        frame.style.position = 'relative';
+      }
+
+      const old = frame.querySelector('.cell-type-bar');
+      if (old) old.remove();
+
+      const bar = document.createElement('div');
+      bar.className = 'cell-type-bar';
+
+      Array.from(set).forEach(t => {
+        const seg = document.createElement('span');
+        seg.className = 'cell-type-segment';
+        seg.style.backgroundColor =
+          (EVENT_TYPES[t] && EVENT_TYPES[t].color) || '#999';
+        bar.appendChild(seg);
+      });
+
+      frame.appendChild(bar);
+    },
+
+    eventContent(arg) {
+      const ev = arg.event;
+      const start = ev.start;
+      const end = ev.end;
+
+      const formatTime = (d) =>
+        d
+          ? d.toLocaleTimeString('fi-FI', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : '';
+
+      const timeStr = ev.allDay
+        ? 'Koko päivän'
+        : `${formatTime(start)}${end ? ' - ' + formatTime(end) : ''}`;
+
+      const timeStrOnlyStart = ev.allDay
+        ? 'Koko päivän'
+        : `${formatTime(start)}`;
+
+      const t = ev.extendedProps?.type;
+
+      if (['offer', 'booking'].includes(t)) {
+        return {
+          html: `<div class="event-time-only">${timeStrOnlyStart}</div>`
+        };
+      }
+
+      if (['time'].includes(t)) {
+        return {
+          html: `<div class="event-time-only">${timeStr}</div>`
+        };
+      }
+
+      return {
+        html: `<div>${arg.event.title}</div>`
+      };
+    },
+
+    eventClassNames(arg) {
+      const t = arg.event.extendedProps?.type;
+      return t && EVENT_TYPES[t]?.class ? [EVENT_TYPES[t].class] : [];
+    },
+
+    selectAllow(selectInfo) {
+      const viewType = selectInfo.view.type;
+
+      
+      if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
+        return false;
+      }
+
+      if (selectInfo.start < new Date()) {
+        return false;
+      }
+
+      const cal = calendarRef.value?.getApi();
+      if (!cal) return true;
+
+      const dateStr = selectInfo.startStr.slice(0, 10);
+      return countAllDayOn(cal, dateStr) < 1;
+    },
+
+    select(info) {
+      const viewType = info.view.type;
+
+      if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
+        return;
+      }
+
+      openCreate({
+        start: info.start,
+        end: info.end,
+        allDay: info.allDay
+      });
+    },
+
+    eventClick: handleEventClick,
+    eventResize: handleEventResize,
+
+    eventDrop(info) {
+      if (info.event.allDay !== info.oldEvent.allDay) {
+        info.revert();
+        return;
+      }
+
+      handleEventDrop(info);
+    }
+  })); */
+
+
 </script>
 
 <style>

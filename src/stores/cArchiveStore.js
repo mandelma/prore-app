@@ -16,7 +16,7 @@ export const useClientArchiveStore = defineStore('cHistory', () => {
 
     const addArchievedClientLocal = (archived) => {
         console.log("Archived in store ", archived);
-        clientHistory.value = clientHistory.value.push(archived);
+        clientHistory.value = [...clientHistory.value, archived];
     }
 
     return {
