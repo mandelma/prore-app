@@ -958,18 +958,67 @@ const otherUserLocations = async (providers, profession, dist) => {
               marker = addProviderMarker(providers[pos], 'orange', 'darkorange');
             }
 
+            /* const fbButton = providers[pos].feedback.length > 0
+            ? `<button style="color: blue; width: 100%;" onclick="myFeedbackFunction(${pos})">Palaute</button>`
+            : ""; */
 
-            const orderButton = providers[pos].id !== providerId.value
-            ? `<button class="bottom-btn" onclick="myGlobalFunction(${pos})">
-                  TEE TILAUS
-              </button>`
-            : "";
+
+
+
+            const feedbackText = providers[pos].feedback
+            .map(f => {
+              const date = new Date(f.date).toLocaleString();
+              return `${date} - ${f.sender}: ${f.text}`;
+            })
+            .join("\n");
+
+            function escapeHtml(str) {
+              return String(str).replace(/[&<>"']/g, ch => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+              }[ch]));
+            }
+
+            //.slice(0, 5)
+            const feedbackHtml = (providers[pos].feedback || [])
+            .filter(f => f && f.text && f.text.trim() !== "")
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map(f => `
+              <div class="feedback-item">
+                <div class="feedback-meta">
+                  <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
+                  <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
+                </div>
+                <div class="feedback-text">${escapeHtml(f.text)}</div>
+              </div>
+            `)
+            .join("");
 
             
 
             window.myGlobalFunction = this && this.openMarker
               ? this.openMarker.bind(this)
               : (idx) => handleSelectedPro(providers[idx])//console.log('openMarker fallback', idx);
+
+            window.toggleFeedback = () => {
+              const el = document.getElementById("feedback-section");
+              if (!el) return;
+              el.style.display = el.style.display === "none" ? "block" : "none";
+            };
+
+            window.myFeedbackFunction = (idx) => {
+              console.log("Feedback button clicked:", idx);
+              //console.log(providers[idx].feedback);
+
+              // example:
+              //showFeedback(providers[idx]);
+              //console.log(feedbackText);
+
+              
+            };
 
 
             // ✅ marker click ONLY opens
@@ -986,16 +1035,16 @@ const otherUserLocations = async (providers, profession, dist) => {
               ? `<img
                   src="${providers[p].user.avatar.imageUrl}"
                   class="rounded-circle"
-                  height="33"
-                  width="33"
+                  height="57"
+                  width="57"
                   style="object-fit:cover;"
                   alt=""
                   loading="eager"
                 /><div class="provider">${providers[p].pName}</div>`
-              : `<i class="far fa-user icon"></i>`;
+              : `<i class="far fa-user fa-3x icon"></i><div class="provider">${providers[p].pName}</div>`;
 
             const orderButton = providers[p].id !== providerId.value
-              ? `<button class="bottom-btn" onclick="myGlobalFunction(${p})">
+              ? `<button class="order-btn" onclick="myGlobalFunction(${p})">
                     TEE TILAUS
                 </button>`
               : "";
@@ -1016,6 +1065,21 @@ const otherUserLocations = async (providers, profession, dist) => {
                     <td>${avatarHtml}</td>
                     <td>${providers[p].description}</td>
                   </tr>
+                </table>
+                ${
+                  feedbackHtml
+                    ? `
+                      <button class="bottom-btn" onclick="toggleFeedback()">Palautteet</button>
+                      <div id="feedback-section" class="feedback-section" style="display:none;">
+                        <div class="feedback-title">Palautteet</div>
+                        <div class="feedback-list">
+                          ${feedbackHtml}
+                        </div>
+                      </div>
+                    `
+                    : ""
+                }
+                <table class="info-table" role="presentation">
                   <tr>
                     <th>Saatavuus</th>
                     <td>${currentMatching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
@@ -1041,6 +1105,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                     </td>
                   </tr>
                 </table>
+                
 
                 ${orderButton}
               </div>
@@ -1306,7 +1371,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 /* 2) Remove the inner scroll wrapper background/clipping */
 :deep(.gm-style .gm-style-iw-d) {
   background: transparent !important;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 :deep(.gm-style-iw-tc,
@@ -1334,24 +1399,19 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   display: none !important;
 }
 
-:deep(.custom-info-window) { 
+:deep(.custom-info-window) {
   position: relative;
   width: min(320px, calc(100vw - 32px));
   max-width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
   background: rgb(34, 80, 80);
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
   padding: 14px 14px 12px;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
-
-  opacity: 1; 
-  transform: translateY(0) 
-  scale(1); 
-  transition: 
-  opacity 190ms ease, 
-  transform 190ms ease; }
-
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
 :deep(.custom-info-window.iw-open) {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -1453,10 +1513,27 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   width: 100%;
   min-height: 44px; /* mobile tap target */
   padding: 10px 12px;
+  margin-bottom: 7px;
   border: none;
   border-radius: 12px;
 
-  background: #0b63ff;
+  background: #212d41;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+:deep(.order-btn) {
+  width: 100%;
+  min-height: 44px; /* mobile tap target */
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  border: none;
+  border-radius: 12px;
+
+  background: #3c5c94;
   color: white;
   font-size: 15px;
   font-weight: 700;
@@ -1640,6 +1717,88 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 
 :deep(.provider-marker__badge--negotiable) {
   background: orange;
+}
+
+.custom-info-window {
+  max-width: 320px;
+  font-family: Arial, sans-serif;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table th {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 8px 6px 0;
+  white-space: nowrap;
+}
+
+.info-table td {
+  vertical-align: top;
+  padding: 6px 0;
+}
+
+/* Feedback info window */
+
+:deep(.feedback-section) {
+  margin-top: 12px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+}
+
+:deep(.feedback-title) {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+:deep(.feedback-list) {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+}
+
+:deep(.feedback-item) {
+  background: #f7f7f7;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+
+:deep(.feedback-meta) {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+:deep(.feedback-sender) {
+  color: blue;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+:deep(.feedback-date) {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
+:deep(.feedback-text) {
+  font-size: 13px;
+  line-height: 1.35;
+  color: #333;
+  word-break: break-word;
+}
+
+.info-table td:last-child {
+  word-break: break-word;
 }
 
 </style>

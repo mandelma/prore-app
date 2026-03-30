@@ -60,7 +60,7 @@
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
             <div class="text-muted small">Vahvistetut tilaukset</div>
-            <MDBBtn outline="info" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')"><span >{{ confirmedClients.length }}</span></MDBBtn>
+            <MDBBtn color="dark" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')"><span >{{ confirmedClients.length }}</span></MDBBtn>
             <!-- <div class="fs-5 fw-semibold">{{ confirmedClients.length }}</div> -->
           </MDBCardBody>
         </MDBCard>
@@ -69,7 +69,7 @@
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
             <div class="text-muted small">Arkistoidut tilaukset</div>
-            <MDBBtn outline="secondary" size="md" block :disabled="true"><span style="">0</span></MDBBtn>
+            <MDBBtn  color="dark" size="md" block :disabled="!providerHistory.length" @click="router.push('/p-archive')"><span style="color: #ddd;">{{ providerHistory.length }}</span></MDBBtn>
             
       
           </MDBCardBody>
@@ -111,7 +111,7 @@
     
     <div style="display: flex; gap: 7px; margin-bottom: 17px;">
       <div style="flex: 1;">
-        <p class="text-muted small btn-desc">Jotain....</p>
+        <p class="text-muted small btn-desc">Kuvat tehtävistä</p>
         <MDBBtn color="dark" block @click="openReferences">Referenssit</MDBBtn>
       </div>
       <div style="flex: 1;">
@@ -119,8 +119,11 @@
         <MDBBtn color="dark" block @click="showFeedback">Palaute</MDBBtn>
       </div>
       <div style="flex: 1;">
+        <!-- <img class="proMap" :src="pro_map" alt="from_map" /> -->
         <p class="text-muted small btn-desc">Asiakkaat kartalla</p>
-        <MDBBtn color="dark" block  @click="seeClients"><span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp;<img class="proMap" :src="pro_map" alt="from_map" /><MDBIcon></MDBIcon></MDBBtn>
+        <MDBBtn color="dark" block  @click="seeClients">
+          <!-- <span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp; -->
+          <MDBIcon size="lg"><i class="fas fa-users" ></i></MDBIcon></MDBBtn>
       </div>
       
     </div>
@@ -282,13 +285,15 @@
 
               <MDBRow class="g-2">
                 <MDBCol col="6">
-                  <label class="form-label mb-1">Status kartalla</label>
+                  <!-- <label class="form-label mb-1">Status kartalla</label>
                   <select class="form-select" v-model="draftProvider.status" @change="markDirty('provider')">
                     <option>Saatavilla</option>
                     <option>Sovitaessa</option>
-                  </select>
+                  </select> -->
                 </MDBCol>
                 <MDBCol col="6">
+
+
                   <!-- <label class="form-label mb-1">Timezone</label>
                   <select class="form-select" v-model="draftProvider.timezone" @change="markDirty('provider')">
                     <option value="Europe/Helsinki">Europe/Helsinki</option>
@@ -298,7 +303,7 @@
                 </MDBCol>
               </MDBRow>
 
-              <div class="d-flex align-items-center justify-content-between p-2 rounded bg-secondary">
+              <!-- <div class="d-flex align-items-center justify-content-between p-2 rounded bg-secondary">
                 <div class="small">
                   <div class="fw-semibold">Sijainti</div>
                   <div class="text-muted">Salli sijaintisi seuranta</div>
@@ -307,7 +312,7 @@
                   <input class="form-check-input" type="checkbox" role="switch" v-model="draftProvider.portalEnabled"
                     @change="markDirty('provider')" />
                 </div>
-              </div>
+              </div> -->
             </div>
           </MDBCardBody>
         </MDBCard>
@@ -322,8 +327,8 @@
             <div class="d-flex flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
               <h6 class="mb-0">Tilaukset</h6>
               <div class="search-wrap">
-                  <MDBInput size="sm" label="Haku..." v-model="clientQuery" />
-                </div>
+                <MDBInput size="sm" label="Haku..." v-model="clientQuery" />
+              </div>
               
             </div>
 
@@ -369,7 +374,7 @@
             <MDBCard v-else class="h-100">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Ajat</h6>
+                  <h6 class="mb-0">Ajat &nbsp;&nbsp;<span style="color: green;">{{ provider.timetable.length }}</span></h6>
                   <MDBBtn size="sm" color="light" outline @click="openSchedule">Kalenteri</MDBBtn>
                 </div>
                 <div style="text-align: left;">
@@ -381,24 +386,6 @@
                   </div>
                 </div>
                 
-                <!-- <div class="vstack gap-2">
-                  <div v-for="a in proCalendarEvents.slice(0, 5)" :key="a.id"
-                    class="p-2 rounded border d-flex justify-content-between align-items-start gap-2">
-                    <div class="min-w-0">
-                      <div class="fw-semibold text-truncate">{{ a.user.firstName }}</div>
-                      <div class="small text-muted text-truncate">
-                        {{ formatDateTime(a.created) }}
-                      </div>
-                    </div>
-                    <MDBBadge :color="a.status === 'confirmed' ? 'success' : 'warning'">
-                      {{ a.status }}
-                    </MDBBadge>
-                  </div>
-
-                  <div v-if="proCalendarEvents.length === 0" class="text-muted small">
-                    Ei tuleviä tehtäviä.
-                  </div> 
-                </div> -->
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -407,32 +394,19 @@
             <MDBCard class="h-100">
               <MDBCardBody>
                 
-                <div>
-                  --------------------<!-- <pro-gallery :images="reference"/> -->
+                <div style="border-top: 1px solid orange;">
+                  <img class="logo-hero__img"
+                    style="border-radius: 100%; margin-top: 13px;"
+                    :src="logo"
+                    alt="Prokeikkatori logo" width="100%"  />
                 </div>
-                <!-- <div class="vstack gap-2">
-                  <div v-for="t in alerts" :key="t.id"
-                    class="p-2 rounded border d-flex justify-content-between align-items-start gap-2">
-                    <div class="min-w-0">
-                      <div class="fw-semibold text-truncate">{{ t.title }}</div>
-                      <div class="small text-muted text-truncate">{{ t.detail }}</div>
-                    </div>
-                    <MDBBtn size="sm" color="light" outline @click="completeAlert(t)">Done</MDBBtn>
-                  </div>
-
-                  <div class="pt-2 border-top">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <div class="fw-semibold">Billing snapshot</div>
-                        <div class="small text-muted">
-                          Next payout: {{ billing.nextPayout ? formatDate(billing.nextPayout)
-                            : "—" }}
-                        </div>
-                      </div>
-                      <MDBBtn size="sm" color="light" outline @click="openBilling">View</MDBBtn>
-                    </div>
-                  </div>
-                </div> -->
+                <div style="display: flex; justify-content: space-between;">
+                  <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">Omat tilaukset</MDBBtn>
+                  <p v-else></p>
+                  <MDBBtn color="primary" @click="router.push('/client-form')"><span class="btn__icon">🔍</span> ETSIN PALVELUA</MDBBtn>
+                </div>
+                
+                
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -484,6 +458,7 @@ import {
   MDBModalFooter,
 } from "mdb-vue-ui-kit";
 import { useRouter } from 'vue-router'
+import logo from '@/assets/logo_trans_main-edited.png';
 import Select from 'primevue/select';
 import ProGallery from "./ProGallery.vue";
 import professionList from '@/components/controllers/professions';
@@ -492,6 +467,8 @@ import Stars from "../Stars.vue";
 import { loadGoogleMaps } from "../controllers/loadGoogleMap";
 import { storeToRefs } from "pinia";
 import { useProStore } from "@/stores/providerStore";
+import { useClientStore } from "@/stores/recipientStore";
+import { useProArchiveStore } from "@/stores/pArchiveStore";
 import map_image from '@/assets/map.gif'
 import ToastHandler from "../helpers/ToastHandler.vue";
 import Calendar from "../Calendar.vue";
@@ -501,8 +478,12 @@ import providerService from '../../service/providers'
 import socket from "@/socket";
 
 const providerStore = useProStore();
+const clientStore = useClientStore();
+const providerArchiveStore = useProArchiveStore();
 const router = useRouter();
 const { incomingOffers, proCalendarEvents, reference } = storeToRefs(providerStore);
+const { isBookings } = storeToRefs(clientStore);
+const { providerHistory } = storeToRefs(providerArchiveStore);
 
 const referenceToShow = computed(() => reference.value);
 
@@ -650,7 +631,8 @@ function onPlaceSelected(p) {
 }
 
 const showFeedback = () => {
-  router.push('/feedback');
+  //router.push('/feedback');
+  router.push({name: 'pro-feedback', params: {id: provider.value.id}})
 }
 
 const persistableImages = (arr) =>
@@ -962,38 +944,6 @@ function markDirty(section) {
   if (section === "provider") dirty.provider = true;
 }
 
-/* function resetProvider() {
-  assignDraftProvider(provider);
-  dirty.provider = false;
-  notify("Reset", "Provider info restored.");
-} */
-
-/* async function saveProvider() {
-  if (!draftProvider.name?.trim()) {
-    notify("Validation", "Provider name is required.");
-    return;
-  }
-  if (draftProvider.email && !isValidEmail(draftProvider.email)) {
-    notify("Validation", "Please enter a valid email.");
-    return;
-  }
-
-  busy.value = true;
-  try {
-    const saved = await apiUpdateProvider(providerId.value, toPlain(draftProvider));
-    assignProvider(saved);
-    assignDraftProvider(saved);
-    dirty.provider = false;
-    notify("Saved", "Provider info updated.");
-  } catch (e) {
-    notify("Error", "Could not save provider info.");
-    // eslint-disable-next-line no-console
-    console.error(e);
-  } finally {
-    busy.value = false;
-  }
-} */
-
 async function saveAll() {
   if (providerDirty.value) await saveProvider();
   else notify("Nothing to save", "No changes detected.");
@@ -1150,23 +1100,6 @@ function notify(title, message) {
   toastTimer = setTimeout(() => (toast.show = false), 3500);
 }
 
-// -------- Mock API layer (replace with your real calls) --------
-/* async function apiGetProvider(id) {
-  await sleep(120);
-  return {
-    id,
-    name: "Nordic Wellness Clinic",
-    email: "admin@nordicwellness.example",
-    phone: "+358 40 123 4567",
-    address: "Esplanadi 1, Helsinki",
-    status: "Active",
-    timezone: "Europe/Helsinki",
-    notes: "VIP provider. Contract renews in March.",
-    portalEnabled: true,
-    updatedAt: new Date().toISOString(),
-  };
-} */
-
 async function apiUpdateProvider(id, payload) {
   await sleep(180);
   return { ...payload, id, updatedAt: new Date().toISOString() };
@@ -1308,7 +1241,7 @@ function sleep(ms) {
 }
 
 .proMap {
-  width: 20px;
+  width: 17px;
   cursor: pointer;
 }
 
@@ -1420,6 +1353,8 @@ function sleep(ms) {
 .pac-container {
   z-index: 99999 !important;
 }
+
+.btn__icon{ font-size: 0.8rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55));  }
 
 /* Client actions*/
 /* .ticker {

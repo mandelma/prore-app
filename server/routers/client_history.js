@@ -21,6 +21,7 @@ historyRouter.post('/', async (req, res) => {
             address: body.address,
             date: body.date,
             professional: body.professional,
+            deal: body.deal,
             bookerId: body.bookerId,
             user: body.userID
         })

@@ -10,6 +10,7 @@
 
       <!-- Edit toggle -->
       <button
+        v-if="!booking.offers.length"
         class="btn btn-primary"
         type="button"
         @click="isEditing = !isEditing"
@@ -43,7 +44,7 @@
       <div class="photos">
         <div class="photos__header">
           <h5 class="section-title">Kuvat</h5>
-          <button class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
+          <button v-if="!booking.offers.length" class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
             Lisää kuvia
           </button>
           <input
@@ -68,8 +69,9 @@
         </div>
 
         <div v-else class="empty-state">
-          <p class="empty-state__title">Ei kuvia vielä</p>
-          <p class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p>
+          <p v-if="!booking.offers.length" class="empty-state__title">Ei kuvia vielä</p>
+          <p v-else>Ei kuvia</p>
+          <p v-if="!booking.offers.length" class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p>
         </div>
       </div>
     </div>

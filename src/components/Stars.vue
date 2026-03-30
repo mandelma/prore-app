@@ -56,19 +56,19 @@ export default {
 
 <style scoped>
 .full-star {
-  font-size: 24px;
+  font-size: 17px;
   color: yellow;
 
 }
 .half-star {
-  font-size: 24px;
+  font-size: 17px;
   background: linear-gradient(to right, yellow 50%, darkgrey 50%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
 }
 .star {
-  font-size: 24px;
+  font-size: 17px;
   color: darkgrey;
   display: inline-block;
 }
@@ -79,19 +79,19 @@ export default {
 
 @media (max-width: 530px) {
   .full-star {
-    font-size: 24px;
+    font-size: 17px;
     color: yellow;
     display: inline-block;
   }
   .half-star {
-    font-size: 24px;
+    font-size: 17px;
     background: linear-gradient(to right, yellow 50%, darkgrey 50%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
   }
   .star {
-    font-size: 24px;
+    font-size: 17px;
     color: darkgrey;
     display: inline-block;
   }
@@ -108,19 +108,19 @@ export default {
 }
 @media(max-width: 330px) {
   .full-star {
-    font-size: 17px;
+    font-size: 11px;
     color: yellow;
     display: inline-block;
   }
   .half-star {
-    font-size: 17px;
+    font-size: 11px;
     background: linear-gradient(to right, yellow 50%, darkgrey 50%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
   }
   .star {
-    font-size: 17px;
+    font-size: 11px;
     color: darkgrey;
     display: inline-block;
   }

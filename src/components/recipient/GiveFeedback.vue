@@ -62,8 +62,10 @@ import { useProStore } from '@/stores/providerStore';
 import { useClientStore } from '@/stores/recipientStore';
 import { useUserStore } from '@/stores/userStore';
 import { useClientArchiveStore } from '@/stores/cArchiveStore';
+import { useProArchiveStore } from '@/stores/pArchiveStore';
 import providerService from '../../service/providers';
-import clientHistoryService from '../../service/client_history'
+import clientHistoryService from '../../service/client_history';
+import providerHistoryService from '../../service/provider_history';
 
 const props = defineProps({
   providerId: {type: String},
@@ -75,6 +77,7 @@ const userStore = useUserStore();
 const providerStore = useProStore();
 const clientStore = useClientStore();
 const cArchiveStore = useClientArchiveStore();
+const pArchiveStore = useProArchiveStore();
 const rating = ref(0);
 const feedbackContent = ref("");
 
@@ -102,10 +105,22 @@ function formatDateTime(iso) {
   });
 }
 
+
 const handleArchiveClient = async () => {
   const booking = clientStore.getBookingById(props.booking_id);
   const provider = await providerService.getProvByProvId(props.providerId);
+  const clientName = profile.value.firstName + " " + profile.value.lastName;
   if (booking && provider) {
+    const providerHistory = {
+      name: clientName,
+      header: booking.header,
+      content: booking.description,
+      address: booking.address,
+      distance: booking.offer.distance,
+      date: booking.created,
+      userID: provider.user.id
+    }
+
     const clientHistory = {
         status: "",
         header: booking.header,
@@ -116,15 +131,19 @@ const handleArchiveClient = async () => {
         address:  provider.address,
         date:  booking.created,
         professional:  provider.profession,
+        deal: booking.offer,
         bookerId: profile.value.id
       }
 
       const complitedClientBooking = await clientHistoryService.updateClientHistory(clientHistory);
+      const complitedBooking = await providerHistoryService.updateProHistory(providerHistory);
 
       if (complitedClientBooking) cArchiveStore.addArchievedClientLocal(complitedClientBooking);
+      if (complitedBooking) pArchiveStore.archiveProviderLocal(complitedBooking);
+
       console.log("Client archieve - ", complitedClientBooking);
 
-      archivedClient.value = complitedClientBooking;
+      //archivedClient.value = complitedClientBooking;
   }
   
 }

@@ -29,6 +29,9 @@ const clientHistorySchema = new Schema({
     professional: {
         type: Array
     },
+    deal: {
+        type: Object
+    },
     bookerId: {
         type: String
     },

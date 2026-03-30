@@ -38,7 +38,11 @@
         </MDBToast>
       </div>
       <div class="form-card">
-        <p style="margin-top: 10px; color: #00BFFFFF;">{{t('client_form_offersOrQuickSolution')}}</p>
+        <div style="display: flex; justify-content: space-between;">
+          <p style="margin-top: 10px; color: #00BFFFFF;">{{t('client_form_offersOrQuickSolution')}}</p>
+          <MDBBtnClose white @click="router.go(-1)"/>
+        </div>
+        
         <form novalidate @submit.prevent="createClient" autocomplete="off" style=" padding: 5px;">
           <MDBRow>
 
@@ -260,7 +264,7 @@
 
 <script setup>
 /* global google */
-import {MDBContainer, MDBRow, MDBCol, MDBBtn, MDBCheckbox, MDBTextarea, MDBToast, MDBInput, MDBIcon, MDBDateTimepicker, MDBSpinner, MDBDatepicker, MDBTimepicker} from "mdb-vue-ui-kit";
+import {MDBContainer, MDBRow, MDBCol, MDBBtn, MDBCheckbox, MDBTextarea, MDBToast, MDBInput, MDBIcon, MDBDateTimepicker, MDBSpinner, MDBDatepicker, MDBTimepicker, MDBBtnClose} from "mdb-vue-ui-kit";
 
 import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
 import { useLoginStore } from "@/stores/login.js";
@@ -268,7 +272,7 @@ import proList from '@/components/controllers/professions'
 import Select from 'primevue/select';
 import map_image from '@/assets/map.gif'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n';
 import clientService from '../../service/recipients';
 import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
@@ -286,6 +290,7 @@ const emit = defineEmits(['createBookingMultiple'])
 const { locale, t } = useI18n();
 
 const router = useRouter();
+const route = useRoute();
 
 const form = reactive({
   profession: "",
@@ -452,35 +457,6 @@ const L = computed(() => {
 // force a *full* re-init of both pickers whenever locale changes
 const reInitKey = computed(() => `dt-${locale.value}`)
 
-
-// Reactive options derived from current locale
-// const dpOptions = computed(() => {
-//   const L = labels[locale.value] ?? labels.en
-//   return {
-//     firstDay: L.firstDay,
-//     monthsFull: L.monthsFull,
-//     monthsShort: L.monthsShort,
-//     weekdaysFull: L.weekdaysFull,
-//     weekdaysShort: L.weekdaysShort,
-//     // choose an input format you want (affects the text in the input)
-//     format: 'dd.mm.yyyy'
-//   }
-// })
-
-// const tpOptions = computed(() => {
-//   const L = labels[locale.value] ?? labels.en
-//   return {
-//     cancelLabel: L.time.cancelLabel,
-//     okLabel: L.time.okLabel,
-//     twelveHour: L.time.twelveHour
-//   }
-// })
-
-// Force remount when locale changes so popup re-inits with new labels
-//const reinitKey = computed(() => `dt-${locale.value}`)
-
-
-
 const isLocating = ref(false)                     // used to show the spinner
 
 
@@ -494,7 +470,9 @@ watch(currentLang, (lang) => {
 onMounted(async() => {
   validateMaps();
 
+  //console.log("P --- ", professions)
 
+  getReadyDataParams()
 })
 
 const validateMaps = async() => {
@@ -537,7 +515,30 @@ const validateMaps = async() => {
     mapToastModel.value = true;
     mapToastState.value = 'danger';
     mapToastIcon.value = 'fas fa-check fa-lg me-2';
-    mapToastContent = 'Internet yhteys puuttuu!';
+    mapToastContent.value = 'Internet yhteys puuttuu!';
+  }
+}
+
+const getReadyDataParams = () => {
+  const clientData = route.query.content;
+
+  if (clientData) {
+    const parsed = JSON.parse(clientData);
+
+    console.log("C Data - ", parsed);
+
+    // 🔥 Find matching option object
+    const selectedProfession = professions
+    .flatMap(group => group.items)
+    .find(p => p.label === parsed.professional);
+
+    if (selectedProfession) {
+      form.profession = selectedProfession;
+    } else {
+      console.log("Profession not found in options");
+    }
+  } else {
+    console.log("No client data");
   }
 }
 

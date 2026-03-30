@@ -2,20 +2,81 @@
     <MDBContainer>
         <form style="background-color: #0b1618; padding: 17px; border: 1px solid #1B2330; border-radius: 8px;">
           <div style="display: flex; justify-content: right;">
-            <MDBBtn color="dark" @click="handleOpenChat">
+            <MDBBtn type="button" color="dark" @click="handleOpenChat">
               <i class="far fa-comment"></i>
             </MDBBtn>
+
+            
             
           </div>
         
           <div class="field-wrapper">
-          <p>{{ props.target?.profession.join(', ')}}</p>
+            <p>{{ props.target?.profession.join(', ')}}</p>
           </div>
           <div class="field-wrapper">
-              <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
-              <p v-if="props.date">{{ props.date }}</p>
-              <p v-else style="color: red;">Tehtävän päivämäärä ja kellonaika on pakollinen</p>
+
+            <MDBDateTimepicker
+              v-if="!props.date"
+              size="lg"
+              label="Valitse tehtävän päivämäärä ja aika"
+              v-model="dateTime"
+              :toggleButton="false"
+              inputToggle
+
+              :datepicker="{
+              ...L
+              }"
+                :timepicker="{
+                ...L,
+                hoursFormat: 24
+              }"
+
+              
+                disablePast
+            />
+            </div>
+
+            <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
+            <div >
+            <p v-if="props.date || dateTime">{{ props.date }}</p>
+            
+          
+            <p v-else style="color: red;">Tehtävän päivämäärä ja kellonaika on pakollinen</p>
           </div>
+
+       
+
+          <div style="width: 100%;" class="field-wrapper">
+            <div class="input-group">
+              <MDBInput
+                size="lg"
+                id="request-address-input"
+                v-model="form.address"
+                label="Anna osoite *"
+                placeholder=""
+                wrapperClass="form-outline flex-grow-3"
+                :inputClass="'ps-0'"
+                aria-describedby="button-addon2"
+              />
+
+              <MDBBtn
+                type="button"
+                style="border:1px solid #ddd"
+                @click="form.address ? clearAddress() : showAddress()"
+              >
+                <MDBIcon size="2x">
+                  <i :class="form.address ? 'fas fa-times' : 'fas fa-search-location'"></i>
+                </MDBIcon>
+              </MDBBtn>
+            </div>
+
+            <span v-if="errors.address" class="field-footer">{{ errors.address }}</span>
+          </div>
+
+          <div v-show="isLoadingAddress" style="text-align: center; padding-bottom: 27px;">
+            <MDBSpinner grow color="info" />
+          </div>
+
           <div class="field-wrapper">
               <MDBInput
                   label="Syötä tilauksen avainsana *"
@@ -45,46 +106,349 @@
 
           </div>
           <!-- Send booking if date is entered -->
-          <MDBBtn color="primary" :disabled="!props.date" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
+          <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
         </form>
         
     </MDBContainer>
 </template>
 <script setup>
 import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
-import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon} from 'mdb-vue-ui-kit';
+import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon, MDBDateTimepicker, MDBSpinner} from 'mdb-vue-ui-kit';
+import { storeToRefs } from 'pinia';
 import { useConversationStore } from '@/stores/conversationStore';
+import { useMapStore } from '@/stores/mapStore';
+import { loadGoogleMaps } from '../controllers/loadGoogleMap';
 defineOptions({
     name: 'request-form'
 })
 const props = defineProps({
     target: {type: null},
-    date: String
+    date: String,
+    isOpen: Boolean
 })
 const emit = defineEmits(['sendRequest']);
 
+
+
+//Needed i18
+//const reInitKey = computed(() => `dt-${locale.value}`)
+
+const geocoder = ref(null)
+const lat = ref(null);
+const lng = ref(null);
+const dateTime = ref(null);
+
+const addressInput = ref(null)
+const autocomplete = ref(null)
+
+const suppressAutocomplete = ref(false)
+
+const mapError = ref(false);
+const isAddress = ref(false);
+const isLoadingAddress = ref(false);
 const form = reactive({
+  address: "",  
   requestHeader: "",
   requestContent: ""
 });
+const mapStore = useMapStore();
 const conversationStore = useConversationStore();
+
+const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
 const errors = reactive({});
 
 const validateForm = () => {
+  errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
   errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
- 
   errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
 
-  return !errors.requestHeader && !errors.requestContent;
+  return !errors.address && !errors.requestHeader && !errors.requestContent;
 }
+
+watch(() => form.address, () => (errors.address = ""));
 
 watch(() => form.requestHeader, () => (errors.requestHeader = ""));
 
 watch(() => form.requestContent, () => (errors.requestContent = ""));
 
+watch(props.date, (date) => {
+  if (date) {
+    dateTime.value = date
+  }
+})
+
+
+
+watch(() => props.isOpen, async (open) => {
+  if (open) {
+    await nextTick()
+    setTimeout(async () => {
+      await initAutocomplete()
+    }, 100)
+  }
+})
+
 const isValidDate = (d) => d instanceof Date && !isNaN(+d);
 
+onMounted( async () => {
+  //await loadGoogleMaps()
+
+  try {
+    const initPromise = mapStore.init()
+    await nextTick()
+
+    const pos = userPos.value || lastKnownPos.value
+    if (pos) {
+      lat.value = pos.lat
+      lng.value = pos.lng
+      await getAddressFromCoords(pos.lat, pos.lng)
+    }
+
+    await initPromise
+    await initAutocomplete()
+  } catch (err) {
+    console.error("Map init failed:", err)
+  }
+
+  //console.log("google.maps.places =", google.maps.places)
+  /* try {
+    const initPromise = mapStore.init()
+
+    await nextTick()
+
+    const pos = userPos.value || lastKnownPos.value
+    if (pos) {
+      lat.value = pos.lat
+      lng.value = pos.lng
+
+      if (form.address) {
+        console.log("Address is set " + form.address);
+      }
+      
+      await getAddressFromCoords(pos.lat, pos.lng);
+      await initAutocomplete()
+    }
+
+    await initPromise
+
+    const freshPos = userPos.value || lastKnownPos.value
+    if (freshPos) {
+      lat.value = freshPos.lat
+      lng.value = freshPos.lng
+
+      await getAddressFromCoords(freshPos.lat, freshPos.lng)
+      await initAutocomplete()
+    }
+  } catch (err) {
+    console.error('Map init failed:', err)
+  } */
+})
+
+const validateMaps = async() => {
+  mapError.value = false;
+  try {
+    await loadGoogleMaps();
+    console.log("Map is inited in Recipient form! ✅");
+    const center = { lat: 50.064192, lng: -130.605469 };
+    // Create a bounding box with sides ~10km away from the center point
+    const defaultBounds = {
+      north: center.lat + 0.1,
+      south: center.lat - 0.1,
+      east: center.lng + 0.1,
+      west: center.lng - 0.1,
+    };
+
+    const input = document.getElementById("request-address-input");
+
+    const options = {
+      bounds: defaultBounds,
+      componentRestrictions: { country: "fi" },
+      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
+      strictBounds: false,
+      
+    };
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+    
+    autocomplete.addListener("place_changed", () => {
+      let place = autocomplete.getPlace()
+      lat.value = place.geometry.location.lat()
+      lng.value = place.geometry.location.lng()
+
+      form.address = place.formatted_address
+      console.log(place)
+    })
+  } catch (err) {
+    console.error('Google Maps failed to load ❌', err);
+    //mapError.value = true;
+    //mapToastModel.value = true;
+    //mapToastState.value = 'danger';
+    //mapToastIcon.value = 'fas fa-check fa-lg me-2';
+    //mapToastContent.value = 'Internet yhteys puuttuu!';
+  }
+}
+
+
+
+/* const setMap = async () => {
+  try {
+    const initPromise = mapStore.init()
+
+    await nextTick()
+
+    const pos = userPos.value || lastKnownPos.value
+    if (pos) {
+      lat.value = pos.lat
+      lng.value = pos.lng
+
+      if (form.address) {
+        console.log("Address is set " + form.address);
+      }
+      
+      await getAddressFromCoords(pos.lat, pos.lng);
+      await initAutocomplete()
+    }
+
+    await initPromise
+
+    const freshPos = userPos.value || lastKnownPos.value
+    if (freshPos) {
+      lat.value = freshPos.lat
+      lng.value = freshPos.lng
+
+      await getAddressFromCoords(freshPos.lat, freshPos.lng)
+      await initAutocomplete()
+    }
+  } catch (err) {
+    console.error('Map init failed:', err)
+  }
+} */
+
+const getAddressFromCoords = async (lat, lng) => {
+  try {
+    if (!geocoder.value) {
+      geocoder.value = new google.maps.Geocoder()
+    }
+
+    const response = await geocoder.value.geocode({
+      location: { lat, lng },
+      region: "fi",
+    })
+
+    const result = response.results?.[0]
+    if (!result) return null
+
+    form.address = result.formatted_address
+    // save these if you need them
+    //selectedPlaceId.value = result.place_id
+    //selectedAddressComponents.value = result.address_components
+
+    return result
+  } catch (err) {
+    console.error("Reverse geocoding failed:", err)
+    return null
+  }
+}
+
+
+const testPredictions = () => {
+  const service = new google.maps.places.AutocompleteService()
+
+  service.getPlacePredictions(
+    {
+      input: "Helsinki",
+      componentRestrictions: { country: "fi" },
+      types: ["address"],
+    },
+    (predictions, status) => {
+      console.log("status:", status)
+      console.log("predictions:", predictions)
+    }
+  )
+}
+
+
+const initAutocomplete = async () => {
+  await nextTick()
+
+  const root = document.getElementById("request-address-input")
+  const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
+
+  console.log("root:", root)
+  console.log("input:", input, input?.tagName)
+
+  if (!(input instanceof HTMLInputElement)) {
+    console.error("Not a real input element")
+    return
+  }
+
+  if (autocomplete.value) {
+    google.maps.event.clearInstanceListeners(autocomplete.value)
+    autocomplete.value = null
+  }
+
+  autocomplete.value = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: { country: "fi" },
+    fields: ["address_components", "geometry", "place_id", "formatted_address"],
+    strictBounds: false,
+  })
+
+  autocomplete.value.addListener("place_changed", () => {
+    const place = autocomplete.value.getPlace()
+    console.log("place:", place)
+
+    if (!place.geometry) return
+
+    lat.value = place.geometry.location.lat()
+    lng.value = place.geometry.location.lng()
+    form.address = place.formatted_address || ""
+  })
+}
+
+const showAddress = async () => {
+  isLoadingAddress.value = true
+  suppressAutocomplete.value = true
+
+  try {
+    const pos = userPos.value || lastKnownPos.value
+
+    if (pos) {
+      lat.value = pos.lat
+      lng.value = pos.lng
+      await getAddressFromCoords(pos.lat, pos.lng)
+    }
+
+    await nextTick()
+
+    const root = document.getElementById("request-address-input")
+    const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
+    input?.blur()
+  } finally {
+    isLoadingAddress.value = false
+
+    setTimeout(() => {
+      suppressAutocomplete.value = false
+    }, 300)
+  }
+}
+
+const clearAddress = () => {
+  isAddress.value = false;
+  form.address = '';
+
+  
+}
+
+/* defineExpose({
+  initAutocomplete,
+  validateMaps
+}) */
+
+
+/* const clearAddress = () => {
+  isAddress.value = false;
+  form.address = '';
+} */
 
 // 2) sanitize string→Date parsing (return null if bad)
 function parseMaybeDate(v) {
@@ -156,16 +520,32 @@ const handleRequest = () => {
         
 
         emit('sendRequest', {
-            header: form.requestHeader,
-            content: form.requestContent,
+          date: dateTime.value,
+          address: form.address,
+          myLat: lat?.value,
+          mylng: lng?.value, 
+          header: form.requestHeader,
+          content: form.requestContent,
         });
     }
 }
 
 </script>
+<style >
+.pac-container {
+  z-index: 99999 !important;
+}
+/* .pac-container {
+  z-index: 99999 !important;
+} */
+</style>
 <style scoped>
 .message-counter {
   float: right;
   opacity: 0.5;
 }
+.hideInput {
+  display: none;
+}
+
 </style>

@@ -1,6 +1,6 @@
 <template>
     <MDBContainer>
-        <div style="display: flex; justify-content: right; padding: 7px 0 7px 0">
+        <div v-if="route.name === 'pro-feedback'" style="display: flex; justify-content: right; padding: 7px 0 7px 0">
             <MDBBtnClose white @click="router.go(-1)"/>
         </div>
         <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
@@ -19,36 +19,16 @@
             </MDBCard>
         </div>
         
-        <!-- <div style="display:flex; gap:14px; flex-wrap:wrap;">
-
-            <MDBCard style="flex:1; min-width:260px;">
-                <MDBCardBody>
-                <MDBBadge color="success" className="mb-2">Positive</MDBBadge>
-                <MDBCardText>
-                    Very friendly staff and quick service.
-                </MDBCardText>
-                </MDBCardBody>
-            </MDBCard>
-
-            <MDBCard style="flex:1; min-width:260px;">
-                <MDBCardBody>
-                <MDBBadge color="danger" className="mb-2">Negative</MDBBadge>
-                <MDBCardText>
-                    Waiting time was long.
-                </MDBCardText>
-                </MDBCardBody>
-            </MDBCard>
-
-        </div> -->
     </MDBContainer>
     
 </template>
 <script setup>
 import { MDBContainer, MDBCard, MDBCardBody, MDBCardText, MDBCardTitle, MDBBadge, MDBBtnClose, MDBCardHeader } from 'mdb-vue-ui-kit';
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia';
 import { useProStore } from '@/stores/providerStore';
+import providerService from '../../service/providers';
 
 import Stars from '../Stars.vue';
 
@@ -56,10 +36,40 @@ defineOptions ({
     name: 'pro-feedback'
 })
 
-const router = useRouter();
-const providerStore = useProStore();
+const props = defineProps({
+    target: {type: Object}
+})
 
-const provider = computed(() => providerStore?.provider);
+const router = useRouter();
+const route = useRoute();
+const providerStore = useProStore();
+const provider = ref(null);
+
+//const provider = computed(() => providerStore?.provider);
+
+
+//const providerId = computed(() => route.params.id);
+
+onMounted( async() => {
+    
+    // 1. If component received provider via props, use it
+    if (props.target) {
+        provider.value = props.target;
+        return;
+    }
+
+    // 2. Otherwise get id from route params and fetch
+    const providerId = route.params.id;
+
+    if (providerId) {
+        const pro = await providerService.getProvByProvId(providerId);
+        if (pro) {
+        provider.value = pro;
+        }
+    }
+
+
+})
 
 const formatDateTime = (iso) => {
   if (!iso) return "—";

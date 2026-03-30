@@ -1,19 +1,24 @@
 <template>
-    <MDBContainer>
+    <MDBContainer style="margin-top: 17px;">
         <div v-for="note in notifications" :key="note.id">
-            <MDBCard text="center">
-                <MDBCardHeader style="display: flex; justify-content: right; color: limegreen; padding-right: 20px;">
+            <MDBCard text="center" style="margin-bottom: 9px; max-height: 120px;">
+                <!-- <MDBCardHeader style="display: flex; justify-content: right; color: limegreen; padding-right: 20px;">
                     <p style="cursor:pointer;" @click="removeNote(note.id)">Selvä</p>
-                </MDBCardHeader>
+                </MDBCardHeader> -->
                 <MDBCardBody>
                     <MDBCardTitle style="color: burlywood">
+                        
                         {{ note.title }}
                     </MDBCardTitle>
                     <MDBCardText>
                         {{ note.content }}
+                        <div style="display: flex; justify-content: right;">
+                            <p style="cursor:pointer; color: aqua;" @click="removeNote(note.id)">Selvä</p>
+                        </div>
+                        
                     </MDBCardText>
                 </MDBCardBody>
-                <MDBCardFooter class="text-muted">2 days ago</MDBCardFooter>
+                <!-- <MDBCardFooter class="text-muted">2 days ago</MDBCardFooter> -->
             </MDBCard>
         </div>
     </MDBContainer>

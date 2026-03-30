@@ -5,17 +5,23 @@
     </div>
     <!-- LIST VIEW -->
     <div v-if="!showDetails">
-      <div class="history__header">
-        <h3 class="history__title">Tilatut palvelut</h3>
-        <p class="history__subtitle">
-          Valitse tilaus nähdäksesi tiedot ja varataksesi uudelleen.
-        </p>
+      <div class="history__detailTop">
+        <div class="history__header">
+          <h3 class="history__title">Tilatut palvelut</h3>
+          <p class="history__subtitle">
+            Valitse tilaus nähdäksesi tiedot ja varataksesi uudelleen.
+          </p>
+        </div>
+        <div class="search-wrap">
+          <MDBInput size="sm" label="Hae yritys..." v-model="bookingQuery" />
+        </div>
       </div>
+      
 
       <!-- MOBILE: cards -->
       <div class="history__cards d-md-none">
         <div
-          v-for="b in clientHistory"
+          v-for="b in filteredBookingHistory"
           :key="b.id"
           class="historyCard"
         >
@@ -49,7 +55,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="b in clientHistory" :key="b.id" class="historyTable__row">
+          <tr v-for="b in filteredBookingHistory" :key="b.id" class="historyTable__row">
             <td class="history__muted">{{ formatDateTime(b.date) }}</td>
             <td class="history__strong">{{ b.company }}</td>
             <td class="history__muted">{{ b.header }}</td>
@@ -133,7 +139,7 @@
           </div>
 
           <div class="historySection__actions">
-            <MDBBtn outline="info" @click="goToProvider(selectedBooking?.provider_id)">
+            <MDBBtn outline="info" @click="goToProvider(selectedBooking?.deal)">
               Näytä profiili
             </MDBBtn>
           </div>
@@ -141,15 +147,114 @@
       </div>
     </div>
   </div>
+
+  <MDBModal
+    tabindex="-1"
+    class="modal-fade"
+    v-model="providerProfileModal"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle >{{ selectedProvider?.name }}</MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+
+      <div class="modal-pro-first">
+        <MDBIcon v-if="!selectedProvider?.user?.avatar?.isImage"  icon="user" class="icon" />
+        <img
+        v-else
+          :src="selectedProvider?.user?.avatar?.imageUrl"
+          class="rounded-circle"
+          height="53"
+          alt=""
+          loading="lazy"
+        />
+
+        <div>
+          <stars :rating="selectedProvider?.rating" />
+          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.ratersCount }} arvioijaa</p>
+        </div>
+      </div>
+      
+      <offer-content :offerId="dealID" />
+    </MDBModalBody>
+    <MDBModalFooter>
+      <div style="display: flex; justify-content: right;">
+        <div style="display: flex; gap: 7px;">
+          <MDBBtn color="danger" @click="providerProfileModal = false"> Peruuta </MDBBtn>
+          
+        </div>
+      </div>
+      
+    </MDBModalFooter>
+  </MDBModal>
+
+  <MDBModal
+    tabindex="-1"
+    class="modal-fade"
+    v-model="orderProviderModal"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle >{{ selectedProvider?.pName }}</MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+
+      <div class="modal-pro-first">
+        <MDBIcon v-if="!selectedProvider?.user?.avatar?.isImage"  icon="user" class="icon" />
+        <img
+        v-else
+          :src="selectedProvider?.user?.avatar?.imageUrl"
+          class="rounded-circle"
+          height="53"
+          alt=""
+          loading="lazy"
+        />
+
+        <div>
+          <stars :rating="selectedProvider?.rating" />
+          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.ratersCount }} arvioijaa</p>
+        </div>
+      </div>
+      
+      <RequestForm
+        ref="requestFormRef"
+        :target="selectedProvider"
+        :is-open="orderProviderModal"
+        @sendRequest="handleRequest"
+      />
+    </MDBModalBody>
+    <MDBModalFooter>
+      <div style="display: flex; justify-content: right;">
+        <div style="display: flex; gap: 7px;">
+          <MDBBtn color="danger" @click="orderProviderModal = false"> Peruuta </MDBBtn>
+          
+        </div>
+      </div>
+      
+    </MDBModalFooter>
+  </MDBModal>
 </template>
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, watch, nextTick } from "vue"
 import { useRouter } from "vue-router"
 import { useClientArchiveStore } from "@/stores/cArchiveStore"
 import { storeToRefs } from "pinia"
+import providerService from '../../service/providers'
+import Stars from "../Stars.vue"
+import OfferContent from "./OfferContent.vue"
+import RequestForm from "./RequestForm.vue"
+import { useLoginStore } from "@/stores/login"
+import { useClientStore } from "@/stores/recipientStore"
 
 // MDB components (names may vary slightly in your setup)
-import { MDBTable, MDBBtn, MDBBtnClose } from "mdb-vue-ui-kit"
+import { MDBTable, MDBBtn, MDBBtnClose, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBInput } from "mdb-vue-ui-kit"
 
 defineOptions ({
     name: "client-history"
@@ -162,11 +267,34 @@ const props = defineProps({
 
 const router = useRouter()
 
+const auth = useLoginStore();
+const { user } = storeToRefs(auth);
+
+const clientStore = useClientStore();
+
 const cArchiveStore = useClientArchiveStore();
 const showDetails = ref(false)
 const selectedBooking = ref(null)
 
 const { clientHistory } = storeToRefs(cArchiveStore);
+
+const providerProfileModal = ref(false);
+const orderProviderModal = ref(false);
+
+const bookingQuery = ref("");
+const selectedProvider = ref(null);
+const dealID = ref(null);
+
+const requestFormRef = ref(null)
+
+watch(() => orderProviderModal.value, async (open) => {
+  if (open) {
+    await nextTick()
+    /* setTimeout(() => {
+      requestFormRef.value?.initAutocomplete()
+    }, 100) */
+  }
+})
 
 const formatDateTime = (iso) => {
   if (!iso) return "—";
@@ -182,6 +310,25 @@ const formatDateTime = (iso) => {
   });
 }
 
+const filteredBookingHistory = computed(() => {
+  const q = bookingQuery.value.trim().toLowerCase();
+  if (!q) return clientHistory.value;
+
+  return clientHistory.value.filter((b) => {
+    const provider = (b?.company ?? "").toLowerCase();
+    /* const last  = (c?.user?.lastName ?? "").toLowerCase();
+    const status = (c?.status ?? "").toLowerCase();
+    const email  = (c?.user?.email ?? c?.email ?? "").toLowerCase(); */
+
+    return (
+      provider.includes(q) 
+      /* last.includes(q) ||
+      email.includes(q) ||
+      status.includes(q) */
+    );
+  });
+});
+
 function openDetails(b) {
   selectedBooking.value = b
   showDetails.value = true
@@ -195,12 +342,91 @@ function closeDetails() {
 function bookAgain(b) {
   if (!b) return
   // Adjust route to your app
-  router.push({ name: "booking-create", params: { providerId: b.provider_id } })
+  console.log("--------- " + b?.deal?.provider?.profession[0])
+
+  selectedProvider.value = b?.deal?.provider;
+  /* const clientObject = {
+    professional: b?.deal?.provider?.profession[0],
+    title: "Uusi tilaus"
+  }
+  router.push({
+    name: 'recipient-form',
+    query: {
+      content: JSON.stringify(clientObject)
+    }
+  }) */
+  orderProviderModal.value = true;
 }
 
-function goToProvider(providerId) {
-  if (!providerId) return
-  router.push({ name: "provider-profile", params: { id: providerId } })
+const goToProvider = async (deal) => {
+  if (!deal) return
+  //console.log("Booking offer - ", deal);
+
+  const provider = deal?.provider;
+  selectedProvider.value = provider;
+  if (!selectedProvider.value) return;
+
+  console.log("Provider - ", selectedProvider.value);
+  dealID.value = deal.id;
+  console.log("Deal id - " + deal.id);
+  /* const provider = await providerService.getProvByProvId(providerId);
+  if (!provider) return;
+  console.log("Got provider - ", provider)
+  selectedProvider.value = provider; */
+
+  providerProfileModal.value = true;
+  
+  //router.push({ name: "provider-profile", params: { id: providerId } })
+}
+
+const parseDmyTime = (str) => {
+  const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, dd, mm, yyyy, HH, MM] = m.map(Number);
+  return new Date(yyyy, mm - 1, dd, HH, MM);
+}
+// Create a new booking
+const handleRequest = async (payload) => {
+  console.log("Handling request client history... ", payload);
+  const userId = await auth.user.id;
+  const receiverId = selectedProvider.value?.user?.id;
+  console.log("Sending request to " + selectedProvider.value?.user?.username);
+
+  const dateObj = parseDmyTime(payload.date);
+  let ms;
+  if (dateObj) {
+      //o.value = dateObj;
+      ms = dateObj.getTime();
+      console.log("Milliseconds:", ms);  // e.g. 1758976800000
+  } else {
+      console.log("Invalid date string");
+  }
+
+  const request = {
+    author_id: userId,
+    created: dateObj,
+    created_ms: ms,
+    dateStr: payload.date,
+    header: payload.header,
+    agreement: false,
+    address: payload.address,
+    latitude: payload.myLat,
+    longitude: payload.myLng,
+    zone: 0,
+    professional: selectedProvider.value?.profession[0],
+    isIncludeOffers: false,
+    description: payload.content,
+    status: "active",
+  }
+
+
+  orderProviderModal.value = false;
+  //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!"
+  //isRequestSent.value = true;
+
+
+  clientStore.onRequest(receiverId, userId, selectedProvider.value, user.value, request);
+
 }
 </script>
 <style scoped>
@@ -392,9 +618,19 @@ function goToProvider(providerId) {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  cursor: default;
+}
+
 .historySection__actions {
   margin-top: 14px;
   display: flex;
   justify-content: flex-end;
+}
+.modal-pro-first {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

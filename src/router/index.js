@@ -1,11 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useProStore } from '@/stores/providerStore';
+
 
 
 const routes = [
     {
         path: "/",
+        name: "Root",
+        beforeEnter: async (to, from, next) => {
+            const proStore = useProStore();
+            const providerCount = proStore.isUserPro; // your logic here
+
+            if (providerCount) {
+                next({ name: "providerAdmin" });
+            } else {
+                next({name: 'Home'});
+            }
+        }
+    },
+    {
+        path: "/home",
         name: "Home",
-        component: () => import("../components/Home.vue")
+        component: () => import("../components/Home.vue"),
     },
     {
         path: "/login-register",
@@ -68,7 +84,7 @@ const routes = [
         component: () => import("../components/provider/ProviderPanel.vue")
     }, */
     {
-        path: "/feedback",
+        path: "/feedback/:id",
         name: "pro-feedback",
         component: () => import("../components/provider/Feedback.vue")
     },
@@ -126,9 +142,14 @@ const routes = [
         component: () => import("../components/Profile.vue")
     },
     {
-        path:"/c-history",
+        path: "/c-history",
         name: "client-history",
         component: () => import("../components/recipient/ClientHistory.vue")
+    },
+    {
+        path: "/p-archive",
+        name: "pro-archive",
+        component: () => import("../components/provider/ProviderHistory.vue")
     }
 
 ];

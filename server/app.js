@@ -110,7 +110,7 @@ app.use('/api/notifications', require('./routers/notifications'));
 //app.use('/api/messages', require('./routers/messages'));
 
 app.use('/api/client_history', require('./routers/client_history'));
-
+app.use('/api/pro_history', require('./routers/provider_history'));
 app.use('/api/login', require('./routers/login'));
 app.use('/api/aws-uploads', require('./routers/awsUploads'));
 

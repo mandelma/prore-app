@@ -13,23 +13,7 @@
               @click="router.push('/')"
           />
         </MDBNavbarBrand>
-<!--        me-lg-0-->
-
         <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
-<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
-<!--            <MDBIcon icon="calendar" class="icon" @click="$router.push('calendar')" />-->
-
-<!--          </MDBNavbarItem>-->
-<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
-<!--            <MDBIcon icon="comment" class="icon" />-->
-<!--            <MDBBadge notification color="danger" pill>2</MDBBadge>-->
-<!--          </MDBNavbarItem>-->
-<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
-<!--            <MDBIcon icon="comments" class="icon" />-->
-<!--          </MDBNavbarItem>-->
-<!--          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">-->
-<!--            <MDBIcon icon="bell" style="color: #0E7490;" class="icon" />-->
-<!--          </MDBNavbarItem>-->
 
           <!-- Client incomed offers -->
           <MDBNavbarItem  v-if="clientNewOffersAmount > 0 && route.name !== 'recipient-page'" @click="seeClientOffer" class="me-3 me-lg-5" linkClass="link-secondary">
@@ -69,9 +53,6 @@
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
 
-                <!-- <MDBDropdownItem href="#">
-                  <RouterLink to="/profile" style="color: #ddd;">Profile</RouterLink>
-                </MDBDropdownItem> -->
                 <MDBDropdownItem :tag="RouterLink" to="/profile" class="dd-item">
                   Profile
                 </MDBDropdownItem>
@@ -80,14 +61,6 @@
                   Viestit
                   <MDBBadge v-if="newNotesCount > 0" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
                 </MDBDropdownItem>
-
-                <!-- <MDBDropdownItem v-if="notifications.length" style="color: #ddd;" href="" @click="handleShowNotifications">
-                  <RouterLink to="/notifications" style="color: #ddd;" >
-                    Viestit
-                    <MDBBadge v-if="notifications.length" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
-                     
-                  </RouterLink>
-                </MDBDropdownItem> -->
 
                 <MDBDropdownItem :tag="RouterLink" to="/calendar" class="dd-item">
                   Kalenteri
@@ -105,25 +78,14 @@
                   Tilaukset
                 </MDBDropdownItem>
 
-
-                <!-- <MDBDropdownItem v-if="client.isBookings" href="#">
-                  <RouterLink to="/client-panel" style="color: #ddd;">Tilaukset</RouterLink>
-                </MDBDropdownItem> -->
-
                 <MDBDropdownItem :tag="RouterLink" to="/" @click="logOut" class="dd-item">
                   Kirjaudu ulos
                 </MDBDropdownItem>
 
-
-                
-                <!-- <MDBDropdownItem style="color: #ddd;"  @click="logOut">Log out</MDBDropdownItem> -->
               </MDBDropdownMenu>
             </MDBDropdown>
           </MDBNavbarItem>
 
-          <!-- <MDBNavbarItem v-else to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
-            {{t('login')}}
-          </MDBNavbarItem> -->
           <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
             {{t('login')}}
           </MDBNavbarItem>
@@ -145,17 +107,7 @@
       <!-- <template #small> 11 mins ago </template> -->
       {{ confirmedOrderMessage }}
     </MDBToast>
-    <!--      <MDBNavbarItem href="#" class="me-3 me-lg-0">-->
-    <!--        <img-->
-    <!--            src="https://mdbootstrap.com/img/Photos/Avatars/img (31).jpg"-->
-    <!--            class="rounded-circle"-->
-    <!--            height="22"-->
-    <!--            alt=""-->
-    <!--            loading="lazy"-->
-    <!--        />-->
-    <!--      </MDBNavbarItem>-->
-
-<!--    <router-view />   class="container py-4" -->
+  
     <main class="app-content" style=" flex: 1;">
 
       <RouterView
@@ -291,6 +243,7 @@ import { useNotificationStore } from './stores/notificationStore';
 import { useProStore } from '@/stores/providerStore.js';
 import { useConversationStore } from './stores/conversationStore';
 import { useClientArchiveStore } from './stores/cArchiveStore';
+import { useProArchiveStore } from './stores/pArchiveStore';
 import { useMapStore } from './stores/mapStore';
 
 
@@ -300,7 +253,8 @@ import LanguageContents from "@/components/LanguageContents.vue";
 import recipientService from './service/recipients.js';
 import providerService from './service/providers.js';
 import { chatService } from './service/chat';
-import clientHistoryService from './service/client_history'
+import clientHistoryService from './service/client_history';
+import proHistoryService from './service/provider_history';
 import onMap from '@/components/controllers/distance';
 import socket from "@/socket";
 
@@ -311,6 +265,7 @@ const username = ref('')
 let userDropdown = ref(false);
 const login = useLoginStore();
 import { useRoute, useRouter } from "vue-router";
+//import ProHistory from '../server/models/provider_history';
 const { t } = useI18n();
 
 const userStore = useUserStore();
@@ -319,6 +274,7 @@ const handleProvider = useProStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();
 const clientArchiveStore = useClientArchiveStore();
+const proArchiveStore = useProArchiveStore();
 const mapStore = useMapStore();
 
 const { profile } = storeToRefs(userStore);
@@ -377,10 +333,12 @@ watch(
       
       
       clientHistoryService.setToken(login.token),
+      proHistoryService.setProSideToken(login.token),
       client.orderList(u.id),
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
       clientArchiveStore.initClientArchive(),
+      proArchiveStore.initProviderArchive()
     ]);
 
     

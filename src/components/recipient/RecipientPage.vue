@@ -47,12 +47,13 @@
                   class="fs-5 fw-semibold" 
                   style="display: flex; justify-content: space-between;"
                 >
-                  <span style="color: green;">---</span> 
-                  <span>
+                  <span style="color: green;"></span> 
+                  <MDBIcon style="cursor: pointer;" size="2x" @click="router.push('/pro-around')"><i class="fas fa-users-cog"></i></MDBIcon>
+                  <!-- <span>
                     <div style="width: 100%;" @click="router.push('/pro-around')">
                       <img class="mapGif" :src="world" alt="from_map" />
                     </div>
-                  </span>
+                  </span> -->
                 </div>
               </MDBCardBody>
             </MDBCard>

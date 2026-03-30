@@ -1,7 +1,14 @@
 <template>
     <div>
+        <div style="display: flex; justify-content: left;">
+            <MDBBtn v-if="!isFeedback" color="info" block @click="goToFeedback">Vastaanotettu palaute</MDBBtn>
+            <MDBBtn v-else outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← Takaisin</MDBBtn>
+        </div>
+        
+        
         <!-- <MDBContainer> -->
-            <MDBTable  borderless class="client-content" style="">
+            <div v-if="isFeedback" v-html="feedbackHtml"></div>
+            <MDBTable v-else borderless class="client-content" style="">
                 <tbody>
                     <tr>
                         <td class="c-td">
@@ -20,6 +27,14 @@
                             Osoite
                         </td>
                         <td class="text-muted">{{ offerContent.provider.address }}</td>
+                    </tr>
+                    <tr>
+                        <td class="c-td">
+                            Etäisyys
+                        </td>
+                        <td class="text-muted">
+                            {{ offerContent.distance }} km.
+                        </td>
                     </tr>
                     <tr v-if="offerContent.provider.pricePerHour !== ''">
                         <td class="c-td">
@@ -97,6 +112,8 @@
     import { useLoginStore } from '@/stores/login';
     import { useNotificationStore } from '@/stores/notificationStore';
     import { useConversationStore } from '@/stores/conversationStore';
+    import Feedback from '../provider/Feedback.vue';
+    import { useRouter } from 'vue-router';
     import { storeToRefs } from 'pinia';
     defineOptions({
         name: 'offer-content'
@@ -108,9 +125,13 @@
     const notificationStore = useNotificationStore();
     const conversationStore = useConversationStore();
     const auth = useLoginStore();
+    const isFeedback = ref(false);
+
+    const router = useRouter();
 
     const { bookings } = storeToRefs(clientStore);
     const { user } = storeToRefs(auth);
+
     const offerContent = clientStore.getOfferById(offerId);
     const emit = defineEmits(['quit-content', 'quit-content-confirmed']);
     const back = () => {
@@ -124,6 +145,36 @@
         const otherId = offerContent?.sender;
         conversationStore.openCreateRoom(otherId);
         conversationStore.openChatWidget();
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, ch => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+        }[ch]));
+    }
+
+    //.slice(0, 5)
+    const feedbackHtml = (offerContent.provider.feedback || [])
+    .filter(f => f && f.text && f.text.trim() !== "")
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .map(f => `
+        <div class="feedback-item">
+        <div class="feedback-meta">
+            <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
+            <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
+        </div>
+        <div class="feedback-text">${escapeHtml(f.text)}</div>
+        </div>
+    `)
+    .join("");
+
+    const goToFeedback = () => {
+        isFeedback.value = true;
+        //router.push({name: 'pro-feedback', params: {id: offerContent?.provider?.id}})
     }
 
 </script>
@@ -155,6 +206,60 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+:deep(.feedback-section) {
+  margin-top: 12px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+}
+
+:deep(.feedback-title) {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+:deep(.feedback-list) {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+}
+
+:deep(.feedback-item) {
+  background: #f7f7f7;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+
+:deep(.feedback-meta) {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+:deep(.feedback-sender) {
+  color: blue;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+:deep(.feedback-date) {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
+:deep(.feedback-text) {
+  font-size: 13px;
+  line-height: 1.35;
+  color: #333;
+  word-break: break-word;
 }
 
 </style>
