@@ -98,6 +98,8 @@
             </div>
             
         <!-- </MDBContainer> -->
+
+        
         
     </div>
     
@@ -118,9 +120,11 @@
     defineOptions({
         name: 'offer-content'
     })
-    const {offerId} = defineProps({
+    const {bookingId, offerId} = defineProps({
+        bookingId: {type: String},
         offerId: {type: String}
     })
+
     const clientStore = useClientStore();
     const notificationStore = useNotificationStore();
     const conversationStore = useConversationStore();
@@ -132,7 +136,16 @@
     const { bookings } = storeToRefs(clientStore);
     const { user } = storeToRefs(auth);
 
-    const offerContent = clientStore.getOfferById(offerId);
+    const offerContent = computed(() => {
+        let result = null;
+        if (bookingId) {
+            result = clientStore.getBookingById(bookingId).offer;
+        } else {
+            result = clientStore.getOfferById(offerId)
+        }
+        return result;
+    })
+
     const emit = defineEmits(['quit-content', 'quit-content-confirmed']);
     const back = () => {
         emit('quit-content');
@@ -158,20 +171,24 @@
     }
 
     //.slice(0, 5)
-    const feedbackHtml = (offerContent.provider.feedback || [])
-    .filter(f => f && f.text && f.text.trim() !== "")
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .map(f => `
-        <div class="feedback-item">
-        <div class="feedback-meta">
-            <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
-            <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
-        </div>
-        <div class="feedback-text">${escapeHtml(f.text)}</div>
-        </div>
-    `)
-    .join("");
+    const feedbackHtml = computed(() => {
+    const feedback = offerContent.value?.provider?.feedback ?? []
 
+    return feedback
+        .filter(f => f && f.text && f.text.trim() !== '')
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map(f => `
+        <div class="feedback-item">
+            <div class="feedback-meta">
+            <span class="feedback-sender">${escapeHtml(f.sender || 'Tuntematon')}</span>
+            <span class="feedback-date">${new Date(f.date).toLocaleString('fi-FI')}</span>
+            </div>
+            <div class="feedback-text">${escapeHtml(f.text)}</div>
+        </div>
+        `)
+        .join('')
+    })
+    
     const goToFeedback = () => {
         isFeedback.value = true;
         //router.push({name: 'pro-feedback', params: {id: offerContent?.provider?.id}})

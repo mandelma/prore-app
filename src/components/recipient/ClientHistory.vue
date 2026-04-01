@@ -85,7 +85,7 @@
 
           <div class="kv">
             <div class="kv__k">Päivämäärä</div>
-            <div class="kv__v">{{ selectedBooking?.date }}</div>
+            <div class="kv__v">{{ formatDateTime(selectedBooking?.date) }}</div>
 
             <div class="kv__k">Tehtävä</div>
             <div class="kv__v">{{ selectedBooking?.header }}</div>
@@ -178,8 +178,7 @@
           <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.ratersCount }} arvioijaa</p>
         </div>
       </div>
-      
-      <offer-content :offerId="dealID" />
+      <offer-content :offerId="null" :bookingId="dealID" />
     </MDBModalBody>
     <MDBModalFooter>
       <div style="display: flex; justify-content: right;">
@@ -367,7 +366,7 @@ const goToProvider = async (deal) => {
   if (!selectedProvider.value) return;
 
   console.log("Provider - ", selectedProvider.value);
-  dealID.value = deal.id;
+  dealID.value = deal.bookingID;
   console.log("Deal id - " + deal.id);
   /* const provider = await providerService.getProvByProvId(providerId);
   if (!provider) return;

@@ -295,10 +295,18 @@
           Poista tilaus
         </MDBBtn>
 
+        <button @click="handleOrder">Place Order</button>
+
       </div>
     </div>
 
+    
+
   </div>
+  <!-- Overlay -->
+    <div v-if="loading" class="on-overlay">
+      <div class="on-spinner"></div>
+    </div>
 </template>
 
 <script setup>
@@ -319,7 +327,7 @@ import {
   MDBLightbox,
   MDBLightboxItem
 } from 'mdb-vue-ui-kit';
-import { ref, nextTick, inject, toRefs, onMounted, computed } from 'vue';
+import { ref, nextTick, inject, toRefs, onMounted, onUnmounted, computed } from 'vue';
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
 import { useConversationStore } from '@/stores/conversationStore.js';
@@ -413,6 +421,13 @@ onMounted(async() => {
   //console.log("Duration is " + final.value.duration);
 
 })
+
+onUnmounted(() => {
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+});
+
+
 const validateMaps = async() => {
   try {
     await loadGoogleMaps(); // your existing loader
@@ -500,10 +515,42 @@ const makeOfferBtn = () => {
   console.log("Make offer!");
   isHandleOffer.value = true;
 }
+
+import { watch } from "vue";
+
+const loading = ref(false);
+
+watch(loading, (val) => {
+  document.body.style.overflow = val ? 'hidden' : '';
+  document.documentElement.style.overflow = val ? 'hidden' : '';
+});
+
+
+
+
+async function handleOrder() {
+  loading.value = true;
+
+  try {
+    await fakeApiCall();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+// simulate API
+function fakeApiCall() {
+  return new Promise((resolve) => setTimeout(resolve, 2000));
+}
+
+
 const createOffer = () => {
   
   console.log("Creating offer! " + offerPrice.value);
 
+  loading.value = true;
 
   const offer = {
     bookingID: client.value.id,
@@ -557,9 +604,11 @@ const undoRejectMapOffer = () => {
 }
 
 const confirmClientBooking = async () => {
-  // author_id ???
   console.log("client user id: " + client.value.author_id);
   console.log("Client user name?? " + client.value.user.firstName);
+
+  loading.value = true;
+
   const receiver = client.value.author_id;
   const myself = user.value.id;
   const bookingId = client.value.id;
@@ -567,7 +616,7 @@ const confirmClientBooking = async () => {
   const clientContent = `${provider.value.pName} on vahvistanut tilauksen - "${client.value.header}". Tarkemmat tiedot kalenterissa!`;
   const proContent = `Tilaus "${client.value.header}" on vahvistettu. Tiedot kalenterissa!`;
   
-  const status = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
+  //const status = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
 
   const offer = {
     bookingID: client.value.id,
@@ -585,7 +634,7 @@ const confirmClientBooking = async () => {
     provider: provider.value
   }    
 
-  socket.emit('pro-confirm-client', receiver, providerId.value);
+  
 
   const notificationForClient = {
       bookingId: bookingId,
@@ -613,10 +662,6 @@ const confirmClientBooking = async () => {
 
   }
 
-
-  
-
-
   console.log('Button clicked in child')
 
   try {
@@ -629,40 +674,16 @@ const confirmClientBooking = async () => {
 
     await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, providerId.value, notes);
 
+    socket.emit('pro-confirm-client', receiver, providerId.value);
+
     console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
 
     console.log('API results:', { confirmation, addConfirmation })
   } catch (e) {
     console.error('API error in child:', e)
+  } finally {
+    loading.value = false;
   }
-
-  
-  //emit('confirmed-order-toast')
-
-
-  /* const confirmation = await clientService.updateRecipientStatus(bookingId, {status: 'confirmed'});
-  const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer);
-  
-  
-  if (!confirmation  || !addConfirmation) return;
-  
-
-  await proStore.onConfirmClientBooking(client.value.id, offer, myself, client.value.author_id, notes);
-
-  console.log('Child about to emit confirmed-order-toast')
-
-  emit('onConfirmedOrderToast'); */
-
-
-
-
-
-
-  
-  //await notificationStore.localConfirmDealNotification(bookingId, myself, client.value.author_id, notes);
-
-  
-  //socket.emit('on client request confirm', receiver, bookingId, offer);
 }
 
 const rejectFormBooking = async () => {
@@ -681,6 +702,42 @@ const rejectFormBooking = async () => {
 </script>
 
 <style scoped>
+
+/* .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+
+  border: 5px solid #ccc;
+  border-top: 5px solid white;
+  border-radius: 50%;
+
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} */
+
+
+
 .fade-slide-enter-active, .fade-slide-leave-active { transition: all .2s ease; }
 .fade-slide-enter-from,  .fade-slide-leave-to      { opacity: 0; transform: translateY(-4px); }
 

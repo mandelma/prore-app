@@ -8,50 +8,6 @@
       </div>
     </header>
 
-    <!-- <div class="layout">
-     
-      <section class="panel panel--order">
-        
-        <booking-content :booking="booking"/>
-      </section>
-
-      
-      <section class="panel panel--offers">
-       
-         <div class="offers-list">
-          <div style="padding: 7px 0 7px 0;">
-            <h5>Tarjoukset</h5>
-          </div>
-          
-          <div
-            v-for="offer in booking.offers"
-            :key="offer.id"
-            class="offer-item"
-            :class="{ 'is-new': offer.isNewOffer }"
-            @click="getProviderInfo(offer.provider, offer)"
-          >
-            <div class="offer-main">
-              <p class="offer-name">{{offer.name}}</p>
-              
-              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}}</p>
-            </div>
-
-            <div class="offer-price">
-              {{offer.price}} eur
-            </div>
-            <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
-            
-          </div>
-          
-
-        </div>
-        <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
-        
-      </section>
-      <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
-        Peruuta tilaus
-      </div>
-    </div> -->
   </div>
 
 

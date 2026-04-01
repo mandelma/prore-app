@@ -60,7 +60,9 @@
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
             <div class="text-muted small">Vahvistetut tilaukset</div>
-            <MDBBtn color="dark" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')"><span >{{ confirmedClients.length }}</span></MDBBtn>
+            <MDBBtn color="dark" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')">
+              <span class="fs-5 fw-semibold">{{ confirmedClients.length }}</span>
+            </MDBBtn>
             <!-- <div class="fs-5 fw-semibold">{{ confirmedClients.length }}</div> -->
           </MDBCardBody>
         </MDBCard>
@@ -69,7 +71,9 @@
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
             <div class="text-muted small">Arkistoidut tilaukset</div>
-            <MDBBtn  color="dark" size="md" block :disabled="!providerHistory.length" @click="router.push('/p-archive')"><span style="color: #ddd;">{{ providerHistory.length }}</span></MDBBtn>
+            <MDBBtn  color="dark" size="md" block :disabled="!providerHistory.length" @click="router.push('/p-archive')">
+              <span class="fs-5 fw-semibold" style="color: #ddd;">{{ providerHistory.length }}</span>
+            </MDBBtn>
             
       
           </MDBCardBody>

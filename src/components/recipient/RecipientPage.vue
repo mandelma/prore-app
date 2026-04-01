@@ -20,17 +20,6 @@
 
         <!-- Quick stats -->
         <MDBRow class="g-2 mb-3">
-          
-          <MDBCol col="12" md="6">
-            <MDBCard class="h-100">
-              <MDBCardBody class="py-3">
-                <div class="text-muted small">Vahvistetut tilaukset</div>
-                <div class="fs-5 fw-semibold">{{ clientConfirmed.length }}</div>
-                <MDBBtn v-if="archievedBookings.length" color="dark" block @click="callHistory"><span>{{archievedBookings.length}}</span>&nbsp;&nbsp;tilausta arkistoitu</MDBBtn>
-                
-              </MDBCardBody>
-            </MDBCard>
-          </MDBCol>
           <MDBCol col="6" md="3">
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">
@@ -39,6 +28,30 @@
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
+          <MDBCol col="6" md="3">  
+            <MDBCard class="h-100">
+              <MDBCardBody class="py-3">
+                <div class="text-muted small">Vahvistetut tilaukset</div>
+                <!-- <div class="fs-5 fw-semibold"></div> -->
+                <MDBBtn color="dark" block @click="router.push('/calendar')"><span class="fs-5 fw-semibold">{{ clientConfirmed.length }}</span></MDBBtn>
+                
+                
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+          <MDBCol col="6" md="3">
+            <MDBCard class="h-100">
+              <MDBCardBody class="py-3">
+                <div class="text-muted small">Arkistoidut tilaukset</div>
+                <!-- <div class="fs-5 fw-semibold"></div> -->
+                <MDBBtn v-if="archievedBookings.length" color="dark" block @click="callHistory">
+                  <span class="fs-5 fw-semibold">{{archievedBookings.length}}</span>
+                </MDBBtn>
+                <div v-else class="fs-5 fw-semibold">0</div>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+          
           <MDBCol col="6" md="3">
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">

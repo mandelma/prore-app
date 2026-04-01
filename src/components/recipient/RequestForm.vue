@@ -523,7 +523,7 @@ const handleRequest = () => {
           date: dateTime.value,
           address: form.address,
           myLat: lat?.value,
-          mylng: lng?.value, 
+          myLng: lng?.value, 
           header: form.requestHeader,
           content: form.requestContent,
         });
