@@ -6,11 +6,15 @@
         <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
             <MDBCard style="" v-if="fb?.text !==''">
                 
-                <MDBCardHeader>
+                <!-- <MDBCardHeader> -->
                     <!-- <Stars :rating="fb.rating" /> -->
-                    <p class="text-muted">{{formatDateTime(fb.date)}}</p>
-                </MDBCardHeader>
+                     
+                    
+                <!-- </MDBCardHeader> -->
                 <MDBCardBody>
+                    <div style="display: flex; justify-content: right;">
+                        <p class="text-muted">{{formatDateTime(fb.date)}}</p>
+                     </div>
                     <MDBCardTitle style="color:aqua;">{{ fb?.sender }}</MDBCardTitle>
                     <MDBCardText>
                         {{ fb?.text  }}

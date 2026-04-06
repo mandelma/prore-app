@@ -56,7 +56,7 @@
                       filter optionLabel="label"
                       optionGroupLabel="label"
                       optionGroupChildren="items"
-                      placeholder="Valitse ammattilainen *"
+                      :placeholder="t('client_form_profession_field')"
 
                       v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
                       class="w-full md:w-[30rem]"
@@ -96,7 +96,7 @@
 
           <div class="field-wrapper">
             <MDBInput
-                label="Syötä tilauksen avainsana *"
+                :label="t('client_form_title')"
                 v-model="form.orderHeader"
                 size="lg"
                 invalidFeedback="Ole hyvä ja kirjoita avainsana."
@@ -125,7 +125,7 @@
                       id="location"
 
                       v-model="form.address"
-                      label="Anna osoite"
+                      :label="t('client_form_address')"
                       placeholder=""
                       wrapperClass="form-outline flex-grow-3"
                       :inputClass="'ps-0'"
@@ -156,7 +156,7 @@
 
                     :value="preferredRangeValue"
                     @input="filterClientInput"
-                    label="Anna säde mistä maksimi haet ammattilaista - km"
+                    :label="t('client_form_range')"
                     v-model="desiredRange"
                     size="lg"
                 />
@@ -170,7 +170,7 @@
             <div class="field-wrapper">
               <MDBDateTimepicker
                   size="lg"
-                  label="Valitse tehtävän päivämäärä ja aika"
+                  :label="t('client_form_when_field')"
                   v-model="form.dateTime"
                   :toggleButton="false"
                   inputToggle
@@ -198,7 +198,7 @@
 
           <div class="field-wrapper">
             <MDBCheckbox
-              label="Vastaukset voi lähettää sähköpostiin!"
+              :label="t('client_form_allow_email')"
               name="agreement_as_client"
               v-model="isClientContactAgreement"
               value="true"
@@ -211,7 +211,7 @@
               <div class="field-wrapper">
                 <MDBTextarea
                     maxlength="70"
-                    label="Kuvaus tilauksen sisällöstä *"
+                    :label="t('client_form_description')"
                     rows="3"
                     v-model="form.explanation"
                     invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
@@ -252,7 +252,7 @@
 
           </MDBRow>
 
-          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">Lähetä tilaus</MDBBtn>
+          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">{{ t('client_form_btn_send') }}</MDBBtn>
 
         </form>
 <!--        <recipient-page :header="form.address"/>-->

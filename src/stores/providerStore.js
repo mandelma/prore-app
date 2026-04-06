@@ -248,6 +248,20 @@ export const useProStore = defineStore("pro", () => {
             }
         }
     }
+
+    // Offer done or timeout
+    const handleOfferDone = async (id) => {
+        try {
+            const handled = await providerService.removeProviderBooking(providerId.value, id);
+            if (handled) {
+                proCalendarEvents.value = proCalendarEvents.value.filter(event => event.id !== id);
+                incomingOffers.value = incomingOffers.value.filter(offer => offer.id !== id);
+            }
+
+        } catch (err) {
+            console.log("Handled err - " + err.message);
+        }
+    }
     const updateAddress = async (payload) => {
         if (provider.value) {
             const proWithNewAddress = await providerService.editAddress(provider.value.id, payload);
@@ -277,7 +291,7 @@ export const useProStore = defineStore("pro", () => {
     // Calendar data
 
     const addAvailableTimeEvent = async(dateContent) => {
-        const dateEvent = timetableService.addAdditionalTimeOffer(providerId.value, {
+        const dateEvent = await timetableService.addAdditionalTimeOffer(providerId.value, {
             state: dateContent.state,
             allDay: dateContent.allDay,
             title: dateContent.title,
@@ -301,27 +315,34 @@ export const useProStore = defineStore("pro", () => {
                     }
                 })
 
-            proTimetable.value = provider.value.timetable;
+            //proTimetable.value = provider.value.timetable;
         }
 
         
     }
 
     const onEdit = async (id, edited) => {
-        //console.log("Edited event id in store - " + id);
+        await timetableService.updateTimetableEvent(id, edited);
+        const existing = proTimetable.value.find(time => time.id === id);
+        proTimetable.value = proTimetable.value.map(time =>
+            time.id === id
+                ? {
+                    ...time,
+                    ...edited,
+                    extendedProps: {
+                        type: edited.state
+                    }
+                }
+                : time
+        );
+    }
 
-        
-        await timetableService.updateTimetableEvent(id, edited)
+    const onDelete = async (eventId) => {
+        console.log("Del event id is: " + eventId);
+        console.log("Pro id is " + providerId.value);
+        await timetableService.removeTimeOffer(providerId.value, eventId);
 
-       /*  await timetableService.updateTimetableEvent(id, {
-            id: id,
-            state: edited.state,
-            allDay: edited.allDay,
-            title: edited.title,
-            content: edited.content,
-            start: edited.start,
-            end: edited.end
-        }) */
+        proTimetable.value = proTimetable.value.filter(ptt => ptt.id !== eventId);
     }
 
     const updateReference = async (payload) => {
@@ -336,11 +357,7 @@ export const useProStore = defineStore("pro", () => {
     }
 
 
-    const onDelete = async (eventId) => {
-        console.log("Del event id is: " + eventId);
-        console.log("Pro id is " + providerId.value);
-        await timetableService.removeTimeOffer(providerId.value, eventId);
-    }
+    
 
     return {
         createPro,
@@ -364,6 +381,7 @@ export const useProStore = defineStore("pro", () => {
         onClientBooking,
         handleRemoveDisabledBooking,
         updateReference,
+        handleOfferDone,
         providerId,
         isUserPro,
         provider,

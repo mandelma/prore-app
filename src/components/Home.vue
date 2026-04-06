@@ -10,16 +10,16 @@
                 alt="Prokeikkatori logo" width="1024" height="549" />
          </div>
          <h1 class="app-title"><span class="app-title__word">PROKEIKKATORI</span></h1>
-         <p class="tagline">Nopeus on tärkeintä!</p>
+         <p class="tagline">{{ t('public_home_title') }}</p>
 
          <div class="action-panel">
            <button class="btn-hero btn-hero--primary" @click="clientInitial">
-             <span class="btn-hero__icon">🔍</span> ETSIN PALVELUA
+             <span class="btn-hero__icon">🔍</span> {{ t('public_home_btn_client') }}
            </button>
            <button class="btn-hero btn-hero--accent" @click="proInitial">
              <span class="btn-hero__icon btn-hero__icon--accent">＋</span>
              <MDBIcon></MDBIcon>
-             TARJOAN PALVELUA
+             {{ t('public_home_btn_pro') }}
            </button>
          </div>
        </main>

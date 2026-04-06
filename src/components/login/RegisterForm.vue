@@ -21,10 +21,11 @@
       <!-- 2 column grid layout with text inputs for the first and last names -->
       <!-- First name input -->
 
+
       <MDBInput
           type="text"
           size="lg"
-          label="Etunimi"
+          :label="t('register_firstname')"
 
           id="registerFirstName"
           v-model="registerFirstName"
@@ -36,7 +37,7 @@
       <MDBInput
           type="text"
           size="lg"
-          label="Sukunimi"
+          :label="t('register_lastname')"
 
           id="registerLastName"
           v-model="registerLastName"
@@ -47,7 +48,7 @@
       <MDBInput
           type="text"
           size="lg"
-          label="käyttäjätunnus"
+          :label="t('register_username')"
 
           id="registerUsername"
           v-model="registerUsername"
@@ -57,7 +58,7 @@
       <MDBInput
           type="text"
           size="lg"
-          label="Email"
+          :label="t('register_email')"
 
           id="registerEmail"
           v-model="registerEmail"
@@ -71,7 +72,7 @@
             size="lg"
             v-model="registerPassword"
             :type="showPassword ? 'text' : 'password'"
-            label="Anna salasana"
+            :label="t('register_password_1')"
             wrapperClass="form-outline flex-grow-3"
             :inputClass="'ps-0'"
             aria-describedby="button-addon2"
@@ -95,7 +96,7 @@
             size="lg"
             v-model="registerPasswordRepeat"
             :type="showConfirmPassword ? 'text' : 'password'"
-            label="Toista salasana"
+            :label="t('register_password_2')"
             wrapperClass="form-outline flex-grow-3"
             :inputClass="'ps-0'"
             aria-describedby="button-addon2"
@@ -111,7 +112,7 @@
 
       <!-- Checkbox -->
       <MDBCheckbox
-          label="Muista minut"
+          :label="t('register_remember_me')"
 
           size="lg"
           id="registerSubscribeCheck"
@@ -125,7 +126,7 @@
 
       <!-- Submit button -->
       <div class="form-actions">
-        <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> Luo tili </MDBBtn>
+        <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> {{ t('register_create_account') }} </MDBBtn>
       </div>
 
 
@@ -140,12 +141,14 @@ import userService from '@/service/users.js';
 import loginService from '@/service/login.js';
 import {useLoginStore} from "@/stores/login.js";
 import { useRouter } from 'vue-router'
+import { useI18n } from "vue-i18n";
 
 defineOptions({
   name: 'register-form'
   // you can also set other options here if needed
 })
 const router = useRouter();
+const { t } = useI18n();
 const registerFirstName = ref("");
 const registerLastName = ref("");
 const registerUsername = ref("");

@@ -116,16 +116,19 @@
     <div style="display: flex; gap: 7px; margin-bottom: 17px;">
       <div style="flex: 1;">
         <p class="text-muted small btn-desc">Kuvat tehtävistä</p>
-        <MDBBtn color="dark" block @click="openReferences">Referenssit</MDBBtn>
+        <MDBBtn color="dark" block size="lg" @click="openReferences"><MDBIcon size="lg"><i class="far fa-images"></i></MDBIcon></MDBBtn>
       </div>
       <div style="flex: 1;">
-        <p class="text-muted small btn-desc" ><span style="color: yellow;">★</span> {{ provider?.rating }} / {{ provider?.ratersCount }}</p>
-        <MDBBtn color="dark" block @click="showFeedback">Palaute</MDBBtn>
+        <p class="text-muted small btn-desc" >Palautteet</p>
+        <MDBBtn color="dark" block size="lg"  @click="showFeedback"><i className="fas fa-star text-warning"></i> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn>
+        
+        <!-- <MDBBtn color="dark" block size="lg"  @click="showFeedback"><span style="color: yellow; font-size: 17px;">★</span> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn> -->
       </div>
+
       <div style="flex: 1;">
         <!-- <img class="proMap" :src="pro_map" alt="from_map" /> -->
         <p class="text-muted small btn-desc">Asiakkaat kartalla</p>
-        <MDBBtn color="dark" block  @click="seeClients">
+        <MDBBtn color="dark" block size="lg"  @click="seeClients">
           <!-- <span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp; -->
           <MDBIcon size="lg"><i class="fas fa-users" ></i></MDBIcon></MDBBtn>
       </div>
@@ -365,7 +368,26 @@
             <MDBCard v-if="isCalendar">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Ajat</h6>
+                  <table style="width: 40%; text-align: left;">
+                    <tbody>
+                      <tr>
+                        <th>
+                          Vapaat ajat
+                        </th>
+                        <td>
+                          <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          Muistiinpanot
+                        </th>
+                        <td>
+                          <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                   <p class="no-calendar" @click="isCalendar = false">Valmis</p>
                   <!-- <MDBBtn size="sm" color="light" outline @click="openSchedule">Hallita</MDBBtn> -->
                 </div>
@@ -378,12 +400,37 @@
             <MDBCard v-else class="h-100">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <h6 class="mb-0">Ajat &nbsp;&nbsp;<span style="color: green;">{{ provider.timetable.length }}</span></h6>
+
+                  <table style="width: 40%; text-align: left;">
+                    <tbody>
+                      <tr>
+                        <th>
+                          Vapaat ajat
+                        </th>
+                        <td>
+                          <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          Muistiinpanot
+                        </th>
+                        <td>
+                          <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- <div style="display: flex; flex-direction: column;">
+                    <h6 class="mb-0">Vapaat ajat &nbsp;&nbsp;<span style="color: green;">{{ proTimetable.length }}</span></h6>
+                    <h6 class="mb-0">Muistiinpanot &nbsp;&nbsp;<span style="color: green;">{{ proTimetable.length }}</span></h6>
+                  </div> -->
+                  
                   <MDBBtn size="sm" color="light" outline @click="openSchedule">Kalenteri</MDBBtn>
                 </div>
                 <div style="text-align: left;">
                   <div class="semibold" style="color: #708090;">
-                    Lisää aikoja kalenteriin
+                    Lisää merkintoja kalenteriin
                   </div>
                   <div class="text-muted small">
                     Auttaa parantamaan näkyvyyttä kartalla ja antaa sinulle etulyöntiaseman asiakkaiden löytämisessä. Voit myös tehdä merkintöjä kalenteriin omaan käyttöösi.
@@ -485,7 +532,7 @@ const providerStore = useProStore();
 const clientStore = useClientStore();
 const providerArchiveStore = useProArchiveStore();
 const router = useRouter();
-const { incomingOffers, proCalendarEvents, reference } = storeToRefs(providerStore);
+const { incomingOffers, proCalendarEvents, reference, proTimetable } = storeToRefs(providerStore);
 const { isBookings } = storeToRefs(clientStore);
 const { providerHistory } = storeToRefs(providerArchiveStore);
 

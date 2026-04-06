@@ -262,12 +262,12 @@ export const useClientStore = defineStore('client', () => {
         }
     }
 
-    const handleGivenFeedback = async (bookingId, target, status) => {
+    const handleGivenFeedback = async (bookingId, target, pHistory, status) => {
         console.log("Handled giving feedback " + bookingId + " target - " + target);
 
         await handleEditStatus(bookingId, status);
 
-        socket.emit('archieve-booking', target, bookingId);
+        socket.emit('archieve-booking', target, bookingId, pHistory);
 
         /* const ended = await clientService.updateRecipientStatus(bookingId, { status: 'done' });
         if (ended) {

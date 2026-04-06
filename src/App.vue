@@ -509,13 +509,16 @@ const listen = async() => {
     console.log("Provider id ---- ", providerId);
     
   }) */
-
-  socket.on('handle-booking-done', (bookingId) => {
+  // Client booking from map
+  socket.on('handle-booking-done', async (bookingId) => {
     console.log("Got booking done - " + bookingId);
+    await handleProvider.handleOfferDone(bookingId);
   })
-
-  socket.on('handle-archieve-booking', (bookingId) => {
+  // Archieve client booking for provider
+  socket.on('handle-archieve-booking', async (bookingId, pHistory) => {
     console.log("Got booking id to archieve - " + bookingId);
+    console.log("PPP ", pHistory )
+    await proArchiveStore.addArchiveLocal(pHistory);
   })
   
 

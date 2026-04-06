@@ -24,7 +24,7 @@
         <MDBInput
             type="text"
             size="lg"
-            label="Käyttäjätunnus"
+            :label="t('login_uername')"
             id="loginUsername"
             v-model="loginUsername"
 
@@ -36,7 +36,7 @@
 
             type="password"
             size="lg"
-            label="Salasana"
+            :label="t('login_password')"
             id="loginPassword"
             v-model="loginPassword"
             wrapperClass="mb-4"
@@ -47,7 +47,7 @@
           <MDBCol class="d-flex justify-content-center">
             <!-- Checkbox -->
             <MDBCheckbox
-                label="Muista minut"
+                :label="t('login_rememberme')"
                 id="loginCheck"
                 v-model="loginCheck"
                 wrapperClass="mb-3 mb-md-0"
@@ -56,17 +56,17 @@
 
           <MDBCol>
             <!-- Simple link -->
-            <router-link to="/forgot_auth">Forgot password</router-link>
+            <router-link to="/forgot_auth">{{ t('login_forgot_password') }}</router-link>
             <!--          <a href="/recipients">Unohtuiko salasana?</a>-->
           </MDBCol>
         </MDBRow>
 
         <!-- Submit button -->
-        <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> Kirjaudu </MDBBtn>
+        <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> {{ t('login_log_in') }} </MDBBtn>
 
         <!-- Register buttons -->
         <div class="text-center">
-          <p style="color: #22D3EE;">Ei jäsen? <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">rekisteröidy</span></p>
+          <p style="color: #22D3EE;">{{ t('login_no_member') }} <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">{{ t('login_register') }}</span></p>
         </div>
       </form>
     </MDBContainer>
@@ -79,10 +79,12 @@ import { ref } from 'vue';
 import loginService from '@/service/login.js';
 import {useLoginStore} from "@/stores/login.js";
 import { useRouter } from 'vue-router';
+import { useI18n } from "vue-i18n";
 defineOptions({
   name: 'LoginForm'
   // you can also set other options here if needed
 })
+const { t } = useI18n();
 const loginUsername = ref("");
 const loginPassword = ref("");
 const loginCheck = ref(true);

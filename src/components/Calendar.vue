@@ -4,7 +4,7 @@
 
   </div>
 
-  <!-- Creating event modal in month view-->
+  <!-- Creating event modal in day view-->
   <MDBModal
       v-model="showCreate" center
       centered
@@ -19,18 +19,15 @@
       <MDBModalTitle>Uusi merkintä</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
-      <p>...</p>
-      <p>selectedState {{selectedState}}</p>
       <div class="space-y-3">
         <MDBInput v-model="form.title" label="Otsikko *" wrapperClass="mb-4" />
         <MDBSelect 
           
           v-model:options="stateOptions" 
           
-          label="saattavilla tai joustava" 
+          label="vapaat ajat & muistiinpanot" 
           style="margin-bottom: 20px;"
         />
-<!--        <MDBInput v-model="form.location" label="Location" />-->
         <MDBTextarea v-model="form.note" label="Kuvaus..." rows="3" wrapperClass="mb-4"/>
 
         <div class="text-sm opacity-80">
@@ -67,7 +64,7 @@
       <div class="space-y-3">
 
         <MDBInput v-model="editForm.title" label="Title" />
-        <MDBInput v-model="editForm.location" label="Location" />
+        <!-- <MDBInput v-model="editForm.location" label="Location" /> -->
         <MDBTextarea v-model="editForm.note" label="Note" rows="3" />
 
         <div class="text-sm opacity-80">
@@ -133,8 +130,8 @@
       </div>
     </MDBModalBody>
     <MDBModalFooter>
-      <MDBBtn color="secondary" outline @click="showEdit=false">Cancel</MDBBtn>
-      <MDBBtn color="primary" @click="saveEventEdits">Save</MDBBtn>
+      <MDBBtn color="secondary" outline @click="showEdit=false">Peruuta</MDBBtn>
+      <MDBBtn color="primary" @click="saveEventEdits">Tallentaa</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -172,9 +169,9 @@
 
     </MDBModalBody>
     <MDBModalFooter>
-      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">Delete</MDBBtn>
+      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
       <MDBBtn v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay"  color="primary" @click="openEventModalFromPreview">Muokkaa</MDBBtn>
-      <MDBBtn color="secondary" outline @click="showEventModal=false">Close</MDBBtn>
+      <MDBBtn color="secondary" outline @click="showEventModal=false">Peruuttaa</MDBBtn>
       <!-- <MDBBtn color="danger" @click="deleteEvent">Delete</MDBBtn> -->
     </MDBModalFooter>
   </MDBModal>
@@ -411,7 +408,7 @@ const events = computed(() => [
       note: ppt.content?.trim() || '',
     }
   })),
-  ...createdEvents.value
+  //...createdEvents.value
 ])
 
 const today = new Date();
@@ -474,14 +471,6 @@ onMounted(() => {
   const now = new Date()
 })
 
-/* const formatLocalDate_xx = (utcDate) => {
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: 'Europe/Helsinki'
-  }).format(new Date(utcDate)).replace(' at ', ' klo ');
-} */
-
 const formatLocalDate = (value) => {
   const d = fromLocalInput(value);
   if (!isValidDate(d)) return '';
@@ -537,6 +526,8 @@ const saveEvent = async() => {
 
   // New timerangeEvent to db
   await proStore.addAvailableTimeEvent(dEvent);
+
+  console.log("Added new time event ", dEvent);
 
   createdEvents.value = [
     ...createdEvents.value,
@@ -702,16 +693,16 @@ function openEventModal(eventLike) {
 }
 
 /* Save edits: update FullCalendar event + mirror to our array */
-const saveEventEdits_old = async() => {
-  console.log('[saveEventEdits] fired'); // must appear in console
+/* const saveEventEdits_old = async() => {
+  console.log('[saveEventEdits] fired'); 
   console.log("Editing ID " + editingEventId.value)
-  //if (!editingEventApi) return;
+ 
   
   const id = editingEventId.value;
   if (!id) return;
 
   const cal = calendarRef.value.getApi();
-  const evApi = cal.getEventById(id);           // <- guaranteed EventApi
+  const evApi = cal.getEventById(id);          
   if (!evApi) {
     console.warn('No EventApi found for id', id);
     return;
@@ -719,15 +710,12 @@ const saveEventEdits_old = async() => {
 
   const f = editForm.value;
 
-
-
-  // convert to Date objects
-  const newStart =  fromLocalInput(f.start); // must return Date or null
-  const newEnd   =  fromLocalInput(f.end);   // Date or null
+  const newStart =  fromLocalInput(f.start); 
+  const newEnd   =  fromLocalInput(f.end);   
 
   console.log("EVENT PROPS" + editingEventId.value, evApi, typeof evApi.setProp)
 
-  // Update the live event
+ 
   const startForApi = isValidDate(newStart) ? newStart : evApi.start;
   const endForApi   = isValidDate(newEnd)   ? newEnd   : evApi.end;
 
@@ -736,12 +724,11 @@ const saveEventEdits_old = async() => {
   evApi.setExtendedProp('note',     f.note || '');
   evApi.setDates(newStart || evApi.start, newEnd || evApi.end, { allDay: evApi.allDay });
 
-  // Mirror into your reactive array (optional but keeps your own state in sync)
+  
   const startIso = isValidDate(startForApi) ? startForApi.toISOString() : null;
   const endIso   = isValidDate(endForApi)   ? endForApi.toISOString()   : null;
 
-  //console.log("EDITED time start - " + startIso);
-  //console.log("EDITED time end - " + endIso);
+  
 
   const allDayValue = newStart && newEnd ? false : true
 
@@ -766,29 +753,20 @@ const saveEventEdits_old = async() => {
     ];
   }
 
-
-
-
   if (!evApi) return;
 
-  const days = getEventDays(evApi);     // capture days BEFORE remove
-  //evApi.remove();
+  const days = getEventDays(evApi);     
+  
 
   await nextTick();
-  days.forEach(rebuildTypeBarForDay);   // rebuild only affected cells
-
-
-
-
-
-
+  days.forEach(rebuildTypeBarForDay);   
 
   console.log('saveEventEdits ->', {
-  startRaw: f.start, endRaw: f.end,
-  allday: newStart && newEnd ? false : true,
-  newStart, newEnd,
-  isDate: newStart instanceof Date, isDateEnd: newEnd instanceof Date,
-});
+    startRaw: f.start, endRaw: f.end,
+    allday: newStart && newEnd ? false : true,
+    newStart, newEnd,
+    isDate: newStart instanceof Date, isDateEnd: newEnd instanceof Date,
+  });
 
   const eventOnEdit = {
     id: id,
@@ -802,13 +780,10 @@ const saveEventEdits_old = async() => {
 
   
 
- 
-
-  // New timerangeEvent to db
   await proStore.onEdit(id, eventOnEdit);
 
   showEdit.value = false;
-}
+} */
 
 
 const ymdLocal = (d) => {
@@ -852,6 +827,8 @@ const saveEventEdits = async () => {
 
   const cal = calendarRef.value.getApi();
   const evApi = cal.getEventById(id);
+  console.log("Old event - ", evApi.extendedProps.type);
+  const prevState = evApi.extendedProps.type;
   if (!evApi) return;
 
   const f = editForm.value;
@@ -921,7 +898,7 @@ const saveEventEdits = async () => {
 
   const eventOnEdit = {
     id: id,
-    state: f.type,
+    state: prevState,
     isAllDay: newStart && newEnd ? false : true,
     title: f.title,
     content: f.note,
@@ -995,7 +972,7 @@ const handleEventDrop = async (info) => {
   }
 };
 
-async function deleteFromPreviewxxx() {
+/* async function deleteFromPreviewxxx() {
   const id = selectedEvent.value?.id && String(selectedEvent.value.id);
   if (!id) return;
 
@@ -1010,10 +987,8 @@ async function deleteFromPreviewxxx() {
     ];
   }
 
-  // await proStore.deleteAvailableTimeEvent(id);
-
   showEventModal.value = false;
-}
+} */
 
 
 
@@ -1034,18 +1009,6 @@ function isEventApi(x) {
   return x && typeof x === 'object' && typeof x.remove === 'function';
 }
 
-/* function getTypexxx(ev) {
-  return ev?.extendedProps?.type
-      ?? ev?._def?.extendedProps?.type
-      ?? null;
-} */
-
-/* function getStartxxx(ev) {
-  if (ev?.start instanceof Date) return ev.start;
-  if (typeof ev?.start === 'string') return new Date(ev.start);
-  if (typeof ev?.startStr === 'string') return new Date(ev.startStr);
-  return null;
-} */
 
 // 1) tiny guards
 const isValidDate = (d) => d instanceof Date && !isNaN(+d);
@@ -1066,13 +1029,6 @@ function parseMaybeDate(v) {
 }
 
 
-/* function getStartxxxcccxxx(ev) {
-  return ev?.start instanceof Date ? ev.start
-       : typeof ev?.start === 'string' ? new Date(ev.start)
-       : typeof ev?.startStr === 'string' ? new Date(ev.startStr)
-       : null;
-} */
-
 function getType(ev) {
   return ev?.extendedProps?.type
       ?? ev?._def?.extendedProps?.type
@@ -1085,39 +1041,17 @@ function getStart(ev) {
       ?? null;
 }
 
-/* function getEndxxx(ev) {
-  if (ev?.end instanceof Date) return ev.end;
-  if (typeof ev?.end === 'string') return new Date(ev.end);
-  if (typeof ev?.endStr === 'string') return new Date(ev.endStr);
-  return null;
-} */
-
-/* function getEndxxxxxx(ev) {
-  return ev?.end instanceof Date ? ev.end
-       : typeof ev?.end === 'string' ? new Date(ev.end)
-       : typeof ev?.endStr === 'string' ? new Date(ev.endStr)
-       : null;
-} */
 function getEnd(ev) {
   return parseMaybeDate(ev?.end)
       ?? parseMaybeDate(ev?.endStr)
       ?? null;
 }
 
-/* function getAllDayxx(ev) {
-  if (typeof ev?.allDay === 'boolean') return ev.allDay;
-  if (typeof ev?._def?.allDay === 'boolean') return ev._def.allDay;
-  return false;
-} */
-
 function getAllDay(ev) {
   return typeof ev?.allDay === 'boolean'
     ? ev.allDay
     : !!ev?._def?.allDay;
 }
-
-
-
 
 
 function eventCoversDay(ev, key /* 'YYYY-MM-DD' */) {

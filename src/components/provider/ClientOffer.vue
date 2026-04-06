@@ -546,7 +546,7 @@ function fakeApiCall() {
 }
 
 
-const createOffer = () => {
+const createOffer = async () => {
   
   console.log("Creating offer! " + offerPrice.value);
 
@@ -570,7 +570,14 @@ const createOffer = () => {
   const addressee = client.value.author_id;
   console.log("Addressee - " + addressee);
   //clientStore.addOffer(client.value.id, offer);
-  proStore.addProviderOffer(client.value.id, addressee, offer);
+  try {
+    await proStore.addProviderOffer(client.value.id, addressee, offer);
+  } catch (error) {
+    console.log("CL error " + error.message);
+  } finally {
+    loading.value = false;
+  }
+  
   //socket.emit('client get offer', addressee, client.value.id, offer);
 
 }

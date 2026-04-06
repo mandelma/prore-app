@@ -382,7 +382,7 @@ const handleRecipientResult = (id, booking) => {
 }
 
 const handleRatingDone = () => {
-  console.log("Ratingis done ");
+  console.log("Rating is done ");
   handleFeedbackModal.value = false;
 }
 

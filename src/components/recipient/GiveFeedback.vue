@@ -86,7 +86,7 @@ const archivedClient = ref(null);
 const { profile } = storeToRefs(userStore);
 
 const handleNoRating = async () => {
-  await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
+  //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
   emit('no-rating');
   await handleArchiveClient();
 }
@@ -139,7 +139,12 @@ const handleArchiveClient = async () => {
       const complitedBooking = await providerHistoryService.updateProHistory(providerHistory);
 
       if (complitedClientBooking) cArchiveStore.addArchievedClientLocal(complitedClientBooking);
-      if (complitedBooking) pArchiveStore.archiveProviderLocal(complitedBooking);
+      if (complitedBooking) {
+        pArchiveStore.archiveProviderLocal(complitedBooking);
+        console.log("ID " + complitedBooking.id);
+        providerHistory.id = complitedBooking.id;
+        await clientStore.handleGivenFeedback(props.booking_id, props.target, providerHistory, 'archieved');
+      } 
 
       console.log("Client archieve - ", complitedClientBooking);
 
@@ -153,31 +158,29 @@ const handleArchiveClient = async () => {
 
 const handleConfirmRating = async () => {
   console.log("Confirm feedback PROVIDER - ", props.providerId);
-  const id = '698b67142f5ca2a9e1413dd6';
   console.log("TARGET " + props.target)
   console.log("Booking id in feedback page " + props.booking_id);
 
-  const rated = await providerService.setRating(props.providerId, {
-    star: Number(rating.value.toFixed(1)),
-    content: {
-      date: new Date().toISOString(),
-      sender: profile.value?.firstName,
-      text: feedbackContent.value
+  try {
+    const rated = await providerService.setRating(props.providerId, {
+      star: Number(rating.value.toFixed(1)),
+      content: {
+        date: new Date().toISOString(),
+        sender: profile.value?.firstName,
+        text: feedbackContent.value
+      }
+    });
+
+    if (rated) {
+      await handleArchiveClient();
+      
+      emit('rating-done');
     }
-  });
-
-  //console.log("Rated, ", rated)
-  //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
-  if (rated) {
-    
-    await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
-    await handleArchiveClient();
-    
-
-    //console.log("Archieved client value - ", archivedClient);
-    
-    emit('rating-done');
+  } catch (err) {
+    console.log("Error to handle rating " + err.message);
   }
+
+  
 }
 </script>
 <style scoped>

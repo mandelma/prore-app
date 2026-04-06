@@ -19,6 +19,10 @@ export const useProArchiveStore = defineStore('pHistory', () => {
         providerHistory.value = [...providerHistory.value, pArchived];
     }
 
+    const addArchiveLocal = async (pArchived) => {
+        providerHistory.value = [...providerHistory.value, pArchived];
+    }
+
     const upsertArchive = (id) => {
         const newArchive = providerHistory.value.filter(ph => ph.id !== id);
         providerHistory.value = newArchive;
@@ -28,6 +32,7 @@ export const useProArchiveStore = defineStore('pHistory', () => {
         providerHistory,
         initProviderArchive,
         archiveProviderLocal,
+        addArchiveLocal,
         upsertArchive
     }
 })

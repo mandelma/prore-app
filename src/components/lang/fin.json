@@ -37,5 +37,38 @@
   "recipient_result_new": "uusi!",
   "recipient_result_waiting_offers": "Odotetaan tarjouksia...",
   "recipient_result_remove_order": "Poista tilaus",
-  "recipient_final_feedback": "Palautteet"
+  "recipient_final_feedback": "Palautteet",
+
+  "register_firstname": "Etunimi",
+  "register_lastname": "Sukunimi",
+  "register_username": "Käyttäjätunnus",
+  "register_email": "Sähköposti",
+  "register_password_1": "Salasana",
+  "register_password_2": "Toista salasana",
+  "register_remember_me": "Muista minut",
+  "register_create_account": "Luo tili",
+
+  "login_uername": "Käyttäjätunnus",
+  "login_password": "Salasana",
+  "login_rememberme": "Muista minut",
+  "login_forgot_password": "Unohdin salasanan",
+  "login_log_in": "Kirjaudu",
+  "login_no_member": "Ei jäsen?",
+  "login_register": "Registeröidy",
+
+  "public_home_title": "Nopeus on tärkeintä!",
+  "public_home_btn_client": "Etsin palvelua",
+  "public_home_btn_pro": "Tarjoan palvelua",
+
+  "client_form_offersOrOnMap": "Täytä tilaus tarjousten varten tai löytää nopea ratkaisu kartalta!",
+  "client_form_profession_field": "Valitse ammattilainen *",
+  "client_form_title": "Syötä tilauksen avainsana *",
+  "client_form_address": "Anna osoite *",
+  "client_form_range": "Anna säde mistä maksimi haet ammattilaista -km",
+  "client_form_when": "Mihin aikaan tarvitset ammattilaista?",
+  "client_form_when_field": "valitse tehtävän päivämäärä ja aika *",
+  "client_form_allow_email": "Vastaukset voi lähettää sähköpostiin!",
+  "client_form_description": "Kuvaus tilauksen sisällöstä *",
+  "client_form_btn_send": "Lähetä tilaus"
 }
+
