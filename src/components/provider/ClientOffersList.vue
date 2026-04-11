@@ -70,6 +70,8 @@
                     @unlock-parent="unlockParentHeight"
                     :is-disabled="booking?.disabled"
                     :client="client"
+                    @just-test="hJustTest"
+                    @toast="payload => {console.log('child received', payload); emit('toast', payload)}"
                 />
 
                 
@@ -121,16 +123,18 @@
                   :ref="setCollapseRoot"
                   v-model="parentOpen"
               >
-              <!-- target a real DOM element to control height -->
+              <!--  @resize-parent="syncParentHeight"
+                    @unlock-parent="unlockParentHeight"
+                    @confirmed-order-toast="handleConfirmedOrderToast" -->
+              <!-- target a real DOM element to control height @just-test="hJustTest" -->
               <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
                     :open="childOpen"
-                    @resize-parent="syncParentHeight"
-                    @unlock-parent="unlockParentHeight"
-                    @confirmed-order-toast="handleConfirmedOrderToast"
+                   
                     :is-disabled="booking?.disabled"
-                    @just-test="hJustTest"
+                    
                     :client="client"
+                    @toast="toastForward"
                 />
 
               </div>
@@ -190,7 +194,7 @@ const _props = defineProps({
   offersIn: {type: Array, default: () => []}
 })
 
-const emit = defineEmits(['confirm-order-toast'])
+const emit = defineEmits(['toast', 'confirm-order-toast'])
 
 // keep them reactive
 const { offersIn, isPro } = toRefs(_props);
@@ -271,9 +275,14 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { ro && ro.disconnect() })
 
+const toastForward = (payload) => {
+  console.log("Payload in co - ", payload);
+  emit('toast', payload);
+}
+
 const hJustTest = () => {
   console.log("JUST TEST");
-  emit('confirm-order-toast')
+  //emit('confirm-order-toast')
   isOrderConfirmed.value = true;
   confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
 }

@@ -145,8 +145,9 @@ export const useClientStore = defineStore('client', () => {
         
     }
 
-    const removeConfirmedMapOffer = async (booking) => {
+    const removeMapOffer = async (booking) => {
         await clientService.removeBooking(booking.id);
+        
         
         // Add -- remove booking accessories like pictures, offers etc.
         bookings.value = bookings.value.filter(item => item.id !== booking.id);
@@ -185,12 +186,14 @@ export const useClientStore = defineStore('client', () => {
                 await notificationStore.clientPublicBookingDelNotification(receiver, bookingId, notification);
             }
             await offerService.deleteBookingOffers(bookingId);
+            clientNewOffers.value = clientNewOffers.value.filter(no => no.bookingID !== bookingId);
         } else {
             for (let pro of bGetters) {
                 // notification currently not send id no offer done.
                 console.log("Pro user id -- " + pro.user.id);
                 const addressaat = pro.user.id;
                 socket.emit('on-client-del-public-booking', addressaat, bookingId);
+                //clientNewOffers.value = clientNewOffers.value.filter(no => no.id !== bookingId);
             }
         }
         
@@ -200,7 +203,15 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const localRemovePublicBooking = async (id) => {
-        bookings.value = bookings.value.filter(item => item.id !== id);
+        //const disabled = bookings.find(b => b.id === id);
+
+        console.log("Nothing need to act in clint side");
+
+        //bookings.value = bookings.value.map(item => item.id === id ? {disabled: true} : {disabled: false});
+        //deleted.disabled = true;
+
+
+        //bookings.value = bookings.value.filter(item => item.id !== id);
     }
 
     // Client sending request to the provider via map
@@ -337,7 +348,7 @@ export const useClientStore = defineStore('client', () => {
         removeProRejectedMapOffer_ls,
         onRequest,
         handleConfirmedOffer,
-        removeConfirmedMapOffer,
+        removeMapOffer,
         onRemovePublicBooking,
         localRemovePublicBooking,
         updateClientMain,

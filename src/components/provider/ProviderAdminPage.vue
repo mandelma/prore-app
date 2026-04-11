@@ -342,7 +342,7 @@
 
             <!-- Mobile list -->
             <div class="d-md-none vstack gap-2">
-              <client-offers-list :clients="filteredClients"/>
+              <client-offers-list :clients="filteredClients" @toast="handleToast"/>
               
 
               <div v-if="filteredClients.length === 0" class="text-muted small py-2">
@@ -352,7 +352,7 @@
 
             <!-- Table on md+ -->
             <div class="d-none d-md-block">
-              <client-offers-list :clients="filteredClients"/>
+              <client-offers-list :clients="filteredClients" @toast="handleToast"/>
               
 
               <div v-if="filteredClients.length === 0" class="text-muted small py-2">
@@ -634,7 +634,11 @@ const confirmedClients = computed(() => proCalendarEvents.value);
 
 
 
+const handleToast = (payload) => {
+  console.log("Toast payload - " + payload.state + " " + payload.message);
+  onToast(payload.icon, payload.message, payload.color);
 
+}
 
 // Call this on input/change
 function markProviderDirty() {

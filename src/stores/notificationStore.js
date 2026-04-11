@@ -30,18 +30,20 @@ export const useNotificationStore = defineStore('notifications', () => {
     }
     //bookingId, provider.value.pName, header, noteContent, addressaat
     // Client rejects own booking - notification to pro
-    const addNotification = async (booking_id, author, header, text, receiver) => {
+    const addNotification = async (booking_id, author, text, receiver) => {
         const newNote = await noteService.createMessage(receiver, {
             bookingId: booking_id,
             isNewMsg: true,
             isLink: false,
-            title: header,
+            title: "Tiedot",
             content: text,
             reason: '',
             sender: author,
         });
+
+        //await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
         if (newNote) {
-            socket.emit("del client map booking", booking_id, receiver, newNote);
+            socket.emit("client del map booking", booking_id, receiver, newNote);
             
         }
     }

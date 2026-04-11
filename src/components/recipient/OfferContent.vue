@@ -1,8 +1,11 @@
 <template>
     <div>
         <div style="display: flex; justify-content: left;">
-            <MDBBtn v-if="!isFeedback" color="info" block @click="goToFeedback">Vastaanotettu palaute</MDBBtn>
-            <MDBBtn v-else outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← Takaisin</MDBBtn>
+            <div v-if="!isFeedback">
+                <MDBBtn v-if="offerContent.provider.feedback.length" color="info" block @click="goToFeedback">Vastaanotettu palaute</MDBBtn>
+            </div>
+            
+            <MDBBtn v-else-if="isFeedback" outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← Takaisin</MDBBtn>
         </div>
         
         

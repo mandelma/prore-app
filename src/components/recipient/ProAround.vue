@@ -88,7 +88,7 @@
 
             <div class="field-wrapper">
               <MDBDateTimepicker
-                  size="sm"
+                  size="md"
                   label="Valitse tehtävän päivämäärä ja aika"
                   v-model="dt"
                   :toggleButton="false"
@@ -125,7 +125,7 @@
 
         </div>
         
-        <MDBSelect size="sm" v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
+        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
         <p v-if="panelRangeError" style="color: red; margin: 0;">Etäisyys on pakollinen valinta!</p>
 
         <div style="margin-top: 13px; display: flex; justify-content: space-between;">

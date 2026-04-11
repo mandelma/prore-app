@@ -108,7 +108,7 @@ export const useProStore = defineStore("pro", () => {
     }
     const upsertBooking = (booking) => {
         incomingOffers.value.push(booking);
-        newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
+        //newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
         incomingOffers.value = incomingOffers.value.sort((a, b) => b.created_ms - a.created_ms);;
         // keep the counter in sync
 
@@ -148,30 +148,16 @@ export const useProStore = defineStore("pro", () => {
         }
          
     }
-    const removeBookingPublicOffer = async(id, receiver) => {
-
-        console.log("Does proStore remove works?" + id);
-        await providerService.removeProviderBooking(providerId.value, id);
-        await clientService.removeBooking(id);
-    
-        const targetId = String(id);
-        const getId = (b) => String(b?.id ?? b?._id);
-        const next = incomingOffers.value.filter(b => getId(b) !== targetId);
-        incomingOffers.value = next;
-        //incomingOffersCount.value = next.length;
-
-        console.log("Receiver ID - " + receiver);
-        socket.emit('on-pro-remove-public-offer', id, receiver);
-
-        if (incomingOffersCount.value < 1) {
-            router.push('/');
-        }
+    const removeBookingMapOffer = async (id) => {
+        await removeLocalBooking(id);
     }
+    
 
     const handleRemoveDisabledBooking = (id) => {
         const renewed = incomingOffers.value.filter(iov => iov.id !== id);
         incomingOffers.value = renewed;
     }
+
 
     const removeLocalBooking = async (id) => {
         console.log("Pro id " + providerId.value);
@@ -195,12 +181,38 @@ export const useProStore = defineStore("pro", () => {
         //incomingOffersCount.value = next.length;
         await providerService.removeProviderBooking(providerId.value, id);
     }
+    // Provider side form nulty booking removing
+    const removeBookingPublicOffer = async (id, receiver) => {
+
+        console.log("Does proStore remove works?" + id);
+        //await providerService.removeProviderBooking(providerId.value, id);
+
+
+        //await clientService.removeBooking(id);
+
+        await removeLocalBooking(id);
+
+        /* const targetId = String(id);
+        const getId = (b) => String(b?.id ?? b?._id);
+        const next = incomingOffers.value.filter(b => getId(b) !== targetId);
+        incomingOffers.value = next; */
+        
+
+        console.log("Receiver ID - " + receiver);
+        socket.emit('on-pro-remove-public-offer', id, receiver);
+
+        if (incomingOffersCount.value < 1) {
+            router.push('/');
+        }
+    }
+
+    // In provider side
     const removeMapOffer = async (id, addressaat) => {
         console.log("REM " + id)
         //await clientService.removeBooking(id);
         console.log("IS DEL???")
         await removeLocalBooking(id);
-        await socket.emit('del pro-side map booking', addressaat, id);
+        socket.emit('del pro-side map booking', addressaat, id);
         
         
         if (!incomingOffers.value.length) router.push('/');
@@ -324,6 +336,7 @@ export const useProStore = defineStore("pro", () => {
     const onEdit = async (id, edited) => {
         await timetableService.updateTimetableEvent(id, edited);
         const existing = proTimetable.value.find(time => time.id === id);
+        
         proTimetable.value = proTimetable.value.map(time =>
             time.id === id
                 ? {
@@ -364,6 +377,7 @@ export const useProStore = defineStore("pro", () => {
         getProState,
         upsertBooking,
         addProviderOffer,
+        removeBookingMapOffer,
         removeBookingPublicOffer,
         removeLocalBooking,
         disableLocalBooking,

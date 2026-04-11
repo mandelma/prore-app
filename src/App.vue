@@ -437,11 +437,13 @@ const listen = async() => {
     console.log("Del map booking " + bookingId);
     console.log("Note  " + note.id);
     //await handleProvider.removeBookingOffer(bookingId);
+    await handleProvider.disableLocalBooking(bookingId);
     await notificationStore.localStateAddNotification(note);
   })
 
   socket.on('handle-pro-remove-public-offer', async (bookingId) => {
     console.log("REMOVE " + bookingId);
+    // Move booking and disable open booking
     await client.localRemovePublicBooking(bookingId);
   })
 
@@ -462,7 +464,8 @@ const listen = async() => {
 
   socket.on('local-handle-del-client-public-booking', async (bookingId, note) => {
     console.log("Notification locally added - " + note.content);
-    await handleProvider.removeLocalBooking(bookingId);
+    //await handleProvider.removeLocalBooking(bookingId);
+    await handleProvider.disableLocalBooking(bookingId);
     await notificationStore.localStateAddNotification(note);
   })
   // Same, only no offers

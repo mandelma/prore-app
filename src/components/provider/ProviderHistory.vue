@@ -370,6 +370,8 @@ const removeRow = async (booking) => {
 }
 
 .historySection {
+  margin: auto;
+  width: 70%;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 14px;
@@ -393,6 +395,9 @@ const removeRow = async (booking) => {
 @media (max-width: 520px) {
   .kv {
     grid-template-columns: 1fr;
+  }
+  .historySection {
+    width: 100%;
   }
 }
 

@@ -39,7 +39,11 @@ const hs = (socket) => {
         socket.to(receiver).emit('handle client request confirm', {receiver, bId: bookingId, _providerId: providerId,  _offer: offer})
     })
 
-    socket.on('del client map booking', (bookingId, receiver, note) => {
+    socket.on('client remove map booking', (bookingId) => {
+
+    })
+
+    socket.on('client del map booking', (bookingId, receiver, note) => {
         console.log("Del map booking " + receiver + " " + bookingId);
         socket.to(receiver).to(socket.userId).emit('handle client del map booking', receiver, bookingId, note);
     })

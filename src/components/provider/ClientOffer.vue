@@ -237,7 +237,7 @@
 
         <MDBBtn
             v-if="!isQuitClientBooking"
-            :disabled="isDisableProNotMapBtns"
+            :disabled="isDisabled"
             block
             outline="success"
             size="lg"
@@ -286,7 +286,7 @@
 <!--        :disabled="isDisableProNotMapBtns"-->
         <MDBBtn
             v-if="!isQuitClientBooking"
-            
+            :disabled="isDisabled"
             block
             outline="danger"
             size="lg"
@@ -295,6 +295,7 @@
           Poista tilaus
         </MDBBtn>
 
+        <!-- Spinner test -->
         <button @click="handleOrder">Place Order</button>
 
       </div>
@@ -303,6 +304,18 @@
     
 
   </div>
+
+  <ConfirmModal
+    v-model="showDeleteModal"
+    :title="cTitle"
+    :message="cMessage"
+    confirm-text="Poista"
+    cancel-text="Pidä se"
+    :danger="true"
+    @confirm="handleConfirmRemoveClientBooking"
+    @cancel="handleCancelRemoving"
+  />
+
   <!-- Overlay -->
     <div v-if="loading" class="on-overlay">
       <div class="on-spinner"></div>
@@ -327,7 +340,9 @@ import {
   MDBLightbox,
   MDBLightboxItem
 } from 'mdb-vue-ui-kit';
-import { ref, nextTick, inject, toRefs, onMounted, onUnmounted, computed } from 'vue';
+import { ref, nextTick, inject, toRefs, onMounted, onUnmounted, watch, computed } from 'vue';
+import ConfirmModal from '../helpers/ConfirmModal.vue';
+
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
 import { useConversationStore } from '@/stores/conversationStore.js';
@@ -354,7 +369,7 @@ const _props = defineProps({
   isDisabled: {type: Boolean}
 })
 
-const emit = defineEmits(['confirmed-order-toast', 'just-test'])
+const emit = defineEmits(['toast', 'just-test'])
 
 const { client, open } = toRefs(_props)
 
@@ -406,7 +421,9 @@ const final = ref(null);
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
 //const road = computed(async() => await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]))
 
-
+const showDeleteModal = ref(false);
+const cTitle = ref("");
+const cMessage = ref("");
 
 
 onMounted(async() => {
@@ -480,6 +497,14 @@ const validateMaps = async() => {
   }
 }
 
+const onCoToast = (icon, content, color) => {
+  console.log("Toast works?")
+  toastState.value = color;
+  toastIcon.value = icon;
+  toastContent.value = content;
+  toastModel.value = true;
+}
+
 const filterInput = ref((event) => {
   // Filter out non-digit characters
   const raw = event.target.value;
@@ -515,8 +540,6 @@ const makeOfferBtn = () => {
   console.log("Make offer!");
   isHandleOffer.value = true;
 }
-
-import { watch } from "vue";
 
 const loading = ref(false);
 
@@ -570,8 +593,17 @@ const createOffer = async () => {
   const addressee = client.value.author_id;
   console.log("Addressee - " + addressee);
   //clientStore.addOffer(client.value.id, offer);
+
+
   try {
     await proStore.addProviderOffer(client.value.id, addressee, offer);
+    emit('toast', {
+      state: "success",
+      message: `${client.value?.user?.firstName} tilaus. Hintatarjous on lähetetty onnistuneesti!`,
+      icon: "fas fa-check fa-lg me-2",
+      color: "success"
+
+    })
   } catch (error) {
     console.log("CL error " + error.message);
   } finally {
@@ -587,23 +619,7 @@ const quitMapOffer = async () => {
   
 }
 
-const confirmRejectMapBooking = async () => {
-  if (confirm("Oletko varmaa että tilaus poistetaan?")) {
-    console.log("Quit offer user - " + client.value.author_id);
-    console.log(Object.keys(client.value.user));
-    const bookingId = client.value.id;
-    const addressaat = client.value.author_id;
-    const header = "Tilaus hylätty!"
-    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
-    console.log("111")
 
-    await proStore.removeMapOffer(bookingId, addressaat);
-    console.log("222")
-    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
-  } else {
-    console.log("Keskeytetty poistaminen!");
-  }
-}
 
 const undoRejectMapOffer = () => {
   isQuitClientBooking.value = false;
@@ -622,8 +638,6 @@ const confirmClientBooking = async () => {
   const header = "Sopimus tehty!";
   const clientContent = `${provider.value.pName} on vahvistanut tilauksen - "${client.value.header}". Tarkemmat tiedot kalenterissa!`;
   const proContent = `Tilaus "${client.value.header}" on vahvistettu. Tiedot kalenterissa!`;
-  
-  //const status = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
 
   const offer = {
     bookingID: client.value.id,
@@ -676,6 +690,14 @@ const confirmClientBooking = async () => {
     const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer)
 
     if (!confirmation || !addConfirmation) return;
+    emit('toast', {
+      state: "success",
+      message: "Asiakkaan tilaus on varmistettu onnistuneesti!",
+      icon: "fas fa-check fa-lg me-2",
+      color: "success"
+
+    })
+    console.log('grandchild emitted')
 
     emit('just-test')
 
@@ -686,6 +708,8 @@ const confirmClientBooking = async () => {
     console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
 
     console.log('API results:', { confirmation, addConfirmation })
+    //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on varmistettu onnistuneesti!`, "success");
+    
   } catch (e) {
     console.error('API error in child:', e)
   } finally {
@@ -693,8 +717,34 @@ const confirmClientBooking = async () => {
   }
 }
 
+// Removing client map offer
+const confirmRejectMapBooking = async () => {
+  showDeleteModal.value = true;
+  cTitle.value = "Poistetaanko tilaus?";
+  cMessage.value = "Oletko varma, että haluat poistaa asiakkaan tilauksen?";
+  /* if (confirm("Oletko varmaa että tilaus poistetaan?")) {
+    console.log("Quit offer user - " + client.value.author_id);
+    console.log(Object.keys(client.value.user));
+    const bookingId = client.value.id;
+    const addressaat = client.value.author_id;
+    const header = "Tilaus hylätty!"
+    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
+    console.log("111")
+
+    await proStore.removeMapOffer(bookingId, addressaat);
+    console.log("222")
+    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
+  } else {
+    console.log("Keskeytetty poistaminen!");
+  } */
+}
+
+// Removing client form offer
 const rejectFormBooking = async () => {
-  if (confirm("Oletko varmaa, että haluat poistaa tilauksen kokonaan?")) {
+  showDeleteModal.value = true;
+  cTitle.value = "Poistetaanko tilaus?";
+  cMessage.value = "Oletko varma, että haluat poistaa asiakkaan tilauksen?";
+  /* if (confirm("Oletko varmaa, että haluat poistaa tilauksen kokonaan?")) {
     isQuitClientBooking.value = true;
     console.log("Reject");
     const receiver = client.value.author_id;
@@ -702,10 +752,63 @@ const rejectFormBooking = async () => {
     await proStore.removeBookingPublicOffer(client.value.id, receiver);
   } else {
     console.log("Cancelled")
+  } */
+}
+
+const handleConfirmRemoveClientBooking = async () => {
+  console.log("Tilaus poisto confirmed!!!");
+  const clientName = client.value?.user?.firstName || 'asiakkaan';
+  const toastMessage = `${clientName} tilaus on poistettu!`;
+  // removing only provider client booking not client itself
+  if (client.value.isIncludeOffers) {
+    isQuitClientBooking.value = true;
+    console.log("Reject form booking--");
+    const receiver = client.value.author_id;
+    console.log("RECEIVER - " + receiver);
+    emit('toast', {
+      state: "info",
+      message: toastMessage,
+      icon: "fas fa-info-circle fa-lg me-2",
+      color: "info"
+
+    })
+    console.log('grandchild emitted')
+    await proStore.removeBookingPublicOffer(client.value.id, receiver);
+    //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
+    
+  } else {
+    console.log("Quit offer user - " + client.value.author_id);
+    console.log(Object.keys(client.value.user));
+    const bookingId = client.value.id;
+    const addressaat = client.value.author_id;
+    const header = "Tilaus hylätty!"
+    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
+    
+    console.log("111 - quit map offer")
+
+    emit('toast', {
+      state: "info",
+      message: toastMessage,
+      icon: "fas fa-info-circle fa-lg me-2",
+      color: "info"
+
+    })
+    console.log('grandchild emitted')
+
+    await proStore.removeMapOffer(bookingId, addressaat);
+    console.log("222")
+    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
+    //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
+    
   }
-  
+}
+
+const handleCancelRemoving = () => {
+  console.log('Remove cancelled');
+  undoRejectMapOffer();
 
 }
+
 </script>
 
 <style scoped>

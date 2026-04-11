@@ -70,10 +70,10 @@
 
         <div v-else class="empty-state">
           <p v-if="!booking.offers.length" class="empty-state__title">Ei kuvia vielä</p>
-          <p v-else>Ei kuvia</p>
+          <p v-else class="text-muted">Ei tilaukseen liittyviä kuvia!</p>
           <p v-if="!booking.offers.length" class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p>
         </div>
-      </div>
+      </div> 
     </div>
 
     <!-- EDIT MODE -->

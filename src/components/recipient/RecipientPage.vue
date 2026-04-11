@@ -274,6 +274,33 @@
         <!-- <MDBBtn color="primary"> Save changes </MDBBtn> -->
       </MDBModalFooter>
     </MDBModal>
+
+    <!-- <button class="delete-btn" @click="toastTest">
+      Delete item
+    </button> -->
+
+    <ConfirmModal
+      v-model="showDeleteModal"
+      :title="cTitle"
+      :message="cMessage"
+      confirm-text="Poista"
+      cancel-text="Pidä se"
+      :danger="true"
+      @confirm="deleteMapBooking"
+      @cancel="handleCancelDeleting"
+    />
+
+    <ToastHandler 
+      v-model="toastModel"
+      :toast-name="toastState"
+      :icon-state="toastIcon"
+      :text="toastContent"
+    />
+
+    <!-- Overlay -->
+    <div v-if="loading" class="on-overlay">
+      <div class="on-spinner"></div>
+    </div>
     
   </MDBContainer>
 
@@ -284,13 +311,15 @@
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBCard,
   MDBCardBody, MDBBadge, MDBToast, MDBIcon, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import world from '@/assets/map.gif'
 import RecipientContent from "../recipient/RecipientContent.vue";
+import ConfirmModal from '../helpers/ConfirmModal.vue';
 import { useClientStore } from '@/stores/recipientStore';
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore';
 import { useClientArchiveStore } from '@/stores/cArchiveStore';
+import ToastHandler from '../helpers/ToastHandler.vue';
 import ClientHistory from './ClientHistory.vue';
 import { storeToRefs } from 'pinia'
 import socket from '@/socket';
@@ -339,8 +368,67 @@ const company = ref("");
 const proId = ref("");
 const personalId = ref("");
 const bookingId = ref("");
+const myBooking = ref(null);
+
+const loading = ref(false);
 
 const c_archive = computed( async() => await cArchiveStore.initClientArchive());
+
+const showDeleteModal = ref(false);
+const cTitle = ref("");
+const cMessage = ref("");
+
+const toastModel = ref(false)
+const toastState = ref('')
+const toastIcon = ref('')
+const toastContent = ref('')
+
+
+watch(loading, (val) => {
+  document.body.style.overflow = val ? 'hidden' : '';
+  document.documentElement.style.overflow = val ? 'hidden' : '';
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+});
+
+const deleteMapBooking = async () => {
+  console.log('Booking deleted');
+  loading.value = true;
+
+  const booking = myBooking.value;
+  console.log("Quit bbb " + booking.header);
+  console.log("Selected booking pro user - " + booking.ordered[0].user.id);
+  const addressaat = booking.ordered[0].user.id;
+  const reason = clientQuitBookingReason.value;
+  const sender = booking.user.username;
+  try {
+    await clientStore.removeMapOffer(booking);
+
+    const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
+    await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
+    //onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
+  } catch (err) {
+    console.log("Error to delete map booking - " + err.message);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const onRpToast = (icon, content, color) => {
+  console.log("Toast works?")
+  toastState.value = color;
+  toastIcon.value = icon;
+  toastContent.value = content;
+  toastModel.value = true;
+}
+
+function handleCancelDeleting() {
+  console.log('Delete cancelled');
+  canselQuitSelectedBooking();
+}
 
 const sortedBookings = computed(() => {
   return [...bookings.value]
@@ -358,6 +446,10 @@ const sortedBookings = computed(() => {
     multi: base.filter(b => b.isIncludeOffers),
   }
 }) */
+
+const toastTest = () => {
+  onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
+}
 
 
 // Test
@@ -441,15 +533,30 @@ const canselQuitSelectedBooking = () => {
 }
 
 const clientRejectMapBooking = async (booking) => {
+  myBooking.value = booking;
+  showDeleteModal.value = true;
+  cTitle.value = "Poistetaan tilaus?";
+  cMessage.value = "Oletko varma, että haluat poistaa tilauksesi? Tehtyä ei voi enää perua!"
+
+
+  /* loading.value = true;
+
   console.log("Quit bbb " + booking.header);
   console.log("Selected booking pro user - " + booking.ordered[0].user.id);
   const addressaat = booking.ordered[0].user.id;
   const reason = clientQuitBookingReason.value;
   const sender = booking.user.username;
-  await clientStore.removeConfirmedMapOffer(booking);
+  try {
+    await clientStore.removeMapOffer(booking);
 
-  const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
-  await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
+    const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
+    await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
+  } catch (err) {
+    console.log("Error to delete map booking - " + err.message);
+  } finally {
+    loading.value = false;
+  } */
+  
 }
 
 const handleFeedback = (name, id, pId, bId) => {

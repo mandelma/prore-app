@@ -1,104 +1,125 @@
 <template>
-  <div class="page">
-    <header class="page-header">
-      
-      <h6 class="page-title">{{ booking.header}} → {{booking.professional[0]}}</h6>
-      <div class="page-actions">
-        <MDBBtnClose white @click="handleQuitContent" />
-      </div>
-    </header>
-
-  </div>
-
-
-  <MDBRow>
-    <MDBCol lg="8">
-      <booking-content :booking="booking"/>
-      <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
-        Peruuta tilaus
-      </div>
-    </MDBCol>
-    <MDBCol>
-      <section class="panel panel--offers">
-        <!-- your offers list here -->
-         <div class="offers-list">
-          <div style="padding: 7px 0 7px 0;">
-            <h5>Tarjoukset</h5>
-          </div>
-          
-          <div
-            v-for="offer in booking.offers"
-            :key="offer.id"
-            class="offer-item"
-            :class="{ 'is-new': offer.isNewOffer }"
-            @click="getProviderInfo(offer.provider, offer)"
-          >
-            <div class="offer-main">
-              <p class="offer-name">{{offer.name}}</p>
-              
-              <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}} km</p>
-            </div>
-
-            <div class="offer-price">
-              {{offer.price}} eur
-            </div>
-            <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
-            
-          </div>
-          
-
-        </div>
-        <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
+  <div>
+    <div class="page">
+      <header class="page-header">
         
-      </section>
-      
-    </MDBCol>
-  </MDBRow>
-
-
-  <MDBModal
-    tabindex="-1"
-    class="modal-fade"
-    v-model="openProModal"
-    removeBackdrop
-    :keyboard="false"
-    :focus="false"
-    scrollable
-  >
-    <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle >{{ selectedProvider.name }}</MDBModalTitle>
-    </MDBModalHeader>
-    <MDBModalBody>
-
-      <div class="modal-pro-first">
-        <MDBIcon v-if="!selectedProvider?.provider?.user?.avatar?.isImage"  icon="user" class="icon" />
-        <img
-        v-else
-          :src="selectedProvider?.provider?.user?.avatar?.imageUrl"
-          class="rounded-circle"
-          height="53"
-          alt=""
-          loading="lazy"
-        />
-
-        <div>
-          <stars :rating="selectedProvider?.provider?.rating" />
-          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.provider?.ratersCount }} arvioijaa</p>
+        <h6 class="page-title">{{ booking.header}} → {{booking.professional[0]}}</h6>
+        <div class="page-actions">
+          <MDBBtnClose white @click="handleQuitContent" />
         </div>
-      </div>
-      
-      <offer-content :offerId="offerId" />
-    </MDBModalBody>
-    <MDBModalFooter>
-      <div style="display: flex; justify-content: right;">
-        <div style="display: flex; gap: 7px;">
-          <MDBBtn color="danger" @click="openProModal = false"> Peruuta </MDBBtn>
-          <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+      </header>
+
+    </div>
+
+
+    <MDBRow>
+      <MDBCol lg="8">
+        <booking-content :booking="booking"/>
+        <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
+          Peruuta tilaus
         </div>
-      </div>
-      
-    </MDBModalFooter>
-  </MDBModal>
+      </MDBCol>
+      <MDBCol>
+        <section class="panel panel--offers">
+          <!-- your offers list here -->
+          <div class="offers-list">
+            <div style="padding: 7px 0 7px 0;">
+              <h5>Tarjoukset</h5>
+            </div>
+            
+            <div
+              v-for="offer in booking.offers"
+              :key="offer.id"
+              class="offer-item"
+              :class="{ 'is-new': offer.isNewOffer }"
+              @click="getProviderInfo(offer.provider, offer)"
+            >
+              <div class="offer-main">
+                <p class="offer-name">{{offer.name}}</p>
+                
+                <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}} km</p>
+              </div>
+
+              <div class="offer-price">
+                {{offer.price}} eur
+              </div>
+              <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
+              
+            </div>
+            
+
+          </div>
+          <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
+          
+        </section>
+        
+      </MDBCol>
+    </MDBRow>
+
+
+    <MDBModal
+      tabindex="-1"
+      class="modal-fade"
+      v-model="openProModal"
+      removeBackdrop
+      :keyboard="false"
+      :focus="false"
+      scrollable
+    >
+      <MDBModalHeader class="modal-header-custom">
+        <MDBModalTitle >{{ selectedProvider.name }}</MDBModalTitle>
+      </MDBModalHeader>
+      <MDBModalBody>
+
+        <div class="modal-pro-first">
+          <MDBIcon v-if="!selectedProvider?.provider?.user?.avatar?.isImage"  icon="user" class="icon" />
+          <img
+          v-else
+            :src="selectedProvider?.provider?.user?.avatar?.imageUrl"
+            class="rounded-circle"
+            height="53"
+            alt=""
+            loading="lazy"
+          />
+
+          <div>
+            <stars :rating="selectedProvider?.provider?.rating" />
+            <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.provider?.ratersCount }} arvioijaa</p>
+          </div>
+        </div>
+        
+        <offer-content :offerId="offerId" />
+      </MDBModalBody>
+      <MDBModalFooter>
+        <div style="display: flex; justify-content: right;">
+          <div style="display: flex; gap: 7px;">
+            <MDBBtn color="danger" @click="openProModal = false"> Peruuta </MDBBtn>
+            <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+          </div>
+        </div>
+        
+      </MDBModalFooter>
+    </MDBModal>
+
+    <ConfirmModal
+      v-model="showDeleteModal"
+      :title="cTitle"
+      :message="cMessage"
+      confirm-text="Poista"
+      cancel-text="Pidä se"
+      :danger="true"
+      @confirm="handleRemovePublicBooking"
+      @cancel="handleCancelRemoving"
+    />
+
+    <toast-handler 
+      v-model="toastModel"
+      :toast-name="toastState"
+      :icon-state="toastIcon"
+      :text="toastContent"
+    />
+  </div>
+  
 </template>
 
 <script setup>
@@ -130,6 +151,8 @@ import BookingContent from './BookingContent.vue';
 import { useLoginStore } from '@/stores/login';
 import { useNotificationStore } from '@/stores/notificationStore';
 import clientService from '../../service/recipients'
+import ConfirmModal from '../helpers/ConfirmModal.vue';
+import ToastHandler from '../helpers/ToastHandler.vue';
 import '@/styles/theme.css';
 //import '@/styles/form.css';
 defineOptions({
@@ -166,6 +189,15 @@ const isEditDate = ref(false);
 const { user } = storeToRefs(auth);
 const { bookings } = storeToRefs(clientStore);
 const notificationStore = useNotificationStore();
+
+const showDeleteModal = ref(false);
+const cTitle = ref("");
+const cMessage = ref("");
+
+const toastModel = ref(false)
+const toastState = ref('')
+const toastIcon = ref('')
+const toastContent = ref('')
 
 //const offerContent = clientStore.getOfferById(offerId);
 
@@ -234,6 +266,16 @@ const getProviderInfo = async (proID, offer) => {
 
 
 
+const onToast = (icon, content, color) => {
+  console.log("Toast work?")
+  toastState.value = color;
+  toastIcon.value = icon;
+  toastContent.value = content;
+  toastModel.value = true;
+}
+
+
+
 const orderProvider = async() => {
   console.log("Offer id " + offerId.value)
   const offerContent = clientStore.getOfferById(offerId.value);
@@ -283,6 +325,8 @@ const orderProvider = async() => {
   emit('canselRecipientContentConfirmed', selectedProvider.value.name);
   //emit('quit-content-confirmed', selectedProvider.value.name);
 
+  //onToast("fas fa-check fa-lg me-2", `${selectedProvider.value.pName} on tilattu onnistuneesti!`, "success");
+
   openProModal.value = false;
 }
 
@@ -301,10 +345,24 @@ const handleQuitOfferContentConfirmed = (pro) => {
 
 
 const removePublicBooking = async () => {
-  console.log("BOOKING ID " + props.booking.id)
+  console.log("BOOKING ID " + props.booking.id);
+
+  showDeleteModal.value = true;
+  cTitle.value = "Poistetaanko tilaus?";
+  cMessage.value = "Oletko varma, että haluat poistaa tilauksen?";
   
-  await clientStore.onRemovePublicBooking(props.booking.id);
-  emit('out-here');
+}
+
+const handleRemovePublicBooking = async () => {
+  try {
+    await clientStore.onRemovePublicBooking(props.booking.id);
+    emit('out-here');
+  } catch (err) {
+    console.log("Error to remove client multy booking");
+  }
+}
+const handleCancelRemoving = () => {
+  console.log('Remove cancelled');
 }
 
 </script>
