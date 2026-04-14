@@ -174,9 +174,9 @@
           </form>
       </section>
 
-      <div style="color:red; position:absolute; top:-20px;">
+      <!-- <div style="color:red; position:absolute; top:-20px;">
         {{ mobile }}
-      </div>
+      </div> -->
     </div>
 
     
@@ -217,6 +217,8 @@
   const chatBody = ref(null);
   const chatInput = ref(null);
   const ddChat = ref(false);
+
+  const openWindowPos = ref(null);
 
   //const mobile = ref(window.innerWidth <= 640)
   const mobile = computed(() => window.innerWidth <= 640);
