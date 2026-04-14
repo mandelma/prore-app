@@ -241,6 +241,7 @@ import { useMapStore } from '@/stores/mapStore';
 import { useClientStore } from '@/stores/recipientStore';
 import { useLoginStore } from '@/stores/login';
 import { useProStore } from '@/stores/providerStore';
+import { useConversationStore } from '@/stores/conversationStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
 
@@ -255,7 +256,7 @@ defineOptions({
 })
 
 const mapStore = useMapStore();
-
+const convoStore = useConversationStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
 const address = ref("");
@@ -350,8 +351,6 @@ const startPos = computed(() => userPos.value || lastKnownPos.value)
 
 watch(selectedRange, (newVal) => {
   console.log("Dist is changed ", newVal);
-  
-  //showClientLocationOnTheMap(currentProfession.value, newVal);
 
 })
 
@@ -456,19 +455,6 @@ watch(isMainPanel, (val) => {
     panelRangeError.value = false;
   }
 })
-
-/* watch(
-  [mapsReady, selectedRange, profession, userPos],
-  ([ready, range, prof, pos]) => {
-    if (!ready) return
-    if (!pos) return
-    if (!map) return
-    if (!range) return
-    if (!prof?.label) return
-
-    //showClientLocationOnTheMap(prof.label, range.value ?? range)
-  }
-) */
 
 watch(isDateNow, (state) => {
   if (state) {
@@ -838,11 +824,21 @@ const otherUserLocations = async (providers, profession, dist) => {
       pixelOffset: new google.maps.Size(0, -10)
     });
 
+    /* let starsApp = null;
+    let referenceApp = null;
+    let currentProvider = null;
+    let currentProviderIndex = null;
+    let currentMatching = false;
+    let isOpenReferences = false;
+    let currentPos = null; */
+
     let starsApp = null;
     let referenceApp = null;
     let currentProvider = null;
+    let currentProviderIndex = null;
     let currentMatching = false;
-    let currentPos = null;
+    let isOpenReferences = false;
+    let currentMarker = null;
 
     infowindow.addListener("domready", () => {
       const mountEl = document.getElementById("stars-mount");
@@ -868,7 +864,7 @@ const otherUserLocations = async (providers, profession, dist) => {
       }
 
       // mount references
-      if (mountRefEl && currentProvider) {
+      if (mountRefEl && currentProvider !== null && isOpenReferences) {
         referenceApp = createApp(ProReferencePublic, {
           references: currentProvider.reference
         });
@@ -923,12 +919,8 @@ const otherUserLocations = async (providers, profession, dist) => {
           const proClientDist = distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude);
           notifyProvidersAboutInterest(providers[pos], profession, proClientDist);
 
-          //his.providers.push(providers[pos])
           console.log("Pro " + prof)
-          //let providerLatLng = [providers[pos].latitude, providers[pos].longitude];
-          //console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude));
-
-
+          
           if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
             count ++;
 
@@ -958,13 +950,6 @@ const otherUserLocations = async (providers, profession, dist) => {
               marker = addProviderMarker(providers[pos], 'orange', 'darkorange');
             }
 
-            /* const fbButton = providers[pos].feedback.length > 0
-            ? `<button style="color: blue; width: 100%;" onclick="myFeedbackFunction(${pos})">Palaute</button>`
-            : ""; */
-
-
-
-
             const feedbackText = providers[pos].feedback
             .map(f => {
               const date = new Date(f.date).toLocaleString();
@@ -972,36 +957,7 @@ const otherUserLocations = async (providers, profession, dist) => {
             })
             .join("\n");
 
-            function escapeHtml(str) {
-              return String(str).replace(/[&<>"']/g, ch => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;"
-              }[ch]));
-            }
-
-            //.slice(0, 5)
-            const feedbackHtml = (providers[pos].feedback || [])
-            .filter(f => f && f.text && f.text.trim() !== "")
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map(f => `
-              <div class="feedback-item">
-                <div class="feedback-meta">
-                  <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
-                  <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
-                </div>
-                <div class="feedback-text">${escapeHtml(f.text)}</div>
-              </div>
-            `)
-            .join("");
-
-            
-
-            window.myGlobalFunction = this && this.openMarker
-              ? this.openMarker.bind(this)
-              : (idx) => handleSelectedPro(providers[idx])//console.log('openMarker fallback', idx);
+            window.myGlobalFunction = (idx) => handleSelectedPro(providers[idx]);
 
             window.toggleFeedback = () => {
               const el = document.getElementById("feedback-section");
@@ -1009,115 +965,163 @@ const otherUserLocations = async (providers, profession, dist) => {
               el.style.display = el.style.display === "none" ? "block" : "none";
             };
 
-            window.myFeedbackFunction = (idx) => {
-              console.log("Feedback button clicked:", idx);
-              //console.log(providers[idx].feedback);
+            window.myChatFunction = (idx) => {
+              console.log("Chat button clicked")
+              handleOpenChat(providers[idx]?.user?.id);
+            }
 
-              // example:
-              //showFeedback(providers[idx]);
-              //console.log(feedbackText);
+            window.myReferenceFunction = (idx) => {
+              console.log("Reference is clicked:", idx);
 
-              
+              isOpenReferences = !isOpenReferences;
+              renderInfoWindow(idx);
+
+              if (currentMarker) {
+                infowindow.open({ map, anchor: currentMarker, shouldFocus: false });
+              }
             };
 
-
+            
             // ✅ marker click ONLY opens
-            if (!marker) return;
             marker.addListener("click", () => {
-            const p = pos;
-            currentProvider = providers[p];
-            currentMatching = matching;
-            currentPos = p;
+              if (!marker) return;
+              currentProvider = providers[pos];
+              currentProviderIndex = pos;
+              currentMatching = matching;
+              currentMarker = marker;
+              isOpenReferences = false;
 
-            const hasImage = !!providers[p]?.user?.avatar?.isImage;
+              renderInfoWindow(pos);
+              infowindow.open({ map, anchor: marker, shouldFocus: false });
 
-            const avatarHtml = hasImage
-              ? `<img
-                  src="${providers[p].user.avatar.imageUrl}"
-                  class="rounded-circle"
-                  height="57"
-                  width="57"
-                  style="object-fit:cover;"
-                  alt=""
-                  loading="eager"
-                /><div class="provider">${providers[p].pName}</div>`
-              : `<i class="far fa-user fa-3x icon"></i><div class="provider">${providers[p].pName}</div>`;
+              if (window.innerWidth <= 480 && marker.position) {
+                map.panTo(marker.position);
+                map.panBy(0, -140);
+              }
+            });
+            
+            const renderInfoWindow = (p) => {
+              const provider = providers[p];
 
-            const orderButton = providers[p].id !== providerId.value
-              ? `<button class="order-btn" onclick="myGlobalFunction(${p})">
-                    TEE TILAUS
-                </button>`
-              : "";
+              const hasImage = !!provider?.user?.avatar?.isImage;
 
-            infowindow.setContent(`
-              <div class="custom-info-window" id="custom-iw">
-                <button id="custom-close" class="close-btn" aria-label="Close">×</button>
+              const avatarHtml = hasImage
+                ? `<img
+                    src="${provider.user.avatar.imageUrl}"
+                    class="rounded-circle"
+                    height="57"
+                    width="57"
+                    style="object-fit:cover;"
+                    alt=""
+                    loading="eager"
+                  /><div class="provider">${provider.pName}</div><div>${provider.description}</div>`
+                : `<i class="far fa-user fa-3x icon"></i><div class="provider">${provider.pName}</div><div>${provider.description}</div>`;
 
-                <div class="header">
-                  <div class="stars" id="stars-mount"></div>
-                  <div class="raters-count text-semibold small">
-                    / ${providers[p].ratersCount} arvostelijaa
+              function escapeHtml(str) {
+                return String(str).replace(/[&<>"']/g, ch => ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;"
+                }[ch]));
+              }
+
+              const feedbackHtml = (provider.feedback || [])
+                .filter(f => f && f.text && f.text.trim() !== "")
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(f => `
+                  <div class="feedback-item">
+                    <div class="feedback-meta">
+                      <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
+                      <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
+                    </div>
+                    <div class="feedback-text">${escapeHtml(f.text)}</div>
                   </div>
+                `)
+                .join("");
+
+              const orderButton = provider.id !== providerId.value
+                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">TEE TILAUS</button>`
+                : "";
+
+              const chatButton = provider.id !== providerId.value
+                ? `<button class="chat-btn" onclick="myChatFunction(${p})">
+                    <i class="far fa-comments fa-2x"></i>
+                  </button>`
+                : "";
+
+              const referenceBtn = `
+                <div class="reference-btn" onclick="myReferenceFunction(${p})">
+                  ${isOpenReferences ? "Sulje työnäytteet" : "Avaa työnäytteet"}
                 </div>
+              `;
+              infowindow.setContent(`
+                <div class="custom-info-window" id="custom-iw">
+                  <button id="custom-close" class="close-btn" aria-label="Close">×</button>
 
-                <table class="info-table" role="presentation">
-                  <tr>
-                    <td>${avatarHtml}</td>
-                    <td>${providers[p].description}</td>
-                  </tr>
-                </table>
-                ${
-                  feedbackHtml
-                    ? `
-                      <button class="bottom-btn" onclick="toggleFeedback()">Palautteet</button>
-                      <div id="feedback-section" class="feedback-section" style="display:none;">
-                        <div class="feedback-title">Palautteet</div>
-                        <div class="feedback-list">
-                          ${feedbackHtml}
-                        </div>
-                      </div>
-                    `
-                    : ""
-                }
-                <table class="info-table" role="presentation">
-                  <tr>
-                    <th>Saatavuus</th>
-                    <td>${currentMatching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
-                  </tr>
-                  <tr>
-                    <th>Ammatti</th>
-                    <td>${providers[p].profession.join(', ')}</td>
-                  </tr>
-                  <tr>
-                    <th>Tiedot</th>
-                    <td><span class="info-link">Kotisivu</span></td>
-                  </tr>
-                  <tr>
-                    <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
-                    <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
-                  </tr>
-                  <tr>
-                    <th>Referenssit</th>
-                  </tr>
-                  <tr>
-                    <td colspan="2">
-                      <div id="reference-mount"></div>
-                    </td>
-                  </tr>
-                </table>
-                
-
-                ${orderButton}
-              </div>
-            `);
-
-            infowindow.open({ map, anchor: marker, shouldFocus: false });
-
-            if (window.innerWidth <= 480 && marker.position) {
-              map.panTo(marker.position);
-              map.panBy(0, -140);
+                  <div class="header">
+                    <div class="stars" id="stars-mount"></div>
+                    <div class="raters-count text-semibold small">
+                      / ${providers[p].ratersCount} arvostelijaa
+                    </div>
+                  </div>
+                  <table class="info-table" role="presentation">
+                    <tr>
+                      <td>${avatarHtml}</td>
+                      <td colspan="2">
+                        ${
+                          feedbackHtml
+                            ? `
+                              <button class="bottom-btn" onclick="toggleFeedback()">Palautteet</button>
+                              
+                            `
+                            : ""
+                        }
+                      </td>
+                    </tr>
+                  </table>
+                  <div id="feedback-section" class="feedback-section" style="display:none;">
+                    <div class="feedback-title">Sulje napsauttamalla palautepainiketta uudelleen</div>
+                    <div class="feedback-list">
+                      ${feedbackHtml}
+                    </div>
+                  </div>
+                  <table class="info-table" role="presentation">
+                    <tr>
+                      <th>Saatavuus</th>
+                      <td>${currentMatching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
+                    </tr>
+                    <tr>
+                      <th>Ammatti</th>
+                      <td>${providers[p].profession.join(', ')}</td>
+                    </tr>
+                    <tr>
+                      <th>Tiedot</th>
+                      <td><span class="info-link">Kotisivu</span></td>
+                    </tr>
+                    <tr>
+                      <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
+                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
+                    </tr>
+                    <tr>
+                      <th>${referenceBtn}</th>
+                    </tr>
+                    <tr>
+                      <td colspan="2">
+                        <div id="reference-mount"></div>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <div class="infowindow-footer">
+                    ${orderButton}
+                    ${chatButton}
+                  </div>
+                  
+                </div>
+              `);
             }
-          });
 
           }
 
@@ -1125,7 +1129,6 @@ const otherUserLocations = async (providers, profession, dist) => {
       })
 
     }
-
 
 
     visibleProCount.value = count;
@@ -1177,11 +1180,29 @@ const findSuitablePro = () => {
 
 }
 
+// Open provider marker infowindow
 const handleSelectedPro = (pro) => {
   console.log("Ordered company: " + pro.pName);
   target.value = pro;
   onProvider.value = pro;
   displayProPanel.value = true;
+}
+
+//Open chat widget inside marker infowindow
+const handleOpenChat = (otherId) => {
+  console.log("Opening chat window from infowindow - " + otherId);
+  convoStore.openCreateRoom(otherId);
+  convoStore.openChatWidget();
+}
+
+//Open provider references
+const handleOpenReferences = () => {
+  console.log("Handle open reference");
+  isOpenReferences.value = true;
+}
+
+const handleCloseReferences = () => {
+  isOpenReferences.value = false;
 }
 
 const parseDmyTime = (str) => {
@@ -1452,6 +1473,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 /* Header */
 :deep(.header) {
   padding-right: 42px; /* leave room for close button */
+  padding-bottom: 3px;
   display: flex;
   justify-content: space-between;
 }
@@ -1474,12 +1496,13 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 /* Table */
 :deep(.info-table) {
   width: 100%;
+  
   border-collapse: collapse;
   font-size: 14px;
   margin: 8px 0 12px;
 }
 
-:deep(.info-table tr:nth-child(2)) {
+:deep(.info-table tr:nth-child(1)) {
   border-top: 2px solid #ccc;
 }
 
@@ -1526,7 +1549,7 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 }
 
 :deep(.order-btn) {
-  width: 100%;
+  width: 50%;
   min-height: 44px; /* mobile tap target */
   padding: 10px 12px;
   margin-bottom: 7px;
@@ -1538,6 +1561,26 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   font-size: 15px;
   font-weight: 700;
 
+  cursor: pointer;
+}
+
+:deep(.chat-btn) {
+  min-height: 44px; /* mobile tap target */
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  border: none;
+  border-radius: 12px;
+
+  background: #5c7db8;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+:deep(.reference-btn) {
+  color: orange;
   cursor: pointer;
 }
 
@@ -1751,7 +1794,8 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 
 :deep(.feedback-title) {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
+  color: #ddd;
   margin-bottom: 8px;
 }
 
@@ -1795,6 +1839,11 @@ body.modal-open .navbar) { padding-right: 0 !important; }
   line-height: 1.35;
   color: #333;
   word-break: break-word;
+}
+
+:deep(.infowindow-footer) {
+  display: flex;
+  justify-content: space-between;
 }
 
 .info-table td:last-child {

@@ -1,160 +1,186 @@
 <template>
     <!-- Launcher -->
-    <button
+    <div class="chat-widget-root">
+      <button
         class="chat-launcher"
+        :class="{ hidden: isOpen }"
+        @pointerdown.stop="onLauncherPointerDown"
+        @click="onLauncherClick"
         type="button"
         aria-label="Open chat"
         :aria-expanded="String(isOpen)"
-        @click="toggle"
-    >
-      <span class="icon-wrapper">
-        <!-- 💬 -->
-        <MDBIcon size="2x"><i class="far fa-comments"></i></MDBIcon>
-        <!-- unread bubble -->
-        <span v-if="!isOpen && totalUnread" class="badge">
-          {{ totalUnread }}
+        
+      >
+        <span class="icon-wrapper">
+          <!-- 💬 -->
+          <MDBIcon size="2x"><i class="far fa-comments"></i></MDBIcon>
+          <!-- unread bubble -->
+          <span v-if="!isOpen && totalUnread" class="badge">
+            {{ totalUnread }}
+          </span>
         </span>
-      </span>
 
-      <span v-if="isOpen">✕</span>
-      
-    </button>
+        <!-- <span v-if="isOpen">✕</span> -->
+        
+      </button>
 
-    
+      <!-- @click="toggle" :class="{ open: isOpen }"-->
 
-    <!-- class="chat-header" -->
+      <!-- class="chat-header" -->
 
-    <!-- Window -->
-    <section
-        class="chat-window"
-        :class="{ open: isOpen }"
-        aria-label="Chat window"
-        role="dialog"
-        aria-modal="false"
-    >
-        <header class="chat-header">
-
-          <ul class="chat-dropdown horizontal">
-            <li
-              v-for="opt in convo_options"
-              :class="{ active: opt.conversationId === activeConversationId }"
-              :key="opt.conversationId"
-              @click="selectConversation(opt.conversationId)"
-            >
-              <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
-               <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
-                <div style="margin-top: 17px; margin-left: -17px; ">
-                {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
-              </div>
-              <span>{{ opt.name }}</span>
-
-              <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
-            </li>
-            
-          </ul>
-
-          <div style="display: flex; justify-content: right;  margin-top: 0;">
-            <button class="chat-close" type="button" aria-label="Close chat" @click="close">✕</button>
-          </div>
+      <!-- Window -->
+      <section
+          class="chat-window"
+          :class="{ open: isOpen }" 
+          :style="chatWindowStyle"
           
-        </header>
+          aria-label="Chat window"
+          role="dialog"
+          aria-modal="false"
+      >
+          <header 
+              class="chat-header"
+          
+            >
+            
+            <div 
+                v-if="!mobile"
+                class="chat-drag-bar"
+                @pointerdown.stop="$emit('start-drag', $event)"
+                
+              >
+              <i class="fas fa-arrows-alt fa-lg"></i>
+            </div>
 
-        <div v-if="meId" ref="chatBody" class="chat-body">
-          <div
-            v-for="m in activeMessages"
-            :key="m.id || m._id"
-            class="message-wrap"
-            :class="{ me: isMine(m) }"
-          >
-            <div class="msg">
-              <div v-if="m.text">{{ m.text }}</div>
+            <ul class="chat-dropdown horizontal">
+              <li
+                v-for="opt in convo_options"
+                :class="{ active: opt.conversationId === activeConversationId }"
+                :key="opt.conversationId"
+                @click="selectConversation(opt.conversationId)"
+              >
+                <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
+                <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
+                  <div style="margin-top: 17px; margin-left: -17px; ">
+                  {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
+                </div>
+                <span>{{ opt.name }}</span>
 
-              <div v-for="a in m.attachments || []" :key="a.id || a.key">
-                <img
-                  v-if="a.isImage"
-                  :src="a.url || a.preview"
-                  class="chat-image"
-                  alt="attachment"
-                />
-                <div v-else class="file-attachment">
-                  📄 {{ a.name || "file" }}
+                <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
+              </li>
+              
+            </ul>
+
+            <div style="display: flex; justify-content: right;  margin-top: 0;">
+              <button class="chat-close" type="button" aria-label="Close chat" @click="$emit('request-close')">✕</button>
+            </div>
+            
+          </header>
+
+          <div v-if="meId" ref="chatBody" class="chat-body">
+            <div
+              v-for="m in activeMessages"
+              :key="m.id || m._id"
+              class="message-wrap"
+              :class="{ me: isMine(m) }"
+            >
+              <div class="msg">
+                <div v-if="m.text">{{ m.text }}</div>
+
+                <div v-for="a in m.attachments || []" :key="a.id || a.key">
+                  <img
+                    v-if="a.isImage"
+                    :src="a.url || a.preview"
+                    class="chat-image"
+                    alt="attachment"
+                  />
+                  <div v-else class="file-attachment">
+                    📄 {{ a.name || "file" }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="message-meta" v-if="m.createdAt">
-              <span class="message-time">
-                {{ formatDateTime(m.createdAt) }}
-              </span>
+              <div class="message-meta" v-if="m.createdAt">
+                <span class="message-time">
+                  {{ formatDateTime(m.createdAt) }}
+                </span>
 
-              <!-- <span v-if="isMine(m)" class="message-status">
-                {{ getMessageStatus(m) }}
-              </span> -->
+                <!-- <span v-if="isMine(m)" class="message-status">
+                  {{ getMessageStatus(m) }}
+                </span> -->
+              </div>
             </div>
           </div>
-        </div>
 
-        
-
+          
 
 
 
-        <div v-if="files.length" class="file-preview">
-            <div
-                v-for="(f, i) in files"
-                :key="f.id"
-                class="file-chip"
-            >
-                <!-- Image preview -->
-                <img
-                v-if="f.isImage"
-                :src="f.preview"
-                class="img-thumb"
-                alt="preview"
-                />
 
-                <!-- File name fallback -->
-                <span v-else>{{ f.file.name }}</span>
+          <div v-if="files.length" class="file-preview">
+              <div
+                  v-for="(f, i) in files"
+                  :key="f.id"
+                  class="file-chip"
+              >
+                  <!-- Image preview -->
+                  <img
+                  v-if="f.isImage"
+                  :src="f.preview"
+                  class="img-thumb"
+                  alt="preview"
+                  />
 
-                <button type="button" @click="removeFile(i)">✕</button>
-            </div>
-        </div>
+                  <!-- File name fallback -->
+                  <span v-else>{{ f.file.name }}</span>
 
-        <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
-            <!-- Attachment button -->
-            <label  aria-label="Attach file">
-                <!-- 📎 -->
-                <i class="fas fa-images"></i>
-                <input
-                    type="file"
-                    hidden
-                    multiple
-                    accept="image/*,.pdf,.doc,.docx"
-                    @change="onFileSelect"
-                    />
-            </label>
+                  <button type="button" @click="removeFile(i)">✕</button>
+              </div>
+          </div>
 
-            <!-- Text input -->
-            <!-- <input
+          <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
+              <!-- Attachment button -->
+              <label  aria-label="Attach file">
+                  <!-- 📎 -->
+                  <i class="fas fa-images"></i>
+                  <input
+                      type="file"
+                      hidden
+                      multiple
+                      accept="image/*,.pdf,.doc,.docx"
+                      @change="onFileSelect"
+                      />
+              </label>
+
+              <!-- Text input -->
+              <!-- <input
+                  ref="chatInput"
+                  v-model="draft"
+                  type="text"
+                  placeholder="Kirjoita viesti…"
+                  autocomplete="off"
+              /> -->
+              <textarea
                 ref="chatInput"
                 v-model="draft"
-                type="text"
+                class="chat-textarea"
+                rows="1"
                 placeholder="Kirjoita viesti…"
-                autocomplete="off"
-            /> -->
-            <textarea
-              ref="chatInput"
-              v-model="draft"
-              class="chat-textarea"
-              rows="1"
-              placeholder="Kirjoita viesti…"
-              @input="autoResize"
-            ></textarea>
+                @input="autoResize"
+              ></textarea>
 
-            <!-- Send -->
-            <button style="max-height: 50px;" type="submit">Lähetä</button>
-        </form>
-    </section>
+              <!-- Send -->
+              <button style="max-height: 50px;" type="submit">Lähetä</button>
+          </form>
+      </section>
+
+      <div style="color:red; position:absolute; top:-20px;">
+        {{ mobile }}
+      </div>
+    </div>
+
+    
+    
 </template>
 
 <script setup>
@@ -167,6 +193,14 @@
   import uploadService from "@/service/awsUploads"; // must return uploaded files array
   import userService from "@/service/users";
   import socket from "@/socket";
+
+  const props = defineProps({
+    didDrag: Boolean,
+    launcherPos: Object,
+    isOpenMode: Boolean
+  });
+
+  const emit = defineEmits(["start-drag", "request-open", "request-close"]);
 
   // stores
   const auth = useLoginStore();
@@ -183,6 +217,11 @@
   const chatBody = ref(null);
   const chatInput = ref(null);
   const ddChat = ref(false);
+
+  //const mobile = ref(window.innerWidth <= 640)
+  const mobile = computed(() => window.innerWidth <= 640);
+
+  const openSide = ref("right");
 
   // Your dropdown vars (left as-is)
   //const options = ["Option 1", "Option 2", "Option 3"];
@@ -202,8 +241,162 @@
     });
   });
 
+  
+  const decideOpenSide = () => {
+    const x = props.launcherPos?.x ?? 20;
+    const viewportW = window.innerWidth;
+    const buttonW = 57;
+    const gap = 12;
+    const winW = Math.min(360, viewportW - 20);
 
-  const formatDateTime = (iso) => {
+    const fitsRight = x + buttonW + gap + winW <= viewportW - 10;
+    openSide.value = fitsRight ? "right" : "left";
+  };
+
+  const launcherTouchStart = ref({ x: 0, y: 0 });
+  const launcherTouchDragging = ref(false);
+
+  const onLauncherPointerDown = (e) => {
+  emit("start-drag", e);
+};
+
+/* const onLauncherClick = (e) => {
+  if (props.didDrag) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  if (openChat.value) {
+    convoStore.closeChatWidget();
+  } else {
+    decideOpenSide();
+    convoStore.openChatWidget();
+    nextTick(() => chatInput.value?.focus());
+  }
+}; */
+
+/* const onLauncherClick = (e) => {
+  if (props.didDrag) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  if (openChat.value) {
+    convoStore.closeChatWidget();
+  } else {
+    decideOpenSide();
+    convoStore.openChatWidget();
+    nextTick(() => chatInput.value?.focus());
+  }
+}; */
+
+const onLauncherClick_old = (e) => {
+  if (props.didDrag) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  if (openChat.value) {
+    convoStore.closeChatWidget();
+  } else {
+    decideOpenSide();
+    emit("request-open");
+  }
+};
+
+
+const onLauncherClick = (e) => {
+  if (props.didDrag) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  if (openChat.value) {
+    convoStore.closeChatWidget();
+  } else {
+    decideOpenSide();
+    emit("request-open", { side: openSide.value });
+  }
+};
+
+const chatWindowStyle___ = computed(() => {
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  const isMobile = viewportW <= 640;
+  const sideMargin = isMobile ? 8 : 10;
+  const topMargin = isMobile ? 8 : 10;
+  const bottomMargin = isMobile ? 20 : 32;
+
+  const winW = Math.min(360, viewportW - sideMargin * 2);
+  const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
+
+  if (props.isOpenMode) {
+    return {
+      left: "0px",
+      top: "0px",
+      width: `${winW}px`,
+      height: `${winH}px`
+    };
+  }
+
+  // closed mode can still use your old launcher-relative preview logic if needed
+  return {
+    left: "69px",
+    top: "0px",
+    width: `${winW}px`,
+    height: `${winH}px`
+  };
+});
+
+const chatWindowStyle = computed(() => {
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const isMobile = viewportW <= 640;
+
+  if (props.isOpenMode && isMobile) {
+    return {
+      position: "fixed",
+      left: "0",
+      top: "0",
+      width: "100vw",
+      height: "100dvh",
+      borderRadius: "0",
+      maxWidth: "none",
+      maxHeight: "none"
+    };
+  }
+
+  const sideMargin = 10;
+  const topMargin = 10;
+  const bottomMargin = 32;
+  const winW = Math.min(360, viewportW - sideMargin * 2);
+  const winH = Math.min(520, viewportH - topMargin - bottomMargin);
+
+  if (props.isOpenMode) {
+    return {
+      left: "0px",
+      top: "0px",
+      width: `${winW}px`,
+      height: `${winH}px`
+    };
+  }
+
+  return {
+    left: "69px",
+    top: "0px",
+    width: `${winW}px`,
+    height: `${winH}px`
+  };
+});
+
+
+  
+const formatDateTime = (iso) => {
   if (!iso) return "—";
   const d = new Date(iso);
 
@@ -310,7 +503,8 @@
   }
   function close() {
     openChat.value = false;
-    convoStore.closeChatWidget();
+    emit('request-close');
+    //convoStore.closeChatWidget();
   }
 
   /* function scrollToBottom() {
@@ -514,13 +708,43 @@
   --btn: 70px;
 }
 
+.chat-widget-root {
+  position: relative;
+}
 
+.widget-drag {
+  position: fixed;
+  z-index: 9999;
+}
+
+
+
+.drag-handle {
+  cursor: grab;
+  user-select: none;
+  /* touch-action: none; */
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.chat-drag-bar {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  padding: 6px 10px;
+  /* background: #1b2436; */
+}
+.chat-launcher,
+.chat-drag-bar {
+  touch-action: none;
+}
 
 /* Launcher button */
 .chat-launcher {
-  position: fixed;
+  /* position: fixed;
   right: 60px;
-  bottom: 60px;
+  bottom: 60px; */
   /* width: var(--btn);
   height: var(--btn); */
   width: 57px;
@@ -534,18 +758,17 @@
   display: grid;
   place-items: center;
   z-index: 9999;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .chat-launcher:focus {
   outline: 3px solid rgba(59, 130, 246, 0.6);
   outline-offset: 2px;
 }
-
-/* .chat-launcher {
-  width: 51px;
-  height: 67px;
-} */
-
-
+.chat-launcher.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
 
 .icon-wrapper {
   position: relative;
@@ -587,10 +810,14 @@
 
 /* Chat window */
 .chat-window {
-  position: fixed;
-  right: 20px;
-  /* bottom: calc(20px + var(--btn) + 12px); */
-  bottom: calc(20px + 56px + 12px); /* above launcher */
+  /* position: fixed;
+  right: 20px; */
+  /* bottom: calc(20px + 56px + 12px); */ /* above launcher */
+
+  position: absolute;
+  display: none;
+  z-index: 9999;
+
   width: 360px;
   max-width: calc(100vw - 40px);
   height: 520px;
@@ -651,36 +878,6 @@
 .chat-close:hover {
   background: rgba(255, 255, 255, 0.12);
 }
-
-/* .chat-body {
-  padding: 12px;
-  flex: 1;
-  overflow: auto;
-  background: #ddd;
-  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-.msg {
-  max-width: 80%;
-  padding: 10px 12px;
-  border-radius: 14px;
-  margin: 8px 0;
-  background: #3a4b72;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-.msg.me {
-  margin-left: auto;
-  background: #1b253a;
-  color: #fff;
-  border: 1px solid #2a354e;
-}
-
-.messageTimeStampRight {
-  align-self: flex-end;
-  color: #a0dde0;
-  font-size: 0.75em;
-  margin-top: 6px;
-  opacity: 0.8;
-} */
 
 .chat-body {
   padding: 12px;
@@ -798,36 +995,7 @@
   margin-top: 4px;
 }
 
-/* User dropdown */
-/* .dropdown {
-  position: relative;
-  display: inline-block;
-}
 
-.btn {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.menu {
-  position: absolute;
-  margin-top: 6px;
-  background: #192235;
-  border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.15);
-  list-style: none;
-  padding: 6px;
-  min-width: 180px;
-}
-
-.menu li {
-  padding: 8px;
-  cursor: pointer;
-}
-
-.menu li:hover {
-  background: #111827;
-} */
 
 
 
@@ -900,26 +1068,6 @@
 }
 
 
-
-
-
-
-/* .unread-badge {
-  background: #ff3b30;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 11px;
-  font-weight: bold;
-} */
-
-
-
-
-
-
-
-
 .chat-dropdown-item {
   display: flex;
   align-items: center;
@@ -981,9 +1129,9 @@
 /* Mobile fullscreen mode */
 @media (max-width: 640px) {
   .chat-launcher {
-  position: fixed;
+  /* position: fixed;
   right: 40px;
-  bottom: 20px;
+  bottom: 20px; */
   /* width: var(--btn);
   height: var(--btn); */
   width: 57px;
@@ -998,20 +1146,35 @@
   place-items: center;
   z-index: 9999;
 }
+
   .chat-window {
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100dvh; /* better than 100vh on mobile */
+    width: min(100vw - 16px, 360px);
+    height: min(100dvh - 24px, 520px);
+    /* width: 90%;
+    height: 100vh; */
     max-width: none;
     max-height: none;
-    border-radius: 0;
+    border-radius: 12px;
   }
 
   .chat-window.open {
     animation: slideUp 0.2s ease-out;
     transform-origin: bottom center;
   }
+  /* .chat-window {
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100dvh; 
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  } */
+
+  /* .chat-window.open {
+    animation: slideUp 0.2s ease-out;
+    transform-origin: bottom center;
+  } */
 
   /* .chat-launcher {
     right: 16px;

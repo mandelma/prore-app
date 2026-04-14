@@ -136,10 +136,23 @@
       </RouterView>
     </main>
 
-    <chat-widget 
-      v-if="login.isAuthenticated && conversations.length"
-      :isOpenWidget="openChat"
-    />
+    <div
+      id="widget-drag"
+      class="widget-drag"
+      :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
+      
+    >
+      <chat-widget 
+        v-if="login.isAuthenticated && conversations.length"
+        :didDrag="didDrag"
+        :launcherPos="widgetAnchor"
+        :is-open-mode="conversationStore.openChat"
+        @start-drag="startDrag"
+        @request-open="openChatFromLauncher"
+        @request-close="closeChatWindow"
+      />
+    </div>
+    
     
     
 
@@ -230,7 +243,7 @@ import {
   MDBContainer
 } from 'mdb-vue-ui-kit';
 
-import { ref, watch, onMounted, onBeforeMount,  computed } from "vue";
+import { ref, watch, onMounted, onBeforeMount,  computed, onUnmounted, nextTick } from "vue";
 import { storeToRefs } from 'pinia';
 import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
@@ -298,9 +311,413 @@ const weekdays = ["Mon","Tue", "Wed"];
 
 let bootstrappedForUserId = null;
 
-watch(() => profile?.avatar?.imageUrl, () => {
+// For chat widget dragging
+const pos = ref({ x: 20, y: 70 });
+const offset = ref({ x: 0, y: 0 });
+const isDragging = ref(false);
+const didDrag = ref(false);
+const dragStart = ref({ x: 0, y: 0 });
+const openWindowPos = ref(null);
+const currentOpenSide = ref("right");
+const dragAllowed = ref(false);
+let activePointerId = null;
+
+
+
+const preOpenPos = ref(null);
+const wasNormalizedForOpen = ref(false);
+
+const widgetAnchor = computed(() =>
+  conversationStore.openChat && openWindowPos.value
+    ? openWindowPos.value
+    : pos.value
+);
+
+const placeWidgetBottomRight = () => {
+  const launcherW = 57;
+  const launcherH = 67;
+  const marginRight = 20;
+  const marginBottom = 20;
+
+  pos.value.x = window.innerWidth - launcherW - marginRight;
+  pos.value.y = window.innerHeight - launcherH - marginBottom;
+};
+
+const getPointerPos = (e) => ({
+  x: e.clientX,
+  y: e.clientY
+});
+
+/* const getEventPos = (e) => {
+  if (e?.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  if (typeof e?.x === "number" && typeof e?.y === "number") {
+    return { x: e.x, y: e.y };
+  }
+  return { x: e.clientX, y: e.clientY };
+}; */
+
+function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
+  const isMobile = viewportW <= 640;
+
+  const buttonW = 57;
+  const buttonH = 67;
+  const gap = 12;
+
+  const sideMargin = isMobile ? 8 : 10;
+  const topMargin = isMobile ? 8 : 10;
+  const bottomMargin = isMobile ? 8 : 32;
+
+  const winW = Math.min(360, viewportW - sideMargin * 2);
+  const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
+  /* const winH = isMobile
+  ? viewportH - topMargin - bottomMargin
+  : Math.min(520, viewportH - topMargin - bottomMargin); */
+
+  const leftOffset = side === "left"
+    ? -winW - gap + buttonW
+    : buttonW + gap;
+
+  const topOffset = 0;
+
+  return {
+    buttonW,
+    buttonH,
+    gap,
+    sideMargin,
+    topMargin,
+    bottomMargin,
+    winW,
+    winH,
+    leftOffset,
+    topOffset,
+    absLeft: x + leftOffset,
+    absTop: y + topOffset,
+    absRight: x + leftOffset + winW,
+    absBottom: y + topOffset + winH
+  };
+}
+
+const startDrag = (e) => {
+  dragAllowed.value = true;
+
+  const { x, y } = getPointerPos(e);
+
+  activePointerId = e.pointerId ?? null;
+  isDragging.value = true;
+  didDrag.value = false;
+  dragStart.value = { x, y };
+
+  const anchor = conversationStore.openChat && openWindowPos.value
+    ? openWindowPos.value
+    : pos.value;
+
+  offset.value.x = x - anchor.x;
+  offset.value.y = y - anchor.y;
+
+  window.addEventListener("pointermove", onDrag, { passive: false });
+  window.addEventListener("pointerup", stopDrag);
+  window.addEventListener("pointercancel", stopDrag);
+};
+
+const onDrag = (e) => {
+  if (!dragAllowed.value) return;
+  if (!isDragging.value) return;
+  if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+  const { x, y } = getPointerPos(e);
+
+  const movedX = Math.abs(x - dragStart.value.x);
+  const movedY = Math.abs(y - dragStart.value.y);
+
+  if (movedX > 5 || movedY > 5) {
+    didDrag.value = true;
+  }
+
+  let newX = x - offset.value.x;
+  let newY = y - offset.value.y;
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  if (conversationStore.openChat) {
+    const g = getChatWindowGeometry({
+      x: 0,
+      y: 0,
+      viewportW,
+      viewportH,
+      side: currentOpenSide.value
+    });
+
+    newX = Math.min(
+      Math.max(g.sideMargin, newX),
+      viewportW - g.sideMargin - g.winW
+    );
+
+    newY = Math.min(
+      Math.max(g.topMargin, newY),
+      viewportH - g.bottomMargin - g.winH
+    );
+
+    openWindowPos.value = { x: newX, y: newY };
+  } else {
+    const launcher = document.querySelector(".chat-launcher");
+    if (!launcher) return;
+
+    const launcherWidth = launcher.offsetWidth;
+    const launcherHeight = launcher.offsetHeight;
+
+    newX = Math.min(Math.max(0, newX), viewportW - launcherWidth);
+    newY = Math.min(Math.max(0, newY), viewportH - launcherHeight - 10);
+
+    pos.value = { x: newX, y: newY };
+  }
+
+  if (e.cancelable) e.preventDefault();
+};
+
+const snapAnchorToOpenWindow = () => {
+  if (!conversationStore.openChat) return;
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const side = currentOpenSide.value || "right";
+
+  const g = getChatWindowGeometry({
+    x: pos.value.x,
+    y: pos.value.y,
+    viewportW,
+    viewportH,
+    side
+  });
+
+  // Clamp the WINDOW rectangle first
+  let windowLeft = g.absLeft;
+  let windowTop = g.absTop;
+
+  if (windowLeft < g.sideMargin) {
+    windowLeft = g.sideMargin;
+  }
+  if (windowLeft + g.winW > viewportW - g.sideMargin) {
+    windowLeft = viewportW - g.sideMargin - g.winW;
+  }
+
+  if (windowTop < g.topMargin) {
+    windowTop = g.topMargin;
+  }
+  if (windowTop + g.winH > viewportH - g.bottomMargin) {
+    windowTop = viewportH - g.bottomMargin - g.winH;
+  }
+
+  // Rebuild launcher/wrapper anchor from window position
+  const snappedX = windowLeft - g.leftOffset;
+  const snappedY = windowTop - g.topOffset;
+
+  pos.value.x = snappedX;
+  pos.value.y = snappedY;
+};
+
+const stopDrag = (e) => {
+  if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+  isDragging.value = false;
+  activePointerId = null;
+  dragAllowed.value = false;
+
+  window.removeEventListener("pointermove", onDrag);
+  window.removeEventListener("pointerup", stopDrag);
+  window.removeEventListener("pointercancel", stopDrag);
+
+  setTimeout(() => {
+    didDrag.value = false;
+  }, 80);
+};
+
+
+const normalizeWidgetPositionForOpen = (side = "right") => {
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  const g = getChatWindowGeometry({
+    x: pos.value.x,
+    y: pos.value.y,
+    viewportW,
+    viewportH,
+    side
+  });
+
+  let nextX = pos.value.x;
+  let nextY = pos.value.y;
+
+  // ---- Horizontal normalization ----
+  // If window opens to the left, shift wrapper left immediately
+  // so the drag area is already aligned with the open window.
+  if (side === "left") {
+    nextX = Math.min(
+      nextX,
+      viewportW - g.sideMargin - g.winW
+    );
+  } else {
+    nextX = Math.max(
+      nextX,
+      g.sideMargin
+    );
+  }
+
+  // Recompute using tentative X
+  let gx = getChatWindowGeometry({
+    x: nextX,
+    y: nextY,
+    viewportW,
+    viewportH,
+    side
+  });
+
+  if (gx.absLeft < gx.sideMargin) {
+    nextX += gx.sideMargin - gx.absLeft;
+  }
+  if (gx.absRight > viewportW - gx.sideMargin) {
+    nextX -= gx.absRight - (viewportW - gx.sideMargin);
+  }
+
+  // ---- Vertical normalization ----
+  let gy = getChatWindowGeometry({
+    x: nextX,
+    y: nextY,
+    viewportW,
+    viewportH,
+    side
+  });
+
+  if (gy.absTop < gy.topMargin) {
+    nextY += gy.topMargin - gy.absTop;
+  }
+  if (gy.absBottom > viewportH - gy.bottomMargin) {
+    nextY -= gy.absBottom - (viewportH - gy.bottomMargin);
+  }
+
+  pos.value.x = nextX;
+  pos.value.y = nextY;
+};
+
+const openChatFromLauncher__ = async ({ side } = {}) => {
+  normalizeWidgetPositionForOpen(side || "right");
+  await nextTick();
+  conversationStore.openChatWidget();
+};
+
+/* const openChatFromLauncher = async ({ side } = {}) => {
+  currentOpenSide.value = side || "right";
+  normalizeWidgetPositionForOpen(currentOpenSide.value);
+  await nextTick();
+  conversationStore.openChatWidget();
+}; */
+
+
+const openChatFromLauncher = async ({ side } = {}) => {
+  currentOpenSide.value = side || "right";
+
+  preOpenPos.value = { ...pos.value };
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  const g = getChatWindowGeometry({
+    x: pos.value.x,
+    y: pos.value.y,
+    viewportW,
+    viewportH,
+    side: currentOpenSide.value
+  });
+
+  let windowLeft = g.absLeft;
+  let windowTop = g.absTop;
+
+  if (windowLeft < g.sideMargin) {
+    windowLeft = g.sideMargin;
+  }
+  if (windowLeft + g.winW > viewportW - g.sideMargin) {
+    windowLeft = viewportW - g.sideMargin - g.winW;
+  }
+
+  if (windowTop < g.topMargin) {
+    windowTop = g.topMargin;
+  }
+  if (windowTop + g.winH > viewportH - g.bottomMargin) {
+    windowTop = viewportH - g.bottomMargin - g.winH;
+  }
+
+  openWindowPos.value = {
+    x: windowLeft,
+    y: windowTop
+  };
+
+  await nextTick();
+  conversationStore.openChatWidget();
+};
+
+/* const restoreLauncherPositionAfterClose = () => {
+  if (wasNormalizedForOpen.value && preOpenPos.value) {
+    pos.value = { ...preOpenPos.value };
+  }
+
+  wasNormalizedForOpen.value = false;
+  preOpenPos.value = null;
+}; */
+
+const openChatFromLauncher_old = async () => {
+  normalizeWidgetPositionForOpen();
+
+  await nextTick(); // let child receive new launcherPos first
+
+  conversationStore.openChatWidget();
+};
+
+/* const closeChatWindow = async() => {
+  restoreLauncherPositionAfterClose();
+  await nextTick();
+  conversationStore.closeChatWidget();
+} */
+
+const restoreLauncherPositionAfterClose = () => {
+  if (preOpenPos.value) {
+    pos.value = { ...preOpenPos.value };
+  }
+  preOpenPos.value = null;
+};
+
+const closeChatWindow = () => {
+  if (openWindowPos.value) {
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    const g = getChatWindowGeometry({
+      x: 0,
+      y: 0,
+      viewportW,
+      viewportH,
+      side: currentOpenSide.value
+    });
+
+    pos.value = {
+      x: openWindowPos.value.x - g.leftOffset,
+      y: openWindowPos.value.y - g.topOffset
+    };
+  }
+
+  openWindowPos.value = null;
+  restoreLauncherPositionAfterClose();
+  conversationStore.closeChatWidget();
+};
+
+
+/* watch(() => profile?.avatar?.imageUrl, () => {
   avatarError.value = false
-})
+}) */
+watch(() => profile.value?.avatar?.imageUrl, () => {
+  avatarError.value = false;
+});
 
 watch(
   () => login.isAuthenticated,
@@ -361,6 +778,8 @@ onMounted (async () => {
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
 
+  placeWidgetBottomRight();
+
   await login.hydrate();
 
   await mapStore.init();
@@ -388,6 +807,10 @@ onMounted (async () => {
   //console.log("ID " + login.user.id)
 
 
+})
+
+onUnmounted(() => {
+  stopDrag();
 })
 
 const goProfile = () => {
@@ -683,5 +1106,21 @@ html, body { height: 100%; }            /* ensures the body can size to the view
 .dd-item {
   color: #ddd !important;
   cursor: pointer;
+}
+
+/* Chat widget drag */
+.widget-drag {
+  position: fixed;
+  z-index: 9999;
+}
+
+
+
+.drag-handle {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  padding: 8px 12px;
+  background: #ddd;
 }
 </style>

@@ -296,7 +296,7 @@
         </MDBBtn>
 
         <!-- Spinner test -->
-        <button @click="handleOrder">Place Order</button>
+        <!-- <button @click="handleOrder">Place Order</button> -->
 
       </div>
     </div>

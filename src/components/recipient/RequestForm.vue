@@ -2,8 +2,8 @@
     <MDBContainer>
         <form style="background-color: #0b1618; padding: 17px; border: 1px solid #1B2330; border-radius: 8px;">
           <div style="display: flex; justify-content: right;">
-            <MDBBtn type="button" color="dark" @click="handleOpenChat">
-              <i class="far fa-comment"></i>
+            <MDBBtn type="button" outline="info" @click="handleOpenChat">
+              <i class="far fa-comments fa-2x"></i>
             </MDBBtn>
 
             
