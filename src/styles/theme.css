@@ -52,6 +52,19 @@
 
 }
 
+html,
+body {
+    background-color: #0E1218;
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #121212;
+}
+
 /* :root [data-theme="dark"] {
   --mdb-danger: #f8d7da;
   --mdb-success: #d1e7dd;

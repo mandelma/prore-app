@@ -1097,9 +1097,7 @@ const handleShowNotifications = async () => {
 html, body { height: 100%; }            /* ensures the body can size to the viewport */
 .page-wrap {
   padding-top: 30px;
-  background-color: #0E1218; /* sinu tume värv */
-  margin: 0;
-  padding: 0;
+  
   /* remove this unless you really want it on ALL pages */
   /* text-align: center; */
 }
