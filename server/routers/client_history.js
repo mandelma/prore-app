@@ -64,5 +64,15 @@ historyRouter.put('/:id/update_rating', async (req, res) => {
     }
 })
 
+historyRouter.delete('/:id', async (req, res) => {
+    try {
+        console.log("Is deleting client archive row?? " + req.params.id);
+        await cHistory.findByIdAndDelete(req.params.id);
+        res.status(204).end();
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+})
+
 
 module.exports = historyRouter;

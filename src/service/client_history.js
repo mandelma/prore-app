@@ -29,4 +29,11 @@ const updateRating = async (id, rating) => {
     const rate = await axios.put(`${baseUrl}/${id}/update_rating`, rating);
     return rate.data;
 }
-export default {setToken,  getClientHistory, updateClientHistory, updateStatus, updateRating };
+
+const deleteClientArchiveRow = async (id) => {
+    const delRow = await axios.delete(`${baseUrl}/${id}`);
+    return delRow.data;
+}
+
+
+export default {setToken,  getClientHistory, updateClientHistory, updateStatus, updateRating, deleteClientArchiveRow };

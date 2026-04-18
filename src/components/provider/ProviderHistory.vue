@@ -1,5 +1,5 @@
 <template>
-    <div class="history">
+  <div class="history">
     <div v-if="!showDetails" style="display: flex; justify-content: right; cursor: pointer;">
         <MDBBtnClose white @click="router.go(-1)" />
     </div>
@@ -154,6 +154,16 @@
       </div>
     </div>
   </div>
+  <ConfirmModal
+      v-model="showDeleteModal"
+      :title="cTitle"
+      :message="cMessage"
+      confirm-text="Poista"
+      cancel-text="Pidä se"
+      :danger="true"
+      @confirm="handleRemoveRow"
+      @cancel="handleCancelRemoving"
+    />
 </template>
 <script setup>
 import { MDBBtn, MDBBtnClose, MDBInput } from 'mdb-vue-ui-kit';
@@ -162,6 +172,7 @@ import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useProArchiveStore } from '@/stores/pArchiveStore';
 import pArchiveService from '../../service/provider_history';
+import ConfirmModal from '../helpers/ConfirmModal.vue';
 
 defineOptions({
   name: 'pro-archive'
@@ -174,6 +185,12 @@ const { providerHistory } = storeToRefs(proArchiveStore);
 const clientQuery = ref("");
 const showDetails = ref(false);
 const selectedRow = ref(null);
+
+const rowId = ref(null);
+
+const showDeleteModal = ref(false);
+const cTitle = ref("");
+const cMessage = ref("");
 
 const formatDateTime = (iso) => {
   if (!iso) return "—";
@@ -219,10 +236,27 @@ const closeDetails = () => {
 }
 
 const removeRow = async (booking) => {
-  console.log("Removing archived booking " + booking.id);
-  await pArchiveService.deleteProviderArchiveRow(booking.id);
-  proArchiveStore.upsertArchive(booking.id);
+  rowId.value = booking.id;
+
+  cTitle.value = "Poistetaan rivi";
+  cMessage.value = "Oletko varma, että haluat poistaa rivin?";
+  showDeleteModal.value = true;
+
+  
+}
+
+const handleRemoveRow = async () => {
+  const id = rowId.value;
+
+  console.log("Removing row");
+  console.log("Removing archived booking " + id);
+  await pArchiveService.deleteProviderArchiveRow(id);
+  proArchiveStore.upsertArchive(id);
   if (!providerHistory.length) router.push(-1);
+}
+
+const handleCancelRemoving = () => {
+  console.log("Canceled removing row");
 }
 
 </script>

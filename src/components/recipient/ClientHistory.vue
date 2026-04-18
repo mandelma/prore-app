@@ -38,7 +38,10 @@
           <div class="historyCard__actions">
             <MDBBtn outline="info" size="sm" @click="openDetails(b)">Tiedot</MDBBtn>
             <MDBBtn color="info" size="sm" @click="bookAgain(b)">
-              Varaa uudelleen
+              Varaa
+            </MDBBtn>
+            <MDBBtn color="danger" size="sm" @click="delChRow(b?.id)">
+              P
             </MDBBtn>
           </div>
         </div>
@@ -62,6 +65,7 @@
             <td class="text-end">
               <MDBBtn outline="info" size="sm" class="ms-2" @click="openDetails(b)">Tiedot</MDBBtn>
               <MDBBtn color="info" size="sm" class="ms-2" @click="bookAgain(b)">Varaa uudelleen</MDBBtn>
+              <MDBBtn color="danger" size="sm" class="ms-2" @click="delChRow(b?.id)">P</MDBBtn>
             </td>
           </tr>
         </tbody>
@@ -239,6 +243,17 @@
       
     </MDBModalFooter>
   </MDBModal>
+
+  <ConfirmModal
+    v-model="showDeleteModal"
+    :title="cTitle"
+    :message="cMessage"
+    confirm-text="Poista"
+    cancel-text="Pidä se"
+    :danger="true"
+    @confirm="handleRemoveRow"
+    @cancel="handleCancelRemoving"
+  />
 </template>
 <script setup>
 import { ref, computed, watch, nextTick } from "vue"
@@ -251,6 +266,7 @@ import OfferContent from "./OfferContent.vue"
 import RequestForm from "./RequestForm.vue"
 import { useLoginStore } from "@/stores/login"
 import { useClientStore } from "@/stores/recipientStore"
+import ConfirmModal from "../helpers/ConfirmModal.vue"
 
 // MDB components (names may vary slightly in your setup)
 import { MDBTable, MDBBtn, MDBBtnClose, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBInput } from "mdb-vue-ui-kit"
@@ -285,6 +301,12 @@ const selectedProvider = ref(null);
 const dealID = ref(null);
 
 const requestFormRef = ref(null)
+
+const rowId = ref(null);
+
+const showDeleteModal = ref(false);
+const cTitle = ref("");
+const cMessage = ref("");
 
 watch(() => orderProviderModal.value, async (open) => {
   if (open) {
@@ -357,12 +379,40 @@ function bookAgain(b) {
   orderProviderModal.value = true;
 }
 
+const delChRow = (id) => {
+  rowId.value = id;
+
+  console.log("Got command to delete row " + id);
+  cTitle.value = "Poistetaan rivi";
+  cMessage.value = "Oletko varma, että haluat poistaa rivin?";
+  showDeleteModal.value = true;
+}
+
+
+const handleRemoveRow = () => {
+  console.log("Removing archieved row " + rowId.value);
+}
+
+const handleCancelRemoving = () => {
+  console.log("Cancelled")
+}
+
 const goToProvider = async (deal) => {
   if (!deal) return
   //console.log("Booking offer - ", deal);
 
   const provider = deal?.provider;
-  selectedProvider.value = provider;
+  try {
+    console.log("Provider id got - " + provider?.id)
+    const providerUp = await providerService.getProvByProvId(provider.id);
+    console.log("PPP ", providerUp)
+    if (providerUp) selectedProvider.value = providerUp;
+
+    //console.log("S provider rates count - " + selectedProvider.value.ratersCount)
+  } catch (err) {
+    console.log("Error happens when loading provider's data!" + err.message)
+  }
+  //selectedProvider.value = provider;
   if (!selectedProvider.value) return;
 
   console.log("Provider - ", selectedProvider.value);
@@ -427,6 +477,7 @@ const handleRequest = async (payload) => {
   clientStore.onRequest(receiverId, userId, selectedProvider.value, user.value, request);
 
 }
+
 </script>
 <style scoped>
 .history {
@@ -530,7 +581,7 @@ const handleRequest = async (payload) => {
 
 .historyCard__actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
 }
 
