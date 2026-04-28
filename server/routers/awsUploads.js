@@ -18,6 +18,8 @@ uploadRouter.get('/images/:userId', async (req, res) => {
     res.json(images);
 });
 
+
+
 uploadRouter.post('/upload-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const userId = req.params.userID;

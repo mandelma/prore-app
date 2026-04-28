@@ -3,16 +3,17 @@
         
         <div>
             <MDBLightbox v-if="!isReferenceOverlay"> 
-                <div class="lb-row">
-                    <div
+              <div class="lb-row">
+                  <div
                     v-for="(image, idx) in imagesToShow.slice(0, 3)"
                     :key="idx"
                     class="lb-col"
-                    >
+                  >
                     <div class="lightbox-thumb">
                         <MDBLightboxItem
-                        :src="image.imageUrl || image.previewUrl"
-                        :fullScreenSrc="image.imageUrl || image.previewUrl"
+                        :src="image.imageId?.imageUrl || image.previewUrl"
+                        :fullScreenSrc="image.imageId?.imageUrl || image.previewUrl"
+                        :caption="image.text || 'Kuva'"
                         alt="Pro reference"
                         />
                         <div
@@ -20,10 +21,13 @@
                         class="more-overlay"
                         @click.stop="openReferenceOverlay()"
                         >
-                        +{{ imagesToShow.length - 3 }} more
+                          +{{ imagesToShow.length - 3 }} more
                         </div>
+                        <!-- <div v-if="image.text !== ''" class="photo-overlay">
+                          <p>{{image.text}}</p>
+                        </div> -->
                     </div>
-                    </div>
+                  </div>
                 </div>
                 
             </MDBLightbox>
@@ -118,6 +122,33 @@ const openReferenceOverlay = () => {
   object-fit: cover;
   display: block;
 }
+
+.photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  /* background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  ); */
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  font-size: 13px;
+}
+
+.photo-overlay p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden  ;
+  
+}
+
 
 .more-overlay{
   position: absolute;

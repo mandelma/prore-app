@@ -33,7 +33,7 @@ router.get('/user/:id', async (req, res) => {
         .populate('ordered')
         .populate({path: 'ordered', populate: {path: 'user'}} )
         // .populate({path: 'ordered', populate: {path: 'reference'}})
-        .populate('photos')
+        .populate('photos.imageId')
         .populate('offers')
         .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}})
         .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference'}}})
@@ -50,7 +50,7 @@ router.get('/booking/:id', async (req, res) => {
         .populate('user')
         .populate('ordered')
         
-        .populate('photos')
+        .populate('photos.imageId')
         .populate({path: 'ordered', populate: {path: 'user'}})
         .populate('offers')
         .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'user'}}}).exec();
@@ -68,6 +68,7 @@ router.post('/:id', async (req, res, next) => {
             month: '2-digit',
             day: '2-digit'
         })
+        console.log("Photos", body.photos);
         //console.log(formatted)               // → 09/26/2025
         console.log("DateObj " + body.created)
         const recipient = new Recipient({
@@ -87,6 +88,7 @@ router.post('/:id', async (req, res, next) => {
             date: body.dateStr,
             //bookings: body.booking,
             description: body.description,
+            photos: body.photos,
             status: body.status,
             image: body.imageId,
             user: req.params.id

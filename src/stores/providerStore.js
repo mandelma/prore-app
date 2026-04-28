@@ -63,7 +63,7 @@ export const useProStore = defineStore("pro", () => {
         const index = incomingOffers.value.findIndex(inx => inx.id === bId);
         incomingOffers.value[index].visitors.push(offer.visitor);
     }
-    const getProState = async(id) => {
+    const getProState_old = async(id) => {
         isProStateLoading.value = true;
         proError.value = null;
         try {
@@ -82,14 +82,7 @@ export const useProStore = defineStore("pro", () => {
                 incomingOffers.value = offersToDisplay.sort((a, b) => b.created_ms - a.created_ms);
 
 
-
-                //incomingOffersCount.value = incomingOffers.value.length;
-
-                
-                //newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
-
                 proTimetable.value = provider.value.timetable;
-                // Set calendar upcoming tasks
                 
                 
             }
@@ -106,6 +99,73 @@ export const useProStore = defineStore("pro", () => {
             isProStateLoading.value = false;
         }
     }
+
+    const getProState = async (id) => {
+        isProStateLoading.value = true;
+        proError.value = null;
+
+        try {
+            const pro = await providerService.getProvider(id);
+
+            if (!pro) {
+                providerId.value = null;
+                provider.value = null;
+                incomingOffers.value = [];
+                proCalendarEvents.value = [];
+                proTimetable.value = [];
+                proCredit.value = 0;
+                return null;
+            }
+
+            providerId.value = pro.id ?? null;
+            provider.value = pro;
+
+            const incomingOffersList = pro.proposal || [];
+
+            /* proCredit.value = Math.max(
+                0,
+                Math.floor((pro.proTime - Date.now()) / 86400000)
+            ); */
+
+            proCredit.value = ((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((pro.proTime - new Date().getTime()) / 86400000).toFixed();
+
+            proCalendarEvents.value = incomingOffersList.filter(
+                e => e.status === "confirmed"
+            );
+
+            incomingOffers.value = incomingOffersList
+                .filter(ol => ol.status === "active")
+                .sort((a, b) => b.created_ms - a.created_ms);
+
+            proTimetable.value = pro.timetable || [];
+
+            return pro;
+        } catch (error) {
+            // missing provider should not be treated as fatal
+            if (error.response?.status === 404) {
+                providerId.value = null;
+                provider.value = null;
+                incomingOffers.value = [];
+                proCalendarEvents.value = [];
+                proTimetable.value = [];
+                proCredit.value = 0;
+                proError.value = null;
+                return null;
+            }
+
+            proError.value = error.message;
+            providerId.value = null;
+            provider.value = null;
+            incomingOffers.value = [];
+            proCalendarEvents.value = [];
+            proTimetable.value = [];
+            proCredit.value = 0;
+
+            throw error;
+        } finally {
+            isProStateLoading.value = false;
+        }
+    };
     const upsertBooking = (booking) => {
         incomingOffers.value.push(booking);
         //newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;

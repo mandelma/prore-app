@@ -21,33 +21,36 @@ router.get('/', async(req, res) => {
     const providers = await Provider.find({})
     .populate('user')
     .populate('timetable')
-    .populate('reference');
+    .populate('reference.imageId');
     res.send(providers)
 })
 
 router.get('/:id', async (req, res) => {
-    const provider = await Provider.findOne({user: req.params.id})
-        .populate('timetable')
-        .populate('reference')
-        //.populate('proposal')
-        .populate('user')
-        .populate({path: 'proposal', populate: {path: 'user'}})
+    try {
+        const provider = await Provider.findOne({ user: req.params.id })
+            .populate('timetable')
+            .populate('reference.imageId')
+            //.populate('proposal')
+            .populate('user')
+            .populate({ path: 'proposal', populate: { path: 'user' } })
 
-        .populate({path: 'proposal', populate: {path: 'photos'}})
-        .populate({path: 'proposal', populate: {path: 'offers', populate: {path: 'provider'}}})
-        .populate({path: 'proposal', populate: {path: 'ordered'}})
-        //
-        // .populate({path: 'booking', populate: {path: 'image'}}).exec();
+            .populate({ path: 'proposal', populate: { path: 'photos.imageId' } })
+            .populate({ path: 'proposal', populate: { path: 'offers', populate: { path: 'provider' } } })
+            .populate({ path: 'proposal', populate: { path: 'ordered' } })
 
 
-    //const provider = await Provider.findById(req.params.id)
-    res.send(provider);
+
+        res.send(provider);
+    } catch (err) {
+        res.status(404).send({error: err.message})
+    }
+    
 })
 
 router.get('/:id/by-provider-id', async (req, res) => {
     const provider = await Provider.findOne({_id: req.params.id})
         //.populate('timeoffer')
-        .populate('reference')
+        .populate('reference.imageId')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
         .populate('timetable')
@@ -153,7 +156,7 @@ router.put('/:id/main-update', async(req, res) => {
 })
 
 // Updating pro reference
-router.put("/update-reference/:proId", async (req, res) => {
+router.put("/update-referenceee/:proId", async (req, res) => {
     try {
         const {
             reference,               // final photos list (ids or objects)
@@ -221,6 +224,91 @@ router.put("/update-reference/:proId", async (req, res) => {
         return res.status(200).json(main);
     } catch (err) {
         console.log("Error to update client main!", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.put("/update-reference/:proId", async (req, res) => {
+    try {
+        const { reference, removedPhotoIds } = req.body;
+
+        console.log("Reference -- ", reference);
+        console.log("Removed photo ids - ", removedPhotoIds);
+
+        const normalizedReference = Array.isArray(reference)
+            ? reference
+                .map((p, index) => {
+                    if (!p) return null;
+
+                    // temporary compatibility with old payloads
+                    if (typeof p === "string") {
+                        return {
+                            imageId: p,
+                            text: "",
+                            order: index,
+                        };
+                    }
+
+                    const imageId = p.imageId ?? p.id;
+                    if (!imageId) return null;
+
+                    return {
+                        imageId,
+                        text: typeof p.text === "string" ? p.text : "",
+                        order: Number.isInteger(p.order) ? p.order : index,
+                    };
+                })
+                .filter(Boolean)
+            : [];
+
+        const main = await Provider.findByIdAndUpdate(
+            req.params.proId,
+            {
+                $set: {
+                    reference: normalizedReference,
+                },
+            },
+            {
+                new: true,
+                runValidators: true,
+            }
+        ).populate("reference.imageId");
+
+        if (!main) {
+            return res.status(404).json({ error: "Provider not found" });
+        }
+
+        const idsToDelete = Array.isArray(removedPhotoIds)
+            ? [...new Set(removedPhotoIds.filter(Boolean))]
+            : [];
+
+        console.log("idsToDelete normalized:", idsToDelete);
+
+        if (idsToDelete.length) {
+            const docs = await Upload.find(
+                { _id: { $in: idsToDelete } },
+                { key: 1 }
+            ).lean();
+
+            console.log("Upload docs found for deletion:", docs.length, docs);
+
+            await Promise.all(
+                docs.map((doc) =>
+                    s3.send(
+                        new DeleteObjectCommand({
+                            Bucket: process.env.AWS_S3_BUCKET_NAME,
+                            Key: doc.key,
+                        })
+                    )
+                )
+            );
+
+            await Upload.deleteMany({ _id: { $in: idsToDelete } });
+        }
+
+        return res.status(200).json(main);
+    } catch (err) {
+        console.log("Error to update provider reference!", err);
         return res.status(500).json({ error: err.message });
     }
 });

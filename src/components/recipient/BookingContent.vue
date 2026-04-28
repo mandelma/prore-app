@@ -5,11 +5,11 @@
     <header class="panel__header">
       <div>
         <h4 class="panel__title">Varaus</h4>
-        <p class="panel__subtitle">Tarkista tiedot ja muokkaa tarvittaessa</p>
+        <!-- <p class="panel__subtitle">Tarkista tiedot ja muokkaa tarvittaessa</p> -->
       </div>
 
       <!-- Edit toggle -->
-      <button
+      <!-- <button
         v-if="!booking.offers.length"
         class="btn btn-primary"
         type="button"
@@ -18,7 +18,7 @@
       >
         <span v-if="!isEditing">Muokkaa</span>
         <span v-else>Valmis</span>
-      </button>
+      </button> -->
     </header>
 
     <!-- SUMMARY (read mode) -->
@@ -44,7 +44,7 @@
       <div class="photos">
         <div class="photos__header">
           <h5 class="section-title">Kuvat</h5>
-          <button v-if="!booking.offers.length" class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
+          <!-- <button v-if="!booking.offers.length" class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
             Lisää kuvia
           </button>
           <input
@@ -54,24 +54,37 @@
             accept="image/*"
             multiple
             @change="onFilesSelected"
-          />
+          /> -->
         </div>
 
         <div v-if="booking.photos?.length" class="photos-grid">
-          <figure
-            v-for="(photo, idx) in booking.photos"
-            :key="photo.id || idx"
-            class="photo-card"
-          >
-            <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
-
-          </figure>
+          <div class="photo-media">
+            <figure
+              v-for="(photo, idx) in booking.photos"
+              :key="photo.id || idx"
+              class="photo-card"
+            >
+              <div v-if="loadingImages[idx]" class="spinner"></div>
+              <img 
+                class="photo-img" 
+                :src="photo.imageId.imageUrl || photo.imageUrl || photo.imageId.previewUrl" :alt="photo.alt || 'Booking photo'" 
+                @load="loadingImages[idx] = false"
+                @error="loadingImages[idx] = false"
+              />
+              <div v-if="photo.text !== ''" class="photo-overlay">
+                  
+                <p>{{ photo.text }}</p>
+              </div>
+            </figure>
+          </div>
+          
         </div>
 
         <div v-else class="empty-state">
-          <p v-if="!booking.offers.length" class="empty-state__title">Ei kuvia vielä</p>
-          <p v-else class="text-muted">Ei tilaukseen liittyviä kuvia!</p>
-          <p v-if="!booking.offers.length" class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p>
+          <!-- v-if="!booking.offers.length" -->
+          <p  class="text-muted">Ei tilaukseen liittyviä kuvia!</p>
+          <!-- <p v-else class="text-muted">Ei tilaukseen liittyviä kuvia!</p> -->
+          <!-- <p v-if="!booking.offers.length" class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p> -->
         </div>
       </div> 
     </div>
@@ -93,18 +106,10 @@
           </div>
         </div>
 
-
-
         <div class="field">
           <label class="label" for="date">Päivämäärä</label>
           <div class="field-row">
-            <!-- Use your existing date picker if you have one -->
-            <!-- <input
-              id="date"
-              v-model="draft.date"
-              class="input"
-              type="date"
-            /> -->
+            
             <MDBDateTimepicker
               size="lg"
               label="Valitse tehtävän päivämäärä ja aika"
@@ -202,12 +207,9 @@
           </button>
         </div>
 
-
-        
       </div>
     </form>
   </div>
-  
   
 </template>
 <script setup>
@@ -246,6 +248,22 @@ const removedPhotoIds = ref([]);
 const isDragOver = ref(false);
 let dragCounter = 0;
 
+const loadingImages = ref({});
+
+watch(
+  () => props.booking?.photos,
+  (photos) => {
+    if (!photos) return;
+    const newState = {};
+    photos.forEach((_, idx) => {
+      newState[idx] = true;
+    })
+
+    loadingImages.value = newState;
+  },
+  { immediate: true}
+)
+
 // --- Helpers ---
 function clonePhotos(photos) {
   return (photos || []).map((p) => ({ ...p }));
@@ -260,13 +278,13 @@ function preventGlobalFileDrop(e) {
   e.stopPropagation();
 }
 
-function createDraftFromBookingx() {
+/* function createDraftFromBookingx() {
   return {
     description: props.booking.description || "",
     date: props.booking.date || "",
     photos: clonePhotos(props.booking.photos),
   };
-}
+} */
 
 const normalizeForCompare = (img) => ({
   id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
@@ -288,10 +306,6 @@ const isDirty = computed(() => {
 
   const sameDesc = (draft.value.description || "") === (props.booking.description || "");
   const sameDate = (draft.value.date || "") === (props.booking.date || "");
-
-  // If you have stable ids for photos, compare ids instead of full JSON.
-  /* const a = JSON.stringify(draft.value.photos || []);
-  const b = JSON.stringify(props.booking.photos || []); */
 
   const a = signature(draft.value.photos);
   const b = signature(props.booking.photos);
@@ -352,14 +366,14 @@ function formatBookingDate(dateStr) {
   });
 }
 
-function setDateToSoonest() {
+/* function setDateToSoonest() {
   // Example: set to today
   const now = new Date();
   const yyyy = String(now.getFullYear());
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   if (draft.value) draft.value.date = `${yyyy}-${mm}-${dd}`;
-}
+} */
 
 // --- File picker / dropzone ---
 function openFilePicker() {
@@ -1011,12 +1025,16 @@ onBeforeUnmount(() => {
   background: rgba(0,0,0,.02);
 }
 
+
+
+
 .photo-img {
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
 }
+
 
 .photo-actions {
   display: flex;
@@ -1038,6 +1056,52 @@ onBeforeUnmount(() => {
 
 .icon-btn--danger {
   border-color: rgba(220, 38, 38, .35);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.photo-media {
+  position: relative;
+}
+
+.photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  /* background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  ); */
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  font-size: 13px;
+}
+
+.photo-overlay p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden  ;
+  
 }
 
 /* Empty state */

@@ -109,10 +109,23 @@ const recipientSchema = new Schema({
     /* photos: {
         type: Array
     }, */
+
     photos: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'upload'
+            imageId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'upload',
+                required: true,
+            },
+            text: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            order: {
+                type: Number,
+                default: 0,
+            },
         }
     ],
 

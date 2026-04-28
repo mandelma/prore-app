@@ -33,28 +33,45 @@
             class="photo-card"
           > -->
             <!-- <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Reference photo'" /> -->
-
-            <MDBLightbox> 
-              <MDBRow class="g-2 mx-0">
-                  <MDBCol
-                      lg="4"
-                      md="4"
-                      sm="6"
-                      xs="6"
-                      v-for="(image, idx) in reference"
-                      :key="idx"
-                      class="px-1"
-                  >
-                      <div class="lightbox-thumb">
-                        <MDBLightboxItem
-                            :src="image.imageUrl || image.previewUrl"
-                            :fullScreenSrc="image.imageUrl || image.previewUrl"
-                            alt="Pro reference"
-                        />
-                      </div>
-                  </MDBCol>
-              </MDBRow>
-            </MDBLightbox>
+            <div class="photo-media">
+              <MDBLightbox> 
+                <MDBRow class="g-2 mx-0">
+                    <MDBCol
+                        lg="4"
+                        md="4"
+                        sm="6"
+                        xs="6"
+                        v-for="(image, idx) in reference"
+                        :key="idx"
+                        class="px-1"
+                    >
+                        <div class="lightbox-thumb">
+                          
+                          <!-- <MDBLightboxItem
+                              :src="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
+                              :fullScreenSrc="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
+                              caption="xxx"
+                              alt="Pro reference"
+                          /> -->
+                          <MDBLightboxItem
+                              :src="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
+                              :fullScreenSrc="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
+                              :caption="image.text || 'Kuva palvelusta'"
+                              alt="Pro reference"
+                          >
+                          
+                          </MDBLightboxItem>
+                          <div v-if="image.text !== ''" class="photo-overlay">
+                
+                            <p>{{ image.text }}</p>
+                          </div>
+                        </div>
+                    </MDBCol>
+                </MDBRow>
+              </MDBLightbox>
+              
+            </div>
+            
 
           <!-- </figure> -->
         </div>
@@ -114,7 +131,18 @@
               :key="image.id || idx"
               class="photo-card"
             >
-              <img class="photo-img" :src="image.imageUrl || image.previewUrl" :alt="image.alt || 'Reference photo'" />
+              <div class="photo-media">
+                <img class="photo-img" :src="image.imageUrl || image.previewUrl" :alt="image.alt || 'Reference photo'" />
+                <!-- <textarea
+                  v-model="image.text"
+                  class="photo-caption"
+                  placeholder="Add a note..."
+                ></textarea> -->
+                <div class="photo-overlay">
+                  <textarea v-model="image.text" placeholder="Lisää kuvaus..." />
+                </div>
+              </div>
+              
               <figcaption class="photo-actions">
                 
                 <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="Replace">
@@ -142,6 +170,7 @@
         
       </div>
     </form>
+    
   </MDBContainer>
   
     
@@ -181,10 +210,18 @@
    draft.value = val ? createDraftFromPhotos() : null;
   });
 
-  const normalizeForCompare = (img) => ({
+  const normalizeForCompare__ = (img) => ({
     id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
     url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
     // treat local uploads as "NEW"
+    isNew: !!img.file || (!!img.previewUrl && !img.imageUrl),
+  });
+
+  const normalizeForCompare = (img) => ({
+    id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
+    url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
+    text: img.text ?? "",
+    order: img.order ?? 0,
     isNew: !!img.file || (!!img.previewUrl && !img.imageUrl),
   });
 
@@ -209,14 +246,18 @@
   }
 
   const normalizeServerPhotoFormat = (p) => {
-  return {
-      imageId: p.imageId ?? p.id ?? p._id ?? p.key ?? null,
-      imageUrl: p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
+    const upload = p.imageId && typeof p.imageId === "object" ? p.imageId : null;
+
+    return {
+      imageId: upload?._id ?? p.imageId ?? p.id ?? p._id ?? null,
+      imageUrl: upload?.imageUrl ?? p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
+      text: p.text || "",
+      order: p.order ?? 0,
       previewUrl: null,
       file: null,
       slotId: crypto.randomUUID(),
     };
-  }
+  };
 
   const createDraftFromPhotos = () => {
     return {
@@ -235,7 +276,7 @@
     
   }
 
-  const onReplaceSelected = (e) => {
+  const onReplaceSelected__ = (e) => {
     const file = e.target.files?.[0];
     if (!file || !draft.value || replaceIndex.value == null) return;
 
@@ -264,6 +305,35 @@
     e.target.value = "";
     replaceIndex.value = null;
   }
+
+  const onReplaceSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !draft.value || replaceIndex.value == null) return;
+
+    const idx = replaceIndex.value;
+    const old = draft.value.reference[idx];
+
+    if (old?.imageId) {
+      removedPhotoIds.value.push(old.imageId);
+    }
+
+    if (old?.previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(old.previewUrl);
+    }
+
+    draft.value.reference[idx] = {
+      imageId: null,
+      imageUrl: null,
+      previewUrl: URL.createObjectURL(file),
+      file,
+      text: old?.text || "",
+      order: old?.order ?? idx,
+      slotId: old?.slotId || crypto.randomUUID(),
+    };
+
+    e.target.value = "";
+    replaceIndex.value = null;
+  };
 
   const openFilePicker = () => {
     fileInput.value?.click();
@@ -305,51 +375,68 @@
   }
 
 
+  /* function addFiles__(files) {
+    if (!draft.value) return;
+    draft.value.reference ||= [];
+
+    for (const file of files) {
+      draft.value.reference.push({
+        imageId: null,
+        imageUrl: null,
+        previewUrl: URL.createObjectURL(file),
+        file,
+        slotId: crypto.randomUUID()
+      });
+    }
+  } */
+
   function addFiles(files) {
-  if (!draft.value) return;
-  draft.value.reference ||= [];
+    if (!draft.value) return;
+    draft.value.reference ||= [];
 
-  for (const file of files) {
-    draft.value.reference.push({
-      imageId: null,
-      imageUrl: null,
-      previewUrl: URL.createObjectURL(file),
-      file,
-      slotId: crypto.randomUUID()
-    });
-  }
-}
-
-const cancelEdits = () => {
-  isEditing.value = false;
-}
-
-const normalizeUploadResponseItem = (u) => {
-  return {
-    imageId: u.id ?? u._id ?? u.key ?? null,
-    imageUrl: u.imageUrl ?? u.location ?? u.path ?? null,
-  };
-}
-
-const applyUploadsToDraft = (pending = [], uploadedRaw = []) => {
-  const uploaded = (uploadedRaw || []).map(normalizeUploadResponseItem);
-
-  if (uploaded.length !== pending.length) {
-    throw new Error(`Upload count mismatch: ${uploaded.length} vs ${pending.length}`);
+    for (const file of files) {
+      draft.value.reference.push({
+        imageId: null,
+        imageUrl: null,
+        previewUrl: URL.createObjectURL(file),
+        file,
+        text: "",
+        order: draft.value.reference.length,
+        slotId: crypto.randomUUID(),
+      });
+    }
   }
 
-  for (let i = 0; i < pending.length; i++) {
-    const local = pending[i];
-    const up = uploaded[i];
-
-    if (local.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(local.previewUrl);
-
-    local.imageId = up.imageId;
-    local.imageUrl = up.imageUrl;
-    local.previewUrl = null;
-    local.file = null;
+  const cancelEdits = () => {
+    isEditing.value = false;
   }
-}
+
+  const normalizeUploadResponseItem = (u) => {
+    return {
+      imageId: u.id ?? u._id ?? u.key ?? null,
+      imageUrl: u.imageUrl ?? u.location ?? u.path ?? null,
+    };
+  }
+
+  const applyUploadsToDraft = (pending = [], uploadedRaw = []) => {
+    const uploaded = (uploadedRaw || []).map(normalizeUploadResponseItem);
+
+    if (uploaded.length !== pending.length) {
+      throw new Error(`Upload count mismatch: ${uploaded.length} vs ${pending.length}`);
+    }
+
+    for (let i = 0; i < pending.length; i++) {
+      const local = pending[i];
+      const up = uploaded[i];
+
+      if (local.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(local.previewUrl);
+
+      local.imageId = up.imageId;
+      local.imageUrl = up.imageUrl;
+      local.previewUrl = null;
+      local.file = null;
+    }
+  }
 
 const uploadDraftPhotos = async () => {
   const pending = (draft.value?.reference || []).filter(p => p.file);
@@ -368,14 +455,27 @@ const uploadDraftPhotos = async () => {
   return { pending, uploaded };
 }
 
-const buildPayload = () => {
+/* const buildPayload__ = () => {
   return {
     reference: (draft.value.reference || [])
       .map(p => p.imageId)
       .filter(Boolean),
     removedPhotoIds: removedPhotoIds.value.filter(Boolean),
   };
-}
+} */
+
+const buildPayload = () => {
+  return {
+    reference: (draft.value.reference || [])
+      .filter(p => p.imageId)
+      .map((p, index) => ({
+        imageId: p.imageId,
+        text: p.text?.trim() || "",
+        order: index,
+      })),
+    removedPhotoIds: [...new Set(removedPhotoIds.value.filter(Boolean))],
+  };
+};
 
 const removeDraftPhoto = (idx) => {
   if (!isEditing.value) isEditing.value = true;
@@ -397,7 +497,8 @@ const removeDraftPhoto = (idx) => {
   draft.value.reference.splice(idx, 1);
 }
 
-const savePhotos = async () => {
+const savePhotos__ = async () => {
+  
   if (!draft.value) return;
 
   try {
@@ -416,7 +517,13 @@ const savePhotos = async () => {
 
     const _provider = proStore?.provider;
     if (_provider) {
-      _provider.reference = draft.value.reference.map(dvr => ({id: dvr.imageId, imageUrl: dvr.imageUrl}))
+      
+      _provider.reference = draft.value.reference.map((dvr, index) => ({
+        imageId: dvr.imageId,
+        imageUrl: dvr.imageUrl,
+        text: dvr.text || "",
+        order: index,
+      }));
     }
 
     removedPhotoIds.value = [];
@@ -424,7 +531,47 @@ const savePhotos = async () => {
   } catch (err) {
     console.error("Save failed:", err?.response?.data || err);
   }
+
 }
+
+const savePhotos = async () => {
+    if (!draft.value) return;
+
+    try {
+      const { pending, uploaded } = await uploadDraftPhotos();
+
+      if (pending.length) {
+        applyUploadsToDraft(pending, uploaded);
+      }
+
+      // make sure order is fresh before payload
+      draft.value.reference = (draft.value.reference || []).map((item, index) => ({
+        ...item,
+        order: index,
+      }));
+
+      const payload = buildPayload();
+      console.log("Reference payload - ", payload);
+
+      const updatedProvider = await proStore.updateReference(payload);
+      console.log("Ref uploaded ", updatedProvider);
+
+      const _provider = proStore?.provider;
+      if (_provider) {
+        _provider.reference = draft.value.reference.map((dvr, index) => ({
+          imageId: dvr.imageId,
+          imageUrl: dvr.imageUrl,
+          text: dvr.text || "",
+          order: index,
+        }));
+      }
+
+      removedPhotoIds.value = [];
+      isEditing.value = false;
+    } catch (err) {
+      console.error("Save failed:", err?.response?.data || err);
+    }
+  };
 
 </script>
 <style scoped>
@@ -454,14 +601,94 @@ const savePhotos = async () => {
   gap: 10px;
 }
 
-.photo-card {
+/* .photo-card {
   margin: 0;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,.10);
   background: rgba(0,0,0,.02);
+} */
+
+/* .photo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.photo-caption {
+  width: 100%;
+  resize: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 14px;
+  min-height: 50px;
+}
+
+.photo-caption:focus {
+  outline: none;
+  border-color: #666;
+} */
+
+.photo-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 👇 this is the key container */
+.photo-media {
+  position: relative;
+}
+
+/* image stays normal */
+.photo-img {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* overlay ONLY covers the image */
+.photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  /* background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  ); */
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  font-size: 13px;
+}
+
+.photo-overlay p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden  ;
+  
+}
+
+
+
+
+/* textarea styling */
+.photo-overlay textarea {
+  width: 100%;
+  background: transparent;
+  color: white;
+  border: none;
+  resize: none;
+}
+
+.photo-overlay textarea:focus {
+  outline: none;
+}
 .photo-img {
   display: block;
   width: 100%;

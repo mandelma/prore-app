@@ -248,22 +248,9 @@ export const useClientStore = defineStore('client', () => {
         //const photoIds = (payload?.photos || []).map(ph => ph.id).filter(Boolean);
         await clientService.updateMain(bookingId, payload);
         
-        /* for (const id of photoIds) {
-            await clientService.addImage(bookingId, id);
-        } */
-        
-        /* const main = bookings.value.find(b => b.id === bookingId);
-        if (main) {
-            main.photos = payload.photos;        // [{id, imageUrl}]
-            main.description = payload.description;
-            main.date = payload.date;
-        }
-
-        console.log("Removed photo ids - ", payload.removedPhotoIds); */
-
-        //await uploadService.deleteImages(payload.removedPhotoIds);
-
     }
+
+    
 
     const handleEditStatus = async (bookingId, new_status) => {
         const status = await clientService.updateRecipientStatus(bookingId, { status: new_status });

@@ -11,7 +11,6 @@
 
     </div>
 
-
     <MDBRow>
       <MDBCol lg="8">
         <booking-content :booking="booking"/>

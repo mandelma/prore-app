@@ -63,27 +63,38 @@
             Kuvat tehtävästä:
           </td>
           <td>
-            <MDBLightbox> 
-              <MDBRow class="g-2 mx-0">
-                <MDBCol
-                  lg="4"
-                  md="4"
-                  sm="6"
-                  xs="6"
-                  v-for="(photo, idx) in client.photos"
-                  :key="idx"
-                  class="px-1"
-                >
-                  <div class="lightbox-thumb">
-                    <MDBLightboxItem
-                      :src="photo.imageUrl || photo.previewUrl"
-                      :fullScreenSrc="photo.imageUrl || photo.previewUrl"
-                      alt="Booking photo"
-                    />
-                  </div>
-                </MDBCol>
-              </MDBRow>
-            </MDBLightbox>
+            <div class="photo-media">
+              <MDBLightbox> 
+                <MDBRow class="g-2 mx-0">
+                  <MDBCol
+                    lg="4"
+                    md="4"
+                    sm="6"
+                    xs="6"
+                    v-for="(photo, idx) in client.photos"
+                    :key="idx"
+                    class="px-1"
+                  >
+                    <div class="lightbox-thumb">
+                      <div v-if="loadingImages[idx]" class="spinner"></div>
+                      <MDBLightboxItem
+                        :src="photo.imageUrl || photo.imageId.imageUrl || photo.previewUrl"
+                        :fullScreenSrc="photo.imageUrl || photo.imageId.imageUrl || photo.previewUrl"
+                        :caption="photo.text || 'Kuva tilauksesta'"
+                        alt="Booking photo"
+                        @load="loadingImages[idx] = false"
+                        @error="loadingImages[idx] = false"
+                      />
+                      <div v-if="photo.text !== ''" class="photo-overlay">
+                
+                        <p>{{ photo.text }}</p>
+                      </div>
+                    </div>
+                  </MDBCol>
+                </MDBRow>
+              </MDBLightbox>
+            </div>
+            
           </td>
         </tr>
         <tr>
@@ -418,6 +429,8 @@ const mapsError = ref(false);
 
 const final = ref(null);
 
+const loadingImages= ref({});
+
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
 //const road = computed(async() => await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]))
 
@@ -443,6 +456,20 @@ onUnmounted(() => {
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
 });
+
+watch(
+  () => client?.photos,
+  (photos) => {
+    if (!photos) return;
+    const newState = {};
+    photos.forEach((_, idx) => {
+      newState[idx] = true;
+    })
+
+    loadingImages.value = newState;
+  },
+  { immediate: true}
+)
 
 
 const validateMaps = async() => {
@@ -939,6 +966,61 @@ const handleCancelRemoving = () => {
   object-fit: cover;      /* 👈 crop like your photo-grid */
   display: block;
 }
+
+.photo-media {
+  position: relative;
+}
+
+.photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  /* background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  ); */
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  font-size: 13px;
+}
+
+.photo-overlay p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden  ;
+  
+}
+
+
+
+
+/* .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} */
+
+
+
+
+
+
 
 .spinner {
   width: 30px;

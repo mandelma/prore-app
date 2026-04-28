@@ -104,10 +104,29 @@ const providerSchema = new Schema({
         type: String
     },
 
-    reference: [
+    /* reference: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'upload'
+        }
+    ], */
+
+    reference: [
+        {
+            imageId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'upload',
+                required: true,
+            },
+            text: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            order: {
+                type: Number,
+                default: 0,
+            },
         }
     ],
 

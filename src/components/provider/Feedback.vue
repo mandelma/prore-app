@@ -3,25 +3,31 @@
         <div v-if="route.name === 'pro-feedback'" style="display: flex; justify-content: right; padding: 7px 0 7px 0">
             <MDBBtnClose white @click="router.go(-1)"/>
         </div>
-        <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
-            <MDBCard style="" v-if="fb?.text !==''">
-                
-                <!-- <MDBCardHeader> -->
-                    <!-- <Stars :rating="fb.rating" /> -->
-                     
+        <div v-if="provider?.feedback.length">
+            <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
+                <MDBCard style="" v-if="fb?.text !==''">
                     
-                <!-- </MDBCardHeader> -->
-                <MDBCardBody>
-                    <div style="display: flex; justify-content: right;">
-                        <p class="text-muted">{{formatDateTime(fb.date)}}</p>
-                     </div>
-                    <MDBCardTitle style="color:aqua;">{{ fb?.sender }}</MDBCardTitle>
-                    <MDBCardText>
-                        {{ fb?.text  }}
-                    </MDBCardText>
-                </MDBCardBody>
-            </MDBCard>
+                    <!-- <MDBCardHeader> -->
+                        <!-- <Stars :rating="fb.rating" /> -->
+                        
+                        
+                    <!-- </MDBCardHeader> -->
+                    <MDBCardBody>
+                        <div style="display: flex; justify-content: right;">
+                            <p class="text-muted">{{formatDateTime(fb.date)}}</p>
+                        </div>
+                        <MDBCardTitle style="color:aqua;">{{ fb?.sender }}</MDBCardTitle>
+                        <MDBCardText>
+                            {{ fb?.text  }}
+                        </MDBCardText>
+                    </MDBCardBody>
+                </MDBCard>
+            </div>
         </div>
+        <div v-else>
+            <p class="text-muted" style="text-align: center;">Ei vielä annettua kirjallisia arvosteluja!</p>
+        </div>
+        
         
     </MDBContainer>
     

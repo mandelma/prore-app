@@ -1,6 +1,5 @@
 <template>
   <div>
-<!--    v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"-->
     <MDBContainer>
 <!--      g-3 needs-validation   -->
 
@@ -115,9 +114,6 @@
 
             <MDBCol lg="6">
 
-<!--              Form address {{form.address}}-->
-
-
               <div :class="{hideInput: !form.address && isAddress}" style="width: 100%;" class="field-wrapper ">
                 <div  class="input-group">
                   <MDBInput
@@ -224,30 +220,120 @@
 
             </MDBCol>
             <MDBCol lg="6">
-<!--              <p>Range {{desiredRange}}</p><br>-->
-<!--              <p>Range 2 {{preferredRangeValue}}</p>-->
-<!--              <error-notification :message = imgLoadErrorMessage />-->
-<!--              <img v-if="showImage" :src="showImage" style="width: 200px; margin-bottom: 20px;" alt="..."/>-->
-<!--              <label v-if="!isUploaded" for="file-upload" class="custom-file-upload">-->
+              
 
-<!--                <span v-if="value">-->
-<!--                    {{t('receiver_form_orderContentImageEdit')}} {{value.name}}-->
+              <div v-if="!isAddPhotos">
+                <div>
+                  <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">Lisää halutessasi kuvia tehtävästä</MDBBtn>
+                  <MDBBtn v-else color="light" @click="isAddPhotos = true">Muokkaa kuvia</MDBBtn>
+                </div>
+                
+                
 
-<!--                </span>-->
-<!--                <span v-else>{{t('receiver_form_orderContentImage')}}</span>-->
+                <div v-if="addedPhotos?.length" class="photos-grid">
+                  
+                  <figure
+                    v-for="(photo, idx) in addedPhotos"
+                    :key="photo.id || idx"
+                    class="photo-card"
+                  >
+                    <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
+                    <div v-if="photo?.text?.trim()" class="photo-overlay">
+                
+                      <p>{{ photo.text }}</p>
+                    </div>
+                  </figure>
+                  
+                </div>
 
-<!--              </label>-->
+                <div v-else class="empty-state">
+                  
+                  <p v-if="!addedPhotos.length" class="empty-state__text">Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.</p>
+                </div>
 
-<!--              <input id="file-upload" type="file" @change="handleFileChange"/>-->
 
-<!--              <MDBBtn v-if="isImageSelected" outline="danger" size="lg" block @click="removeFile">Poista valitsettu kuva</MDBBtn>-->
-<!--              <MDBBtn v-if="isImageSelected"-->
-<!--                      outline="success"-->
-<!--                      size="lg"-->
-<!--                      block-->
-<!--                      style="margin-bottom: 10px;"-->
-<!--                      @click="uploadImage">Lataa valitsettu kuva</MDBBtn>-->
+              </div>
 
+              <!-- Booking pictures section -->
+              <form v-else class="panel__body" @submit.prevent="saveBookingPhotos">
+                <div class="form-card">
+                  
+                  <div class="divider"></div>
+
+                  <div class="photos">
+                    <div class="photos__header">
+                      <h5 class="section-title">Kuvat</h5>
+                      <MDBBtn color="primary" @click="openFilePicker">Lisää kuvia</MDBBtn>
+                      
+                      <input
+                        ref="fileInput"
+                        class="sr-only"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        @change="onFilesSelected"
+                      />
+
+                      <input
+                          ref="replaceInput"
+                          class="sr-only"
+                          type="file"
+                          accept="image/*"
+                          @change="onReplaceSelected"
+                      />
+                    </div>
+
+                    <!-- (Optional) dropzone -->
+                    <div
+                      class="dropzone"
+                      @dragenter.prevent="onDragEnter"
+                      @dragover.prevent
+                      @dragleave="onDragLeave"
+                      @drop.prevent="onDrop"
+                      :class="{ 'dropzone--active': isDragOver }"
+                    >
+                      <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
+                      <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+                    </div>
+
+                    <div v-if="draftPhotos?.length" class="photos-grid">
+                      <figure
+                        v-for="(photo, idx) in draftPhotos"
+                        :key="photo.id || idx"
+                        class="photo-card"
+                      >
+                         <div class="photo-media">
+                          <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
+                          <textarea
+                            v-model="photo.text"
+                            class="photo-caption"
+                            placeholder="Lisää kuvaus..."
+                          ></textarea>
+                          <!-- <div class="photo-overlay">
+                            <textarea v-model="photo.text" placeholder="Lisää kuvaus..." />
+                          </div> -->
+                        </div>
+                        <figcaption class="photo-actions">
+                          
+                          <i class="fas fa-trash-alt fa-lg" style="color: red;" @click="removeDraftPhoto(idx)"></i>
+                          
+                        </figcaption>
+                      </figure>
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <button class="btn btn-danger" type="button" @click="cancelAddPhotos">
+                      Peruuta
+                    </button>
+
+                    <button class="btn btn-success" type="submit" :disabled="!isDirty">
+                      Tallenna
+                    </button>
+                  </div>
+
+                </div>
+              </form>
             </MDBCol>
 
           </MDBRow>
@@ -255,9 +341,7 @@
           <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">{{ t('client_form_btn_send') }}</MDBBtn>
 
         </form>
-<!--        <recipient-page :header="form.address"/>-->
       </div>
-<!--      <MDBBtn block @click="$router.push('/follow-pos')">Start watching</MDBBtn>-->
     </MDBContainer>
   </div>
 </template>
@@ -275,6 +359,7 @@ import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n';
 import clientService from '../../service/recipients';
+import uploadService from '../../service/awsUploads';
 import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 import RecipientPage from '@/components/recipient/RecipientPage.vue'
 import HandleMapErrorToast from '@/components/helpers/ToastHandler.vue'
@@ -359,6 +444,16 @@ const lat = ref(null);
 const lng = ref(null);
 
 const o = ref(null);
+
+// Photos variables
+const isAddPhotos = ref(false);
+const addedPhotos = ref([]);
+const draftPhotos = ref([]);
+const removedPhotoIds = ref([]);
+const fileInput = ref(null);
+const replaceInput = ref(null);
+const isDragOver = ref(false);
+let dragCounter = 0;
 
 const toastModel = ref(false)
 const toastState = ref('')       // 'success' | 'danger' | 'info' | etc.
@@ -599,12 +694,288 @@ const clearAddress = () => {
   // date.toLocaleDateString('de-DE')     // → 26.09.2025
 }
 
+// When entering edit mode, create draft from photos existing
+/* watch(isAddPhotos, (val) => {
+  draftPhotos.value = val ? createDraftFromPhotos() : [];
+}); */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+watch(draftPhotos, () => {
+  console.log("draft changed");
+}, { deep: true });
+
+const normalizeForCompare = (img) => ({
+  id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
+  url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
+  text: img.text ?? "",
+  order: img.order ?? 0,
+  isNew: !!img.file || (!!img.previewUrl && !img.imageUrl),
+});
+
+const signature = (arr) =>
+  Array.isArray(arr)
+    ? arr
+        .map(normalizeForCompare)
+        .map(x =>
+          [
+            x.isNew ? "NEW" : x.id ?? "",
+            x.url ?? "",
+            (x.text ?? "").trim(),
+          ].join("|")
+        )
+        .join("||")
+    : "";
+
+
+/* const isDirty = computed(() => {
+  if (!draftPhotos.value) return false;
+
+  const a = signature(draftPhotos.value);
+  const b = signature(addedPhotos.value);
+
+  return a !== b;
+}) */
+
+// Copy photos
+const clonePhoto = (p) => ({...p});
+
+watch(isAddPhotos, (val) => {
+  if (val) {
+    draftPhotos.value = addedPhotos.value.map(clonePhoto);
+    removedPhotoIds.value = [];
+  }
+});
+
+const isDirty = computed(() => {
+  return signature(draftPhotos.value) !== signature(addedPhotos.value);
+});
+
+const serverPhotoFormat = (p) => {
+  const upload = p.imageId && typeof p.imageId === "object" ? p.imageId : null;
+
+  return {
+    imageId: upload?._id ?? p.imageId ?? p.id ?? p._id ?? null,
+    imageUrl: upload?.imageUrl ?? p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
+    text: p.text || "",
+    order: p.order ?? 0,
+    previewUrl: null,
+    file: null,
+    slotId: crypto.randomUUID(),
+  };
+};
+
+/* const createDraftFromPhotos = () => {
+  return {
+    photos: (addedPhotos.value || []).map(serverPhotoFormat),
+  };
+} */
+
+const openFilePicker = () => {
+  fileInput.value?.click();
+  console.log("Clicked")
+  if (!isAddPhotos.value) isAddPhotos.value = true;
+
+  //if (!draftPhotos.value) return;
+}
+function onFilesSelected(e) {
+  const files = Array.from(e.target.files || []);
+  addFiles(files);
+  e.target.value = "";
+}
+
+function onDragEnter(e) {
+  if (!e.dataTransfer?.types.includes("Files")) return;
+  dragCounter++;
+  isDragOver.value = true;
+}
+
+function onDragLeave(e) {
+  dragCounter--;
+  if (dragCounter === 0) {
+    isDragOver.value = false;
+  }
+}
+
+function onDrop(e) {
+  dragCounter = 0;
+  isDragOver.value = false;
+
+  const files = Array.from(e.dataTransfer.files || []).filter(f =>
+    f.type.startsWith("image/")
+  );
+
+  if (files.length) {
+    addFiles(files);
+  }
+}
+
+function addFiles(files) {
+  //if (!draftPhotos.value.length) return;
+  //draftPhotos.value = [];
+
+  for (const file of files) {
+    draftPhotos.value.push({
+      imageId: null,
+      imageUrl: null,
+      previewUrl: URL.createObjectURL(file),
+      file,
+      text: "",
+      order: draftPhotos.value.length,
+      slotId: crypto.randomUUID(),
+    });
+  }
+}
+
+const removeDraftPhoto__ = (idx) => {
+  if (!isAddPhotos.value) isAddPhotos.value = true;
+  
+  if (!draftPhotos.value?.length) return;
+  
+  const photo = draftPhotos.value[idx];
+
+  removedPhotoIds.value.push(photo.id)
+  
+  if (photo?.previewUrl?.startsWith("blob:")) {
+    URL.revokeObjectURL(photo.previewUrl);
+  }
+
+  draftPhotos.value.splice(idx, 1);
+  //if (addedPhotos.value.length) addedPhotos.value.splice(idx, 1);
+}
+
+const removeDraftPhoto = (idx) => {
+  const photo = draftPhotos.value?.[idx];
+  if (!photo) return;
+
+  /* if (photo.previewUrl?.startsWith("blob:")) {
+    URL.revokeObjectURL(photo.previewUrl);
+  } */
+
+  draftPhotos.value.splice(idx, 1);
+};
+
+const cancelAddPhotos__ = () => {
+  console.log("Cancelled to add photos");
+
+  isAddPhotos.value = false;
+}
+
+const cancelAddPhotos = () => {
+  draftPhotos.value.forEach(p => {
+    if (p.previewUrl?.startsWith("blob:") && !addedPhotos.value.some(a => a.previewUrl === p.previewUrl)) {
+      URL.revokeObjectURL(p.previewUrl);
+    }
+  });
+
+  draftPhotos.value = addedPhotos.value.map(clonePhoto);
+  removedPhotoIds.value = [];
+  isAddPhotos.value = false;
+};
+
+const saveBookingPhotos__ = () => {
+  console.log("Saving booking photos");
+  //addedPhotos.value = [...draftPhotos.value];
+  addedPhotos.value = draftPhotos.value.map(p => ({ ...p }));
+  isAddPhotos.value = false;
+}
+
+const uploadBookingPhotos__ = async () => {
+  const pending = (addedPhotos.value || []).filter(p => p.file);
+
+  if (!pending.length) {
+    return { uploaded: [] };
+  }
+
+  const fd = new FormData();
+  pending.forEach(p => fd.append("files", p.file));
+
+  const res = await uploadService.uploadClientImage(fd);
+
+  const uploaded = Array.isArray(res) ? res : [res].filter(Boolean);
+
+  return { uploaded };
+};
+
+const uploadBookingPhotos = async () => {
+  const pending = addedPhotos.value.filter(p => p.file);
+
+  if (!pending.length) {
+    return { uploaded: [] };
+  }
+
+  const fd = new FormData();
+  pending.forEach(p => fd.append("files", p.file));
+
+  const res = await uploadService.uploadClientImage(fd);
+
+  console.log("UPLOAD RAW RESPONSE:", res);
+
+  const uploaded =
+    res?.data?.uploaded ??
+    res?.data?.uploads ??
+    res?.data?.files ??
+    res?.uploaded ??
+    res?.uploads ??
+    res?.files ??
+    res?.data ??
+    res;
+
+  return {
+    uploaded: Array.isArray(uploaded) ? uploaded : [uploaded].filter(Boolean),
+  };
+};
+
+const saveBookingPhotos = () => {
+  addedPhotos.value = draftPhotos.value.map(clonePhoto);
+
+  // only here commit removed ids if needed for backend
+  removedPhotoIds.value = draftPhotos.value
+    .filter(p => p._removed)
+    .map(p => p.imageId ?? p._id ?? p.id)
+    .filter(Boolean);
+
+  isAddPhotos.value = false;
+};
+
+const buildPhotosPayload = () => {
+  return {
+    photos: (addedPhotos.value || [])
+      .map((p, index) => ({
+        imageId: p.imageId,
+        text: p.text?.trim() || "",
+        order: index,
+      })),
+    removedPhotoIds: [...new Set(removedPhotoIds.value.filter(Boolean))],
+  };
+};
+
 const parseDmyTime = (str) => {
   const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);
   if (!m) return null;
   const [, dd, mm, yyyy, HH, MM] = m.map(Number);
   return new Date(yyyy, mm - 1, dd, HH, MM);
 }
+
+const getUploadId = (upload) =>
+  upload?._id ??
+  upload?.id ??
+  upload?.imageId ??
+  upload?.file?._id ??
+  upload?.file?.id ??
+  upload?.upload?._id ??
+  upload?.upload?.id;
 
 const createClient = async() => {
   if (!validateForm()) {
@@ -639,6 +1010,44 @@ const createClient = async() => {
       console.log("Invalid date string");
     }
 
+    const pendingPhotos = addedPhotos.value.filter(p => p.file);
+
+    const { uploaded } = await uploadBookingPhotos();
+
+    const photosForBackend = pendingPhotos
+    .map((photo, index) => {
+      const upload = uploaded[index];
+      const imageId = getUploadId(upload);
+
+      return {
+        imageId,
+        text: photo.text?.trim() || "",
+        order: index,
+      };
+    })
+    .filter(p => p.imageId);
+
+    const photosForLocalState = pendingPhotos
+    .map((photo, index) => {
+      const upload = uploaded[index];
+      const imageId = getUploadId(upload);
+
+      return {
+        imageId,
+        imageUrl:
+          upload?.imageUrl ||
+          upload?.url ||
+          upload?.location ||
+          upload?.path ||
+          photo.previewUrl,
+        /* previewUrl: photo.previewUrl, */
+        text: photo.text?.trim() || "",
+        order: index,
+        slotId: photo.slotId,
+      };
+    })
+    .filter(p => p.imageId || p.previewUrl);
+
     const client = {
       author_id: userAuth.user.id,
       created: dateObj,
@@ -653,14 +1062,18 @@ const createClient = async() => {
       professional: form.profession.label,
       isIncludeOffers: true,
       description: form.explanation,
+      photos: photosForBackend,
       status: "active",
-      //imageId: this.imgId ? this.imgId : []
     }
 
     const booking = await clientService.addRecipient(userAuth.user.id, client);
 
+   
     if (booking) {
-      emit('createBookingMultiple', booking)
+      emit("createBookingMultiple", {
+        ...booking,
+        photos: photosForLocalState,
+      });
     }
 
   }
@@ -680,15 +1093,194 @@ const createClient = async() => {
   width: 40px;
   cursor: pointer;
 }
-@media (max-width: 480px) {
-  /*.mapGif {*/
-  /*  width: 30px;*/
-  /*}*/
-}
-
 
 .hideInput {
   display: none;
+}
+
+/* Photos */
+.photos__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.photo-card {
+  position: relative;
+  margin: 13px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(0,0,0,.02);
+}
+
+.photo-caption {
+  width: 100%;
+  margin-top: 9px;
+  background: rgb(25, 36, 43);
+  resize: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 14px;
+  min-height: 50px;
+}
+
+
+.photo-media {
+  position: relative;
+}
+
+/* image stays normal */
+.photo-img {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* overlay ONLY covers the image */
+.photo-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  /* background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  ); */
+  padding: 6px;
+  border-radius: 0 0 8px 8px;
+  font-size: 13px;
+}
+
+.photo-overlay p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden  ;
+  
+}
+
+/* textarea styling */
+.photo-overlay textarea {
+  width: 100%;
+  background: transparent;
+  color: white;
+  border: none;
+  resize: none;
+}
+
+.photo-overlay textarea:focus {
+  outline: none;
+}
+.photo-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+
+
+
+
+
+
+/* .photo-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+} */
+
+.photo-actions {
+  /* display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px; */
+  display: flex;
+  justify-content: right;
+  padding: 12px;
+  background: #ddd;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+}
+
+.icon-btn {
+  border: 1px solid rgba(0,0,0,.12);
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.icon-btn--danger {
+  border-color: rgba(220, 38, 38, .35);
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: 13px;
+}
+
+.empty-state__text {
+  margin: 6px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.dropzone {
+  border: 1px dashed rgba(255,255,255,.25);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 13px;
+  transition: transform .08s ease, border-color .08s ease, background .08s ease;
+}
+
+.dropzone--active {
+  border-color: rgba(59,130,246,.9);
+  border-radius: 12px;
+  margin: 0 5px 13px 5px;
+  background: rgba(59,130,246,.08);
+  transform: scale(1.01);
+}
+
+
+.dropzone__title {
+  margin: 0;
+  font-size: 13px;
+}
+
+.dropzone__text {
+  margin: 6px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+@media (max-width: 980px){
+  .photos-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px){
+  .photos-grid{ grid-template-columns: 1fr; }
 }
 
 </style>

@@ -746,9 +746,6 @@ watch(
     // If these are independent, run in parallel
     await Promise.all([
       userStore.fetchMe(),
-
-      
-      
       clientHistoryService.setToken(login.token),
       proHistoryService.setProSideToken(login.token),
       client.orderList(u.id),
@@ -758,6 +755,30 @@ watch(
       proArchiveStore.initProviderArchive()
     ]);
 
+    if (handleProvider.isUserPro) {
+      await Promise.all([
+        proHistoryService.setProSideToken(login.token),
+        proArchiveStore.initProviderArchive()
+      ]);
+    }
+
+    /* const promises = [
+      userStore.fetchMe(),
+      clientHistoryService.setToken(login.token),
+      proHistoryService.setProSideToken(login.token),
+      client.orderList(u.id),
+      notificationStore.handleNotifications(u.id),
+      clientArchiveStore.initClientArchive(),
+      proArchiveStore.initProviderArchive()
+    ];
+
+  
+    if (u.isProvider) {
+      promises.push(handleProvider.getProState(u.id));
+    }
+
+    await Promise.all(promises);
+ */
     
 
     profileLoaded.value = true;
@@ -1094,7 +1115,7 @@ const handleShowNotifications = async () => {
 </script>
 
 <style>
-html, body { height: 100%; }            /* ensures the body can size to the viewport */
+html, body { height: 100%; }
 .page-wrap {
   padding-top: 30px;
   
