@@ -1,1 +1,0 @@
-import{c as o,o as t,g as a}from"./index-G9ZV8JxE.js";const p={style:{"padding-top":"30px"}},l=Object.assign({name:"pro-panel"},{__name:"ProviderPanel",props:{provider:{type:Object}},setup(r){return(s,e)=>(t(),o("div",p,[...e[0]||(e[0]=[a("h1",null,"Siia on loomisel pakkuja leht...",-1)])]))}});export{l as default};
