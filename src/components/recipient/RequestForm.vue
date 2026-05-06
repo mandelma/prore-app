@@ -118,6 +118,8 @@ import { storeToRefs } from 'pinia';
 import { useConversationStore } from '@/stores/conversationStore';
 import { useMapStore } from '@/stores/mapStore';
 import { loadGoogleMaps } from '../controllers/loadGoogleMap';
+import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
+
 defineOptions({
     name: 'request-form'
 })
@@ -126,7 +128,7 @@ const props = defineProps({
     date: String,
     isOpen: Boolean
 })
-const emit = defineEmits(['sendRequest']);
+const emit = defineEmits(['sendRequest', 'open-chat']);
 
 
 
@@ -505,9 +507,16 @@ const formatLocalDate = (value) => {
 const handleOpenChat = () => {
   const otherId = props.target?.user?.id;
   console.log("Open chat in request modal: " + otherId);
+
+  emit("open-chat", {
+    otherId,
+    bookingId: null,
+    mode: "client",
+    anchor: getBottomRightAnchor()
+  });
   
-  conversationStore.openCreateRoom(otherId);
-  conversationStore.openChatWidget();
+  //conversationStore.openCreateRoom(otherId);
+  //conversationStore.openChatWidget();
 }
 
 const handleRequest = () => {
@@ -516,8 +525,6 @@ const handleRequest = () => {
         console.log("No validated");
     } else {
         console.log("Validated");
-
-        
 
         emit('sendRequest', {
           date: dateTime.value,

@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { Conversation, Message } = require("../models/chat");
+const Recipient = require("../models/recipients")
 
 const router = express.Router();
 
@@ -50,6 +51,26 @@ router.get("/conversations", async (req, res) => {
 
 // POST get/create DM with other user
 router.post("/conversations/dm/:otherUserId", async (req, res) => {
+  const {bookingId, from} = req.body;
+  console.log("Booking id " + bookingId);
+  console.log("From " + from);
+
+  let providerUserId = "";
+
+  if (from === "pro") {
+    providerUserId = req.user.id
+  } else {
+    providerUserId = req.params.otherUserId;
+  }
+
+  if (bookingId) {
+    await Recipient.updateOne(
+      { _id: bookingId },
+      { $addToSet: { chat_provider_user_ids: String(providerUserId) } }
+    );
+  }
+  
+
   const convo = await getOrCreateDM(req.user.id, req.params.otherUserId);
   res.json(convo);
 });

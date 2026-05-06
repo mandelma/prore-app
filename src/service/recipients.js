@@ -98,7 +98,8 @@ const feedbackClient = async (id, isClient) => {
 }
 // Delete booking
 const removeBooking = async (id) => {
-    await axios.delete(`${baseUrl}/${id}`);
+    const res = await axios.delete(`${baseUrl}/${id}`);
+    return res.data;
 }
 
 export default {

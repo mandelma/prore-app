@@ -230,6 +230,7 @@
         ref="requestFormRef"
         :target="selectedProvider"
         :is-open="orderProviderModal"
+        @open-chat="$emit('open-chat', $event)"
         @sendRequest="handleRequest"
       />
     </MDBModalBody>
@@ -279,6 +280,8 @@ defineOptions ({
 const props = defineProps({
   recipientConfirmedBookings: { type: Array, default: () => [] }
 })
+
+const emit = defineEmits(['open-chat']);
 
 const router = useRouter()
 

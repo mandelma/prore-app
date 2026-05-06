@@ -8,8 +8,8 @@ export const chatService = {
     return data;
   },
 
-  async openDM (otheruserId) {
-    const { data } = await chatApi.post(`/conversations/dm/${otheruserId}`);
+  async openDM (otheruserId, content) {
+    const { data } = await chatApi.post(`/conversations/dm/${otheruserId}`, content);
     return data;
   },
 

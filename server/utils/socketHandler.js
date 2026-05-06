@@ -91,7 +91,7 @@ const hs = (socket) => {
 
     socket.on('client-report', (receiverId, profession, distance) => {
         console.log("Report receiver id - ", receiverId);
-        const report = `Etsitaan ammattilaista - ${profession} etäisyydeltä - ${distance}`;
+        const report = `Etsitaan ammattilaista - ${profession} etäisyydeltä - ${distance} km`;
         socket.to(receiverId).to(socket.userId).emit('handle-client-report', report);
     })
 

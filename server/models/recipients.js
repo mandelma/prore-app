@@ -6,6 +6,14 @@ const recipientSchema = new Schema({
         type: String,
         required: true
     },
+    chat_provider_user_ids: {
+        type: Array,
+        default: []
+    },
+    confirmed_provider_user_id: {
+        type: String,
+        default: null
+    },
     header: {
         type: String,
         required: true

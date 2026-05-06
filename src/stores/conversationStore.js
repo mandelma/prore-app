@@ -140,9 +140,9 @@ export const useConversationStore = defineStore("conversation", () => {
   };
 
   // ---- Create or get DM, then select it
-  const openCreateRoom = async (otherUserId) => {
+  const openCreateRoom = async (otherUserId, bId, from) => {
 
-    const res = await chatService.openDM(otherUserId); // could be convo or { conversation: ... }
+    const res = await chatService.openDM(otherUserId, {bookingId: bId, from: from}); // could be convo or { conversation: ... }
     console.log("openDM raw res:", res);
 
     const conversation = res.conversation ?? res; // unwrap if needed
@@ -261,20 +261,6 @@ export const useConversationStore = defineStore("conversation", () => {
 
   // ---- Socket listeners (call this once from App.vue after login)
   const initSocket = () => {
-    /* socket.on("conversation-upsert", (convo) => {
-      console.log("UPSERT???")
-      upsertConversation(convo);
-      ensureOtherUserLoaded(convo);
-    });
-
-    socket.on("message:new", (message) => {
-      addMessageLocal(message);
-    });
-
-    socket.on("conversation:list:refresh", async () => {
-      await getConversations();
-    }); */
-
     if (socketInited.value) return;
     socketInited.value = true;
 

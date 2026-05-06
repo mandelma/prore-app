@@ -394,6 +394,14 @@ onUnmounted(() => {
   document.documentElement.style.overflow = '';
 });
 
+const clientRejectMapBooking = async (booking) => {
+  myBooking.value = booking;
+  showDeleteModal.value = true;
+  cTitle.value = "Poistetaan tilaus?";
+  cMessage.value = "Oletko varma, että haluat poistaa tilauksesi? Tehtyä ei voi enää perua!";
+  
+}
+
 const deleteMapBooking = async () => {
   console.log('Booking deleted');
   loading.value = true;
@@ -411,6 +419,8 @@ const deleteMapBooking = async () => {
     await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
     //onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
   } catch (err) {
+    console.log("Error status:", err.response?.status);
+    console.log("Backend error:", err.response?.data);
     console.log("Error to delete map booking - " + err.message);
   } finally {
     loading.value = false;
@@ -532,32 +542,7 @@ const canselQuitSelectedBooking = () => {
   clientQuitBookingReason.value = "";
 }
 
-const clientRejectMapBooking = async (booking) => {
-  myBooking.value = booking;
-  showDeleteModal.value = true;
-  cTitle.value = "Poistetaan tilaus?";
-  cMessage.value = "Oletko varma, että haluat poistaa tilauksesi? Tehtyä ei voi enää perua!"
 
-
-  /* loading.value = true;
-
-  console.log("Quit bbb " + booking.header);
-  console.log("Selected booking pro user - " + booking.ordered[0].user.id);
-  const addressaat = booking.ordered[0].user.id;
-  const reason = clientQuitBookingReason.value;
-  const sender = booking.user.username;
-  try {
-    await clientStore.removeMapOffer(booking);
-
-    const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
-    await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
-  } catch (err) {
-    console.log("Error to delete map booking - " + err.message);
-  } finally {
-    loading.value = false;
-  } */
-  
-}
 
 const handleFeedback = (name, id, pId, bId) => {
   console.log("Provider id - " + id);

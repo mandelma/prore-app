@@ -120,6 +120,8 @@
             @createBookingMultiple="handleCreateBookingMultiple"
             @over="handleOver"
 
+            @open-chat="handleOpenChat"
+
             @confirm-order-toast="hConfirmOrderToast"
 
             :provider="provider"
@@ -142,8 +144,9 @@
       :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
       
     >
+    <!-- && conversations.length -->
       <chat-widget 
-        v-if="login.isAuthenticated && conversations.length"
+        v-if="login.isAuthenticated "
         :didDrag="didDrag"
         :launcherPos="widgetAnchor"
         :is-open-mode="conversationStore.openChat"
@@ -322,6 +325,7 @@ const currentOpenSide = ref("right");
 const dragAllowed = ref(false);
 let activePointerId = null;
 
+let isListening = false;
 
 
 const preOpenPos = ref(null);
@@ -614,6 +618,36 @@ const openChatFromLauncher__ = async ({ side } = {}) => {
   conversationStore.openChatWidget();
 }; */
 
+const openChatAtAnchor = async ({ x, y, side = "left" }) => {
+  currentOpenSide.value = side;
+
+  openWindowPos.value = {
+    x: Math.max(10, Math.min(x, window.innerWidth - 380)),
+    y: Math.max(10, Math.min(y, window.innerHeight - 560)),
+  };
+
+  await nextTick();
+  conversationStore.openChatWidget();
+};
+
+/* const handleOpenChat__ = async ({ otherId, bookingId, mode, anchor }) => {
+  await conversationStore.openCreateRoom(otherId, bookingId, mode);
+
+  await openChatAtAnchor(anchor);
+}; */
+
+const handleOpenChat = async ({ otherId, bookingId, mode, anchor }) => {
+  console.log("App received open-chat", otherId, bookingId, mode, anchor);
+  preOpenPos.value = { ...pos.value };
+  const room = await conversationStore.openCreateRoom(otherId, bookingId, mode);
+
+  await conversationStore.getConversations();
+
+  await nextTick();
+
+  await openChatAtAnchor(anchor);
+};
+
 
 const openChatFromLauncher = async ({ side } = {}) => {
   currentOpenSide.value = side || "right";
@@ -674,6 +708,40 @@ const openChatFromLauncher_old = async () => {
   conversationStore.openChatWidget();
 };
 
+
+const openChatAtAnchor__ = async ({
+  x = window.innerWidth - 380,
+  y = 90,
+  side = "left",
+} = {}) => {
+  currentOpenSide.value = side;
+
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  const g = getChatWindowGeometry({
+    x,
+    y,
+    viewportW,
+    viewportH,
+    side,
+  });
+
+  let windowLeft = x;
+  let windowTop = y;
+
+  windowLeft = Math.max(g.sideMargin, Math.min(windowLeft, viewportW - g.sideMargin - g.winW));
+  windowTop = Math.max(g.topMargin, Math.min(windowTop, viewportH - g.bottomMargin - g.winH));
+
+  openWindowPos.value = {
+    x: windowLeft,
+    y: windowTop,
+  };
+
+  await nextTick();
+  conversationStore.openChatWidget();
+};
+
 /* const closeChatWindow = async() => {
   restoreLauncherPositionAfterClose();
   await nextTick();
@@ -689,6 +757,7 @@ const restoreLauncherPositionAfterClose = () => {
 
 const closeChatWindow = () => {
   if (openWindowPos.value) {
+    console.log("Close")
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
 
@@ -844,6 +913,12 @@ const joinServer = () => {
   listen();
 }
 const listen = async() => {
+  if (isListening) return;
+  isListening = true;
+
+  socket.on("conversation:list:refresh", async () => {
+    await conversationStore.getConversations();
+  })
   socket.on('create booking mtp', async(id, bookingId, proIdArr) => {
     console.log("GOT THE BOOKING " + bookingId + ": ");
     console.log("Booking id + " + bookingId)

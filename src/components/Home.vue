@@ -4,7 +4,7 @@
      <div class="center-page">
        <main class="page">
          <div class="logo-hero">
-           <img class="logo-hero__img"
+           <img class="logo-hero__img img-box"
                 style="border-radius: 100%;"
                 :src="logo"
                 alt="Prokeikkatori logo" width="1024" height="549" />
@@ -136,6 +136,7 @@ html, body, #app { height: 100%; }
   position: relative;
   max-width: clamp(280px, 70vw, 760px);
   margin: 18px auto 8px;
+  padding: 11px;
 }
 /* .logo-hero::beforexx{
   content:"";
@@ -147,13 +148,25 @@ html, body, #app { height: 100%; }
   pointer-events:none;
 } */
 
-.logo-hero::before{
+/* .logo-hero::before{
   content:"";
   position:absolute; inset:-6% -8% -2%;
   background:
     radial-gradient(60% 60% at 50% 45%, rgba(255,112,73,.18) 0%, transparent 60%),
     radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.22) 0%, transparent 60%);
-  /* filter: blur(4px);  <-- remove */
+ 
+  pointer-events:none;
+}
+ */
+
+ /* Shadows on logo */
+ .logo-hero::before{
+  content:"";
+  position:absolute; inset:-6% -8% -2%;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgba(231, 141, 99, 0.18) 0%, transparent 60%),
+    radial-gradient(30% 20% at 52% 18%, rgba(58, 190, 140, 0.22) 0%, transparent 60%);
+ 
   pointer-events:none;
 }
 
@@ -168,6 +181,8 @@ html, body, #app { height: 100%; }
 /* the PNG itself: crisp + neon drop-shadow */
 .logo-hero__img{
   display:block; width:100%; height:auto;
+  /* border: 4px outset green; */
+
   /*image-rendering: -webkit-optimize-contrast;*/
   /*filter:*/
   /*    drop-shadow(0 0 10px rgba(73,210,255,.45))*/
@@ -178,7 +193,25 @@ html, body, #app { height: 100%; }
 }
 
 
+.img-box {
+  /* background: #31353a; */
+  background: #1e2731;
+  padding: 20px;
 
+  border: 3px solid;
+
+  border-top-color: #59b898;
+  border-left-color: #59b898;
+
+  border-right-color: #c48c58;
+  border-bottom-color: #c48c58;
+
+  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
+
+  /* box-shadow:
+    -3px -3px 0 #afe2d1,
+     3px  3px 0 #dfc7af; */
+}
 
 :root{
   --c-cyan:  #49d2ff;
@@ -300,41 +333,56 @@ html, body, #app { height: 100%; }
   font: 800 14px/1 "Inter", system-ui, sans-serif;
   letter-spacing:.08em;
   text-transform:uppercase;
-  color:var(--text);
+  /* color:var(--text); */
+  color: rgb(83, 31, 12);
   /* background:
       radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
       linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
-  background:
+ /*  background:
       radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #7295a5 0%, #0f5a73 100%); 
+      linear-gradient(180deg, #7295a5 0%, #0f5a73 100%);  */
+    background:
+      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
+      linear-gradient(180deg, #e2b895 0%, #773419 100%); 
   border:1px solid rgba(142,234,255,.35);
-  box-shadow:
+  /* box-shadow:
       0 8px 18px rgba(0,0,0,.35),
       0 0 0 1px rgba(73,210,255,.18) inset,
+      0 0 16px var(--btn-glow); */
+      box-shadow:
+      0 8px 18px rgba(0,0,0,.35),
+      0 0 0 1px rgba(255, 155, 73, 0.18) inset,
       0 0 16px var(--btn-glow);
   transition: transform .12s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;
 }
 
 /* Primary (Find a service) – cool cyan */
-.btn-hero--primary{
+/* .btn-hero--primary{
   background:
       radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
       linear-gradient(180deg, #1d8cb2 0%, #126b86 100%);
+} */
+
+.btn-hero--primary{
+  color: rgb(4, 48, 4);
+  background:
+      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
+      linear-gradient(180deg, #5ad396 0%, #0c4b3b 100%);
 }
 
 /* Accent (Provide a service) – subtle orange edge */
 .btn-hero--accent{
   border-color: rgba(255,138,61,.55);
-  box-shadow:
+  /* box-shadow:
       0 8px 18px rgba(0,0,0,.35),
       0 0 0 1px rgba(255,138,61,.35) inset,
       0 0 16px rgba(255,138,61,.28),
-      0 0 16px rgba(73,210,255,.25);
+      0 0 16px rgba(73,210,255,.25); */
 }
 
 /* Icons */
 .btn-hero__icon{ font-size: 2rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55));  }
-.btn-hero__icon--accent{ color:var(--orange); filter: drop-shadow(0 0 6px rgba(255,138,61,.6)); }
+/* .btn-hero__icon--accent{ color:var(--orange); filter: drop-shadow(0 0 6px rgba(255,138,61,.6)); } */
 
 /* Hover / active / focus */
 .btn-hero:hover{
@@ -383,7 +431,7 @@ html, body, #app { height: 100%; }
     font: 800 12px/1 "Inter", system-ui, sans-serif;
     letter-spacing:.08em;
     text-transform:uppercase;
-    color:var(--text);
+    color:rgb(83, 31, 12);
     /* background:
         radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
         linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
@@ -393,6 +441,10 @@ html, body, #app { height: 100%; }
         0 0 0 1px rgba(73,210,255,.18) inset,
         0 0 16px var(--btn-glow);
     transition: transform .12s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;
+  }
+
+  .btn-hero--primary {
+    color: rgb(4, 48, 4);
   }
 
   .btn-hero--accent{

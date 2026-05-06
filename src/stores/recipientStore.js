@@ -49,20 +49,43 @@ export const useClientStore = defineStore('client', () => {
         bookings.value.push(booking);
         count.value = bookings.value.length;
     }
-    // const addBookingVisitor = (bId, visitor) => {
-    //     const index = bookings.value.findIndex(inx => inx.id === bId);
-    //     bookings.value[index].visitor.push(visitor);
-    // }
+
+    const checkExpired = (orders) => {
+        console.log("Do booking check");
+        const ms_now = new Date().getTime()
+
+        if (!orders.length) return;
+
+        console.log("O -- " + orders.map(ord => ord.created_ms > ms_now ? ord.header + " is valid" : ord.header + " expired"));
+
+        
+    }
+
+    const isValid = (msTime) => {
+        const ms_now = new Date().getTime();
+        return msTime < ms_now;
+    }
+    
     const orderList = async(id) => {
         isLoading.value = true;
         clientError.value = null;
         try {
             const orders = await clientService.getOwnBookings(id);
-            const list = orders ? orders : [];
 
-            //const bookingsIncludeOffers = list.filter(bl => bl.offers.length > 0);
-            //const offers = bookingsIncludeOffers.map(b => b.offers.filter(item => item.isNewOffer));
-            //clientNewOffers.value = offers;
+            // Checking expired bookings
+            checkExpired(orders || []);
+
+
+
+            let list = orders ? orders : [];
+
+            console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
+
+            list = list.map(b => isValid(b.created_ms) ? {...b, valid: false} : {...b, valid: true});
+
+            console.log("LIST ", list)
+
+            list = list.filter(booking => !isValid(booking.created_ms));
 
             const bookingOffers = list.reduce((acc, booking) => {
                 const offerList = booking.offers;
@@ -145,16 +168,7 @@ export const useClientStore = defineStore('client', () => {
         
     }
 
-    const removeMapOffer = async (booking) => {
-        await clientService.removeBooking(booking.id);
-        
-        
-        // Add -- remove booking accessories like pictures, offers etc.
-        bookings.value = bookings.value.filter(item => item.id !== booking.id);
-        //socket.emit("client remove map booking", booking.id);
-        if (bookings.value.length < 1) router.push('/');
-
-    }
+    
 
     const removeProRejectedMapOffer_ls = async (offerId) => {
         bookings.value = bookings.value.filter(item => item.id !== offerId);
@@ -163,6 +177,23 @@ export const useClientStore = defineStore('client', () => {
         //if (bookings.value.length < 1) router.push('/');
     }
 
+    // Client removing map booking
+    const removeMapOffer = async (booking) => {
+        const removed = await clientService.removeBooking(booking.id);
+
+        console.log("_____ ", removed);
+
+        if (removed.ok && removed.deleted) {
+            bookings.value = bookings.value.filter(item => item.id !== booking.id);
+        }
+
+        //bookings.value = bookings.value.filter(item => item.id !== booking.id);
+        //socket.emit("client remove map booking", booking.id);
+        if (bookings.value.length < 1) router.push('/');
+
+    }
+
+    // Client removing form booking
     const onRemovePublicBooking = async (bookingId) => {
         //TODO all including contents neet to have removed with booking
         const booking = bookings.value.find(b => b.id === bookingId);
@@ -193,13 +224,16 @@ export const useClientStore = defineStore('client', () => {
                 console.log("Pro user id -- " + pro.user.id);
                 const addressaat = pro.user.id;
                 socket.emit('on-client-del-public-booking', addressaat, bookingId);
-                //clientNewOffers.value = clientNewOffers.value.filter(no => no.id !== bookingId);
             }
         }
         
-        bookings.value = bookings.value.filter(item => item.id !== bookingId);
         count.value = bookings.value.length;
-        await clientService.removeBooking(bookingId);
+        const removed = await clientService.removeBooking(bookingId);
+        console.log("REMOVED - ", removed )
+
+        if (removed.ok && removed.deleted) {
+            bookings.value = bookings.value.filter(item => item.id !== bookingId);
+        }
     }
 
     const localRemovePublicBooking = async (id) => {
@@ -273,6 +307,8 @@ export const useClientStore = defineStore('client', () => {
             if (booking) booking.status = 'done';
         } */
     }
+
+
 
     const testOffers = () =>{
         // Just a sample array.

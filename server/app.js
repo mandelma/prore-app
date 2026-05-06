@@ -102,7 +102,7 @@ const offerRouter = require('./routers/offers')
 
 app.use('/api/users', require('./routers/users'));
 
-app.use('/api/recipients', require('./routers/recipients'));
+app.use('/api/recipients', require('./routers/recipients')(io));
 app.use('/api/providers', require('./routers/providers'));
 app.use('/api/offer', offerRouter);
 app.use('/api/timeoffers', require('./routers/timetable'));

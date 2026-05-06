@@ -310,6 +310,22 @@ const onLauncherClick_old = (e) => {
 };
 
 
+const onLauncherClick__Prev = (e) => {
+  if (props.didDrag) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  if (openChat.value) {
+    //convoStore.closeChatWidget();
+    emit("request-close");
+  } else {
+    decideOpenSide();
+    emit("request-open", { side: openSide.value });
+  }
+};
+
 const onLauncherClick = (e) => {
   if (props.didDrag) {
     e.preventDefault();
@@ -318,7 +334,7 @@ const onLauncherClick = (e) => {
   }
 
   if (openChat.value) {
-    convoStore.closeChatWidget();
+    emit("request-close");
   } else {
     decideOpenSide();
     emit("request-open", { side: openSide.value });
@@ -1152,12 +1168,22 @@ const formatDateTime = (iso) => {
   .chat-window {
     width: min(100vw - 16px, 360px);
     height: min(100dvh - 24px, 520px);
-    /* width: 90%;
-    height: 100vh; */
+    
     max-width: none;
     max-height: none;
     border-radius: 12px;
   }
+
+  /* .chat-window {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    height: 600px;
+    max-height: calc(100vh - 40px);
+    z-index: 9999;
+  } */
 
   .chat-window.open {
     animation: slideUp 0.2s ease-out;

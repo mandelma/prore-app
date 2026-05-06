@@ -145,7 +145,7 @@
 
         
       </div>
-      <div v-if="client.isIncludeOffers" style="margin-bottom: 20px;">
+      <div v-if="client.isIncludeOffers" class="offer-actions" >
         <div v-if="!client.offers.some(offer => offer.bookingID === client.id && offer.provider.id === providerId)">
           <MDBBtn
               :disabled="isDisabled"
@@ -169,10 +169,11 @@
               @leave="onResize"
               @after-leave="onUnlock"
           >
-            <div v-show="isHandleOffer"  class=" card card-body">
+            <!-- class=" card card-body" -->
+            <div v-show="isHandleOffer" >
               <div class="mt-3">
                 <div  style="padding: 13px; ; font-size: 14px; margin-bottom: 20px;">
-                  <div style="display: flex; justify-content: right; margin-bottom: 13px;">
+                  <div class="close-btn-wrap">
                     <MDBBtnClose white @click="isHandleOffer = false"/>
                   </div>
 
@@ -243,7 +244,7 @@
         </div>
       </div>
       <!--:::With offers::-->
-      <div v-else style="margin-bottom: 20px;">
+      <div v-else class="offer-actions" >
         <!--    <MDBBtn outline="success" block size="lg" @click="isQuitClientBooking = true">Varmista tilaus</MDBBtn>-->
 
         <MDBBtn
@@ -297,6 +298,7 @@
 <!--        :disabled="isDisableProNotMapBtns"-->
         <MDBBtn
             v-if="!isQuitClientBooking"
+            
             :disabled="isDisabled"
             block
             outline="danger"
@@ -365,6 +367,7 @@ import clientService from '@/service/recipients.js';
 //import ChatWidget from '../ChatWidget.vue';
 import socket from "@/socket";
 import {loadGoogleMaps} from '../controllers/loadGoogleMap.js'
+import { getChatWindowGeometry, getBottomRightAnchor } from '../helpers/chatGeometry.js';
 
 defineOptions({
   name: 'client-offer'
@@ -380,7 +383,8 @@ const _props = defineProps({
   isDisabled: {type: Boolean}
 })
 
-const emit = defineEmits(['toast', 'just-test'])
+
+const emit = defineEmits(['toast', 'just-test', "open-chat"])
 
 const { client, open } = toRefs(_props)
 
@@ -555,12 +559,81 @@ const filterInput = ref((event) => {
   offerValueFiltered.value = filtered;
 })
 
+/* function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
+  const isMobile = viewportW <= 640;
+
+  const buttonW = 57;
+  const buttonH = 67;
+  const gap = 12;
+
+  const sideMargin = isMobile ? 8 : 10;
+  const topMargin = isMobile ? 8 : 10;
+  const bottomMargin = isMobile ? 8 : 32;
+
+  const winW = Math.min(360, viewportW - sideMargin * 2);
+  const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
+  
+
+  const leftOffset = side === "left"
+    ? -winW - gap + buttonW
+    : buttonW + gap;
+
+  const topOffset = 0;
+
+  return {
+    buttonW,
+    buttonH,
+    gap,
+    sideMargin,
+    topMargin,
+    bottomMargin,
+    winW,
+    winH,
+    leftOffset,
+    topOffset,
+    absLeft: x + leftOffset,
+    absTop: y + topOffset,
+    absRight: x + leftOffset + winW,
+    absBottom: y + topOffset + winH
+  };
+} */
+
+
+/* const getBottomRightAnchor = () => {
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  const g = getChatWindowGeometry({
+    x: viewportW,
+    y: viewportH,
+    viewportW,
+    viewportH,
+    side: "left",
+  });
+
+  return {
+    x: viewportW - g.winW - g.sideMargin,
+    y: viewportH - g.winH - g.bottomMargin,
+    side: "left",
+  };
+}; */
+
+
 const onChat = async () => {
   console.log("Chat btn");
   console.log("otheruserId - ", client.value.author_id);
   const otherId = client.value.author_id;
-  conversationStore.openCreateRoom(otherId);
-  conversationStore.openChatWidget();
+
+  emit("open-chat", {
+    otherId,
+    bookingId: client.value.id,
+    mode: "pro",
+    anchor: getBottomRightAnchor()
+  });
+
+
+  //conversationStore.openCreateRoom(otherId, client.value.id, "pro");
+  //conversationStore.openChatWidget();
 }
 
 const makeOfferBtn = () => {
@@ -1046,6 +1119,45 @@ const handleCancelRemoving = () => {
 background-color: #e05b69 !important;
 border-color: #dc3545 !important;
 box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
+}
+
+
+
+
+
+
+
+.offer-actions {
+  width: 100%;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+}
+
+@media (max-width: 767px) {
+  .offer-actions {
+    width: 100%;
+    padding: 0 0 16px 0; /* instead of negative margins */
+  }
+
+.offer-actions .btn:not(.btn-close) {
+  width: 100%;
+}
+
+  .offer-actions .form-card {
+    width: 100%;
+  }
+}
+
+.close-btn-wrap {
+  display: flex;
+  justify-content: flex-end; /* desktop = right */
+  margin-bottom: 13px;
+}
+
+@media (max-width: 767px) {
+  .close-btn-wrap {
+    justify-content: flex-end; /* mobile = center */
+  }
 }
 
 </style>

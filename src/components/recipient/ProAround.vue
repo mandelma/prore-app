@@ -191,6 +191,7 @@
             v-if="target?.id !== providerId"
             :target="target" 
             :date="dt" 
+            @open-chat="$emit('open-chat', $event)"
             @sendRequest="handleSendRequest"
           />
         </MDBModalBody>
@@ -245,6 +246,8 @@ import { useConversationStore } from '@/stores/conversationStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
 
+import { getChatWindowGeometry, getBottomRightAnchor } from '../helpers/chatGeometry.js';
+
 import Stars from '../Stars.vue';
 import ProReferencePublic from './ProReferencePublic.vue';
 import socket from '@/socket';
@@ -254,6 +257,8 @@ import socket from '@/socket';
 defineOptions({
   name: "pro-around"
 })
+
+const emit = defineEmits([ 'open-chat' ]);
 
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
@@ -1191,8 +1196,16 @@ const handleSelectedPro = (pro) => {
 //Open chat widget inside marker infowindow
 const handleOpenChat = (otherId) => {
   console.log("Opening chat window from infowindow - " + otherId);
-  convoStore.openCreateRoom(otherId);
-  convoStore.openChatWidget();
+
+  emit("open-chat", {
+    otherId,
+    bookingId: null,
+    mode: "client",
+    anchor: getBottomRightAnchor()
+  });
+
+  //convoStore.openCreateRoom(otherId);
+  //convoStore.openChatWidget();
 }
 
 //Open provider references
@@ -1217,7 +1230,7 @@ const handleSendRequest = async (_form) => {
   const receiverId = target.value.user.id;
   console.log("Sending request to " + target.value.user.username);
 
-  const dateObj = parseDmyTime(dt.value);
+  const dateObj = parseDmyTime(dt.value) || parseDmyTime(_form.date);
   let ms;
   if (dateObj) {
       //o.value = dateObj;
@@ -1227,16 +1240,31 @@ const handleSendRequest = async (_form) => {
       console.log("Invalid date string");
   }
 
+  const mainDate = dt.value ? dt.value : _form.date;
+
+  //console.log("Edited date " + mainDate);
+
+  //console.log("Lat here " + myLat.value)
+  //console.log("Lat req " + _form.myLat)
+
+  //console.log("address here " + address.value)
+  //console.log("address req " + _form.address)
+  
+  //console.log("Request ", _form);
+
+  //const mainAddress = 
+
   const request = {
     author_id: userId,
     created: dateObj,
+    date: mainDate,
     created_ms: ms,
     dateStr: dt.value,
     header: _form.header,
     agreement: false,
-    address: address.value,
-    latitude: myLat.value,
-    longitude: myLng.value,
+    address: _form.address,
+    latitude: _form.myLat,
+    longitude: _form.myLng,
     zone: 0,
     professional: profession.value.label,
     isIncludeOffers: false,
@@ -1248,6 +1276,9 @@ const handleSendRequest = async (_form) => {
   displayProPanel.value = false;
   //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!"
   //isRequestSent.value = true;
+
+
+
   clientStore.onRequest(receiverId, userId, target.value, user.value, request);
 
   /* toastState.value = 'danger'

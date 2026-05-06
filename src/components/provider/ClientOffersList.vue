@@ -70,6 +70,7 @@
                     @unlock-parent="unlockParentHeight"
                     :is-disabled="booking?.disabled"
                     :client="client"
+                    @open-chat="$emit('open-chat', $event)"
                     @just-test="hJustTest"
                     @toast="payload => {console.log('child received', payload); emit('toast', payload)}"
                 />
@@ -130,10 +131,11 @@
               <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
                     :open="childOpen"
-                   
+
                     :is-disabled="booking?.disabled"
                     
                     :client="client"
+                    @open-chat="$emit('open-chat', $event)"
                     @toast="toastForward"
                 />
 
@@ -194,7 +196,7 @@ const _props = defineProps({
   offersIn: {type: Array, default: () => []}
 })
 
-const emit = defineEmits(['toast', 'confirm-order-toast'])
+const emit = defineEmits(['toast', 'confirm-order-toast', "open-chat"])
 
 // keep them reactive
 const { offersIn, isPro } = toRefs(_props);
@@ -450,4 +452,127 @@ span.strong-tilt-move-shake {
 }
 /* Helps avoid margin-collapsing visual glitches inside height-animated blocks */
 .card.card-body { display: flow-root; }
+
+
+
+
+.booking-row-new,
+.booking-row-seen {
+  width: 100%;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.new_notification,
+.seen_notification {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  cursor: pointer;
+  word-break: break-word;
+}
+
+.new_notification span,
+.seen_notification span {
+  justify-content: flex-start !important;
+  text-align: left;
+  margin-top: 6px;
+}
+
+.client-collapse {
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .container,
+  .container-sm,
+  .container-md {
+    max-width: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .card-body {
+    padding: 10px;
+  }
+}
+
+/* Mobile friendly */
+
+.booking-table--stack {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.booking-table--stack td {
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+@media (max-width: 767px) {
+  .booking-table--stack,
+  .booking-table--stack tbody,
+  .booking-table--stack tr,
+  .booking-table--stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .booking-table--stack tr {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .booking-table--stack td:first-child {
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 4px;
+  }
+
+  .booking-table--stack td:last-child {
+    color: #eee;
+  }
+}
+
+#map-container {
+  width: 100%;
+  max-width: 100%;
+  height: 240px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+#client-location {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-media {
+  width: 100%;
+  overflow: hidden;
+}
+
+.lightbox-thumb img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+@media (max-width: 767px) {
+  .client-collapse .card-body {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
 </style>
