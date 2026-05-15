@@ -15,6 +15,7 @@ export const useProStore = defineStore("pro", () => {
     const notificationStore = useNotificationStore();
     const loading = ref(false);
     const provider = ref(null);
+    const providers = ref([]);
     const providerId = ref(null);
     //const isIncomingOffers = ref(null);
 
@@ -99,6 +100,25 @@ export const useProStore = defineStore("pro", () => {
             isProStateLoading.value = false;
         }
     }
+
+    const getAllProviders = async() => {
+        try {
+            const all = await providerService.getProviders();
+            //return all.length ? all : [];
+            providers.value = Array.isArray(all) ? all : [];
+            return providers.value;
+        } catch (e) {
+            console.log("Error to get all providers - " + e.message);
+            throw e;
+        }
+    }
+
+    const providerCount = computed(() => providers.value.length);
+    const professionCount = computed(() => {
+        const allProfessions = providers.value.flatMap(p => p.profession || []);
+        const uniqueProfessions = new Set(allProfessions);
+        return uniqueProfessions.size;
+    });
 
     const getProState = async (id) => {
         isProStateLoading.value = true;
@@ -434,6 +454,7 @@ export const useProStore = defineStore("pro", () => {
 
     return {
         createPro,
+        getAllProviders,
         getProState,
         upsertBooking,
         addProviderOffer,
@@ -459,6 +480,9 @@ export const useProStore = defineStore("pro", () => {
         providerId,
         isUserPro,
         provider,
+        providers,
+        providerCount,
+        professionCount,
         proCredit,
         reference,
         referenceNavImages,

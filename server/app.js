@@ -38,6 +38,8 @@ mongoose.set('strictQuery', false);
 
 console.log("Mongoose... " + process.env.NODE_ENV);
 
+app.set("io", io); 
+
 //if (!process.env.MONGODB_URL_LOCAL) throw new Error('MONGODB_URI is not set');
 //await mongoose.connect(process.env.MONGODB_URI);
 

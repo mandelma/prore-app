@@ -81,6 +81,7 @@ export const useConversationStore = defineStore("conversation", () => {
   };
 
   const getConversations = async () => {
+    const myId = me_id.value;
     try {
       console.log("[conversationStore] getConversations called");
 
@@ -96,6 +97,13 @@ export const useConversationStore = defineStore("conversation", () => {
         "[conversationStore] conversations.length =",
         conversations.value.length
       );
+
+      conversations.value = conversations.value.filter(cv => {
+        const otherId = String(
+          cv.participantIds.find(id => String(id) !== myId)
+        );
+        return cv.isParticipant?.[otherId] !== false;
+      })
 
       // fetch missing user data only once
 
@@ -167,11 +175,30 @@ export const useConversationStore = defineStore("conversation", () => {
     await selectConversation(convoId);
   };
 
+  const sendMessage = async (conversationId, payload) => {
+    const convoId = String(conversationId);
+
+    const res = await chatService.sendMessage(conversationId, payload);
+
+    addMessageLocal(res.message);
+    upsertConversation(res.conversation);
+
+    //socket.emit("send-message", res.message);
+
+    return res.message;
+  };
+
   // ---- Local add message + update conversation preview list
   const addMessageLocal = (message) => {
     const convoId = String(message.conversationId);
     const current = messagesById.value?.[convoId];
     const existing = Array.isArray(current) ? current : [];
+
+    const messageId = String(message._id ?? message.id);
+
+    if (existing.some(m => String(m._id ?? m.id) === messageId)) {
+      return;
+    }
 
     messagesById.value = {
       ...messagesById.value,
@@ -180,7 +207,6 @@ export const useConversationStore = defineStore("conversation", () => {
 
     bumpConversationOnMessage(message);
   };
-
   // ---- Helpers
   const upsertConversation = (convo) => {
    
@@ -251,13 +277,62 @@ export const useConversationStore = defineStore("conversation", () => {
     ensureOtherUserLoaded(convo);
   };
 
-  const onMessageNew = (message) => {
+  const onMessageNew = ({message, conversation}) => {
+    //addMessageLocal(message);
+    const meId = me_id.value;
+
+    if (String(message.senderId) === String(meId)) {
+      return;
+    }
+
     addMessageLocal(message);
+
+    if (conversation) {
+      upsertConversation(conversation);
+      ensureOtherUserLoaded(conversation);
+    }
   };
 
   const onConversationRefresh = async () => {
     await getConversations();
   };
+
+  const setConversationState = async ( convercationId, otherUserId, state ) => {
+    const convoId = String(convercationId);
+    const otherId = String(otherUserId);
+    const response = await chatService.setConvoState(convoId, otherId, {isExisting: state});
+
+    if (response) {
+      console.log("Conversation state updated successfully");
+      conversations.value = conversations.value.map(cv => {
+        if (String(cv._id) !== convoId) return cv;
+
+        return {
+          ...cv,
+          isParticipant: {
+            ...cv.isParticipant,
+            [otherId]: state
+          }
+        };
+      });
+
+      conversations.value = conversations.value.filter(cv => {
+        const myId = String(me_id.value);
+
+        const otherParticipantId = String(
+          cv.participantIds.find(id => String(id) !== myId)
+        );
+
+        return cv.isParticipant?.[otherParticipantId] !== false;
+      });
+      closeChatWidget();
+    } else {
+      console.error("Failed to update conversation state");
+    }
+
+    
+   
+  }
 
   // ---- Socket listeners (call this once from App.vue after login)
   const initSocket = () => {
@@ -307,7 +382,9 @@ export const useConversationStore = defineStore("conversation", () => {
     selectConversation,
     openCreateRoom,
     upsertConversation,
+    sendMessage,
     addMessageLocal,
+    setConversationState,
     initSocket,
     disconnect,
     reset

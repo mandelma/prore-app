@@ -230,7 +230,7 @@
                 
                 
 
-                <div v-if="addedPhotos?.length" class="photos-grid">
+                <!-- <div v-if="addedPhotos?.length" class="photos-grid">
                   
                   <figure
                     v-for="(photo, idx) in addedPhotos"
@@ -244,9 +244,17 @@
                     </div>
                   </figure>
                   
-                </div>
+                </div> -->
 
-                <div v-else class="empty-state">
+                <BookingPhotos
+                 
+                  :photos="addedPhotos"
+                  :editable="isAddPhotos"
+                  @remove="removeDraftPhoto"
+                />
+                
+                <!-- v-else -->
+                <div v-if="!addedPhotos?.length" class="empty-state">
                   
                   <p v-if="!addedPhotos.length" class="empty-state__text">Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.</p>
                 </div>
@@ -296,7 +304,10 @@
                       <p class="dropzone__text">tai paina “Lisää kuvia”</p>
                     </div>
 
-                    <div v-if="draftPhotos?.length" class="photos-grid">
+
+                    
+
+                    <!-- <div v-if="draftPhotos?.length" class="photos-grid">
                       <figure
                         v-for="(photo, idx) in draftPhotos"
                         :key="photo.id || idx"
@@ -309,9 +320,7 @@
                             class="photo-caption"
                             placeholder="Lisää kuvaus..."
                           ></textarea>
-                          <!-- <div class="photo-overlay">
-                            <textarea v-model="photo.text" placeholder="Lisää kuvaus..." />
-                          </div> -->
+                          
                         </div>
                         <figcaption class="photo-actions">
                           
@@ -319,7 +328,18 @@
                           
                         </figcaption>
                       </figure>
-                    </div>
+                    </div> -->
+
+                    
+
+                    <BookingPhotos
+                      
+                      :photos="draftPhotos"
+                      :editable="isAddPhotos"
+                      @remove="removeDraftPhoto"
+                    />
+
+
                   </div>
 
                   <div class="actions">
@@ -342,6 +362,8 @@
 
         </form>
       </div>
+
+      
     </MDBContainer>
   </div>
 </template>
@@ -364,6 +386,12 @@ import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
 import RecipientPage from '@/components/recipient/RecipientPage.vue'
 import HandleMapErrorToast from '@/components/helpers/ToastHandler.vue'
 import HandleToast from '@/components/helpers/ToastHandler.vue'
+
+import BookingPhotos from '@/components/recipient/BookingPhotos.vue';
+//import { useBookingPhotos } from '@/helpers/useBookingPhotos.js';
+
+import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';
+
 import '@/styles/pro-select.css';
 
 defineOptions({
@@ -446,14 +474,40 @@ const lng = ref(null);
 const o = ref(null);
 
 // Photos variables
-const isAddPhotos = ref(false);
+
+/* const isAddPhotos = ref(false);
 const addedPhotos = ref([]);
 const draftPhotos = ref([]);
 const removedPhotoIds = ref([]);
 const fileInput = ref(null);
 const replaceInput = ref(null);
 const isDragOver = ref(false);
-let dragCounter = 0;
+let dragCounter = 0; */
+
+
+const fileInput = ref(null);
+const addedPhotos = ref([]);
+
+const {
+  draftPhotos,
+  isAddPhotos,
+  isDragOver,
+  isDirty,
+  onFilesSelected,
+  onDragEnter,
+  onDragLeave,
+  onDrop,
+  removeDraftPhoto,
+  cancelAddPhotos,
+  saveBookingPhotos,
+} = useBookingPhotosLogic(addedPhotos);
+
+const openFilePicker = () => {
+  fileInput.value?.click();
+  if (!isAddPhotos.value) isAddPhotos.value = true;
+};
+
+
 
 const toastModel = ref(false)
 const toastState = ref('')       // 'success' | 'danger' | 'info' | etc.
@@ -700,7 +754,19 @@ const clearAddress = () => {
 }); */
 
 
+/* const serverPhotoFormat = (p) => {
+  const upload = p.imageId && typeof p.imageId === "object" ? p.imageId : null;
 
+  return {
+    imageId: upload?._id ?? p.imageId ?? p.id ?? p._id ?? null,
+    imageUrl: upload?.imageUrl ?? p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
+    text: p.text || "",
+    order: p.order ?? 0,
+    previewUrl: null,
+    file: null,
+    slotId: crypto.randomUUID(),
+  };
+}; */
 
 
 
@@ -716,7 +782,7 @@ watch(draftPhotos, () => {
   console.log("draft changed");
 }, { deep: true });
 
-const normalizeForCompare = (img) => ({
+/* const normalizeForCompare = (img) => ({
   id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
   url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
   text: img.text ?? "",
@@ -739,16 +805,6 @@ const signature = (arr) =>
     : "";
 
 
-/* const isDirty = computed(() => {
-  if (!draftPhotos.value) return false;
-
-  const a = signature(draftPhotos.value);
-  const b = signature(addedPhotos.value);
-
-  return a !== b;
-}) */
-
-// Copy photos
 const clonePhoto = (p) => ({...p});
 
 watch(isAddPhotos, (val) => {
@@ -762,32 +818,12 @@ const isDirty = computed(() => {
   return signature(draftPhotos.value) !== signature(addedPhotos.value);
 });
 
-const serverPhotoFormat = (p) => {
-  const upload = p.imageId && typeof p.imageId === "object" ? p.imageId : null;
 
-  return {
-    imageId: upload?._id ?? p.imageId ?? p.id ?? p._id ?? null,
-    imageUrl: upload?.imageUrl ?? p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
-    text: p.text || "",
-    order: p.order ?? 0,
-    previewUrl: null,
-    file: null,
-    slotId: crypto.randomUUID(),
-  };
-};
-
-/* const createDraftFromPhotos = () => {
-  return {
-    photos: (addedPhotos.value || []).map(serverPhotoFormat),
-  };
-} */
 
 const openFilePicker = () => {
   fileInput.value?.click();
   console.log("Clicked")
   if (!isAddPhotos.value) isAddPhotos.value = true;
-
-  //if (!draftPhotos.value) return;
 }
 function onFilesSelected(e) {
   const files = Array.from(e.target.files || []);
@@ -822,8 +858,6 @@ function onDrop(e) {
 }
 
 function addFiles(files) {
-  //if (!draftPhotos.value.length) return;
-  //draftPhotos.value = [];
 
   for (const file of files) {
     draftPhotos.value.push({
@@ -838,39 +872,14 @@ function addFiles(files) {
   }
 }
 
-const removeDraftPhoto__ = (idx) => {
-  if (!isAddPhotos.value) isAddPhotos.value = true;
-  
-  if (!draftPhotos.value?.length) return;
-  
-  const photo = draftPhotos.value[idx];
 
-  removedPhotoIds.value.push(photo.id)
-  
-  if (photo?.previewUrl?.startsWith("blob:")) {
-    URL.revokeObjectURL(photo.previewUrl);
-  }
-
-  draftPhotos.value.splice(idx, 1);
-  //if (addedPhotos.value.length) addedPhotos.value.splice(idx, 1);
-}
 
 const removeDraftPhoto = (idx) => {
   const photo = draftPhotos.value?.[idx];
   if (!photo) return;
 
-  /* if (photo.previewUrl?.startsWith("blob:")) {
-    URL.revokeObjectURL(photo.previewUrl);
-  } */
-
   draftPhotos.value.splice(idx, 1);
 };
-
-const cancelAddPhotos__ = () => {
-  console.log("Cancelled to add photos");
-
-  isAddPhotos.value = false;
-}
 
 const cancelAddPhotos = () => {
   draftPhotos.value.forEach(p => {
@@ -882,30 +891,6 @@ const cancelAddPhotos = () => {
   draftPhotos.value = addedPhotos.value.map(clonePhoto);
   removedPhotoIds.value = [];
   isAddPhotos.value = false;
-};
-
-const saveBookingPhotos__ = () => {
-  console.log("Saving booking photos");
-  //addedPhotos.value = [...draftPhotos.value];
-  addedPhotos.value = draftPhotos.value.map(p => ({ ...p }));
-  isAddPhotos.value = false;
-}
-
-const uploadBookingPhotos__ = async () => {
-  const pending = (addedPhotos.value || []).filter(p => p.file);
-
-  if (!pending.length) {
-    return { uploaded: [] };
-  }
-
-  const fd = new FormData();
-  pending.forEach(p => fd.append("files", p.file));
-
-  const res = await uploadService.uploadClientImage(fd);
-
-  const uploaded = Array.isArray(res) ? res : [res].filter(Boolean);
-
-  return { uploaded };
 };
 
 const uploadBookingPhotos = async () => {
@@ -935,9 +920,9 @@ const uploadBookingPhotos = async () => {
   return {
     uploaded: Array.isArray(uploaded) ? uploaded : [uploaded].filter(Boolean),
   };
-};
+}; */
 
-const saveBookingPhotos = () => {
+/* const saveBookingPhotos = () => {
   addedPhotos.value = draftPhotos.value.map(clonePhoto);
 
   // only here commit removed ids if needed for backend
@@ -947,17 +932,34 @@ const saveBookingPhotos = () => {
     .filter(Boolean);
 
   isAddPhotos.value = false;
-};
+}; */
 
-const buildPhotosPayload = () => {
+const uploadBookingPhotos = async () => {
+  const pending = addedPhotos.value.filter(p => p.file);
+
+  if (!pending.length) {
+    return { uploaded: [] };
+  }
+
+  const fd = new FormData();
+  pending.forEach(p => fd.append("files", p.file));
+
+  const res = await uploadService.uploadClientImage(fd);
+
+  console.log("UPLOAD RAW RESPONSE:", res);
+
+  const uploaded =
+    res?.data?.uploaded ??
+    res?.data?.uploads ??
+    res?.data?.files ??
+    res?.uploaded ??
+    res?.uploads ??
+    res?.files ??
+    res?.data ??
+    res;
+
   return {
-    photos: (addedPhotos.value || [])
-      .map((p, index) => ({
-        imageId: p.imageId,
-        text: p.text?.trim() || "",
-        order: index,
-      })),
-    removedPhotoIds: [...new Set(removedPhotoIds.value.filter(Boolean))],
+    uploaded: Array.isArray(uploaded) ? uploaded : [uploaded].filter(Boolean),
   };
 };
 
@@ -1099,7 +1101,7 @@ const createClient = async() => {
 }
 
 /* Photos */
-.photos__header {
+/* .photos__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1139,14 +1141,12 @@ const createClient = async() => {
   position: relative;
 }
 
-/* image stays normal */
 .photo-img {
   display: block;
   width: 100%;
   border-radius: 8px;
 }
 
-/* overlay ONLY covers the image */
 .photo-overlay {
   position: absolute;
   left: 0;
@@ -1154,12 +1154,6 @@ const createClient = async() => {
   bottom: 0;
 
   background: rgba(0, 0, 0, 0.5);
-  /* background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8),
-    rgba(0, 0, 0, 0.2),
-    transparent
-  ); */
   padding: 6px;
   border-radius: 0 0 8px 8px;
   font-size: 13px;
@@ -1167,13 +1161,12 @@ const createClient = async() => {
 
 .photo-overlay p {
   display: -webkit-box;
-  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden  ;
   
 }
 
-/* textarea styling */
 .photo-overlay textarea {
   width: 100%;
   background: transparent;
@@ -1192,24 +1185,7 @@ const createClient = async() => {
   object-fit: cover;
 }
 
-
-
-
-
-
-
-/* .photo-img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-} */
-
 .photo-actions {
-  /* display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px; */
   display: flex;
   justify-content: right;
   padding: 12px;
@@ -1281,6 +1257,6 @@ const createClient = async() => {
 }
 @media (max-width: 600px){
   .photos-grid{ grid-template-columns: 1fr; }
-}
+} */
 
 </style>

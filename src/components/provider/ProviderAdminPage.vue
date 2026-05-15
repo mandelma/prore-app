@@ -136,8 +136,7 @@
       <MDBCol col="6" md="3">
         <MDBCard class="page-card">
           <MDBCardBody class="py-3">
-            <!-- <div class="text-muted small">PRO Käyttöaika</div> -->
-            
+           
              <div>
 
               <div
@@ -153,9 +152,7 @@
                 <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa lisää aikaa!</p>
               </div>
               <div v-else>
-                <!-- <div v-if="((pro.proTime - new Date().getTime()) / 86400000).toFixed() === 'NaN'" class="spinner-border" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div> -->
+                
                 <div>
                   <p class="small">{{ t('providerAdmin.creditDays', { count: credit }) }}</p>
                 </div>
@@ -164,8 +161,7 @@
           </MDBCardBody>
         </MDBCard>
       </MDBCol>
-    </MDBRow>
-    
+    </MDBRow>   
     
     <div style="display: flex; gap: 7px; margin-bottom: 17px;">
       <div style="flex: 1;">
@@ -176,7 +172,6 @@
         <p class="text-muted small btn-desc" >Palautteet</p>
         <MDBBtn color="dark" block size="lg"  @click="showFeedback"><i className="fas fa-star text-warning"></i> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn>
         
-        <!-- <MDBBtn color="dark" block size="lg"  @click="showFeedback"><span style="color: yellow; font-size: 17px;">★</span> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn> -->
       </div>
 
       <div style="flex: 1;">
@@ -189,16 +184,11 @@
       
     </div>
       
-    
-    <!-- Panel info {{ isPanelInfoEditSection }} -->
     <MDBRow class="g-3">
-      <!-- Provider info (editable rows) -->
       <MDBCol md="5" lg="4">
         <MDBCard class="h-100">
           <MDBCardBody v-if="!isPanelInfoEditSection">
-            <!-- <div style="display: flex; justify-content: right;">
-              <MDBBtn color="primary" @click="isPanelInfoEditSection = true">Muokkaa</MDBBtn>
-            </div> -->
+            
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="mb-0">Palveluntarjoaja</h6>
               <div class="d-flex gap-2">
@@ -243,8 +233,6 @@
 
             <div class="vstack gap-3">
               
-              
-              <!-- <MDBInput label="Name" v-model="draftProvider.name" @input="markDirty('provider')" /> -->
               <MDBInput label="Kuvaus" v-model="draftProvider.description" @input="markDirty('provider')" />
 
               <fieldset class="fs-box">
@@ -260,7 +248,6 @@
                 </div>
               </fieldset>
               
-
 
               <!-- Current professions list -->
               <fieldset class="fs-box">
@@ -282,11 +269,7 @@
                       </tr>
                     </tbody>
                   </MDBTable>
-
-                  <!-- Optional helper text when only one left -->
-                  <!-- <p v-if="draftProvider.profession.length === 1" style="color:#aaa; font-size: 12px;">
-                    Vähintään yksi ammatti pitää olla valittuna.
-                  </p> -->
+           
 
                   <div class="field-wrapper">
                     <Select
@@ -308,12 +291,9 @@
                 </div>
                 
               </fieldset>
-              
-
-              <!-- <MDBInput label="Ammatti" v-model="draftProvider.profession" @input="markDirty('provider')" /> -->
+     
               <MDBInput label="Toiminta alue - km" v-model="draftProvider.range" :value="field" @input="filterInput" />
-              <!-- <MDBInput label="Email" type="email" v-model="draftProvider.email" @input="markDirty('provider')" />
-              <MDBInput label="Phone" v-model="draftProvider.phone" @input="markDirty('provider')" /> -->
+              
               <MDBInput label="Tuntihinta" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" />
 
               <MDBTextarea label="Muistiinpanot..." rows="3" v-model="draftProvider.notes"
@@ -321,34 +301,13 @@
 
               <MDBRow class="g-2">
                 <MDBCol col="6">
-                  <!-- <label class="form-label mb-1">Status kartalla</label>
-                  <select class="form-select" v-model="draftProvider.status" @change="markDirty('provider')">
-                    <option>Saatavilla</option>
-                    <option>Sovitaessa</option>
-                  </select> -->
+                  
                 </MDBCol>
                 <MDBCol col="6">
-
-
-                  <!-- <label class="form-label mb-1">Timezone</label>
-                  <select class="form-select" v-model="draftProvider.timezone" @change="markDirty('provider')">
-                    <option value="Europe/Helsinki">Europe/Helsinki</option>
-                    <option value="Europe/Stockholm">Europe/Stockholm</option>
-                    <option value="UTC">UTC</option>
-                  </select> -->
+                  
                 </MDBCol>
               </MDBRow>
 
-              <!-- <div class="d-flex align-items-center justify-content-between p-2 rounded bg-secondary">
-                <div class="small">
-                  <div class="fw-semibold">Sijainti</div>
-                  <div class="text-muted">Salli sijaintisi seuranta</div>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" role="switch" v-model="draftProvider.portalEnabled"
-                    @change="markDirty('provider')" />
-                </div>
-              </div> -->
             </div>
           </MDBCardBody>
         </MDBCard>
@@ -358,15 +317,9 @@
       <MDBCol md="7" lg="8">
         <!-- Clients -->
          
-        <MDBCard class="mb-3">
+        <!-- <MDBCard class="mb-3">
           <MDBCardBody>
-            <!-- <div class="d-flex flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
-              <h6 class="mb-0">Tilaukset</h6>
-              <div class="search-wrap">
-                <MDBInput size="sm" label="Haku..." v-model="clientQuery" />
-              </div>
-              
-            </div> -->
+            
             <div class="orders-header">
               <h6 class="mb-0">Tilaukset</h6>
 
@@ -377,30 +330,6 @@
                 class="orders-search"
               />
             </div>
-
-
-            <!-- Mobile list -->
-
-            <!-- <div class="d-md-none vstack gap-2" >
-              <client-offers-list  :clients="filteredClients" @toast="handleToast"/>
-              
-
-              <div v-if="filteredClients.length === 0" class="text-muted small py-2">
-                Etsimäsi tieto puuttuu.
-              </div>
-            </div> -->
-
-            <!-- Table on md+ -->
-
-            <!-- <div class="d-none d-md-block" >
-              <client-offers-list :clients="filteredClients" @toast="handleToast"/>
-              
-
-              <div v-if="filteredClients.length === 0" class="text-muted small py-2">
-                Etsimäsi tieto puuttuu.
-              </div>
-            </div> -->
-
             <client-offers-list
               :clients="filteredClients"
               @open-chat="$emit('open-chat', $event)"
@@ -411,7 +340,61 @@
               Etsimäsi tieto puuttuu.
             </div>
           </MDBCardBody>
-        </MDBCard>
+        </MDBCard> -->
+
+        <!-- DESKTOP -->
+        <div class="d-none d-md-block">
+          <MDBCard class="mb-3">
+            <MDBCardBody>
+              <div class="orders-header">
+                <h6 class="mb-0">Tilaukset</h6>
+
+                <MDBInput
+                  size="sm"
+                  label="Haku..."
+                  v-model="clientQuery"
+                  class="orders-search"
+                />
+              </div>
+
+              <client-offers-list
+                :clients="filteredClients"
+                @open-chat="$emit('open-chat', $event)"
+                @toast="handleToast"
+              />
+
+              <div v-if="filteredClients.length === 0" class="text-muted small py-2">
+                Etsimäsi tieto puuttuu.
+              </div>
+            </MDBCardBody>
+          </MDBCard>
+        </div>
+
+        <!-- MOBILE -->
+        <div class="d-block d-md-none mobile-orders">
+          <div class="orders-header px-2">
+            <h6 class="mb-0">Tilaukset</h6>
+
+            <MDBInput
+              size="sm"
+              label="Haku..."
+              v-model="clientQuery"
+              class="orders-search"
+            />
+          </div>
+
+          <client-offers-list
+            :clients="filteredClients"
+            @open-chat="$emit('open-chat', $event)"
+            @toast="handleToast"
+          />
+
+          <div v-if="filteredClients.length === 0" class="text-muted small py-2 px-2">
+            Etsimäsi tieto puuttuu.
+          </div>
+        </div>
+
+        
 
         <!-- Extras: schedule + alerts + billing snapshot -->
         <MDBRow class="g-3 extras-row">
@@ -472,10 +455,6 @@
                       </tr>
                     </tbody>
                   </table>
-                  <!-- <div style="display: flex; flex-direction: column;">
-                    <h6 class="mb-0">Vapaat ajat &nbsp;&nbsp;<span style="color: green;">{{ proTimetable.length }}</span></h6>
-                    <h6 class="mb-0">Muistiinpanot &nbsp;&nbsp;<span style="color: green;">{{ proTimetable.length }}</span></h6>
-                  </div> -->
                   
                   <MDBBtn size="sm" color="light" outline @click="openSchedule">Kalenteri</MDBBtn>
                 </div>
@@ -502,7 +481,7 @@
                     :src="logo"
                     alt="Prokeikkatori logo" width="100%"  />
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 7px;">
+                <div style="display: flex; justify-content: space-between; margin-top: 14px;">
                   <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">Omat tilaukset</MDBBtn>
                   <p v-else></p>
                   <MDBBtn outline="success" rounded @click="router.push('/client-form')"><span class="btn__icon">🔍</span> ETSIN PALVELUA</MDBBtn>
@@ -1348,6 +1327,19 @@ function sleep(ms) {
   10%  { opacity: 1; }
   90%  { opacity: 1; }
   100% { transform: translateX(120vw); opacity: 0; visibility: hidden; }
+}
+
+.mobile-orders {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  .mobile-orders {
+    margin-left: -6px;
+    margin-right: -6px;
+  }
 }
 
 .proMap {

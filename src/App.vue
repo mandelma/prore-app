@@ -146,7 +146,7 @@
     >
     <!-- && conversations.length -->
       <chat-widget 
-        v-if="login.isAuthenticated "
+        v-if="login.isAuthenticated && conversations.length"
         :didDrag="didDrag"
         :launcherPos="widgetAnchor"
         :is-open-mode="conversationStore.openChat"
@@ -818,6 +818,7 @@ watch(
       clientHistoryService.setToken(login.token),
       proHistoryService.setProSideToken(login.token),
       client.orderList(u.id),
+      handleProvider.getAllProviders(),
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
       clientArchiveStore.initClientArchive(),

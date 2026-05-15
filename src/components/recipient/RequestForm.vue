@@ -105,437 +105,540 @@
               </div>
 
           </div>
+
+
+
+
+          <!-- About pictures -->
+           <div v-if="!isAddPhotos">
+              <div>
+                <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">Lisää halutessasi kuvia tehtävästä</MDBBtn>
+                <MDBBtn v-else color="light" @click="isAddPhotos = true">Muokkaa kuvia</MDBBtn>
+              </div>
+              
+              
+
+              <!-- <div v-if="addedPhotos?.length" class="photos-grid">
+                
+                <figure
+                  v-for="(photo, idx) in addedPhotos"
+                  :key="photo.id || idx"
+                  class="photo-card"
+                >
+                  <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
+                  <div v-if="photo?.text?.trim()" class="photo-overlay">
+              
+                    <p>{{ photo.text }}</p>
+                  </div>
+                </figure>
+                
+              </div> -->
+
+              <BookingPhotos
+                
+                :photos="addedPhotos"
+                :editable="isAddPhotos"
+                @remove="removeDraftPhoto"
+              />
+              
+              <!-- v-else -->
+              <div v-if="!addedPhotos?.length" class="empty-state">
+                
+                <p v-if="!addedPhotos.length" class="empty-state__text">Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.</p>
+              </div>
+
+
+            </div>
+
+            <!-- Booking pictures section -->
+            <form v-else class="panel__body" @submit.prevent="saveBookingPhotos">
+              <div class="form-card">
+                
+                <div class="divider"></div>
+
+                <div class="photos">
+                  <div class="photos__header">
+                    <h5 class="section-title">Kuvat</h5>
+                    <MDBBtn color="primary" @click="openFilePicker">Lisää kuvia</MDBBtn>
+                    
+                    <input
+                      ref="fileInput"
+                      class="sr-only"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      @change="onFilesSelected"
+                    />
+
+                    <input
+                        ref="replaceInput"
+                        class="sr-only"
+                        type="file"
+                        accept="image/*"
+                        @change="onReplaceSelected"
+                    />
+                  </div>
+
+                  <!-- (Optional) dropzone -->
+                  <div
+                    class="dropzone"
+                    @dragenter.prevent="onDragEnter"
+                    @dragover.prevent
+                    @dragleave="onDragLeave"
+                    @drop.prevent="onDrop"
+                    :class="{ 'dropzone--active': isDragOver }"
+                  >
+                    <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
+                    <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+                  </div>
+
+
+                  
+
+                  <!-- <div v-if="draftPhotos?.length" class="photos-grid">
+                    <figure
+                      v-for="(photo, idx) in draftPhotos"
+                      :key="photo.id || idx"
+                      class="photo-card"
+                    >
+                        <div class="photo-media">
+                        <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
+                        <textarea
+                          v-model="photo.text"
+                          class="photo-caption"
+                          placeholder="Lisää kuvaus..."
+                        ></textarea>
+                        
+                      </div>
+                      <figcaption class="photo-actions">
+                        
+                        <i class="fas fa-trash-alt fa-lg" style="color: red;" @click="removeDraftPhoto(idx)"></i>
+                        
+                      </figcaption>
+                    </figure>
+                  </div> -->
+
+                  
+
+                  <BookingPhotos
+                    
+                    :photos="draftPhotos"
+                    :editable="isAddPhotos"
+                    @remove="removeDraftPhoto"
+                  />
+
+
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-danger" type="button" @click="cancelAddPhotos">
+                    Peruuta
+                  </button>
+
+                  <button class="btn btn-success" type="submit" :disabled="!isDirty">
+                    Tallenna
+                  </button>
+                </div>
+
+              </div>
+            </form>
           <!-- Send booking if date is entered -->
-          <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
+          <div style="display: flex; justify-content: right; margin-top: 17px;">
+            <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
+          </div>
+          
         </form>
         
     </MDBContainer>
 </template>
 <script setup>
-import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
-import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon, MDBDateTimepicker, MDBSpinner} from 'mdb-vue-ui-kit';
-import { storeToRefs } from 'pinia';
-import { useConversationStore } from '@/stores/conversationStore';
-import { useMapStore } from '@/stores/mapStore';
-import { loadGoogleMaps } from '../controllers/loadGoogleMap';
-import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
+  import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
+  import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon, MDBDateTimepicker, MDBSpinner} from 'mdb-vue-ui-kit';
+  import { storeToRefs } from 'pinia';
+  import { useConversationStore } from '@/stores/conversationStore';
+  import { useMapStore } from '@/stores/mapStore';
+  import { loadGoogleMaps } from '../controllers/loadGoogleMap';
+  import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
+  import BookingPhotos from './BookingPhotos.vue';
+  import uploadService from '@/service/awsUploads.js';
 
-defineOptions({
-    name: 'request-form'
-})
-const props = defineProps({
-    target: {type: null},
-    date: String,
-    isOpen: Boolean
-})
-const emit = defineEmits(['sendRequest', 'open-chat']);
+  import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';;
+
+  defineOptions({
+      name: 'request-form'
+  })
+  const props = defineProps({
+      target: {type: null},
+      date: String,
+      isOpen: Boolean
+  })
+  const emit = defineEmits(['sendRequest', 'open-chat']);
 
 
+  const fileInput = ref(null);
+  const addedPhotos = ref([]);
 
-//Needed i18
-//const reInitKey = computed(() => `dt-${locale.value}`)
+  const {
+    draftPhotos,
+    isAddPhotos,
+    isDragOver,
+    isDirty,
+    onFilesSelected,
+    onDragEnter,
+    onDragLeave,
+    onDrop,
+    removeDraftPhoto,
+    cancelAddPhotos,
+    saveBookingPhotos,
+  } = useBookingPhotosLogic(addedPhotos);
 
-const geocoder = ref(null)
-const lat = ref(null);
-const lng = ref(null);
-const dateTime = ref(null);
+  const openFilePicker = () => {
+    fileInput.value?.click();
+    if (!isAddPhotos.value) isAddPhotos.value = true;
+  };
 
-const addressInput = ref(null)
-const autocomplete = ref(null)
+  //Needed i18
+  //const reInitKey = computed(() => `dt-${locale.value}`)
 
-const suppressAutocomplete = ref(false)
+  const geocoder = ref(null)
+  const lat = ref(null);
+  const lng = ref(null);
+  const dateTime = ref(null);
 
-const mapError = ref(false);
-const isAddress = ref(false);
-const isLoadingAddress = ref(false);
-const form = reactive({
-  address: "",  
-  requestHeader: "",
-  requestContent: ""
-});
-const mapStore = useMapStore();
-const conversationStore = useConversationStore();
+  const addressInput = ref(null)
+  const autocomplete = ref(null)
 
-const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
+  const suppressAutocomplete = ref(false)
 
-const errors = reactive({});
+  const mapError = ref(false);
+  const isAddress = ref(false);
+  const isLoadingAddress = ref(false);
+  const form = reactive({
+    address: "",  
+    requestHeader: "",
+    requestContent: ""
+  });
+  const mapStore = useMapStore();
+  const conversationStore = useConversationStore();
 
-const validateForm = () => {
-  errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
-  errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
-  errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
+  const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
-  return !errors.address && !errors.requestHeader && !errors.requestContent;
-}
+  const errors = reactive({});
 
-watch(() => form.address, () => (errors.address = ""));
+  const validateForm = () => {
+    errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
+    errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
+    errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
 
-watch(() => form.requestHeader, () => (errors.requestHeader = ""));
-
-watch(() => form.requestContent, () => (errors.requestContent = ""));
-
-watch(props.date, (date) => {
-  if (date) {
-    dateTime.value = date
+    return !errors.address && !errors.requestHeader && !errors.requestContent;
   }
-})
 
+  watch(() => form.address, () => (errors.address = ""));
 
+  watch(() => form.requestHeader, () => (errors.requestHeader = ""));
 
-watch(() => props.isOpen, async (open) => {
-  if (open) {
-    await nextTick()
-    setTimeout(async () => {
-      await initAutocomplete()
-    }, 100)
-  }
-})
+  watch(() => form.requestContent, () => (errors.requestContent = ""));
 
-const isValidDate = (d) => d instanceof Date && !isNaN(+d);
-
-onMounted( async () => {
-  //await loadGoogleMaps()
-
-  try {
-    const initPromise = mapStore.init()
-    await nextTick()
-
-    const pos = userPos.value || lastKnownPos.value
-    if (pos) {
-      lat.value = pos.lat
-      lng.value = pos.lng
-      await getAddressFromCoords(pos.lat, pos.lng)
+  watch(props.date, (date) => {
+    if (date) {
+      dateTime.value = date
     }
-
-    await initPromise
-    await initAutocomplete()
-  } catch (err) {
-    console.error("Map init failed:", err)
-  }
-
-  //console.log("google.maps.places =", google.maps.places)
-  /* try {
-    const initPromise = mapStore.init()
-
-    await nextTick()
-
-    const pos = userPos.value || lastKnownPos.value
-    if (pos) {
-      lat.value = pos.lat
-      lng.value = pos.lng
-
-      if (form.address) {
-        console.log("Address is set " + form.address);
-      }
-      
-      await getAddressFromCoords(pos.lat, pos.lng);
-      await initAutocomplete()
-    }
-
-    await initPromise
-
-    const freshPos = userPos.value || lastKnownPos.value
-    if (freshPos) {
-      lat.value = freshPos.lat
-      lng.value = freshPos.lng
-
-      await getAddressFromCoords(freshPos.lat, freshPos.lng)
-      await initAutocomplete()
-    }
-  } catch (err) {
-    console.error('Map init failed:', err)
-  } */
-})
-
-const validateMaps = async() => {
-  mapError.value = false;
-  try {
-    await loadGoogleMaps();
-    console.log("Map is inited in Recipient form! ✅");
-    const center = { lat: 50.064192, lng: -130.605469 };
-    // Create a bounding box with sides ~10km away from the center point
-    const defaultBounds = {
-      north: center.lat + 0.1,
-      south: center.lat - 0.1,
-      east: center.lng + 0.1,
-      west: center.lng - 0.1,
-    };
-
-    const input = document.getElementById("request-address-input");
-
-    const options = {
-      bounds: defaultBounds,
-      componentRestrictions: { country: "fi" },
-      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-      strictBounds: false,
-      
-    };
-    const autocomplete = new google.maps.places.Autocomplete(input, options);
-    
-    autocomplete.addListener("place_changed", () => {
-      let place = autocomplete.getPlace()
-      lat.value = place.geometry.location.lat()
-      lng.value = place.geometry.location.lng()
-
-      form.address = place.formatted_address
-      console.log(place)
-    })
-  } catch (err) {
-    console.error('Google Maps failed to load ❌', err);
-    //mapError.value = true;
-    //mapToastModel.value = true;
-    //mapToastState.value = 'danger';
-    //mapToastIcon.value = 'fas fa-check fa-lg me-2';
-    //mapToastContent.value = 'Internet yhteys puuttuu!';
-  }
-}
-
-
-
-/* const setMap = async () => {
-  try {
-    const initPromise = mapStore.init()
-
-    await nextTick()
-
-    const pos = userPos.value || lastKnownPos.value
-    if (pos) {
-      lat.value = pos.lat
-      lng.value = pos.lng
-
-      if (form.address) {
-        console.log("Address is set " + form.address);
-      }
-      
-      await getAddressFromCoords(pos.lat, pos.lng);
-      await initAutocomplete()
-    }
-
-    await initPromise
-
-    const freshPos = userPos.value || lastKnownPos.value
-    if (freshPos) {
-      lat.value = freshPos.lat
-      lng.value = freshPos.lng
-
-      await getAddressFromCoords(freshPos.lat, freshPos.lng)
-      await initAutocomplete()
-    }
-  } catch (err) {
-    console.error('Map init failed:', err)
-  }
-} */
-
-const getAddressFromCoords = async (lat, lng) => {
-  try {
-    if (!geocoder.value) {
-      geocoder.value = new google.maps.Geocoder()
-    }
-
-    const response = await geocoder.value.geocode({
-      location: { lat, lng },
-      region: "fi",
-    })
-
-    const result = response.results?.[0]
-    if (!result) return null
-
-    form.address = result.formatted_address
-    // save these if you need them
-    //selectedPlaceId.value = result.place_id
-    //selectedAddressComponents.value = result.address_components
-
-    return result
-  } catch (err) {
-    console.error("Reverse geocoding failed:", err)
-    return null
-  }
-}
-
-
-const testPredictions = () => {
-  const service = new google.maps.places.AutocompleteService()
-
-  service.getPlacePredictions(
-    {
-      input: "Helsinki",
-      componentRestrictions: { country: "fi" },
-      types: ["address"],
-    },
-    (predictions, status) => {
-      console.log("status:", status)
-      console.log("predictions:", predictions)
-    }
-  )
-}
-
-
-const initAutocomplete = async () => {
-  await nextTick()
-
-  const root = document.getElementById("request-address-input")
-  const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
-
-  console.log("root:", root)
-  console.log("input:", input, input?.tagName)
-
-  if (!(input instanceof HTMLInputElement)) {
-    console.error("Not a real input element")
-    return
-  }
-
-  if (autocomplete.value) {
-    google.maps.event.clearInstanceListeners(autocomplete.value)
-    autocomplete.value = null
-  }
-
-  autocomplete.value = new google.maps.places.Autocomplete(input, {
-    componentRestrictions: { country: "fi" },
-    fields: ["address_components", "geometry", "place_id", "formatted_address"],
-    strictBounds: false,
   })
 
-  autocomplete.value.addListener("place_changed", () => {
-    const place = autocomplete.value.getPlace()
-    console.log("place:", place)
 
-    if (!place.geometry) return
 
-    lat.value = place.geometry.location.lat()
-    lng.value = place.geometry.location.lng()
-    form.address = place.formatted_address || ""
+  watch(() => props.isOpen, async (open) => {
+    if (open) {
+      await nextTick()
+      setTimeout(async () => {
+        await initAutocomplete()
+      }, 100)
+    }
   })
-}
 
-const showAddress = async () => {
-  isLoadingAddress.value = true
-  suppressAutocomplete.value = true
+  const isValidDate = (d) => d instanceof Date && !isNaN(+d);
 
-  try {
-    const pos = userPos.value || lastKnownPos.value
+  onMounted( async () => {
+    //await loadGoogleMaps()
 
-    if (pos) {
-      lat.value = pos.lat
-      lng.value = pos.lng
-      await getAddressFromCoords(pos.lat, pos.lng)
+    try {
+      const initPromise = mapStore.init()
+      await nextTick()
+
+      const pos = userPos.value || lastKnownPos.value
+      if (pos) {
+        lat.value = pos.lat
+        lng.value = pos.lng
+        await getAddressFromCoords(pos.lat, pos.lng)
+      }
+
+      await initPromise
+      await initAutocomplete()
+    } catch (err) {
+      console.error("Map init failed:", err)
     }
 
+  })
+
+  const getAddressFromCoords = async (lat, lng) => {
+    try {
+      if (!geocoder.value) {
+        geocoder.value = new google.maps.Geocoder()
+      }
+
+      const response = await geocoder.value.geocode({
+        location: { lat, lng },
+        region: "fi",
+      })
+
+      const result = response.results?.[0]
+      if (!result) return null
+
+      form.address = result.formatted_address
+
+      return result
+    } catch (err) {
+      console.error("Reverse geocoding failed:", err)
+      return null
+    }
+  }
+
+
+  /* const testPredictions = () => {
+    const service = new google.maps.places.AutocompleteService()
+
+    service.getPlacePredictions(
+      {
+        input: "Helsinki",
+        componentRestrictions: { country: "fi" },
+        types: ["address"],
+      },
+      (predictions, status) => {
+        console.log("status:", status)
+        console.log("predictions:", predictions)
+      }
+    )
+  }
+  */
+
+  const initAutocomplete = async () => {
     await nextTick()
 
     const root = document.getElementById("request-address-input")
     const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
-    input?.blur()
-  } finally {
-    isLoadingAddress.value = false
 
-    setTimeout(() => {
-      suppressAutocomplete.value = false
-    }, 300)
-  }
-}
+    console.log("root:", root)
+    console.log("input:", input, input?.tagName)
 
-const clearAddress = () => {
-  isAddress.value = false;
-  form.address = '';
-
-  
-}
-
-/* defineExpose({
-  initAutocomplete,
-  validateMaps
-}) */
-
-
-/* const clearAddress = () => {
-  isAddress.value = false;
-  form.address = '';
-} */
-
-// 2) sanitize string→Date parsing (return null if bad)
-function parseMaybeDate(v) {
-  if (v instanceof Date) return isValidDate(v) ? v : null;
-  if (typeof v === 'string') {
-    const d = new Date(v);
-    return isValidDate(d) ? d : null;
-  }
-  if (typeof v === 'number') {
-    const d = new Date(v);
-    return isValidDate(d) ? d : null;
-  }
-  return null;
-}
-
-const fromLocalInput = (v) => {
-  if (!v) return null;
-  if (v instanceof Date) return isValidDate(v) ? v : null;
-
-  if (typeof v === 'string') {
-    // 1) ISO or ISO-like
-    const dIso = new Date(v.includes('T') ? v : v.replace(',', '').replace(' ', 'T'));
-    if (isValidDate(dIso)) return dIso;
-
-    // 2) "YYYY-MM-DD, HH:mm" or "YYYY-MM-DD HH:mm"
-    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})[,\s]+(\d{2}):(\d{2})(?::(\d{2}))?$/);
-    if (m) {
-      const [, y, mo, d, h, mi, s] = m.map(Number);
-      return new Date(y, mo - 1, d, h, mi, s || 0); // local time
+    if (!(input instanceof HTMLInputElement)) {
+      console.error("Not a real input element")
+      return
     }
 
-    // 3) "DD.MM.YYYY HH:mm"
-    m = v.match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/);
-    if (m) {
-      const [, d, mo, y, h, mi, s] = m.map(Number);
-      return new Date(y, mo - 1, d, h, mi, s || 0);
+    if (autocomplete.value) {
+      google.maps.event.clearInstanceListeners(autocomplete.value)
+      autocomplete.value = null
+    }
+
+    autocomplete.value = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: "fi" },
+      fields: ["address_components", "geometry", "place_id", "formatted_address"],
+      strictBounds: false,
+    })
+
+    autocomplete.value.addListener("place_changed", () => {
+      const place = autocomplete.value.getPlace()
+      console.log("place:", place)
+
+      if (!place.geometry) return
+
+      lat.value = place.geometry.location.lat()
+      lng.value = place.geometry.location.lng()
+      form.address = place.formatted_address || ""
+    })
+  }
+
+  const showAddress = async () => {
+    isLoadingAddress.value = true
+    suppressAutocomplete.value = true
+
+    try {
+      const pos = userPos.value || lastKnownPos.value
+
+      if (pos) {
+        lat.value = pos.lat
+        lng.value = pos.lng
+        await getAddressFromCoords(pos.lat, pos.lng)
+      }
+
+      await nextTick()
+
+      const root = document.getElementById("request-address-input")
+      const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
+      input?.blur()
+    } finally {
+      isLoadingAddress.value = false
+
+      setTimeout(() => {
+        suppressAutocomplete.value = false
+      }, 300)
     }
   }
-  return null;
-};
 
-const formatLocalDate = (value) => {
-  const d = fromLocalInput(value);
-  if (!isValidDate(d)) return '';
-  return new Intl.DateTimeFormat('fi-FI', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: 'Europe/Helsinki',
-    hour12: false,
-    hourCycle: 'h23',
-  }).format(d);
-};
+  const clearAddress = () => {
+    isAddress.value = false;
+    form.address = '';
 
-const handleOpenChat = () => {
-  const otherId = props.target?.user?.id;
-  console.log("Open chat in request modal: " + otherId);
+    
+  }
 
-  emit("open-chat", {
-    otherId,
-    bookingId: null,
-    mode: "client",
-    anchor: getBottomRightAnchor()
-  });
-  
-  //conversationStore.openCreateRoom(otherId);
-  //conversationStore.openChatWidget();
-}
+  /* function parseMaybeDate(v) {
+    if (v instanceof Date) return isValidDate(v) ? v : null;
+    if (typeof v === 'string') {
+      const d = new Date(v);
+      return isValidDate(d) ? d : null;
+    }
+    if (typeof v === 'number') {
+      const d = new Date(v);
+      return isValidDate(d) ? d : null;
+    }
+    return null;
+  } */
 
-const handleRequest = () => {
+  const fromLocalInput = (v) => {
+    if (!v) return null;
+    if (v instanceof Date) return isValidDate(v) ? v : null;
+
+    if (typeof v === 'string') {
+      // 1) ISO or ISO-like
+      const dIso = new Date(v.includes('T') ? v : v.replace(',', '').replace(' ', 'T'));
+      if (isValidDate(dIso)) return dIso;
+
+      // 2) "YYYY-MM-DD, HH:mm" or "YYYY-MM-DD HH:mm"
+      let m = v.match(/^(\d{4})-(\d{2})-(\d{2})[,\s]+(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      if (m) {
+        const [, y, mo, d, h, mi, s] = m.map(Number);
+        return new Date(y, mo - 1, d, h, mi, s || 0); // local time
+      }
+
+      // 3) "DD.MM.YYYY HH:mm"
+      m = v.match(/^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      if (m) {
+        const [, d, mo, y, h, mi, s] = m.map(Number);
+        return new Date(y, mo - 1, d, h, mi, s || 0);
+      }
+    }
+    return null;
+  };
+
+  const handleOpenChat = () => {
+    const otherId = props.target?.user?.id;
+    console.log("Open chat in request modal: " + otherId);
+
+    emit("open-chat", {
+      otherId,
+      bookingId: null,
+      mode: "client",
+      anchor: getBottomRightAnchor()
+    });
+    
+  }
+
+  const uploadBookingPhotos = async () => {
+    const pending = addedPhotos.value.filter(p => p.file);
+
+    if (!pending.length) {
+      return { uploaded: [] };
+    }
+
+    const fd = new FormData();
+    pending.forEach(p => fd.append("files", p.file));
+
+    const res = await uploadService.uploadClientImage(fd);
+
+    console.log("UPLOAD RAW RESPONSE:", res);
+
+    const uploaded =
+      res?.data?.uploaded ??
+      res?.data?.uploads ??
+      res?.data?.files ??
+      res?.uploaded ??
+      res?.uploads ??
+      res?.files ??
+      res?.data ??
+      res;
+
+    return {
+      uploaded: Array.isArray(uploaded) ? uploaded : [uploaded].filter(Boolean),
+    };
+  };
+
+  const getUploadId = (upload) =>
+    upload?._id ??
+    upload?.id ??
+    upload?.imageId ??
+    upload?.file?._id ??
+    upload?.file?.id ??
+    upload?.upload?._id ??
+    upload?.upload?.id;
+
+  const handleRequest = async() => {
 
     if (!validateForm()) {
         console.log("No validated");
     } else {
-        console.log("Validated");
+      console.log("Validated");
 
-        emit('sendRequest', {
-          date: dateTime.value,
-          address: form.address,
-          myLat: lat?.value,
-          myLng: lng?.value, 
-          header: form.requestHeader,
-          content: form.requestContent,
-        });
+      const pendingPhotos = addedPhotos.value.filter(p => p.file);
+
+      const { uploaded } = await uploadBookingPhotos();
+
+      const photosForBackend = pendingPhotos
+      .map((photo, index) => {
+        const upload = uploaded[index];
+        const imageId = getUploadId(upload);
+
+        return {
+          imageId,
+          text: photo.text?.trim() || "",
+          order: index,
+        };
+      })
+      .filter(p => p.imageId);
+
+      const photosForLocalState = pendingPhotos
+      .map((photo, index) => {
+        const upload = uploaded[index];
+        const imageId = getUploadId(upload);
+
+        return {
+          imageId,
+          imageUrl:
+            upload?.imageUrl ||
+            upload?.url ||
+            upload?.location ||
+            upload?.path ||
+            photo.previewUrl,
+          /* previewUrl: photo.previewUrl, */
+          text: photo.text?.trim() || "",
+          order: index,
+          slotId: photo.slotId,
+        };
+      })
+      .filter(p => p.imageId || p.previewUrl);
+
+      emit('sendRequest', {
+        date: dateTime.value,
+        address: form.address,
+        myLat: lat?.value,
+        myLng: lng?.value, 
+        header: form.requestHeader,
+        content: form.requestContent,
+        serverPhotos: photosForBackend,
+        localPhotos: photosForLocalState
+      });
     }
-}
+  }
 
 </script>
 <style >

@@ -62,11 +62,7 @@
                 >
                   <span style="color: green;"></span> 
                   <MDBIcon style="cursor: pointer;" size="2x" @click="router.push('/pro-around')"><i class="fas fa-users-cog"></i></MDBIcon>
-                  <!-- <span>
-                    <div style="width: 100%;" @click="router.push('/pro-around')">
-                      <img class="mapGif" :src="world" alt="from_map" />
-                    </div>
-                  </span> -->
+                  
                 </div>
               </MDBCardBody>
             </MDBCard>
@@ -99,7 +95,7 @@
                   <div v-for="booking in sortedBookings" :key="booking.id" class="bookings">
 
                     <h6  v-if="booking.isIncludeOffers" class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty hintatarjousten pyytämistä varten</h6>
-                    <h6 v-else class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty palveluntarjoajalle <span style="color:aquamarine;">{{ booking.ordered[0].pName }}</span></h6>
+                    <h6 v-else class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty palveluntarjoajalle <span style="color:orange;">{{ booking.ordered[0].pName }}</span></h6>
                     
                     <fieldset class="fs-box">
                       <legend class="fs-legend">
@@ -114,6 +110,11 @@
                       <!-- common UI -->
                       <div class="text-muted">{{ formatDateTime(booking.created) }}</div>
                       <div class="title">{{ booking.header }}</div>
+                      
+                      <div v-if="!booking.isIncludeOffers && booking.photos?.length">
+                        <p class="title-booking-photos">Tilaukseen liitetyt kuvat:</p>
+                        <BookingPhotos :photos="booking.photos" :editable="false"/>
+                      </div>
 
                       <!-- branch actions -->
                       <div v-if="booking.isIncludeOffers" style="margin-top: 13px;">
@@ -167,15 +168,14 @@
                             Peruuta
                           </MDBBtn>
 
-                          <MDBBtn
-                            v-else
-                            color="danger"
-                            block
-                            class="action-btn"
-                            @click="handleQuitSelectedBooking(booking.id)"
-                          >
-                            Poista tilaus
-                          </MDBBtn>
+                          <div v-else style=" width: 100%; display: flex; justify-content: right;">
+                            <p
+                              style="cursor: pointer; color: red; font-size: 14px;"
+                              @click="handleQuitSelectedBooking(booking.id)"
+                            >
+                              Poista tilaus
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </fieldset>
@@ -321,6 +321,7 @@ import { useNotificationStore } from '@/stores/notificationStore';
 import { useClientArchiveStore } from '@/stores/cArchiveStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import ClientHistory from './ClientHistory.vue';
+import BookingPhotos from './BookingPhotos.vue';
 import { storeToRefs } from 'pinia'
 import socket from '@/socket';
 
@@ -610,10 +611,16 @@ const callHistory = () => {
   opacity: .75;
 }
 
+.title-booking-photos {
+  color: #66aab1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .main{ min-width: 0; }
 
 .title{
-  padding: 13px 0 0 7px;
+  padding: 13px 0 13px 0;
   font-weight: 600;
   line-height: 1.25;
   word-break: break-word;

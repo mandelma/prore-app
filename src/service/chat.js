@@ -20,8 +20,17 @@ export const chatService = {
     return data;
   },
 
-  async sendMessage (conversationId, payload) {
+  /* async sendMessage_ (conversationId, payload) {
     const { data } = await chatApi.post(`/conversations/${conversationId}/messages`, payload);
+    return data;
+  }, */
+
+  async sendMessage(conversationId, payload) {
+    const { data } = await chatApi.post(
+      `/conversations/${conversationId}/messages`,
+      payload
+    );
+
     return data;
   },
 
@@ -32,6 +41,10 @@ export const chatService = {
   async markRead (conversationId) {
     const { data } = await chatApi.post(`/conversations/${conversationId}/read`);
     return data;
+  },
+
+  async setConvoState (conversationId, otherUserId, state) {
+    const { data } = await chatApi.put(`/conversations/localState/${conversationId}/${otherUserId}`, state );
+    return data;
   }
-  
 };

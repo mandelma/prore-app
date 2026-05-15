@@ -295,6 +295,7 @@ const clickedPanelGet = ref(false);
 const onProvider = ref(null);
 const isRequestSent = ref(false);
 const rs_success_msg = ref("");
+const rs_error_msg = ref("");
 
 const panelProError = ref(false);
 const panelRangeError = ref(false);
@@ -1242,18 +1243,6 @@ const handleSendRequest = async (_form) => {
 
   const mainDate = dt.value ? dt.value : _form.date;
 
-  //console.log("Edited date " + mainDate);
-
-  //console.log("Lat here " + myLat.value)
-  //console.log("Lat req " + _form.myLat)
-
-  //console.log("address here " + address.value)
-  //console.log("address req " + _form.address)
-  
-  //console.log("Request ", _form);
-
-  //const mainAddress = 
-
   const request = {
     author_id: userId,
     created: dateObj,
@@ -1269,6 +1258,7 @@ const handleSendRequest = async (_form) => {
     professional: profession.value.label,
     isIncludeOffers: false,
     description: _form.content,
+    photos: _form.serverPhotos || [],
     status: "active",
   }
 
@@ -1279,7 +1269,17 @@ const handleSendRequest = async (_form) => {
 
 
 
-  clientStore.onRequest(receiverId, userId, target.value, user.value, request);
+  clientStore.onRequest(receiverId, userId, target.value, user.value, request, _form.localPhotos, () => {
+    // success callback
+    console.log("Request sent successfully");
+    rs_success_msg.value = "Tilaus lähetetty onnistuneesti!";
+    isRequestSent.value = true;
+  }, (err) => {
+    // error callback
+    console.error("Failed to send request:", err);
+    rs_error_msg.value = "Tilauksen lähettäminen epäonnistui. Yritä uudestaan.";
+    isRequestSent.value = false;
+  });
 
   /* toastState.value = 'danger'
   toastIcon.value = 'fas fa-check fa-lg me-2'

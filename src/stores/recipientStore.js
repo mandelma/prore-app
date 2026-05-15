@@ -249,7 +249,7 @@ export const useClientStore = defineStore('client', () => {
     }
 
     // Client sending request to the provider via map
-    const onRequest = async(receiver, userId, pro, user, request) => {
+    const onRequest = async(receiver, userId, pro, user, request, localPhotos) => {
         console.log("Data in rec store " + receiver)
         const newRequest = await clientService.addRecipient(userId, request);
 
@@ -270,6 +270,8 @@ export const useClientStore = defineStore('client', () => {
         
 
         socket.emit("client made request", receiver, bookingId);
+
+        newRequest.photos = localPhotos || [];
 
         bookings.value.push(newRequest);
         count.value = bookings.value.length;

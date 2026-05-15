@@ -24,6 +24,7 @@ async function getOrCreateDM(meId, otherId) {
       $setOnInsert: {
         type: "dm",
         participantKey: key,
+        isParticipant: { [String(me)]: true, [String(other)]: true },
         participantIds,
         unread: { [String(me)]: 0, [String(other)]: 0 },
         createdAt: now,
@@ -116,20 +117,45 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
   const otherId = convo.participantIds.find((id) => String(id) !== me);
   const otherKey = String(otherId);
 
-  await Conversation.updateOne(
-    { _id: conversationId },
+  const updatedConvo = await Conversation.findByIdAndUpdate(
+    conversationId,
     {
       $set: {
         updatedAt: now,
         lastMessageAt: now,
+        [`isParticipant.${me}`]: true,
+        [`isParticipant.${otherKey}`]: true,
         lastMessageText: text || (attachments.length ? "Attachment" : ""),
         lastMessageSenderId: new mongoose.Types.ObjectId(me),
       },
-      $inc: { [`unread.${otherKey}`]: 1 },
-    }
-  );
+      $inc: {
+        [`unread.${otherKey}`]: 1,
+      },
+    },
+    { new: true }
+  ).lean();
 
-  res.json(msg);
+  console.log("updatedConvo.isParticipant:", updatedConvo.isParticipant);
+
+  const io = req.app.get("io");
+
+  if (io) {
+    const payload = {
+      message: msg,
+      conversation: updatedConvo,
+    };
+
+    //io.to(`convo:${conversationId}`).emit("message:new", payload);
+
+    // important: notify receiver even if they have not opened the conversation
+    io.to(`user:${otherKey}`).emit("message:new", payload);
+  }
+
+  //res.json(msg);
+  res.json({
+    message: msg,
+    conversation: updatedConvo,
+  });
 });
 
 // POST mark read (reset my unread counter)
@@ -139,6 +165,32 @@ router.post("/conversations/:conversationId/read", async (req, res) => {
   console.log("XXXXXXXXXXXXXX - ", me)
   await Conversation.updateOne({ _id: conversationId }, { $set: { [`unread.${me}`]: 0 } });
   res.json({ ok: true });
+});
+
+// About visible participants in a conversation (when removing other participant fromconvercation)
+router.put("/conversations/localState/:conversationId/:otherUserId", async (req, res) => {
+  const { conversationId, otherUserId } = req.params;
+  const { isExisting } = req.body;
+  const now = new Date();
+  console.log("Updating participant status for conversation", conversationId, "and user", otherUserId, "to", isExisting);
+  try {
+    const updatedConvo = await Conversation.findByIdAndUpdate(
+      conversationId,
+      {
+        $set: {
+          updatedAt: now,
+          lastMessageAt: now,
+          [`isParticipant.${otherUserId}`]: isExisting,
+        },
+      },
+      { new: true }
+    ).lean();
+
+    res.json(updatedConvo);
+  } catch (err) {
+    console.error("Error updating participant status", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 module.exports = router;

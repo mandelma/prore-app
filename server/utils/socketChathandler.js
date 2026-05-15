@@ -9,7 +9,13 @@ const hsc = (io, socket) => {
 
     // For display users online - offline
 
-    const userId = socket.userId;               // <- set in auth middleware
+    const userId = String(socket.userId);
+    socket.join(`user:${userId}`);
+
+    socket.on("join-conversation", ({ conversationId }) => {
+        socket.join(`convo:${conversationId}`);
+        console.log("joined room", `convo:${conversationId}`);
+    });
 
     if (!onlineUsers.has(userId)) onlineUsers.set(userId, []);
     onlineUsers.get(userId).push(socket.id);
@@ -42,7 +48,7 @@ const hsc = (io, socket) => {
     })
 
 
-    socket.on("send-message", async ({ conversationId, text, attachments }) => {
+    /* socket.on("send-message", async ({ conversationId, text, attachments }) => {
         // 1) Save message in DB
         const msg = await Message.create({
             conversationId,
@@ -70,13 +76,12 @@ const hsc = (io, socket) => {
         // 3) Emit message to room
         io.to(`convo:${conversationId}`).emit("message:new", msg);
 
-        // 4) Emit conversation update to each participant user room
-        // (you should have each user join `user:<id>` room on connect)
+        
         participants.forEach((pid) => {
             //io.to(`user:${pid}`).emit("conversation-upsert", updatedConvo);
             socket.to(pid).to(socket.userId).emit('conversation-upsert', updatedConvo);
         });
-    });
+    }); */
 }
 
 module.exports = hsc;

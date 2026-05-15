@@ -437,6 +437,7 @@ const parseDmyTime = (str) => {
   const [, dd, mm, yyyy, HH, MM] = m.map(Number);
   return new Date(yyyy, mm - 1, dd, HH, MM);
 }
+
 // Create a new booking
 const handleRequest = async (payload) => {
   console.log("Handling request client history... ", payload);
@@ -468,6 +469,7 @@ const handleRequest = async (payload) => {
     professional: selectedProvider.value?.profession[0],
     isIncludeOffers: false,
     description: payload.content,
+    photos: payload.serverPhotos || [],
     status: "active",
   }
 
@@ -477,7 +479,15 @@ const handleRequest = async (payload) => {
   //isRequestSent.value = true;
 
 
-  clientStore.onRequest(receiverId, userId, selectedProvider.value, user.value, request);
+  clientStore.onRequest(receiverId, userId, selectedProvider.value, user.value, request, payload.localPhotos, () => {
+    // success callback
+    console.log("Request sent successfully");
+    //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!";
+    
+  }, (err) => {
+    console.log("Error sending request: " + err.message);
+    //rs_error_msg.value = "Tapahtui virhe tilauksen lähettämisessä.";
+   });
 
 }
 

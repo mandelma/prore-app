@@ -2,36 +2,38 @@
  <div style="text-align: center;">
    <MDBContainer>
      <div class="center-page">
-       <main class="page">
-         <div class="logo-hero">
-           <img class="logo-hero__img img-box"
-                style="border-radius: 100%;"
-                :src="logo"
-                alt="Prokeikkatori logo" width="1024" height="549" />
-         </div>
-         <h1 class="app-title"><span class="app-title__word">PROKEIKKATORI</span></h1>
-         <p class="tagline">{{ t('public_home_title') }}</p>
+          <main class="page">
+            <div class="logo-hero">
+              <img class="logo-hero__img img-box"
+                    style="border-radius: 100%;"
+                    :src="logo"
+                    alt="Prokeikkatori logo" width="1024" height="549" />
+            </div>
+            <h1 class="app-title"><span class="app-title__word">PROKEIKKATORI</span></h1>
+            <p class="tagline">{{ t('public_home_title') }}</p>
 
-         <div class="action-panel">
-           <button class="btn-hero btn-hero--primary" @click="clientInitial">
-             <span class="btn-hero__icon">🔍</span> {{ t('public_home_btn_client') }}
-           </button>
-           <button class="btn-hero btn-hero--accent" @click="proInitial">
-             <span class="btn-hero__icon btn-hero__icon--accent">＋</span>
-             <MDBIcon></MDBIcon>
-             {{ t('public_home_btn_pro') }}
-           </button>
-         </div>
-       </main>
-     </div>
+            <div class="action-panel">
+              <button class="btn-hero btn-hero--primary" @click="clientInitial">
+                 {{ t('public_home_btn_client') }}
+              </button>
+              <button class="btn-hero btn-hero--accent" @click="proInitial">
+                
+                
+                {{ t('public_home_btn_pro') }}
+              </button>
+            </div>
+          </main>
+        </div>
+     
    </MDBContainer>
 
  </div>
 </template>
 
+
 <script setup>
-import { MDBContainer, MDBBtn, MDBIcon } from 'mdb-vue-ui-kit'
-import { ref } from 'vue'
+import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBIcon } from 'mdb-vue-ui-kit'
+import { ref, computed} from 'vue'
 import { useCounterStore } from '@/stores/counter'
 import { storeToRefs, mapStores, mapActions } from 'pinia'
 import { useLoginStore } from '@/stores/login'
@@ -55,11 +57,16 @@ const { t } = useI18n();
 const proStore = useProStore();
 
 const { profile } = storeToRefs(proAdmin);
+const { providerCount, professionCount } = storeToRefs(proStore);
+
 
 const clientInitial = () => {
   console.log("Recipient form.");
   router.push('/client-form');
 }
+
+// <!-- <span class="btn-hero__icon">🔍</span> -->
+// <!-- <span class="btn-hero__icon btn-hero__icon--accent">＋</span> -->
 const proInitial = () => {
   console.log("Pro form");
   if (proStore.isUserPro) {
@@ -94,6 +101,155 @@ const proInitial = () => {
 }
 
 html, body, #app { height: 100%; }
+
+
+.home-wrap {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+}
+
+.home-row {
+  min-height: calc(100vh - 120px);
+}
+
+.info-col {
+  display: flex;
+  justify-content: center;
+}
+
+.info-panel {
+  width: 100%;
+  max-width: 460px;
+  display: grid;
+  gap: 18px;
+  padding: 20px 10px;
+}
+
+.info-card {
+  text-align: left;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(24, 31, 43, .96), rgba(10, 15, 23, .96));
+  border: 1px solid rgba(105, 210, 220, .25);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .35);
+}
+
+.client-card {
+  border-color: rgba(81, 220, 170, .4);
+}
+
+.provider-card {
+  border-color: rgba(230, 150, 75, .45);
+}
+
+.info-label {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #39d7f2;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.info-card h2 {
+  color: #f4f4f4;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.info-card p {
+  color: #aeb7c5;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.stats-row div {
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .045);
+  text-align: center;
+}
+
+.stats-row strong {
+  display: block;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.stats-row span {
+  display: block;
+  color: #8f9aaa;
+  font-size: 11px;
+}
+
+.info-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.info-btn--client {
+  background: linear-gradient(180deg, #6ee4aa, #116b4d);
+  color: #061514;
+}
+
+.info-btn--provider {
+  background: linear-gradient(180deg, #e4b088, #8c4218);
+  color: #160b04;
+}
+
+@media (max-width: 991px) {
+  .home-wrap {
+    align-items: flex-start;
+  }
+
+  .home-row {
+    min-height: auto;
+  }
+
+  .info-panel {
+    max-width: 100%;
+    padding: 25px 4px 40px;
+  }
+
+  .info-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .info-card h2 {
+    font-size: 19px;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
 
 .center-page{
   margin: 0;
@@ -329,26 +485,19 @@ html, body, #app { height: 100%; }
   width: 290px;
   
   padding: 33px 13px;
-  border-radius:999px;
-  font: 800 14px/1 "Inter", system-ui, sans-serif;
+  
+  border-radius: 7px;
+  font: 800 17px/1 "Inter", system-ui, sans-serif;
   letter-spacing:.08em;
   text-transform:uppercase;
-  /* color:var(--text); */
+  
   color: rgb(83, 31, 12);
-  /* background:
-      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
- /*  background:
-      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #7295a5 0%, #0f5a73 100%);  */
+ 
     background:
       radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
       linear-gradient(180deg, #e2b895 0%, #773419 100%); 
   border:1px solid rgba(142,234,255,.35);
-  /* box-shadow:
-      0 8px 18px rgba(0,0,0,.35),
-      0 0 0 1px rgba(73,210,255,.18) inset,
-      0 0 16px var(--btn-glow); */
+  
       box-shadow:
       0 8px 18px rgba(0,0,0,.35),
       0 0 0 1px rgba(255, 155, 73, 0.18) inset,
@@ -427,7 +576,8 @@ html, body, #app { height: 100%; }
     
     padding: 23px 13px;
     margin-top: 17px;
-    border-radius:999px;
+    /* border-radius:999px; */
+    border-radius: 9px;
     font: 800 12px/1 "Inter", system-ui, sans-serif;
     letter-spacing:.08em;
     text-transform:uppercase;

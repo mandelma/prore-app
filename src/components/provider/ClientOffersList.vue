@@ -124,10 +124,7 @@
                   :ref="setCollapseRoot"
                   v-model="parentOpen"
               >
-              <!--  @resize-parent="syncParentHeight"
-                    @unlock-parent="unlockParentHeight"
-                    @confirmed-order-toast="handleConfirmedOrderToast" -->
-              <!-- target a real DOM element to control height @just-test="hJustTest" -->
+              
               <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
                     :open="childOpen"
@@ -135,6 +132,7 @@
                     :is-disabled="booking?.disabled"
                     
                     :client="client"
+                    
                     @open-chat="$emit('open-chat', $event)"
                     @toast="toastForward"
                 />
@@ -172,7 +170,7 @@
 
 <script setup>
 import {MDBContainer, MDBRow, MDBCol, MDBToast, MDBBtn, MDBBtnClose, MDBCollapse} from'mdb-vue-ui-kit';
-import {ref, toRefs, onMounted, onBeforeUnmount, provide, computed} from 'vue';
+import {ref, toRefs, onMounted, onBeforeUnmount, provide, computed, nextTick} from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useProStore } from '@/stores/providerStore.js';
@@ -213,7 +211,7 @@ const noLimitWarning = ref(false);
 const isOpenBooking = ref(false);
 const parentOpen = ref(false);
 const childOpen = ref(false)
-const collapseEl = ref(null)    // <div ref="collapseEl">
+
 const bookingID = ref(0);
 const bookingIndex = ref(0);
 
@@ -223,12 +221,54 @@ const confirmedOrderMessage = ref("");
 const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : [])
 
 
+
+
+const collapseEl = ref(null)
+const collapseRoot = ref(null)
+
+/* function setCollapseRoot(el) {
+  collapseRoot.value = el?.$el || el
+}
+
+function syncParentHeight() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      const root = collapseRoot.value
+      const body = collapseEl.value
+
+      if (!root || !body || !parentOpen.value) return
+
+      root.style.height = `${body.scrollHeight}px`
+      root.style.overflow = 'visible'
+    })
+  })
+}
+
+function unlockParentHeight() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      const root = collapseRoot.value
+      if (!root || !parentOpen.value) return
+
+      root.style.height = 'auto'
+      root.style.overflow = 'visible'
+    })
+  })
+} */
+
+
+
+
+
+
+
+
 /** ✅ The actual collapse root DOM element (from <MDBCollapse>) */
 const collapseRootEl = ref(null)
 
-/** Setter used by :ref on MDBCollapse; Vue calls with el on mount and null on unmount */
+
 function setCollapseRoot (compOrEl) {
-  // MDBCollapse is a component → prefer .$el; if already element, use directly; null on unmount
+  
   collapseRootEl.value = compOrEl?.$el ?? compOrEl ?? null
 }
 
@@ -241,7 +281,6 @@ function resizeParent () {
   if (raf1) cancelAnimationFrame(raf1)
   if (raf2) cancelAnimationFrame(raf2)
 
-  // double rAF to measure after classes/styles applied
   raf1 = requestAnimationFrame(() => {
     raf2 = requestAnimationFrame(() => {
       const root = collapseRootEl.value
@@ -262,7 +301,7 @@ function unlockParent () {
   })
 }
 
-/** Expose to child via inject */
+/** Exposing to child via inject */
 provide('resizeParent', resizeParent)
 provide('unlockParent', unlockParent)
 
@@ -328,6 +367,12 @@ const openBookingOffer = async(booking, index) => {
     console.log("Client - " + {client})
     console.log("Here header: " + incomingOffers.value[0].header);
     //isOpenBooking.value = true;
+
+
+    await nextTick()
+    resizeParent()
+
+    setTimeout(unlockParent, 350)
 
     addVisitor(booking.id, {visitor: providerId.value});
 
@@ -558,7 +603,7 @@ span.strong-tilt-move-shake {
   height: 100%;
 }
 
-.photo-media {
+/* .photo-media {
   width: 100%;
   overflow: hidden;
 }
@@ -567,7 +612,7 @@ span.strong-tilt-move-shake {
   width: 100%;
   height: auto;
   border-radius: 10px;
-}
+} */
 
 @media (max-width: 767px) {
   .client-collapse .card-body {

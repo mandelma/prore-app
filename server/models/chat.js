@@ -8,7 +8,8 @@ const conversationSchema = new Schema(
 
     participantIds: [{ type: Types.ObjectId, ref: "User", required: true }], // sorted
     participantKey: { type: String, required: true, unique: true }, // "u1_u2"
-
+    //isParticipant: { type: Boolean, default: true },
+    isParticipant: { type: Map, of: Boolean, default: {} }, // userId -> bool
     lastMessageAt: { type: Date },
     lastMessageText: { type: String },
     lastMessageSenderId: { type: Types.ObjectId, ref: "User" },
@@ -54,7 +55,6 @@ const messageSchema = new Schema(
   {
     conversationId: { type: Types.ObjectId, ref: "Conversation", required: true, index: true },
     senderId: { type: Types.ObjectId, ref: "User", required: true },
-
     text: { type: String, default: "" },
     attachments: { type: [attachmentSchema], default: [] },
 

@@ -21,8 +21,10 @@
     <div v-if="!client.professional && !road">
       <MDBSpinner color="info" />
     </div>
-    <div v-else style="border-top: 1px solid grey; width: 100%;">
-
+    <div v-else style="border-top: 1px solid grey; width: 100%; background-color: #1a1a1a; padding: 13px; border-radius: 5px;">
+      <h5 style="color: #dddddd; margin-bottom: 20px;">
+        {{client.header}}
+      </h5>
       <MDBTable borderless class="booking-table--stack" style="font-size: 12px; color: #dddddd; text-align: left;">
         <tbody>
         <tr>
@@ -63,14 +65,15 @@
             Kuvat tehtävästä:
           </td>
           <td>
-            <div class="photo-media">
+            <!-- class="photo-media" -->
+             <!-- @load="loadingImages[idx] = false"
+                        @error="loadingImages[idx] = false" -->
+            <div >
               <MDBLightbox> 
                 <MDBRow class="g-2 mx-0">
                   <MDBCol
-                    lg="4"
+                    col="6" 
                     md="4"
-                    sm="6"
-                    xs="6"
                     v-for="(photo, idx) in client.photos"
                     :key="idx"
                     class="px-1"
@@ -80,15 +83,15 @@
                       <MDBLightboxItem
                         :src="photo.imageUrl || photo.imageId.imageUrl || photo.previewUrl"
                         :fullScreenSrc="photo.imageUrl || photo.imageId.imageUrl || photo.previewUrl"
-                        :caption="photo.text || 'Kuva tilauksesta'"
+                        :caption="photo.text || ''"
                         alt="Booking photo"
-                        @load="loadingImages[idx] = false"
-                        @error="loadingImages[idx] = false"
+                        @load="handleImageLoaded(idx)"
+                        @error="handleImageLoaded(idx)"
                       />
-                      <div v-if="photo.text !== ''" class="photo-overlay">
+                      <!-- <div v-if="photo.text !== ''" class="photo-overlay">
                 
                         <p>{{ photo.text }}</p>
-                      </div>
+                      </div> -->
                     </div>
                   </MDBCol>
                 </MDBRow>
@@ -102,7 +105,7 @@
             Etäisyys
           </td>
           <td>
-            {{roadDistance}}
+            {{roadDistance}} km
           </td>
         </tr>
         <tr>
@@ -445,15 +448,6 @@ const cMessage = ref("");
 
 onMounted(async() => {
   await validateMaps();
-  // if (!window.google) {
-  //   await loadGoogleMaps();
-  //   console.log("Map is inited in ClientOffer!");
-  // }
-
-  
-  //console.log("Distance is " + final.value.distance);
-  //console.log("Duration is " + final.value.duration);
-
 })
 
 onUnmounted(() => {
@@ -462,7 +456,7 @@ onUnmounted(() => {
 });
 
 watch(
-  () => client?.photos,
+  () => client.value?.photos,
   (photos) => {
     if (!photos) return;
     const newState = {};
@@ -474,6 +468,16 @@ watch(
   },
   { immediate: true}
 )
+
+function handleImageLoaded(idx) {
+  loadingImages.value[idx] = false
+
+  onResize();
+
+  /* requestAnimationFrame(() => {
+    emit('resize-parent')
+  }) */
+}
 
 
 const validateMaps = async() => {
@@ -913,41 +917,6 @@ const handleCancelRemoving = () => {
 
 <style scoped>
 
-/* .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0, 0, 0, 0.5);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 9999;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-
-  border: 5px solid #ccc;
-  border-top: 5px solid white;
-  border-radius: 50%;
-
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-} */
-
-
-
 .fade-slide-enter-active, .fade-slide-leave-active { transition: all .2s ease; }
 .fade-slide-enter-from,  .fade-slide-leave-to      { opacity: 0; transform: translateY(-4px); }
 
@@ -1027,16 +996,15 @@ const handleCancelRemoving = () => {
 .lightbox-thumb{
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;     /* 👈 perfect square */
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 8px;
 }
 
-/* MDBLightboxItem renders an img inside */
 .lightbox-thumb img{
   width: 100%;
   height: 100%;
-  object-fit: cover;      /* 👈 crop like your photo-grid */
+  object-fit: cover;
   display: block;
 }
 
@@ -1051,12 +1019,7 @@ const handleCancelRemoving = () => {
   bottom: 0;
 
   background: rgba(0, 0, 0, 0.5);
-  /* background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8),
-    rgba(0, 0, 0, 0.2),
-    transparent
-  ); */
+  
   padding: 6px;
   border-radius: 0 0 8px 8px;
   font-size: 13px;
@@ -1064,7 +1027,7 @@ const handleCancelRemoving = () => {
 
 .photo-overlay p {
   display: -webkit-box;
-  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden  ;
   
@@ -1123,20 +1086,33 @@ box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
 
 
 
+.client-collapse {
+  overflow: visible !important;
+}
+
+.client-collapse.collapse.show {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.client-collapse .card-body {
+  overflow: visible;
+  padding-bottom: 24px;
+}
 
 
 
 
 .offer-actions {
   width: 100%;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  /* margin-bottom: 20px; */
+  padding-bottom: 24px;
 }
 
 @media (max-width: 767px) {
   .offer-actions {
     width: 100%;
-    padding: 0 0 16px 0; /* instead of negative margins */
+    padding: 0 0 16px 0;
   }
 
 .offer-actions .btn:not(.btn-close) {

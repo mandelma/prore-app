@@ -29,6 +29,7 @@
       <!-- class="chat-header" -->
 
       <!-- Window -->
+
       <section
           class="chat-window"
           :class="{ open: isOpen }" 
@@ -60,11 +61,21 @@
                 @click="selectConversation(opt.conversationId)"
               >
                 <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
+                 
                 <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
                   <div style="margin-top: 17px; margin-left: -17px; ">
                   {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
                 </div>
-                <span>{{ opt.name }}</span>
+                
+                <div class="chat-name-row">
+                  <span>{{ opt.name }}</span>
+
+                  <i
+                    class="fas fa-times chat-name-close"
+                    @click.stop="removeChatMember(opt)"
+                  ></i>
+                </div>
+                <!-- <span>{{ opt.name }}</span><MDBBtnClose /> -->
 
                 <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
               </li>
@@ -174,6 +185,17 @@
           </form>
       </section>
 
+      <ConfirmModal
+        v-model="showDeleteModal"
+        :title="cTitle"
+        :message="cMessage"
+        confirm-text="Poista"
+        cancel-text="Pidä se"
+        :danger="true"
+        @confirm="handleConfirmRemoveChatUser"
+        @cancel="handleCancelRemoving"
+      />
+
       <!-- <div style="color:red; position:absolute; top:-20px;">
         {{ mobile }}
       </div> -->
@@ -184,12 +206,13 @@
 </template>
 
 <script setup>
-  import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBIcon } from "mdb-vue-ui-kit";
+  import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBIcon, MDBBtnClose } from "mdb-vue-ui-kit";
   import { ref, computed, nextTick, onMounted, onUpdated, onBeforeUnmount, watch } from "vue";
   import { storeToRefs } from "pinia";
   import { useLoginStore } from "@/stores/login";
   import { useConversationStore } from "@/stores/conversationStore";
   import { usePresenceStore } from '@/stores/presenceStore';
+  import ConfirmModal from "@/components/helpers/ConfirmModal.vue";
   import uploadService from "@/service/awsUploads"; // must return uploaded files array
   import userService from "@/service/users";
   import socket from "@/socket";
@@ -225,6 +248,12 @@
 
   const openSide = ref("right");
 
+  const conversationToRemove = ref(null);
+
+  const showDeleteModal = ref(false);
+  const cTitle = ref("");
+  const cMessage = ref("");
+
   // Your dropdown vars (left as-is)
   //const options = ["Option 1", "Option 2", "Option 3"];
   //const options = computed(() => conversations.value);
@@ -259,198 +288,206 @@
   const launcherTouchDragging = ref(false);
 
   const onLauncherPointerDown = (e) => {
-  emit("start-drag", e);
-};
+    emit("start-drag", e);
+  };
 
-/* const onLauncherClick = (e) => {
-  if (props.didDrag) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
+  const onLauncherClick_old = (e) => {
+    if (props.didDrag) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
-  if (openChat.value) {
-    convoStore.closeChatWidget();
-  } else {
-    decideOpenSide();
-    convoStore.openChatWidget();
-    nextTick(() => chatInput.value?.focus());
-  }
-}; */
+    if (openChat.value) {
+      convoStore.closeChatWidget();
+    } else {
+      decideOpenSide();
+      emit("request-open");
+    }
+  };
 
-/* const onLauncherClick = (e) => {
-  if (props.didDrag) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
+  const onLauncherClick__Prev = (e) => {
+    if (props.didDrag) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
-  if (openChat.value) {
-    convoStore.closeChatWidget();
-  } else {
-    decideOpenSide();
-    convoStore.openChatWidget();
-    nextTick(() => chatInput.value?.focus());
-  }
-}; */
+    if (openChat.value) {
+      //convoStore.closeChatWidget();
+      emit("request-close");
+    } else {
+      decideOpenSide();
+      emit("request-open", { side: openSide.value });
+    }
+  };
 
-const onLauncherClick_old = (e) => {
-  if (props.didDrag) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
+  const onLauncherClick = (e) => {
+    if (props.didDrag) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
-  if (openChat.value) {
-    convoStore.closeChatWidget();
-  } else {
-    decideOpenSide();
-    emit("request-open");
-  }
-};
+    if (openChat.value) {
+      emit("request-close");
+    } else {
+      decideOpenSide();
+      emit("request-open", { side: openSide.value });
+    }
+  };
 
+  const chatWindowStyle___ = computed(() => {
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
 
-const onLauncherClick__Prev = (e) => {
-  if (props.didDrag) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
+    const isMobile = viewportW <= 640;
+    const sideMargin = isMobile ? 8 : 10;
+    const topMargin = isMobile ? 8 : 10;
+    const bottomMargin = isMobile ? 20 : 32;
 
-  if (openChat.value) {
-    //convoStore.closeChatWidget();
-    emit("request-close");
-  } else {
-    decideOpenSide();
-    emit("request-open", { side: openSide.value });
-  }
-};
+    const winW = Math.min(360, viewportW - sideMargin * 2);
+    const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
 
-const onLauncherClick = (e) => {
-  if (props.didDrag) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
+    if (props.isOpenMode) {
+      return {
+        left: "0px",
+        top: "0px",
+        width: `${winW}px`,
+        height: `${winH}px`
+      };
+    }
 
-  if (openChat.value) {
-    emit("request-close");
-  } else {
-    decideOpenSide();
-    emit("request-open", { side: openSide.value });
-  }
-};
-
-const chatWindowStyle___ = computed(() => {
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-
-  const isMobile = viewportW <= 640;
-  const sideMargin = isMobile ? 8 : 10;
-  const topMargin = isMobile ? 8 : 10;
-  const bottomMargin = isMobile ? 20 : 32;
-
-  const winW = Math.min(360, viewportW - sideMargin * 2);
-  const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
-
-  if (props.isOpenMode) {
+    // closed mode can still use your old launcher-relative preview logic if needed
     return {
-      left: "0px",
+      left: "69px",
       top: "0px",
       width: `${winW}px`,
       height: `${winH}px`
     };
-  }
+  });
 
-  // closed mode can still use your old launcher-relative preview logic if needed
-  return {
-    left: "69px",
-    top: "0px",
-    width: `${winW}px`,
-    height: `${winH}px`
-  };
-});
+  const chatWindowStyle = computed(() => {
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    const isMobile = viewportW <= 640;
 
-const chatWindowStyle = computed(() => {
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-  const isMobile = viewportW <= 640;
+    if (props.isOpenMode && isMobile) {
+      return {
+        position: "fixed",
+        left: "0",
+        top: "0",
+        width: "100vw",
+        height: "100dvh",
+        borderRadius: "0",
+        maxWidth: "none",
+        maxHeight: "none"
+      };
+    }
 
-  if (props.isOpenMode && isMobile) {
+    const sideMargin = 10;
+    const topMargin = 10;
+    const bottomMargin = 32;
+    const winW = Math.min(360, viewportW - sideMargin * 2);
+    const winH = Math.min(520, viewportH - topMargin - bottomMargin);
+
+    if (props.isOpenMode) {
+      return {
+        left: "0px",
+        top: "0px",
+        width: `${winW}px`,
+        height: `${winH}px`
+      };
+    }
+
     return {
-      position: "fixed",
-      left: "0",
-      top: "0",
-      width: "100vw",
-      height: "100dvh",
-      borderRadius: "0",
-      maxWidth: "none",
-      maxHeight: "none"
-    };
-  }
-
-  const sideMargin = 10;
-  const topMargin = 10;
-  const bottomMargin = 32;
-  const winW = Math.min(360, viewportW - sideMargin * 2);
-  const winH = Math.min(520, viewportH - topMargin - bottomMargin);
-
-  if (props.isOpenMode) {
-    return {
-      left: "0px",
+      left: "69px",
       top: "0px",
       width: `${winW}px`,
       height: `${winH}px`
     };
-  }
-
-  return {
-    left: "69px",
-    top: "0px",
-    width: `${winW}px`,
-    height: `${winH}px`
-  };
-});
+  });
 
 
   
-const formatDateTime = (iso) => {
-  if (!iso) return "—";
-  const d = new Date(iso);
+  const formatDateTime = (iso) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
 
-  return d.toLocaleString("fi-FI", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
+    return d.toLocaleString("fi-FI", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
 
 
 
-  const convo_options = computed(() => {
+  const convo_options_ = computed(() => {
     const myId = me_id.value;
 
-    return conversations.value.map(cv => {
-      const otherId = String(
-        cv.participantIds.find(id => String(id) !== myId)
-      );
+    const other = conversations.value.map(cv => String(
+      cv.participantIds.find(id => String(id) !== myId)
+    ));
+    console.log("Active convo ", activeConversationId.value)
+    const _other = conversations.value.find(cv => cv.id === activeConversationId.value)?.participantIds.find(id => String(id) !== myId);
 
-      const otherUser = otherChatUsers?.value?.[otherId];
+    //console.log("XCXC ", cv)
 
-      const myUnread = cv.unread?.[myId] || 0;
+    console.log("Others in:", _other);
 
-      return {
-        conversationId: cv._id,
-        otherId,
-        name: otherUser?.firstName || otherUser?.username || "Tuntematon",
-        username: otherUser?.username || "",
-        avatar: otherUser?.avatar,
-        unread: myUnread,
-      };
-    });
+    return conversations.value
+      .filter(cv => cv.isParticipant?.[!String(myId)])
+      .map(cv => {
+        const otherId = String(
+          cv.participantIds.find(id => String(id) !== myId)
+        );
+
+        const otherUser = otherChatUsers?.value?.[otherId];
+        const myUnread = cv.unread?.[myId] || 0;
+
+        return {
+          conversationId: cv._id,
+          otherId,
+          name: otherUser?.firstName || otherUser?.username || "Tuntematon",
+          username: otherUser?.username || "",
+          avatar: otherUser?.avatar,
+          unread: myUnread,
+        };
+      });
+  });
+
+  const convo_options = computed(() => {
+    const myId = String(me_id.value);
+
+    return conversations.value
+      .filter(cv => {
+        const otherId = String(
+          cv.participantIds.find(id => String(id) !== myId)
+        );
+
+        return cv.isParticipant?.[otherId] !== false;
+      })
+      .map(cv => {
+        const otherId = String(
+          cv.participantIds.find(id => String(id) !== myId)
+        );
+
+        const otherUser = otherChatUsers?.value?.[otherId];
+        const myUnread = cv.unread?.[myId] || 0;
+
+        return {
+          conversationId: cv._id,
+          otherId,
+          name: otherUser?.firstName || otherUser?.username || "Tuntematon",
+          username: otherUser?.username || "",
+          avatar: otherUser?.avatar,
+          unread: myUnread,
+        };
+      });
   });
 
   const selectConversation = (id) => {
@@ -501,19 +538,6 @@ const formatDateTime = (iso) => {
 
 
 
-
-  /* async function scrollToBottomSmooth() {
-    await nextTick();                      // wait DOM update
-    requestAnimationFrame(() => {          // wait browser paint
-      if (chatBody.value)
-        chatBody.value.scrollTop = chatBody.value.scrollHeight;
-    });
-  }
-
-  watch(
-    () => activeMessages.value.length,
-    () => scrollToBottomSmooth()
-  ); */
 
   function toggle() {
     openChat.value = !openChat.value;
@@ -690,7 +714,15 @@ const formatDateTime = (iso) => {
 
     // Send to other user(s)
 
-    socket.emit("send-message", finalMsg);
+    //socket.emit("send-message", finalMsg);
+
+    const sentMessage = await convoStore.sendMessage(activeConversationId.value, {
+      text: finalMsg.text,
+      attachments: finalMsg.attachments,
+    });
+
+    console.log("Sent message response:", sentMessage);
+    
 
     console.log("Active messages - ", [activeMessages.value])
 
@@ -698,6 +730,26 @@ const formatDateTime = (iso) => {
     files.value = [];
 
    
+  }
+
+  const removeChatMember = async (opt) => {
+    conversationToRemove.value = opt;
+    cTitle.value = "Poista keskustelukumppani";
+    cMessage.value = `Haluatko varmasti poistaa ${opt.name} keskustelusta? Et enää näe tämän henkilön viestejä, etkä voi lähettää hänelle viestejä.`;
+    showDeleteModal.value = true;
+    console.log("Delete it--- ");
+  }
+
+  const handleConfirmRemoveChatUser = async() => {
+    const opt = conversationToRemove.value;
+    console.log("Remove member with id", opt.otherId, "from conversation", opt.conversationId);
+    console.log("Conversation", opt);
+    await convoStore.setConversationState(opt.conversationId, opt.otherId, false);
+  }
+
+  const handleCancelRemoving = () => {
+    showDeleteModal.value = false;
+    
   }
 
   onMounted(() => {
@@ -922,16 +974,16 @@ const formatDateTime = (iso) => {
   padding: 10px 12px;
   min-width: 80%;
   border-radius: 14px;
-  background: #99b8e7;
+  background: #c0cfc9;
   border: 1px solid rgba(0, 0, 0, 0.06);
   color: #151d24;
   word-break: break-word;
 }
 
 .message-wrap.me .msg {
-  background: #8ed1dd;
+  background: #a6c4c4;
   color: #151d24;
-  border: 1px solid #2a354e;
+ /*  border: 1px solid #637397; */
 }
 
 .message-meta {
@@ -1085,6 +1137,26 @@ const formatDateTime = (iso) => {
   background: #ff6b4a;
 }
 
+.chat-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.chat-name-close {
+  color: white;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.chat-name-close:hover {
+  background: rgb(235, 118, 118);
+  color: rgb(95, 8, 8);
+}
 
 .chat-dropdown-item {
   display: flex;
@@ -1094,9 +1166,7 @@ const formatDateTime = (iso) => {
   cursor: pointer;
 }
 
-.chat-dropdown-item:hover {
-  background: #2f3c58;
-}
+
 
 .chat-dropdown-left {
   display: flex;
