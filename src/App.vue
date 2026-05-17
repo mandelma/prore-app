@@ -818,7 +818,7 @@ watch(
       clientHistoryService.setToken(login.token),
       proHistoryService.setProSideToken(login.token),
       client.orderList(u.id),
-      handleProvider.getAllProviders(),
+      
       handleProvider.getProState(u.id),
       notificationStore.handleNotifications(u.id),
       clientArchiveStore.initClientArchive(),
@@ -868,7 +868,7 @@ onMounted (async () => {
   console.log("Mounted on start!");
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
-
+  handleProvider.getAllProviders(),
   placeWidgetBottomRight();
 
   await login.hydrate();

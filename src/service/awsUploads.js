@@ -24,7 +24,7 @@ const editProImage = async (id, key, newProImage) => {
     return updatedProImg.data;
 }
 
-const uploadChatImage = async (formData) => {
+const uploadChatFiles = async (formData) => {
     const chatImg = await axios.post(`${baseUrl}/upload-chat`, formData);
     return chatImg.data;
 }
@@ -57,7 +57,7 @@ export default { uploadClientImage,
     editClientImage,
     uploadProImage,
     editProImage,
-    uploadChatImage,
+    uploadChatFiles,
     uploadAvatarImage,
     editAvatarImage,
     deleteAvatar,

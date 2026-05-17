@@ -157,6 +157,7 @@ const routes = [
 const protectedRoutes = [
     "recipient-form",
     "provider-form",
+    "pro-around",
     // "Gallery",
     // "pro-gallery"
     //"provider-panel"

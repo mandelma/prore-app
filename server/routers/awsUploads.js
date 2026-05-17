@@ -115,9 +115,15 @@ uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, 
         const saved = await Promise.all(
             req.files.map(async (f) => {
                 const doc = new Upload({
-                    imageUrl: f.location,
+                    //imageUrl: f.location,
+                    //key: f.key,
+                    url: f.location,
                     key: f.key,
-                    // optionally: userId, chatId, messageId etc
+                    mime: f.mimetype,
+                    name: f.originalname,
+                    size: f.size,
+                    conversationId: req.body.conversationId,
+                    
                 });
 
                 await doc.save();
@@ -125,17 +131,19 @@ uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, 
                 return {
                     id: doc._id,
                     key: f.key,
-                    imageUrl: f.location,
+                    //imageUrl: f.location,
+                    url: f.location,
                     mime: f.mimetype,
                     name: f.originalname,
                     size: f.size,
-                    isImage: (f.mimetype || "").startsWith("image/"),
+                    //isImage: (f.mimetype || "").startsWith("image/"),
+                    isImage: f.mimetype.startsWith("image/"),
                 };
             })
         );
 
         res.json({
-            message: "Images uploaded successfully",
+            message: "Files uploaded successfully",
             files: saved, // ✅ array
         });
     } catch (err) {
