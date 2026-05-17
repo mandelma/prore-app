@@ -75,7 +75,7 @@
           </ul>
 
           <div style="display: flex; justify-content: right;  margin-top: 0;">
-            <button class="chat-close" type="button" aria-label="Close chat" @click="$emit('request-close')">✕</button>
+            <button class="chat-close" type="button" aria-label="Close chat" @click="$emit('request-close')">―</button>
           </div>
           
         </header>

@@ -37,11 +37,11 @@ module.exports = (io) => {
             .populate('user')
             .populate('ordered')
             .populate({ path: 'ordered', populate: { path: 'user' } })
-            // .populate({path: 'ordered', populate: {path: 'reference'}})
+            .populate({path: 'ordered', populate: {path: 'reference.imageId'}})
             .populate('photos.imageId')
             .populate('offers')
             .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'user' } } })
-            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference' } } })
+            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference.imageId' } } })
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'reference'}}}).exec();
 
 
@@ -58,7 +58,9 @@ module.exports = (io) => {
             .populate('photos.imageId')
             .populate({ path: 'ordered', populate: { path: 'user' } })
             .populate('offers')
-            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'user' } } }).exec();
+            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'user' } } })
+            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference.imageId' } } }).exec();
+
         res.send(booking);
     })
 

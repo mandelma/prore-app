@@ -81,10 +81,11 @@
                                     :key="idx"
                                     class="px-1"
                                     >
+                                    
                                     <div class="lightbox-thumb">
                                         <MDBLightboxItem
-                                            :src="photo.imageUrl || photo.previewUrl"
-                                            :fullScreenSrc="photo.imageUrl || photo.previewUrl"
+                                            :src="photo.imageId?.imageUrl || photo.imageUrl || photo.previewUrl" 
+                                            :fullScreenSrc="photo.imageId?.imageUrl || photo.imageUrl || photo.previewUrl"
                                             alt="Pro reference"
                                         />
                                     </div>
