@@ -10,26 +10,57 @@
 
 
       <span v-if="currentLanguage === 'fi' || currentLanguage === null">
-        <img style="width: 20px;" :src="fin" alt="fin" />
+        <!-- <img style="width: 20px;" :src="fin" alt="fin" /> -->
+        <span class="fi fi-fi me-2"></span>
       </span>
       <span v-else-if="currentLanguage === 'et'" >
         <img style="width: 20px;" :src="est" alt="est"/>
       </span>
       <span v-else-if="currentLanguage === 'en'">
-        <img style="width: 20px;" :src="en" alt="en"/>
+        <!-- <img style="width: 20px;" :src="en" alt="en"/> -->
+         <spanc class="fi fi-gb me-2"></spanc>
       </span>
+      <span v-else-if="currentLanguage === 'ru'">
+        <span class="fi fi-ru me-2"></span>
+      </span>  
       <span v-else>
-        <img style="width: 20px;" :src="swe" alt="sv"/>
+        <!-- <img style="width: 20px;" :src="swe" alt="swe"/> -->
+        <span class="fi fi-se me-2"></span>
       </span>
 
       &nbsp;
 
     </MDBDropdownToggle>
     <MDBDropdownMenu dark aria-labelledby="dropdownMenuLinkx">
-      <MDBDropdownItem ><MDBBtn color="dark" block @click="setLanguage('fi')"><img style="width: 20px;" :src="fin" alt="fin" > &nbsp;fin</MDBBtn></MDBDropdownItem>
-      <MDBDropdownItem ><MDBBtn color="dark" block @click="setLanguage('en')"><img  style="width: 20px;" :src="en" alt="en" > &nbsp;en</MDBBtn></MDBDropdownItem>
-      <MDBDropdownItem><MDBBtn color="dark" block @click="setLanguage('et')"><img style="width: 20px;" :src="est" alt="est" /> &nbsp;est</MDBBtn></MDBDropdownItem>
-      <MDBDropdownItem><MDBBtn color="dark" block @click="setLanguage('sv')"><img style="width: 20px;" :src="swe" alt="swe" /> &nbsp;swe</MDBBtn></MDBDropdownItem>
+      <MDBDropdownItem>
+        <button type="button" class="dropdown-lang-btn" @click.stop="setLanguage('fi')">
+          <span class="fi fi-fi me-2"></span> Suomi
+        </button>
+      </MDBDropdownItem>
+
+      <MDBDropdownItem>
+        <button type="button" class="dropdown-lang-btn" @click.stop="setLanguage('en')">
+          <span class="fi fi-gb me-2"></span> English
+        </button>
+      </MDBDropdownItem>
+
+      <MDBDropdownItem>
+        <button type="button" class="dropdown-lang-btn" @click.stop="setLanguage('et')">
+          <span class="fi fi-ee me-2"></span> Eesti
+        </button>
+      </MDBDropdownItem>
+
+      <MDBDropdownItem>
+        <button type="button" class="dropdown-lang-btn" @click.stop="setLanguage('sv')">
+          <span class="fi fi-se me-2"></span> Svenska
+        </button>
+      </MDBDropdownItem>
+
+      <MDBDropdownItem>
+        <button type="button" class="dropdown-lang-btn" @click.stop="setLanguage('ru')">
+          <span class="fi fi-ru me-2"></span> Русский
+        </button>
+      </MDBDropdownItem>
     </MDBDropdownMenu>
   </MDBDropdown>
 </template>
@@ -70,5 +101,13 @@ const setLanguage = (newLang) => {
 </script>
 
 <style scoped>
-
+.dropdown-lang-btn {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
 </style>

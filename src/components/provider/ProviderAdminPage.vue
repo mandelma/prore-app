@@ -1,60 +1,3 @@
-<!-- ProviderAdminPage.vue (Vue 3 + <script setup> + MDB5 Vue UI Kit)
-     npm i mdb-vue-ui-kit
--->
-
-
-<!-- 
-
-
-
-<p class="small">
-  {{ t('providerAdmin.creditDays', { count: credit }) }}
-</p>
-
-<div class="text-muted info-panel">
-  {{ t('providerAdmin.serviceAreaValue', {
-    range: draftProvider.range ? draftProvider.range : 0
-  }) }}
-</div>
-
-<div class="text-muted info-panel">
-  {{ t('providerAdmin.hourlyRateValue', {
-    price: draftProvider.priceByHour
-  }) }}
-</div>
-
-<p class="text-muted">
-  {{ draftProvider?.notes ? draftProvider.notes : t('providerAdmin.noNotes') }}
-</p>
-
-<MDBInput :label="t('providerAdmin.description')" ... />
-
-<address-autocomplete
-  v-model="pmForm.address"
-  :label="t('providerAdmin.enterNewAddress')"
-  @place="onPlaceSelected"
-/>
-
-<Select
-  ...
-  :placeholder="t('providerAdmin.enterNewProfession')"
-/>
-
-<div v-if="filteredClients.length === 0">
-  {{ t('providerAdmin.noSearchResults') }}
-</div>
-
-<div class="text-muted small">
-  {{ t('providerAdmin.calendarVisibilityHelp') }}
-</div>
-
-<button ...>
-  {{ t('providerAdmin.closeToast') }}
-</button> -->
-
-
-
-
 <template>
   <MDBContainer v-if="!provider">
     <p>{{ t('providerAdmin.loading') }}</p>
@@ -113,7 +56,7 @@
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Vahvistetut tilaukset</div>
+            <div class="text-muted small">{{ t('providerAdmin.confirmedOrders') }}</div>
             <MDBBtn color="dark" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')">
               <span class="fs-5 fw-semibold">{{ confirmedClients.length }}</span>
             </MDBBtn>
@@ -124,7 +67,7 @@
       <MDBCol col="6" md="3">
         <MDBCard class="h-100">
           <MDBCardBody class="py-3">
-            <div class="text-muted small">Arkistoidut tilaukset</div>
+            <div class="text-muted small">{{ t('providerAdmin.archivedOrders') }}</div>
             <MDBBtn  color="dark" size="md" block :disabled="!providerHistory.length" @click="router.push('/p-archive')">
               <span class="fs-5 fw-semibold" style="color: #ddd;">{{ providerHistory.length }}</span>
             </MDBBtn>
@@ -143,13 +86,14 @@
                 class="fs-5"
                 v-if="credit <= 0"
               >
-                <div style="font-size: 12px;">Käyttöaika on päättynyt!</div>
-                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa aikaa!</p>
+                <div style="font-size: 12px;">{{ t('providerAdmin.usageTimeEnded') }}</div>
+                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">{{ t('providerAdmin.loadTime') }}</p>
               </div>
-              <div v-else-if="credit <= 3 &&
+              <!-- credit <= 3 && -->
+              <div v-else-if="
                 credit > 0">
                 <p class="small">{{ t('providerAdmin.creditDays', { count: credit }) }}</p>
-                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">Lattaa lisää aikaa!</p>
+                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">{{ t('providerAdmin.loadMoreTime') }}</p>
               </div>
               <div v-else>
                 
@@ -165,18 +109,18 @@
     
     <div style="display: flex; gap: 7px; margin-bottom: 17px;">
       <div style="flex: 1;">
-        <p class="text-muted small btn-desc">Kuvat tehtävistä</p>
+        <p class="text-muted small btn-desc">{{ t('providerAdmin.taskImages') }}</p>
         <MDBBtn color="dark" block size="lg" @click="openReferences"><MDBIcon size="lg"><i class="far fa-images"></i></MDBIcon></MDBBtn>
       </div>
       <div style="flex: 1;">
-        <p class="text-muted small btn-desc" >Palautteet</p>
+        <p class="text-muted small btn-desc" >{{ t('providerAdmin.feedback') }}</p>
         <MDBBtn color="dark" block size="lg"  @click="showFeedback"><i className="fas fa-star text-warning"></i> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn>
         
       </div>
 
       <div style="flex: 1;">
         <!-- <img class="proMap" :src="pro_map" alt="from_map" /> -->
-        <p class="text-muted small btn-desc">Asiakkaat kartalla</p>
+        <p class="text-muted small btn-desc">{{ t('providerAdmin.clientsOnMap') }}</p>
         <MDBBtn color="dark" block size="lg"  @click="seeClients">
           <!-- <span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp; -->
           <MDBIcon size="lg"><i class="fas fa-users" ></i></MDBIcon></MDBBtn>
@@ -190,11 +134,11 @@
           <MDBCardBody v-if="!isPanelInfoEditSection">
             
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <h6 class="mb-0">Palveluntarjoaja</h6>
+              <h6 class="mb-0">{{ t('providerAdmin.provider') }}</h6>
               <div class="d-flex gap-2">
                 
                 <MDBBtn size="sm" color="primary" @click="isPanelInfoEditSection = true">
-                  Muokkaa
+                  {{ t('providerAdmin.edit') }}
                 </MDBBtn>
               </div>
             </div>
@@ -205,12 +149,20 @@
                 <!-- <div class="text-muted info-panel" >{{ draftProvider.name }}</div> -->
                 <div class="text-muted info-panel">{{ draftProvider.description }}</div>
                 <div class="text-muted info-panel">{{ draftProvider.address }}</div>
-                <div class="text-muted info-panel">Toimintaalue {{ draftProvider.range ? draftProvider.range + ' km' : 0 + ' km' }}</div>
+                <div class="text-muted info-panel">
+                  {{ t('providerAdmin.serviceAreaValue', {
+                  range: draftProvider.range ? draftProvider.range : 0
+                  }) }}
+                </div>
                 <div class="text-muted info-panel">{{ draftProvider.profession.join(", ") }}</div>
-                <div class="text-muted info-panel">Tuntihinta {{ draftProvider.priceByHour }} euroa</div>
+                <div class="text-muted info-panel">
+                  {{ t('providerAdmin.hourlyRateValue', {
+                    price: draftProvider.priceByHour
+                  }) }}
+                </div>
                 <div class="info-panel">
-                  Muistiinpanot
-                  <p class="text-muted">{{draftProvider?.notes ? draftProvider.notes : "Ei muistinpanoja"}}</p>
+                  {{ t('providerAdmin.notes') }}
+                  <p class="text-muted">{{ draftProvider?.notes ? draftProvider.notes : t('providerAdmin.noNotes') }}</p>
                 </div>
                 
               </div>
@@ -220,29 +172,29 @@
           <MDBCardBody v-else>
             
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <h6 class="mb-0 no-edit-panel" @click="isPanelInfoEditSection = false">Poistu</h6>
+              <h6 class="mb-0 no-edit-panel" @click="isPanelInfoEditSection = false">{{ t('providerAdmin.exit') }}</h6>
               <div class="d-flex gap-2">
                 <MDBBtn size="sm" color="light" outline @click="resetProvider" :disabled="busy || !providerDirty">
-                  Reset
+                  {{ t('providerAdmin.reset') }}
                 </MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="busy || !providerDirty">
-                  Save
+                  {{ t('providerAdmin.save') }}
                 </MDBBtn>
               </div>
             </div>
 
             <div class="vstack gap-3">
               
-              <MDBInput label="Kuvaus" v-model="draftProvider.description" @input="markDirty('provider')" />
+              <MDBInput :label="t('providerAdmin.description')" v-model="draftProvider.description" @input="markDirty('provider')" />
 
               <fieldset class="fs-box">
-                <legend class="fs-legend">Osoite</legend>
+                <legend class="fs-legend">{{ t('providerAdmin.address') }}</legend>
                 <div>
                   <p class="text-muted" style="color:cornflowerblue; font-size: 12px;; text-align: left;">{{ draftProvider.address }}</p>
 
                   <address-autocomplete
                     v-model="pmForm.address"
-                    label="Anna uusi osoitteesi..."
+                    :label="t('providerAdmin.enterNewAddress')"
                     @place="onPlaceSelected" 
                   />
                 </div>
@@ -251,7 +203,7 @@
 
               <!-- Current professions list -->
               <fieldset class="fs-box">
-                <legend class="fs-legend">Ammatit</legend>
+                <legend class="fs-legend">{{ t('providerAdmin.professions') }}</legend>
                 <div>
                   <MDBTable  style="font-size: 14px; color: #ddd; width: 100%; text-align: left;">
                     <tbody>
@@ -281,7 +233,7 @@
                       optionValue="label"
                       optionGroupLabel="label"
                       optionGroupChildren="items"
-                      placeholder="Anna uusi ammatti"
+                      :placeholder="t('providerAdmin.enterNewProfession')"
                       class="w-full md:w-[30rem]"
                       showClear
                       appendTo="body"
@@ -292,11 +244,11 @@
                 
               </fieldset>
      
-              <MDBInput label="Toiminta alue - km" v-model="draftProvider.range" :value="field" @input="filterInput" />
+              <MDBInput :label="t('providerAdmin.serviceAreaKm')" v-model="draftProvider.range" :value="field" @input="filterInput" />
               
-              <MDBInput label="Tuntihinta" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" />
+              <MDBInput :label="t('providerAdmin.hourlyRate')" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" />
 
-              <MDBTextarea label="Muistiinpanot..." rows="3" v-model="draftProvider.notes"
+              <MDBTextarea :label="t('providerAdmin.notes')" rows="3" v-model="draftProvider.notes"
                 @input="markDirty('provider')" />
 
               <MDBRow class="g-2">
@@ -315,43 +267,17 @@
 
       <!-- Clients + extra useful sections -->
       <MDBCol md="7" lg="8">
-        <!-- Clients -->
-         
-        <!-- <MDBCard class="mb-3">
-          <MDBCardBody>
-            
-            <div class="orders-header">
-              <h6 class="mb-0">Tilaukset</h6>
-
-              <MDBInput
-                size="sm"
-                label="Haku..."
-                v-model="clientQuery"
-                class="orders-search"
-              />
-            </div>
-            <client-offers-list
-              :clients="filteredClients"
-              @open-chat="$emit('open-chat', $event)"
-              @toast="handleToast"
-            />
-
-            <div v-if="filteredClients.length === 0" class="text-muted small py-2">
-              Etsimäsi tieto puuttuu.
-            </div>
-          </MDBCardBody>
-        </MDBCard> -->
 
         <!-- DESKTOP -->
         <div class="d-none d-md-block">
           <MDBCard class="mb-3">
             <MDBCardBody>
               <div class="orders-header">
-                <h6 class="mb-0">Tilaukset</h6>
+                <h6 class="mb-0">{{ t('providerAdmin.orders') }}</h6>
 
                 <MDBInput
                   size="sm"
-                  label="Haku..."
+                  :label="t('providerAdmin.search')"
                   v-model="clientQuery"
                   class="orders-search"
                 />
@@ -364,20 +290,20 @@
               />
 
               <div v-if="filteredClients.length === 0" class="text-muted small py-2">
-                Etsimäsi tieto puuttuu.
+                {{ t('providerAdmin.noResults') }}
               </div>
             </MDBCardBody>
           </MDBCard>
         </div>
 
         <!-- MOBILE -->
-        <div class="d-block d-md-none mobile-orders">
+        <div class="d-block d-md-none mobile-orders order-section" >
           <div class="orders-header px-2">
-            <h6 class="mb-0">Tilaukset</h6>
+            <h6 class="mb-0">{{ t('providerAdmin.orders') }}</h6>
 
             <MDBInput
               size="sm"
-              label="Haku..."
+              :label="t('providerAdmin.search')"
               v-model="clientQuery"
               class="orders-search"
             />
@@ -390,7 +316,7 @@
           />
 
           <div v-if="filteredClients.length === 0" class="text-muted small py-2 px-2">
-            Etsimäsi tieto puuttuu.
+            {{ t('providerAdmin.noResults') }}
           </div>
         </div>
 
@@ -406,7 +332,7 @@
                     <tbody>
                       <tr>
                         <th>
-                          Vapaat ajat
+                          {{ t('providerAdmin.freeTimes') }}
                         </th>
                         <td>
                           <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
@@ -414,7 +340,7 @@
                       </tr>
                       <tr>
                         <th>
-                          Muistiinpanot
+                          {{ t('providerAdmin.notes') }}
                         </th>
                         <td>
                           <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
@@ -439,7 +365,7 @@
                     <tbody>
                       <tr>
                         <th>
-                          Vapaat ajat
+                          {{ t('providerAdmin.freeTimes') }}
                         </th>
                         <td>
                           <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
@@ -447,7 +373,7 @@
                       </tr>
                       <tr>
                         <th>
-                          Muistiinpanot
+                          {{ t('providerAdmin.notes') }}
                         </th>
                         <td>
                           <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
@@ -456,14 +382,14 @@
                     </tbody>
                   </table>
                   
-                  <MDBBtn size="sm" color="light" outline @click="openSchedule">Kalenteri</MDBBtn>
+                  <MDBBtn size="sm" color="light" outline @click="openSchedule">{{ t('providerAdmin.calendar') }}</MDBBtn>
                 </div>
                 <div style="text-align: left;">
                   <div class="semibold" style="color: #708090;">
-                    Lisää merkintoja kalenteriin
+                    {{ t('providerAdmin.addEntriesToCalendar') }}
                   </div>
                   <div class="text-muted small">
-                    Auttaa parantamaan näkyvyyttä kartalla ja antaa sinulle etulyöntiaseman asiakkaiden löytämisessä. Voit myös tehdä merkintöjä kalenteriin omaan käyttöösi.
+                    {{ t('providerAdmin.calendarVisibilityHelp') }}
                   </div>
                 </div>
                 
@@ -482,9 +408,9 @@
                     alt="Prokeikkatori logo" width="100%"  />
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 14px;">
-                  <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">Omat tilaukset</MDBBtn>
+                  <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">{{ t('providerAdmin.myOrders') }}</MDBBtn>
                   <p v-else></p>
-                  <MDBBtn outline="success" rounded @click="router.push('/client-form')"><span class="btn__icon">🔍</span> ETSIN PALVELUA</MDBBtn>
+                  <MDBBtn outline="success" rounded @click="router.push('/client-form')"><span class="btn__icon">🔍</span> {{ t('providerAdmin.lookingForService') }}</MDBBtn>
                 </div>
                 
                 
@@ -1335,10 +1261,19 @@ function sleep(ms) {
   padding: 0;
 }
 
+.order-section {
+  width: 100%;
+  border: 1px solid #c5b79d; 
+  padding: 13px 0 13px 0; 
+  margin-bottom: 13px; 
+  
+  border-radius: 7px;
+}
+
 @media (max-width: 767px) {
   .mobile-orders {
-    margin-left: -6px;
-    margin-right: -6px;
+    /* margin-left: -6px;
+    margin-right: -6px; */
   }
 }
 

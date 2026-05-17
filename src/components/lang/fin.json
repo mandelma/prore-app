@@ -56,9 +56,7 @@
   "login_no_member": "Ei jäsen?",
   "login_register": "Registeröidy",
 
-  "public_home_title": "Nopeus on tärkeintä!",
-  "public_home_btn_client": "Etsin palvelua",
-  "public_home_btn_pro": "Tarjoan palvelua",
+  
 
   "client_form_offersOrOnMap": "Täytä tilaus tarjousten varten tai löytää nopea ratkaisu kartalta!",
   "client_form_profession_field": "Valitse ammattilainen *",
@@ -70,6 +68,36 @@
   "client_form_allow_email": "Vastaukset voi lähettää sähköpostiin!",
   "client_form_description": "Kuvaus tilauksen sisällöstä *",
   "client_form_btn_send": "Lähetä tilaus",
+
+  "home": {
+    "title": "Nopeus on tärkeintä!",
+    "clientButton": "Etsin palvelua",
+    "providerButton": "Tarjoan palvelua",
+    "clientLabel": "Asiakkaille",
+    "clientTitle": "Löydä ammattilainen nopeasti",
+    "clientTextBeforeMap": "Lähetä tehtäväsi ja anna lähialueesi ammattilaisten lähettää sinulle tarjouksia. Samalla voit etsiä sopivaa ammattilaista suoraan",
+    "map": "kartalta",
+    "clientTextAfterMap": "Voit tilauksen mukaan lisätä kuvia, osoitteen, ajan ja kuvauksen helposti.",
+    "professionals": "ammattilaista",
+    "professionFields": "ammattialaa",
+    "fast": "Nopea",
+    "contact": "yhteydenotto",
+    "providerLabel": "Palveluntarjoajille",
+    "providerTitle": "Näy kartalla ja saa asiakkaita",
+    "providerTextBeforeClients": "Alustan tavoitteena on tukea pienyrittäjiä ja samalla vahvistaa paikallisten yhteisöjen hyvinvointia ja kehitystä. Pidä profiilisi näkyvillä kartalla, päivitä saatavuus ja ota vastaan uusia tilauksia alueeltasi. Paikalliset",
+    "clients": "asiakkaat",
+    "providerTextAfterClients": "etsivät parhaillaan ammattilaisia toteuttamaan erilaisia töitä. Liity mukaan ja löydä uusia asiakkaita. Aktiivinen profiili auttaa asiakkaita löytämään sinut.",
+    "mapTitle": "Kartta",
+    "visibility": "näkyvyys",
+    "offers": "Tarjoukset",
+    "directly": "suoraan",
+    "calendar": "Kalenteri",
+    "management": "hallinta",
+    "brandName": "PROKEIKKATORI",
+    "logoAlt": "Prokeikkatori logo",
+    "commentInfoSideMobileBottom": "Tietopuoli / mobiilissa alhaalla",
+    "commentHero": "Hero-osio"
+  },
 
   "providerAdmin": {
     "loading": "Ladataan...",

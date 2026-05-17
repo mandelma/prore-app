@@ -34,6 +34,7 @@
     --danger: #EF4444;
 
     --border: #2A3444;
+    /* --border: #c5b79d; */
     --ring: rgba(34, 211, 238, 0.4);
 
     /* Bootstrap variable hooks */
@@ -146,9 +147,10 @@ body {
     
     color: var(--text);
 }
+/* var(--border) */
 .page-card {
     background: var(--bg-surface-1);
-    border: 1px solid var(--border);
+    border: 1px solid rgb(77, 63, 36) !important;
     color: #ddd;
     height: 100%;
     border-radius: .75rem2

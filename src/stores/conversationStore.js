@@ -325,7 +325,8 @@ export const useConversationStore = defineStore("conversation", () => {
 
         return cv.isParticipant?.[otherParticipantId] !== false;
       });
-      closeChatWidget();
+      //closeChatWidget();
+      activeConversationId.value = null;
     } else {
       console.error("Failed to update conversation state");
     }

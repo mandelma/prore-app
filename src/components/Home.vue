@@ -1,7 +1,15 @@
-<template>
+<!-- <template>
  <div style="text-align: center;">
    <MDBContainer>
-     <div class="center-page">
+     <MDBRow>
+      <MDBCol>
+        <div style="text-align: left;">
+          Side container on wide screens, bottom on mobile.
+        </div>
+        
+      </MDBCol>
+      <MDBCol>
+        <div class="center-page">
           <main class="page">
             <div class="logo-hero">
               <img class="logo-hero__img img-box"
@@ -24,12 +32,123 @@
             </div>
           </main>
         </div>
+      </MDBCol>
+     </MDBRow>
      
    </MDBContainer>
 
  </div>
-</template>
+</template> -->
+<template>
+  <div class="home-wrap">
+    <MDBContainer fluid>
+      <MDBRow class="home-row align-items-center">
+        
+        <!-- {{ t('home.commentInfoSideMobileBottom') }} -->
+        <MDBCol col="12" lg="5" class="info-col order-2 order-lg-1">
+          <section class="info-panel">
+            <div class="info-card client-card">
+              <div class="info-label">{{ t('home.clientLabel') }}</div>
+              <h2>{{ t('home.clientTitle') }}</h2>
+              <p>
+                {{ t('home.clientTextBeforeMap') }}
+                <span style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #59b898;" @click="router.push('/pro-around')">
+                  {{ t('home.map') }}
+                </span>.
+                {{ t('home.clientTextAfterMap') }}
+              </p>
 
+              <div class="stats-row">
+                <div>
+                  <strong>{{ providerCount }}+</strong>
+                  <span>{{ t('home.professionals') }}</span>
+                </div>
+                <div>
+                  <strong>{{ professionCount }}+</strong>
+                  <span>{{ t('home.professionFields') }}</span>
+                </div>
+                <div>
+                  <strong>{{ t('home.fast') }}</strong>
+                  <span>{{ t('home.contact') }}</span>
+                </div>
+              </div>
+
+              <button class="info-btn info-btn--client" @click="clientInitial">
+                {{ t('home.clientButton') }}
+              </button>
+            </div>
+
+            <div class="info-card provider-card">
+              <div class="info-label">{{ t('home.providerLabel') }}</div>
+              <h2>{{ t('home.providerTitle') }}</h2>
+              <p>
+                {{ t('home.providerTextBeforeClients') }}
+                <span style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #e4b088;" @click="router.push('/client-around')">
+                  {{ t('home.clients') }}
+                </span>
+                {{ t('home.providerTextAfterClients') }}
+              </p>
+
+              <div class="stats-row">
+                <div>
+                  <strong>{{ t('home.mapTitle') }}</strong>
+                  <span>{{ t('home.visibility') }}</span>
+                </div>
+                <div>
+                  <strong>{{ t('home.offers') }}</strong>
+                  <span>{{ t('home.directly') }}</span>
+                </div>
+                <div>
+                  <strong>{{ t('home.calendar') }}</strong>
+                  <span>{{ t('home.management') }}</span>
+                </div>
+              </div>
+
+              <button class="info-btn info-btn--provider" @click="proInitial">
+                {{ t('home.providerButton') }}
+              </button>
+            </div>
+          </section>
+        </MDBCol>
+
+        <!-- {{ t('home.commentHero') }} -->
+        <MDBCol col="12" lg="7" class="order-1 order-lg-2">
+          <div class="center-page">
+            <main class="page">
+              <div class="logo-hero">
+                <img
+                  class="logo-hero__img img-box"
+                  style="border-radius: 100%;"
+                  :src="logo"
+                  :alt="t('home.logoAlt')"
+                  width="1024"
+                  height="549"
+                />
+              </div>
+
+              <h1 class="app-title">
+                <span class="app-title__word">{{ t('home.brandName') }}</span>
+              </h1>
+
+              <p class="tagline">{{ t('home.title') }}</p>
+
+              <div class="action-panel">
+                <button class="btn-hero btn-hero--primary" @click="clientInitial">
+                  {{ t('home.clientButton') }}
+                </button>
+
+                <button class="btn-hero btn-hero--accent" @click="proInitial">
+                  {{ t('home.providerButton') }}
+                </button>
+              </div>
+            </main>
+          </div>
+        </MDBCol>
+
+      </MDBRow>
+    </MDBContainer>
+  </div>
+</template>
 
 <script setup>
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBIcon } from 'mdb-vue-ui-kit'

@@ -506,7 +506,7 @@ const handleCancelRemoving = () => {
   width:10px;
   height:10px;
   border-radius:999px;
-  background:#ff3b30;           /* red */
+  background:#d34954;           /* red */
   box-shadow:0 0 0 2px rgba(0,0,0,.25); /* ring so it pops on dark bg */
 }
 
@@ -514,7 +514,8 @@ const handleCancelRemoving = () => {
 
 /* optional: make the whole card slightly highlighted if new */
 .offer-item.is-new{
-  border-color: rgba(255,59,48,.45);
+  border-color: rgba(241, 134, 33, 0.45);
+  background-color: rgba(241, 134, 33, 0.1);
 }
 
 .offer-main{

@@ -8,17 +8,7 @@
         <!-- <p class="panel__subtitle">Tarkista tiedot ja muokkaa tarvittaessa</p> -->
       </div>
 
-      <!-- Edit toggle -->
-      <!-- <button
-        v-if="!booking.offers.length"
-        class="btn btn-primary"
-        type="button"
-        @click="isEditing = !isEditing"
-        :aria-pressed="isEditing ? 'true' : 'false'"
-      >
-        <span v-if="!isEditing">Muokkaa</span>
-        <span v-else>Valmis</span>
-      </button> -->
+      
     </header>
 
     <!-- SUMMARY (read mode) -->
@@ -80,11 +70,8 @@
           
         </div>
 
-        <div v-else class="empty-state">
-          <!-- v-if="!booking.offers.length" -->
-          <p  class="text-muted">Ei tilaukseen liittyviä kuvia!</p>
-          <!-- <p v-else class="text-muted">Ei tilaukseen liittyviä kuvia!</p> -->
-          <!-- <p v-if="!booking.offers.length" class="empty-state__text">Lisää kuvia, jos haluat auttaa palveluntarjoajia arvioinnissa.</p> -->
+        <div v-else class="empty-state">      
+          <p  class="text-muted">Ei tilaukseen liittyviä kuvia!</p>        
         </div>
       </div> 
     </div>
@@ -128,9 +115,7 @@
               :key="reInitKey"
               disablePast
             />
-            <!-- <button class="btn btn--ghost" type="button" @click="setDateToSoonest">
-              Aseta mahdollisimman pian
-            </button> -->
+            
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import fi from '../../components/lang/fin.json';
 import en from '../../components/lang/en.json';
 import et from '../../components/lang/est.json';
 import sv from '../../components/lang/swe.json';
+import ru from '../../components/lang/ru.json';
 
 const i18n = createI18n({
     legacy: false,
@@ -13,7 +14,8 @@ const i18n = createI18n({
         en,
         fi,
         et,
-        sv
+        sv,
+        ru
     }
 });
 

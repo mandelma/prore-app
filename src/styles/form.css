@@ -1,5 +1,6 @@
 form-data/* ---------- Forms (dark) ---------- */
 :root[data-theme="dark"] {
+    /* --form-field-bg: var(--bg-surface-2); */
     --form-field-bg: var(--bg-surface-2);
     --form-field-border: var(--border);
     /*--form-field-border: red;*/
@@ -37,7 +38,7 @@ textarea.form-control {
 }
 
 .form-check-label {
-    color: #0E7490FF;
+    color: #dddee0;
 }
 
 /* Labels & help text */

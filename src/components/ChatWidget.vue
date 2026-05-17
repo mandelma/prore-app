@@ -41,7 +41,7 @@
       >
           <header 
               class="chat-header"
-          
+
             >
             
             <div 
@@ -922,7 +922,8 @@
 }
 
 .chat-header {
- /*  padding: 12px 14px; */
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 36px;
   height: 60px;
   padding-bottom: 0;
   background: #111827;
@@ -933,7 +934,10 @@
   justify-content: space-between;
   gap: 1px;
   font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  
 }
+
+
 .chat-close {
   border: 0;
   height: 40px;
@@ -1077,6 +1081,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   padding: 4px 0;
+ 
 }
 
 
@@ -1094,6 +1099,28 @@
   /* background: #222d44; */
   background: transparent;
   border-radius: 8px;
+
+  scrollbar-width: thin !important;                 /* Firefox */
+  scrollbar-color: #5d6b8a transparent;
+}
+
+/* Chrome / Edge / Safari */
+.chat-dropdown.horizontal::-webkit-scrollbar {
+  height: 2px;
+}
+
+.chat-dropdown.horizontal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-dropdown.horizontal::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.chat-dropdown.horizontal::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.45);
 }
 
 
@@ -1109,11 +1136,13 @@
 
 .chat-dropdown.horizontal li {
   display: flex;
+  height: auto;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
   cursor: pointer;
-  flex-shrink: 0;
+  
+  /* flex-shrink: 0; */
   border-radius: 6px;
   background: #2f3b57;
   transition: background-color .2s;

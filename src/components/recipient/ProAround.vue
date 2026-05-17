@@ -5,137 +5,117 @@
     <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
       
       <div v-show="isMainPanel" class="client-map-panel">
-        
-        <div style="display: flex; justify-content: space-between;">
-          <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">Päivitä</p>
-          <div style="display: flex; justify-content: right;">
-            <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
+        <div class="panel-header">
+          <button class="panel-refresh" @click="refreshMapState">Päivitä</button>
+
+          <div class="panel-actions">
+            <MDBIcon size="lg" class="panel-icon" @click="isMainPanel = false">
               <i class="fas fa-expand-arrows-alt"></i>
             </MDBIcon>
-            <div>
-              <MDBBtnClose
-                  white
-                  style=" padding: 10px;"
-                  size="sm"
-                  @click="$router.go(-1)"
-              />
-            </div>
 
+            <MDBBtnClose white size="sm" class="panel-close" @click="$router.go(-1)" />
           </div>
         </div>
-        
-        <div :class="{hideClientInput: !address && isAddress}" style="width: 100%;" class="field-wrapper ">
-          <div  class="input-group">
+
+        <div :class="{ hideClientInput: !address && isAddress }" class="field-wrapper">
+          <div class="input-group modern-input-group">
             <MDBInput
-                size="sm"
-                v-model="address"
-                label="Anna osoite"
-                id="client-input"
-                placeholder=""
-                wrapperClass="form-outline flex-grow-3"
-                :inputClass="'ps-0'"
-                aria-describedby="button-addon2"
+              size="sm"
+              v-model="address"
+              label="Anna osoite"
+              id="client-input"
+              wrapperClass="form-outline flex-grow-3"
+              :inputClass="'ps-0'"
             />
-            <MDBBtn v-if="address" type="button" style="border:1px solid #ddd">
+
+            <MDBBtn v-if="address" type="button" class="clear-btn">
               <MDBIcon size="1x" @click="clearAddress()">
-                <i :class="'fas fa-times'"></i>
+                <i class="fas fa-times"></i>
               </MDBIcon>
             </MDBBtn>
           </div>
         </div>
 
         <div class="field-wrapper">
-          <div>
-            <Select
-                style="width: 100%;"
-                v-model="profession"
-                @change="changedProfession"
-                :options="professions"
-                filter optionLabel="label"
-                optionGroupLabel="label"
-                optionGroupChildren="items"
-                placeholder="Valitse ammattilainen *"
-                showClear
-                v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
-                class="w-full md:w-[30rem]"
+          <Select
+            v-model="profession"
+            @change="changedProfession"
+            :options="professions"
+            filter
+            optionLabel="label"
+            optionGroupLabel="label"
+            optionGroupChildren="items"
+            placeholder="Valitse ammattilainen *"
+            showClear
+            :class="['modern-select', { 'field-error': isNoPro }]"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value">{{ slotProps.value.label }}</div>
+              <span v-else>{{ slotProps.placeholder }}</span>
+            </template>
 
-            >
+            <template #optiongroup="slotProps">
+              <div class="select-group">
+                <i :class="slotProps.option.icon"></i>
+                <span>{{ slotProps.option.label }}</span>
+              </div>
+            </template>
+          </Select>
 
-              <template #value="slotProps">
-                <div v-if="slotProps.value" >
-                
-                  <div>{{ slotProps.value.label }}</div>
-                </div>
-                <span v-else>
-                    {{ slotProps.placeholder }}
-                  </span>
-              </template>
-              <template #optiongroup="slotProps" >
-                <div  class="flex items-center gap-2">
-                  <i :class= 'slotProps.option.icon' style='font-size:17px;color:cadetblue;'></i>&nbsp;&nbsp;&nbsp;
-                  <span>{{ slotProps.option.label }}</span>
-                </div>
-              </template>
-            </Select>
-            <p v-if="panelProError" style="color: red; margin: 0;">Ammatti on pakollinen!</p>
-          </div>
+          <p v-if="panelProError" class="error-text">Ammatti on pakollinen!</p>
         </div>
 
-        <!--format: 'YYYY-MM-DD'-->
-        <div  :class="{hideDistSelectPanel: !isDistSelection}">
-          <p style="text-align: left; font-size: 14px;">Valitse kiinnostavaa ajankohta tai heti!</p>
-          <div class="distSelectPanel">
+        <div :class="{ hideDistSelectPanel: !isDistSelection }">
+          <p class="section-label">Valitse kiinnostavaa ajankohta tai heti!</p>
 
-            <div class="field-wrapper">
-              <MDBDateTimepicker
-                  size="md"
-                  label="Valitse tehtävän päivämäärä ja aika"
-                  v-model="dt"
-                  :toggleButton="false"
-                  inputToggle
-
-                  :datepicker="{
-                  ...L,
-                  
-                }"
-                  :timepicker="{
-                  ...L,
-                  hoursFormat: 24
-                }"
-
-                  :key="reInitKey"
-                  disablePast
-              />
-              
-            </div>
-
-            <div style="margin-top: 0; color: white;">
-              <MDBCheckbox
-                label="Heti!"
-                name="selection"
-                v-model="isDateNow"
-                value="true"
-                @click="removeDateIfExist"
-                wrapperClass="mb-4"
-              />
-            </div>
-
+          <div class="field-wrapper">
+            <MDBDateTimepicker
+              size="md"
+              label="Valitse tehtävän päivämäärä ja aika"
+              v-model="dt"
+              :toggleButton="false"
+              inputToggle
+              :datepicker="{ ...L }"
+              :timepicker="{ ...L, hoursFormat: 24 }"
+              :key="reInitKey"
+              disablePast
+            />
           </div>
 
-
+          <MDBCheckbox
+            label="Heti!"
+            name="selection"
+            v-model="isDateNow"
+            value="true"
+            @click="removeDateIfExist"
+            wrapperClass="mb-3"
+            class="modern-checkbox"
+          />
         </div>
-        
-        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi alue" id="distance"/>
-        <p v-if="panelRangeError" style="color: red; margin: 0;">Etäisyys on pakollinen valinta!</p>
 
-        <div style="margin-top: 13px; display: flex; justify-content: space-between;">
-          <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="text-muted">
+        <MDBSelect
+          size="md"
+          v-model:selected="selectedRange"
+          :options="rangeOptions"
+          label="Etsi alue"
+          id="distance"
+          class="modern-mdb-select"
+        />
+
+        <p v-if="panelRangeError" class="error-text">Etäisyys on pakollinen valinta!</p>
+
+        <div class="panel-footer">
+          <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="empty-text">
             Ei ammattilaisia
           </p>
-          <p v-else></p>
-          <MDBBtn color="primary" size="sm" @click="onGetProviders">Etsi</MDBBtn>
+          <span v-else></span>
+
+          <MDBBtn color="primary" size="sm" class="search-btn" @click="onGetProviders">
+            Etsi
+          </MDBBtn>
         </div>
       </div>
+
       <!--Displaying when no main panel open-->
       <MDBBtn
         v-show="!isMainPanel"
@@ -1328,7 +1308,7 @@ const pinSymbol = (color, stroke_color) => {
 }
 
 </script>
-<style>
+<style scoped>
 html, body, #app {
   overflow-x: hidden;
   width: 100%;
@@ -1350,26 +1330,173 @@ html {
 :deep(body.modal-open .fixed-top,
 body.modal-open .sticky-top,
 body.modal-open .navbar) { padding-right: 0 !important; }
-.client-map-panel {
+
+/* .client-map-panel {
   background-color: #1B2330;
   border-radius: 10px;
   padding: 10px;
   margin: 60px 17px 0 0;
   width: 30%;
   float: right;
+} */
+
+.client-map-panel {
+  position: absolute;
+  top: 48px;
+  right: 24px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(22, 27, 34, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  z-index: 1000;
+}
+
+.panel-header,
+.panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-header {
+  margin-bottom: 14px;
+}
+
+.panel-refresh {
+  border: 0;
+  background: transparent;
+  color: #f2c078;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-icon,
+.panel-close {
+  cursor: pointer;
+  opacity: 0.8;
+  transition: 0.2s ease;
+}
+
+.panel-icon:hover,
+.panel-close:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.field-wrapper {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.section-label {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.modern-input-group,
+.modern-select,
+.modern-mdb-select {
+  width: 100%;
+}
+
+.clear-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+.select-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-group i {
+  font-size: 16px;
+  color: #6fd0d4;
+}
+
+.field-error {
+  border: 1px solid #ff6b8a !important;
+  border-radius: 8px;
+}
+
+.error-text {
+  color: #ff8a8a;
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.search-btn {
+  border-radius: 10px;
+  padding: 7px 18px;
+  margin-top: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #2aa7c9, #3b82f6) !important;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+}
+
+.modern-checkbox {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 768px) {
+  .client-map-panel {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px;
+  }
+
+  /* .panel-footer {
+    position: sticky;
+    bottom: 0;
+    margin: 12px -16px -16px;
+    padding: 12px 16px 16px;
+    background: rgba(22, 27, 34, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 0 0 18px 18px;
+  } */
 }
 
 @media only screen and (max-width: 1000px) {
   #address-panel {
     display: none !important;
   }
-  .client-map-panel {
+  /* .client-map-panel {
     background-color: #1B2330;
     padding: 10px;
     margin: 60px auto;
     width: 80%;
     float: none;
-  }
+  } */
 }
 
 

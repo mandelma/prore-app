@@ -44,3 +44,4 @@ createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {
 import '@/styles/pro-select.css'
 import '@/styles/theme.css'
 import '@/styles/form.css'
+import 'flag-icons/css/flag-icons.min.css'

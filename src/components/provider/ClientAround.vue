@@ -83,12 +83,12 @@
       </div>
 
       
-      <div v-show="hasProfession">
-        <MDBSelect  size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi etäisyys" id="client-dist"/>
+      <div v-show="hasProfession" style="margin-top: 13px;">
+        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi etäisyys" id="client-dist"/>
       </div>
       
       <div v-if="isClients" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
-        <p class="text-muted semibold">Asiakkaita - {{ selectedClientsCount }}</p>
+        <p class=" semibold">Löydetyt asiakkaat - {{ selectedClientsCount }}</p>
       </div>
       
         
@@ -736,9 +736,9 @@ const otherUserLocations = (recipients, profession, dist) => {
   console.log("Current distance " + dist)
 
   let count = 0;
-  if (recipients.length > 0) {
+  if (recipients.filter(client => client.status === 'active').length > 0) {
     let recipientCount = [];
-    for (let pos = 0; pos < recipients.length; pos++) {
+    for (let pos = 0; pos < recipients.filter(client => client.status === 'active').length; pos++) {
 
       //console.log("Client latitude: " + recipient[pos].latitude)
       //console.log("Client longitude: " + recipient[pos].longitude)
@@ -912,7 +912,8 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 } */
 
 .pro-map-panel {
-  background-color: #1B2330;
+  /* background-color: #1B2330; */
+  background-color: #35322e;
   border-radius: 7px;
   padding: 10px;
   margin: 60px 27px 0 0;
