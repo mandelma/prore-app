@@ -102,7 +102,7 @@
             
         <!-- </MDBContainer> -->
 
-        
+        <!-- offer content: {{ offerContent }} -->
         
     </div>
     
@@ -117,6 +117,7 @@
     import { useLoginStore } from '@/stores/login';
     import { useNotificationStore } from '@/stores/notificationStore';
     import { useConversationStore } from '@/stores/conversationStore';
+    import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
     import Feedback from '../provider/Feedback.vue';
     import { useRouter } from 'vue-router';
     import { storeToRefs } from 'pinia';
@@ -149,7 +150,7 @@
         return result;
     })
 
-    const emit = defineEmits(['quit-content', 'quit-content-confirmed']);
+    const emit = defineEmits(['quit-content', 'quit-content-confirmed', 'open-chat']);
     const back = () => {
         emit('quit-content');
         console.log("Yees")
@@ -157,10 +158,17 @@
 
     const onChat = () => {
         console.log("Chat btn");
+        console.log("offerContent - ", offerContent);
         console.log("otheruserId - ", offerContent?.sender);
-        const otherId = offerContent?.sender;
-        conversationStore.openCreateRoom(otherId);
-        conversationStore.openChatWidget();
+        const otherId = offerContent.value?.sender;
+        //conversationStore.openCreateRoom(otherId);
+        //conversationStore.openChatWidget();
+        emit("open-chat", {
+            otherId,
+            bookingId: null,
+            mode: "client",
+            anchor: getBottomRightAnchor()
+        });
     }
 
     function escapeHtml(str) {

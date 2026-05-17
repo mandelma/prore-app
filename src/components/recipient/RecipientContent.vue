@@ -87,7 +87,10 @@
           </div>
         </div>
         
-        <offer-content :offerId="offerId" />
+        <offer-content 
+          :offerId="offerId"
+          @open-chat="emit('open-chat', $event)"
+        />
       </MDBModalBody>
       <MDBModalFooter>
         <div style="display: flex; justify-content: right;">
@@ -168,7 +171,7 @@ const props = defineProps({
 
 const { booking } = toRefs(_props) */
 
-const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState'])
+const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState', 'open-chat'])
 
 const {t} = useI18n();
 const auth = useLoginStore();

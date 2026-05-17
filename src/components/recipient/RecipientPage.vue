@@ -74,6 +74,7 @@
             <MDBCardBody>
               <recipient-content
                 :booking="selectedBooking"
+                @open-chat="emit('open-chat', $event)"
                 @updateOfferState="handleUpdateOfferState"
                 @cancelRecipientContent="handleCancelRecipientContent"
                 @out-here="handleOutHere"
@@ -333,6 +334,8 @@ defineOptions({
 defineProps({
   //bookings: {type: Array}
 })
+
+const emit = defineEmits(['open-chat']);
 
 const { t } = useI18n();
 const router = useRouter();
