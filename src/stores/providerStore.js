@@ -120,12 +120,22 @@ export const useProStore = defineStore("pro", () => {
         return uniqueProfessions.size;
     });
 
+    const isOfferValid = (offer) => {
+        //const now = Date.now();
+        const now = new Date().getTime();
+        const offerTime = new Date(offer.created_ms).getTime();
+        //const offerValidityDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds      
+        //return now - offerTime < offerValidityDuration;
+        return offerTime < now;
+    };
+
     const getProState = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
         try {
             const pro = await providerService.getProvider(id);
+
 
             if (!pro) {
                 providerId.value = null;
@@ -140,7 +150,13 @@ export const useProStore = defineStore("pro", () => {
             providerId.value = pro.id ?? null;
             provider.value = pro;
 
-            const incomingOffersList = pro.proposal || [];
+            let incomingOffersList = pro.proposal || [];
+
+            console.log(incomingOffersList.map(item => isOfferValid(item) ? item.header + "-expired-" : item.header + "-valid-"));
+
+            incomingOffersList = incomingOffersList.map(p => !isOfferValid(p) ? { ...p, valid: true } : { ...p, valid: false });
+
+            incomingOffersList = incomingOffersList.filter(p => !isOfferValid(p));
 
             /* proCredit.value = Math.max(
                 0,
@@ -361,11 +377,14 @@ export const useProStore = defineStore("pro", () => {
             return proWithNewAddress;
         }
     }
-    const updateCredit = async(creditDaysCovered, credit_ms) => {
-        console.log("Updated credit now: " + creditDaysCovered + " credit ms " + credit_ms);
+    const updateCredit = async(credit_ms) => {
+        console.log(" credit ms " + credit_ms);
         // protime past - 1761058143482
         await providerService.updateTimeCredit(providerId.value, {proTime: credit_ms});
-        proCredit.value += creditDaysCovered;
+        //proCredit.value = Number(creditDaysCovered);
+        provider.value.proTime = credit_ms;
+        proCredit.value = ((credit_ms - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((credit_ms - new Date().getTime()) / 86400000).toFixed();
+
     }
 
     const updateProviderPanel = async (id, payload) => {

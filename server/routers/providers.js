@@ -546,13 +546,13 @@ router.put('/:id/updateRange', async (req, res) => {
 // Update credit (days to use pro side)
 router.put('/:id/renewCredit', async (req, res) => {
     try {
-        console.log("Req body credit " + req.body)
+        console.log("Req body credit " + req.body.proTime)
         const creditRenew = await Provider.findByIdAndUpdate(
-            req.params.id, req.body, { new: true }
+            req.params.id, {$set: req.body}, { new: true }
         )
         res.status(200).send(creditRenew);
     } catch (err) {
-        res.send({error: "No renewing succeeded!"})
+        res.status(500).send({ error: "No renewing succeeded!" });
     }
 })
 // Edit address

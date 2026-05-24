@@ -65,7 +65,7 @@
             <td class="text-end">
               <MDBBtn outline="info" size="sm" class="ms-2" @click="openDetails(b)">Tiedot</MDBBtn>
               <MDBBtn color="info" size="sm" class="ms-2" @click="bookAgain(b)">Varaa uudelleen</MDBBtn>
-              <MDBBtn color="danger" size="sm" class="ms-2" @click="delChRow(b?.id)">P</MDBBtn>
+              <MDBBtn color="danger" size="sm" class="ms-2" @click="delChRow(b?.id)"><i class="fas fa-trash-alt"></i></MDBBtn>
             </td>
           </tr>
         </tbody>
@@ -267,6 +267,7 @@ import OfferContent from "./OfferContent.vue"
 import RequestForm from "./RequestForm.vue"
 import { useLoginStore } from "@/stores/login"
 import { useClientStore } from "@/stores/recipientStore"
+import clientHistoryService from "@/service/client_history.js"
 import ConfirmModal from "../helpers/ConfirmModal.vue"
 
 // MDB components (names may vary slightly in your setup)
@@ -392,8 +393,11 @@ const delChRow = (id) => {
 }
 
 
-const handleRemoveRow = () => {
+const handleRemoveRow = async () => {
   console.log("Removing archieved row " + rowId.value);
+  await clientHistoryService.deleteClientArchiveRow(rowId.value);
+  cArchiveStore.removeArchievedClientLocal(rowId.value);
+  //await clientStore.fetchClientHistory();
 }
 
 const handleCancelRemoving = () => {

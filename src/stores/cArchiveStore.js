@@ -19,9 +19,14 @@ export const useClientArchiveStore = defineStore('cHistory', () => {
         clientHistory.value = [...clientHistory.value, archived];
     }
 
+    const removeArchievedClientLocal = (id) => {
+        clientHistory.value = clientHistory.value.filter(item => item.id !== id);
+    }
+
     return {
         clientHistory,
         initClientArchive,
-        addArchievedClientLocal
+        addArchievedClientLocal,
+        removeArchievedClientLocal
     }
 }) 

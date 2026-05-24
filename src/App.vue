@@ -128,7 +128,7 @@
 
             :offersIn="incomingOffers ?? []"
             :isPro="isUserPro ?? false"
-            :credit="proCredit ?? 0"
+            :credit="provider?.proTime ?? 0"
           />
         </div>
         <component

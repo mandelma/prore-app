@@ -33,7 +33,7 @@ const router = useRouter();
 const card = mastercard;
 
 const payCredit = () => {
-  emit('pay', props.amount);
+  emit('pay');
   router.go(-1);
 };
 const quitPayment = () => {

@@ -290,7 +290,7 @@
               />
 
               <div v-if="filteredClients.length === 0" class="text-muted small py-2">
-                {{ t('providerAdmin.noResults') }}
+                {{ t('providerAdmin.noSearchResults') }}
               </div>
             </MDBCardBody>
           </MDBCard>
@@ -595,6 +595,7 @@ const confirmedClients = computed(() => proCalendarEvents.value);
 
 
 const handleToast = (payload) => {
+  // 1779305974912
   console.log("Toast payload - " + payload.state + " " + payload.message);
   onToast(payload.icon, payload.message, payload.color);
 
