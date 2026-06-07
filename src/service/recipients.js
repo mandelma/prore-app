@@ -32,6 +32,12 @@ const updateRecipientStatus = async (id, update) => {
     const updated = await axios.put(`${baseUrl}/${id}`, update);
     return updated.data;
 }
+
+// Update offer in booking
+const updateOffer = async (id, offer) => {
+    const result = await axios.put(`${baseUrl}/${id}/offer`, offer);
+    return result.data;
+}
 // edit booking address
 const editBookingAddress = async (id, address) => {
     const newAddress = await axios.put(`${baseUrl}/${id}/editBookingAddress`, address);
@@ -116,6 +122,7 @@ export default {
     removeProviderData,
     createOffer,
     addConfirmedOffer,
+    updateOffer,
     //addProviderID,
     newDate,
     addImage,

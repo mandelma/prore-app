@@ -143,12 +143,11 @@ const handleArchiveClient = async () => {
         pArchiveStore.archiveProviderLocal(complitedBooking);
         console.log("ID " + complitedBooking.id);
         providerHistory.id = complitedBooking.id;
-        await clientStore.handleGivenFeedback(props.booking_id, props.target, providerHistory, 'archieved');
+        await clientStore.handleGivenFeedback(props.booking_id, props.target, providerHistory, 'archived');
       } 
 
-      console.log("Client archieve - ", complitedClientBooking);
+      console.log("Client archive - ", complitedClientBooking);
 
-      //archivedClient.value = complitedClientBooking;
   }
   
 }

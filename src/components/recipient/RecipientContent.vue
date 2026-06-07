@@ -95,7 +95,7 @@
       <MDBModalFooter>
         <div style="display: flex; justify-content: right;">
           <div style="display: flex; gap: 7px;">
-            <MDBBtn color="danger" @click="openProModal = false"> Peruuta </MDBBtn>
+            <MDBBtn color="danger" @click="openProModal = false"> <i class="fas fa-undo"></i> </MDBBtn>
             <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
           </div>
         </div>
@@ -112,6 +112,17 @@
       :danger="true"
       @confirm="handleRemovePublicBooking"
       @cancel="handleCancelRemoving"
+    />
+
+    <ConfirmDealModal
+      v-model="showDealConfirm"
+      :title="'Sopimus!'"
+      :message="dealMessage"
+      confirm-text="Hienoa!"
+      cancel-text="Peruuta"
+      :show-icon="true"
+      @confirm= "confirmProvider"
+      @cancel="cancelProvider" 
     />
 
     <toast-handler 
@@ -143,7 +154,7 @@ import {
   MDBModalFooter
 } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
-import { ref, toRefs} from 'vue';
+import { ref, computed, toRefs} from 'vue';
 import { useClientStore } from '@/stores/recipientStore';
 import OfferContent from './OfferContent.vue';
 import { storeToRefs } from 'pinia';
@@ -155,6 +166,7 @@ import { useNotificationStore } from '@/stores/notificationStore';
 import clientService from '../../service/recipients'
 import ConfirmModal from '../helpers/ConfirmModal.vue';
 import ToastHandler from '../helpers/ToastHandler.vue';
+import ConfirmDealModal from '../helpers/ConfirmDealModal.vue';
 import '@/styles/theme.css';
 //import '@/styles/form.css';
 defineOptions({
@@ -200,6 +212,11 @@ const toastModel = ref(false)
 const toastState = ref('')
 const toastIcon = ref('')
 const toastContent = ref('')
+
+const showDealConfirm = ref(false);
+const dealMessage = computed(() => {
+  return `${selectedProvider.value?.provider?.pName} tarjoama palvelu on tilattavissa! Haluatko vahvistaa sopimuksen?`
+})
 
 //const offerContent = clientStore.getOfferById(offerId);
 
@@ -279,6 +296,12 @@ const onToast = (icon, content, color) => {
 
 
 const orderProvider = async() => {
+  showDealConfirm.value = true;
+}
+
+const confirmProvider = async () => {
+  console.log("Provider order confirmed");
+
   console.log("Offer id " + offerId.value)
   const offerContent = clientStore.getOfferById(offerId.value);
   console.log("Ordering the provider to the booking - " + selectedProvider.value.bookingID);
@@ -298,11 +321,6 @@ const orderProvider = async() => {
 
   const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
   const clientContent = `Tilaus on vahvistettu. Tiedot kalenterissa!`;
-
-  
-  //selectedProvider.value = false;
-
-  
 
   const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
   console.log("Confirmed --- ", confirmed)
@@ -330,6 +348,13 @@ const orderProvider = async() => {
   //onToast("fas fa-check fa-lg me-2", `${selectedProvider.value.pName} on tilattu onnistuneesti!`, "success");
 
   openProModal.value = false;
+
+  showDealConfirm.value = false;
+}
+
+const cancelProvider = () => {
+  console.log("Provider order cancelled");
+  showDealConfirm.value = false;
 }
 
 const handleQuitContent = () => {

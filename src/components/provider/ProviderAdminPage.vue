@@ -5,7 +5,7 @@
   <MDBContainer v-else fluid class="py-3 provider-admin">
     <!-- Top header (sticky on mobile) -->
 
-    <div class="header-stack">
+    <div class="header-stack mb-3">
       <div class="topbar d-flex align-items-center justify-content-between gap-2">
         <div class="min-w-0">
           <div class="d-flex align-items-center gap-2 min-w-0">
@@ -47,7 +47,7 @@
           <MDBCardBody class="py-3">
             <div class="text-muted small">{{ t('providerAdmin.mapManagement') }}</div>
             <!-- <div class="fs-5 fw-semibold">{{ clients.length }}</div> --> 
-            <MDBBtn v-if="provider.status === 'Saatavilla'" outline="success" size="md" block @click="handleAvailability">{{ t('providerAdmin.available') }}</MDBBtn>
+            <MDBBtn v-if="provider.status === 'Sovittaessa'" outline="success" size="md" block @click="handleAvailability">{{ t('providerAdmin.available') }}</MDBBtn>
             <MDBBtn v-else outline="warning" size="md" block @click="handleAvailability">{{ t('providerAdmin.byAgreement') }}</MDBBtn>
             
           </MDBCardBody>
@@ -77,13 +77,16 @@
         </MDBCard>
       </MDBCol>
       <MDBCol col="6" md="3">
-        <MDBCard class="page-card">
-          <MDBCardBody class="py-3">
+        <MDBCard 
+          class="page-card hero-card "
+          :style="{ '--watermark': `url(${logo})` }"
+        >
+          <MDBCardBody class="py-3 hero-content " >
            
-             <div>
+             <div class="hero" :style="{ '--watermark': `url(${logo})` }">
 
               <div
-                class="fs-5"
+                class="fs-5 hero-content"
                 v-if="credit <= 0"
               >
                 <div style="font-size: 12px;">{{ t('providerAdmin.usageTimeEnded') }}</div>
@@ -316,7 +319,7 @@
           />
 
           <div v-if="filteredClients.length === 0" class="text-muted small py-2 px-2">
-            {{ t('providerAdmin.noResults') }}
+            {{ t('providerAdmin.noSearchResults') }}
           </div>
         </div>
 
@@ -324,7 +327,7 @@
 
         <!-- Extras: schedule + alerts + billing snapshot -->
         <MDBRow class="g-3 extras-row">
-          <MDBCol class="extras-col" lg="6">
+          <MDBCol class="extras-col" col="12">
             <MDBCard v-if="isCalendar">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -335,7 +338,7 @@
                           {{ t('providerAdmin.freeTimes') }}
                         </th>
                         <td>
-                          <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
+                          <span style="color: orange;">{{ activeTimesCount }}</span>
                         </td>
                       </tr>
                       <tr>
@@ -343,7 +346,7 @@
                           {{ t('providerAdmin.notes') }}
                         </th>
                         <td>
-                          <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
+                          <span style="color: palevioletred;">{{ activeNotesCount }}</span>
                         </td>
                       </tr>
                     </tbody>
@@ -368,7 +371,7 @@
                           {{ t('providerAdmin.freeTimes') }}
                         </th>
                         <td>
-                          <span style="color: orange;">{{ proTimetable.filter(pro=> pro.state === 'time').length }}</span>
+                          <span style="color: orange;">{{ activeTimesCount }}</span>
                         </td>
                       </tr>
                       <tr>
@@ -376,7 +379,7 @@
                           {{ t('providerAdmin.notes') }}
                         </th>
                         <td>
-                          <span style="color: palevioletred;">{{ proTimetable.filter(pro=> pro.state === "vacation").length }}</span>
+                          <span style="color: palevioletred;">{{ activeNotesCount }}</span>
                         </td>
                       </tr>
                     </tbody>
@@ -397,16 +400,16 @@
             </MDBCard>
           </MDBCol>
 
-          <MDBCol class="extras-col" lg="6">
+          <MDBCol class="extras-col" col="12">
             <MDBCard class="h-100">
               <MDBCardBody>
                 
-                <div style="border-top: 1px solid orange;">
+                <!-- <div style="border-top: 1px solid orange;">
                   <img class="logo-hero__img img-box"
                     style="border-radius: 100%; margin-top: 13px;"
                     :src="logo"
                     alt="Prokeikkatori logo" width="100%"  />
-                </div>
+                </div> -->
                 <div style="display: flex; justify-content: space-between; margin-top: 14px;">
                   <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">{{ t('providerAdmin.myOrders') }}</MDBBtn>
                   <p v-else></p>
@@ -595,7 +598,6 @@ const confirmedClients = computed(() => proCalendarEvents.value);
 
 
 const handleToast = (payload) => {
-  // 1779305974912
   console.log("Toast payload - " + payload.state + " " + payload.message);
   onToast(payload.icon, payload.message, payload.color);
 
@@ -635,6 +637,21 @@ const handleAvailability = async () => {
 
   await providerStore.updateStatus(statement);
 }
+
+// Available times, notes timestamp comparison
+const activeTimesCount = computed(() => 
+  proTimetable.value.filter(at => 
+    at.state === 'time' &&
+    new Date(at.end).getTime() > Date.now()
+  ).length
+)
+
+const activeNotesCount = computed(() =>
+  proTimetable.value.filter(an => 
+    an.state === 'vacation' &&
+    new Date(an.end).getTime() > Date.now()
+  ).length
+)
 
 function onPlaceSelected(p) {
   pmForm.address = p.address
@@ -1102,10 +1119,13 @@ function formatDateTime(iso) {
 
 const onToast = (icon, content, color) => {
   console.log("Toast work?")
+  toastModel.value = true;
   toastState.value = color;
   toastIcon.value = icon;
   toastContent.value = content;
-  toastModel.value = true;
+  nextTick(() => {
+    toastModel.value = true
+  })
 }
 
 function notify(title, message) {
@@ -1179,25 +1199,58 @@ function sleep(ms) {
   max-width: 1200px;
 }
 
-/* .topbar {
-  position: sticky;
-  top: 63px;
-  z-index: 10;
-  background: rgba(73, 67, 67, 0.92);
-  backdrop-filter: blur(6px);
-  padding: 0.5rem 0.50rem;
-} */
+.page-card.hero-card {
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.page-card.hero-card::before) {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image: var(--watermark);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 180px;
+
+  opacity: 0.3;
+  z-index: 0;
+}
+
+:deep(.page-card.hero-card::after) {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-top: 3px solid #59b898;
+  border-left: 3px solid #59b898;
+
+  border-right: 3px solid #c48c58;
+  border-bottom: 3px solid #c48c58;
+
+  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
+  pointer-events: none;
+  z-index: 1;
+}
+
+:deep(.page-card.hero-card .hero-content) {
+ 
+  position: relative;
+  z-index: 1;
+}
+
 
 :root {
-  --stack-top: 63px;     /* where it should sit from top */
-  --topbar-h: 60px;      /* adjust to your real height */
+  --stack-top: 63px;
+  --topbar-h: 60px;
   --ticker-h: 36px;
 }
 
 /* pinned container */
 .header-stack {
   position: fixed;
-  top: 60px /*var(--stack-top);*/;
+  top: 60px;
   left: 0;
   width: 100%;
   z-index: 1000;
@@ -1205,12 +1258,12 @@ function sleep(ms) {
 
 /* topbar inside pinned container */
 .topbar {
-  position: relative; /* NOT sticky */
+  position: relative;
   height: var(--topbar-h);
   background: rgba(73, 67, 67, 0.92);
   backdrop-filter: blur(6px);
   padding: 0.5rem 0.5rem;
-  margin: 0;          /* 👈 important */
+  margin: 0;
 }
 
 /* ticker under it */
@@ -1232,17 +1285,15 @@ function sleep(ms) {
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 3;                /* above the sliding text */
+  z-index: 3;                
   display: flex;
   align-items: center;
 }
 
-/* push the rest of the page below the fixed stack */
 .page-content {
   padding-top: 73px;
 }
 
-/* slide once + disappear */
 .ticker__row {
   white-space: nowrap;
   will-change: transform, opacity;
@@ -1273,8 +1324,7 @@ function sleep(ms) {
 
 @media (max-width: 767px) {
   .mobile-orders {
-    /* margin-left: -6px;
-    margin-right: -6px; */
+    
   }
 }
 
@@ -1420,7 +1470,7 @@ function sleep(ms) {
   to   { transform: translateX(120vw); } 
 } */
 
-.img-box {
+/* .img-box {
   background: #2a3441;
   padding: 20px;
 
@@ -1433,7 +1483,7 @@ function sleep(ms) {
   border-bottom-color: #c48c58;
 
   box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
-}
+} */
 
 
  .orders-header {

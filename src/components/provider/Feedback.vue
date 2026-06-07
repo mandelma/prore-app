@@ -7,11 +7,6 @@
             <div class="feedback-box" v-for="fb in provider?.feedback" :key="fb.date">
                 <MDBCard style="" v-if="fb?.text !==''">
                     
-                    <!-- <MDBCardHeader> -->
-                        <!-- <Stars :rating="fb.rating" /> -->
-                        
-                        
-                    <!-- </MDBCardHeader> -->
                     <MDBCardBody>
                         <div style="display: flex; justify-content: right;">
                             <p class="text-muted">{{formatDateTime(fb.date)}}</p>

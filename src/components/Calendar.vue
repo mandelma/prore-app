@@ -1,6 +1,7 @@
 <template>
   <div >
-    <FullCalendar ref="calendarRef" :options="options" />
+    <FullCalendar ref="calendarRef" height="auto" contentHeight="auto" aspectRatio={0.75} :options="options" />
+    
 
   </div>
 
@@ -20,15 +21,20 @@
     </MDBModalHeader>
     <MDBModalBody>
       <div class="space-y-3">
-        <MDBInput v-model="form.title" label="Otsikko *" wrapperClass="mb-4" />
+        
         <MDBSelect 
           
           v-model:options="stateOptions" 
           
-          label="vapaat ajat & muistiinpanot" 
+          label="Valitse merkinnän tyyppi" 
           style="margin-bottom: 20px;"
         />
-        <MDBTextarea v-model="form.note" label="Kuvaus..." rows="3" wrapperClass="mb-4"/>
+
+        <!-- Option {{ stateOptions[1].selected }} -->
+
+        <MDBInput v-if="stateOptions[1].selected" v-model="form.title" label="Otsikko" wrapperClass="mb-4" />
+
+        <MDBTextarea v-if="stateOptions[1].selected" v-model="form.note" label="Kuvaus... *" rows="3" wrapperClass="mb-4"/>
 
         <div class="text-sm opacity-80">
           <div><strong>Aloitus:</strong> {{ formatLocalDate(form.start) }}</div>
@@ -37,7 +43,7 @@
         </div>
       </div>
     </MDBModalBody>
-    <MDBModalFooter>
+    <MDBModalFooter class="footer-buttons">
       <MDBBtn color="danger" outline @click="showCreate=false">Poistu</MDBBtn>
       
       <MDBBtn color="primary" @click="saveEvent">Tallentaa</MDBBtn>
@@ -47,98 +53,397 @@
 
   <!-- Edit event   :modelValue="true"-->
   <MDBModal
-      v-model="showEdit" center
-      right
-      tabindex="-1"
+    v-model="showEdit" center
+    centered
+    tabindex="-1"
 
-      
-      removeBackdrop
-      :keyboard="false"
-      :focus="false"
-  >
+    :modelValue="true"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+  > 
+    <!-- v-if="event_state === 'vacation' || event_state === 'time'"  v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay" -->
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>Muokka merkintä</MDBModalTitle>
+      <MDBModalTitle> {{ event_state === 'vacation' ? 'Muokkaa muistinpanoa' : 'Muokkaa aikamerkintää' }}</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
-      <p>---</p>
       <div class="space-y-3">
+        <!--  -->
+        <div v-if="event_state === 'vacation'">
+          <MDBInput v-model="editForm.title" label="Otsikko" wrapperClass="mb-4" />
+          <MDBTextarea v-model="editForm.note" label="Note" rows="3" />
+        </div>
+        
+        
+        <div v-else-if="event_state === 'time'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          
+            <div><strong>Aloitus:</strong> {{ formatLocalDate(editForm.start) }}</div>
 
-        <MDBInput v-model="editForm.title" label="Title" />
-        <!-- <MDBInput v-model="editForm.location" label="Location" /> -->
-        <MDBTextarea v-model="editForm.note" label="Note" rows="3" />
+            <div class="field-wrapper">
+                <MDBDateTimepicker
+                    size="lg"
+                    label="Valitse start"
+                    v-model="editForm.start"
+                    :valueType="'date'"
+                
+                    :datepicker="{
+                    ...L,
+                    format: 'YYYY-MM-DD'
+                  }"
+                  
+                    :timepicker="{
+                    ...L,
+                    hoursFormat: 24
+                  }"
+
+                    :key="reInitKey"
+                    disablePast
+                />
+                
+            </div>
+
+            <div><strong>Loppu:</strong>   {{ formatLocalDate(editForm.end) }}</div>
+
+            <div class="field-wrapper">
+                <MDBDateTimepicker
+                    size="lg"
+                    label="Valitse loppu"
+                    v-model="editForm.end"
+                    :valueType="'date'" 
+                    
+                    :datepicker="{
+                    ...L,
+                    format: 'YYYY-MM-DD'
+                  }"
+                  
+                    :timepicker="{
+                    ...L,
+                    hoursFormat: 24
+                  }"
+
+                    :key="reInitKey"
+                    disablePast
+                />
+                
+            </div>
+
+          </div>
+
+        </div>
 
         <div class="text-sm opacity-80">
           <!-- <div><strong>Loppu:</strong>   {{ form.end?.toLocaleString() }}</div> -->
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <!-- <MDBInput label="Start" type="datetime-local" v-model="editForm.start" />
-          <MDBInput label="End"   type="datetime-local" v-model="editForm.end" />
- -->
-          <div><strong>Aloitus:</strong> {{ formatLocalDate(editForm.start) }}</div>
-
-          <div class="field-wrapper">
-              <MDBDateTimepicker
-                  size="lg"
-                  label="Valitse start"
-                  v-model="editForm.start"
-                  :valueType="'date'"
-              
-                  :datepicker="{
-                  ...L,
-                  format: 'YYYY-MM-DD'
-                }"
-                
-                  :timepicker="{
-                  ...L,
-                  hoursFormat: 24
-                }"
-
-                  :key="reInitKey"
-                  disablePast
-              />
-              
-          </div>
-
-          <div><strong>Loppu:</strong>   {{ formatLocalDate(editForm.end) }}</div>
-
-          <div class="field-wrapper">
-              <MDBDateTimepicker
-                  size="lg"
-                  label="Valitse loppu"
-                  v-model="editForm.end"
-                  :valueType="'date'" 
-                  
-                  :datepicker="{
-                  ...L,
-                  format: 'YYYY-MM-DD'
-                }"
-                 
-                  :timepicker="{
-                  ...L,
-                  hoursFormat: 24
-                }"
-
-                  :key="reInitKey"
-                  disablePast
-              />
-              
-          </div>
-
-        </div>
-
+        
       </div>
     </MDBModalBody>
-    <MDBModalFooter>
+    <MDBModalFooter class="footer-buttons">
       <MDBBtn color="secondary" outline @click="showEdit=false">Peruuta</MDBBtn>
       <MDBBtn color="primary" @click="saveEventEdits">Tallentaa</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
-
-  <!--Siit avatakse event kalendris peale klikkides-->
+  <!-- Opening client and provider event edit -->
   <MDBModal
-      v-model="showEventModal"
+    v-model="showEventEdit"
+    centered
+    tabindex="-1"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle>Muokkaa tarjousta</MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody>
+      <MDBInput
+        v-model="editOfferForm.title"
+        label="Palvelu"
+        wrapperClass="mb-4"
+      />
+
+      <MDBTextarea
+        v-model="editOfferForm.note"
+        label="Kuvaus"
+        rows="3"
+        wrapperClass="mb-4"
+      />
+
+      <MDBInput
+        v-model="editOfferForm.address"
+        label="Sijainti"
+        wrapperClass="mb-4"
+      />
+
+      <MDBInput
+        v-model="editOfferForm.priceOffer"
+        label="Hinta-arvio"
+        type="number"
+        wrapperClass="mb-4"
+      />
+    </MDBModalBody>
+
+    <MDBModalFooter class="footer-buttons">
+      <MDBBtn color="secondary" outline @click="showEventEdit = false">
+        Peruuta
+      </MDBBtn>
+
+      <MDBBtn color="primary" @click="saveOfferEdit">
+        Tallenna
+      </MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+
+  <!-- Open time event edit -->
+  <MDBModal
+    v-model="showTimeEventEdit"
+    centered
+    tabindex="-1"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle>Muokkaa saattavillaoloaikaa</MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody>
+      <p>Time event edit form...</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        
+        <div><strong>Aloitus:</strong> {{ formatLocalDate(editForm.start) }}</div>
+
+        <div class="field-wrapper">
+            <MDBDateTimepicker
+                size="lg"
+                label="Valitse start"
+                v-model="editForm.start"
+                :valueType="'date'"
+            
+                :datepicker="{
+                ...L,
+                format: 'YYYY-MM-DD'
+              }"
+              
+                :timepicker="{
+                ...L,
+                hoursFormat: 24
+              }"
+
+                :key="reInitKey"
+                disablePast
+            />
+            
+        </div>
+
+        <div><strong>Loppu:</strong>   {{ formatLocalDate(editForm.end) }}</div>
+
+        <div class="field-wrapper">
+            <MDBDateTimepicker
+                size="lg"
+                label="Valitse loppu"
+                v-model="editForm.end"
+                :valueType="'date'" 
+                
+                :datepicker="{
+                ...L,
+                format: 'YYYY-MM-DD'
+              }"
+                
+                :timepicker="{
+                ...L,
+                hoursFormat: 24
+              }"
+
+                :key="reInitKey"
+                disablePast
+            />
+            
+        </div>
+
+      </div>
+    </MDBModalBody>
+
+    <MDBModalFooter class="footer-buttons">
+      <MDBBtn color="secondary" outline @click="showTimeEventEdit = false">
+        Peruuta
+      </MDBBtn>
+
+      <MDBBtn color="primary" @click="saveTimeEventEdit">
+        Tallenna
+      </MDBBtn>
+    </MDBModalFooter>
+
+  </MDBModal>
+  
+  <!-- Opening provider time event -->
+  <MDBModal
+    v-model="showTimeEventModal"
+    tabindex="-1"
+    centered
+    :modelValue="true"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle>{{ formatDateTitle(selectedEvent?.start) }}</MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody class="event-modal-body">
+      
+
+      <h2 class="event-title">
+        {{ selectedEvent?.allDay ? 'Koko päivän saattavilla' : 'Saattavilla:' }}
+      </h2>
+
+      <div class="event-date">
+        {{
+          selectedEvent?.start && selectedEvent?.end &&
+          formatLocalDate(selectedEvent.start).split(' ')[0] === formatLocalDate(selectedEvent.end).split(' ')[0]
+            ? 'klo: ' + formatLocalTime(selectedEvent.start) + ' - ' + formatLocalTime(selectedEvent.end)
+            : formatLocalDate(selectedEvent.start) + ' - ' + formatLocalDate(selectedEvent.end)
+        }}
+
+      </div>
+
+      <!-- <div class="event-date">
+        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+      </div>
+
+      <div class="event-date">
+        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.end) : '—' }}
+      </div> -->
+
+      <!-- <p class="event-subtitle">
+        {{ selectedEvent?.note || '—' }}
+      </p> -->
+
+      <!-- <div class="event-note">
+        {{ selectedEvent?.location }}
+      </div>   -->
+    </MDBModalBody>
+
+    <MDBModalFooter class="footer-buttons">
+      <MDBBtn  color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
+      <MDBBtn   color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
+      <MDBBtn color="secondary" @click="showTimeEventModal = false">Poistu</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+
+  <!-- Opening provider notes event -->
+  <MDBModal
+    v-model="showNotesEventModal"
+    tabindex="-1"
+    centered
+    :modelValue="true"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle>{{ selectedEvent?.title || '—' }}</MDBModalTitle>
+    </MDBModalHeader>
+    <!-- v-if="event_state === 'vacation' || event_state === 'time'"  v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay" -->
+     <MDBModalBody class="event-modal-body">
+     </MDBModalBody>
+     
+      <div class="event-card" style="margin: 20px; border-top: 2px solid rgb(231, 134, 134);">
+        <div class="event-date">
+          {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+        </div>
+
+        <p class="event-subtitle">
+          {{ selectedEvent?.note || '—' }}
+        </p>
+      </div>
+      
+    <MDBModalFooter class="footer-buttons">
+      <MDBBtn  color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
+      <MDBBtn   color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
+      <MDBBtn color="secondary" @click="showNotesEventModal = false">Poistu</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+
+  <!-- Opening client event modal -->
+  <MDBModal
+    v-model="showClientEventModal"
+    tabindex="-1"
+    centered
+    :modelValue="true"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader class="modal-header-custom">
+      <MDBModalTitle><h5 style="color: #48769c;">Sopimus palvelun vastaanottajana</h5></MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody class="event-modal-body">
+
+      <h2 class="event-title">
+         Palveluntarjoaja tarjoaa palvelua.
+      </h2>
+
+      <div class="event-date">
+        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+      </div>
+
+      <p class="event-subtitle">
+        Tarjous on varattu tälle ajankohdalle. Tarkista tarjouksen tiedot alta.
+      </p>
+
+      <div class="event-card">
+        <h4>Tarjouksen tiedot</h4>
+
+        <div class="info-row">
+          <span>Palvelu</span>
+          <strong>{{ selectedEvent?.title || '—' }}</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Kuvaus</span>
+          <strong v-html="selectedEvent?.note || '—'"></strong>
+        </div>
+        <!-- v-if="selectedEvent?.location" -->
+        <div class="info-row" >
+          <span>Sijainti</span>
+          <strong>{{ selectedEvent?.address }}</strong>
+        </div>
+        <!-- selectedEvent?.priceOffer + " €" || 'Sovitaan erikseen' -->
+        <div class="info-row">
+          <span>Hinta-arvio</span>
+          <strong >{{ selectedEvent?.budget }} €</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Tila</span>
+          <strong class="status-waiting">Sovittu</strong>
+        </div>
+      </div>
+
+      <div class="event-note">
+        {{ selectedEvent?.location }}
+        <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
+      </div>
+    </MDBModalBody>
+
+    <MDBModalFooter class="footer-buttons">
+      <MDBBtn color="secondary" @click="openClientEventEdit">Muokkaa</MDBBtn>
+      <MDBBtn color="danger" @click="showClientEventModal = false">Poistu</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+
+
+  <!-- Opening provider event modal -->
+  <MDBModal
+      v-model="showProEventModal"
       tabindex="-1"
       centered
       :modelValue="true"
@@ -148,12 +453,11 @@
       scrollable
   >
   
-  <!-- formatEventDate(new Date(selectedEvent.start)) -->
+    <!-- formatEventDate(new Date(selectedEvent.start)) -->
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>{{ selectedEvent?.title || 'Event' }}</MDBModalTitle>
+      <MDBModalTitle><h5 style="color: #097a5e;">Sopimus palveluntarjoajana</h5></MDBModalTitle>
     </MDBModalHeader>
-    <MDBModalBody>
-
+    <!-- <MDBModalBody>
       <div v-if="selectedEvent.allDay">
         <h3>Koko päivän</h3>
         <div v-if="selectedEvent.note" v-html="selectedEvent.note"></div>
@@ -167,11 +471,58 @@
         <p v-if="selectedEvent.location">{{ selectedEvent.location }}</p>
       </div>
 
+    </MDBModalBody> -->
+    <MDBModalBody class="event-modal-body">
+      <h2 class="event-title">
+        {{ selectedEvent?.client || 'Asiakas'}} odottaa palvelutarjousta
+      </h2>
+
+      <div class="event-date">
+        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+      </div>
+
+      <p class="event-subtitle">
+        Tilaus on varattu tälle ajankohdalle. Tarkista tilauksen tiedot alta.
+      </p>
+
+      <div class="event-card">
+        <h4>Tilauksen tiedot</h4>
+
+        <div class="info-row">
+          <span>Palvelu</span>
+          <strong>{{ selectedEvent?.title || '—' }}</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Kuvaus</span>
+          <strong v-html="selectedEvent?.note || '—'"></strong>
+        </div>
+
+        <div class="info-row" v-if="selectedEvent?.location">
+          <span>Sijainti</span>
+          <strong>{{ selectedEvent.address }}</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Hinta-arvio</span>
+          <strong>{{ selectedEvent?.budget + ' €' || 'Sovitaan erikseen' }}</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Tila</span>
+          <strong class="status-waiting">Sovittu</strong>
+        </div>
+      </div>
+
+      <div class="event-note">
+        {{ selectedEvent?.location }}
+        <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
+      </div>
     </MDBModalBody>
     <MDBModalFooter>
       <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
-      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay"  color="primary" @click="openEventModalFromPreview">Muokkaa</MDBBtn>
-      <MDBBtn color="secondary" outline @click="showEventModal=false">Peruuttaa</MDBBtn>
+      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay"  color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
+      <MDBBtn color="secondary" outline @click="showProEventModal=false">Peruuttaa</MDBBtn>
       <!-- <MDBBtn color="danger" @click="deleteEvent">Delete</MDBBtn> -->
     </MDBModalFooter>
   </MDBModal>
@@ -196,6 +547,7 @@ import fiLocale from '@fullcalendar/core/locales/fi'
 import svLocale from '@fullcalendar/core/locales/sv'
 import etLocale from '@fullcalendar/core/locales/et'
 import enLocale from '@fullcalendar/core/locales/en-gb'
+import { getBottomRightAnchor } from './helpers/chatGeometry.js';
 
 import { storeToRefs } from 'pinia';
 import { useLoginStore } from '@/stores/login';
@@ -208,11 +560,7 @@ defineProps({
 })
 
 
-const emit = defineEmits(['over'])
-
-const sendProp = () => {
-  emit("over", "Hello parent!")
-}
+const emit = defineEmits(['over', 'open-chat'])
 
 const auth = useLoginStore();
 const clientStore = useClientStore();
@@ -222,25 +570,28 @@ const { user } = storeToRefs(auth);
 const { clientConfirmed } = storeToRefs(clientStore);
 const { isUserPro, proCalendarEvents, proTimetable } = storeToRefs(proStore);
 
-/* createdEvents.value = [
-    createdEvents.value,
-    {
-      id: ptt.id,
-      title: ptt.title,
-      start: ptt.start,
-      end: ptt.end,
-      startEditable: true,
-      durationEditable: true,
-      extendedProps: {
-        type: ptt.state,
-        canEdit: true,
-        canResize: true,
-        note: ptt.content
-      }
-    }
-  ] */
+const { locale } = useI18n()
+// const events = ref([
+//   { id: '1', title: 'Team sync', start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', meetingId: 'ABC123', location: 'Room 1' } },
+//   { id: '2', title: 'Team sync',     start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', location: 'Room 2' } },
+//   { id: '3', title: 'Client call',   start: '2025-09-18T13:30:00', end: '2025-09-18T14:00:00', extendedProps: { type: 'client', location: 'Room 3' } },
+//   { id: '4', title: 'Vacation',      start: '2025-09-20', allDay: true, extendedProps: { type: 'vacation', location: 'Room 4' } },
+//   { id: '5', title: 'Write report',  start: '2025-09-19T09:00:00', end: '2025-09-19T10:00:00', extendedProps: { type: 'task', location: 'Room 5' } },
+//
+// ])
+//
+// // state for modal
+const showTimeEventModal = ref(false);
+const showNotesEventModal = ref(false);
+const showProEventModal = ref(false)
+const showClientEventModal = ref(false);
+const selectedEvent = ref(null)
 
-  // label sets (add your own langs as needed)
+const showEdit = ref(false)
+const showTimeEventEdit = ref(false);
+const showEventEdit = ref(false);
+
+
 const L = computed(() => {
   switch (locale.value) {
     case 'en':
@@ -309,10 +660,6 @@ const L = computed(() => {
   }
 })
 
-
-
-
-
 const event_state = ref("");
 
 const createdEvents = ref([]);
@@ -333,25 +680,31 @@ const toDate = (v) => {
 const events = computed(() => [
   ...clientConfirmed.value.map(cc => ({
     id: cc.id,
-    title: "Tilaus",
+    title: cc?.header,
     start: toDate(cc.created),
     end: toDate(cc.created),
 
     startEditable: false,
     durationEditable: false,
-    
+    address: cc?.isIncludeOffers ? (cc?.offers?.placeOrGo === 'go' ? cc?.address : cc?.offers?.provider?.address) : 'Sovitaan erikseen',
     extendedProps: {
-      type: "offer",
+      /* type: "offer", */
+      otherId: cc?.confirmed_provider_user_id,
+      type: "client",
       canEdit: false,
       canResize: false,
-      location: cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!",
-      note: `
+      address:  cc?.offer?.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Sovitaan erikseen',
+      priceOffer: cc?.offer?.price,
+      budget: cc.isIncludeOffers ? cc?.offer?.price : cc?.budget.min + " - " + cc?.budget.max,
+      location: cc?.offer.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Palvelun sijainti sopimuksen mukaan',
+      note: cc.description || ' - '
+      /* `
         <h3>Tilaus:</h3>
         <ul>
           <li><strong>Tehtävä:</strong> ${cc.header}</li>
           <li><strong>Tehtävän kuvaus:</strong> ${cc.description || '–'}</li>
         </ul>
-      `
+      ` */
     } 
   })),
   // Confirmed offer in calendar
@@ -365,14 +718,22 @@ const events = computed(() => [
     return {
       id: pce.id,
       title: pce.header,
+      
       start: toDate(pce.created),
       startEditable: false,
       durationEditable: false,
       extendedProps: {
-        type: "booking",
+        /* type: "booking", */
+        type: "pro",
         canEdit: false,
         canResize: false,
-        note: place === 'go' ? `
+        otherId: pce?.author_id,
+        client: pce?.user?.firstName,
+        note: pce.description,
+        address: `${pce?.isIncludeOffers ? (place === 'go' ? pce.address : pce?.offers?.provider?.address) : 'Sovitaan erikseen'}`,
+        priceOffer: pce?.offer?.price,
+        budget: pce?.isIncludeOffers ? pce?.offer?.price : pce?.budget.min + " - " + pce?.budget.max,
+        /* place === 'go' ? `
           <p>Tilauksen tiedot:</p>
           <ul>
             <li><strong>Osoite - </strong> ${pce.address}</li>
@@ -388,8 +749,8 @@ const events = computed(() => [
             <li><strong/>Kuvaus: </strong> ${pce.description}</li>
             <li><strong>Hinta: </strong> ${price}</li>
           </ul>
-        `,
-        location: place === 'go' ? "Meno asiakkaan luokse" : "Asiakas tulossa!"
+        ` */
+        location: pce?.isIncludeOffers ?(place === 'go' ? "Meno asiakkaan luokse" : "Asiakas tulossa!") : 'Palvelun sijainti sopimuksen mukaan'
       }
     }
   }),
@@ -413,13 +774,6 @@ const events = computed(() => [
 
 const today = new Date();
 
-// Helper: start-of-day (local) timestamp
-const startOfToday = computed(() => {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d.getTime()
-})
-
 // Only future (or today) events
 const filteredEvents = computed(() =>
   events.value.filter(e => {
@@ -429,8 +783,8 @@ const filteredEvents = computed(() =>
 )
 
 const stateOptions = ref([
-  {text: "Saattavilla", value: "time"},
-  {text: "Muistiinpanot", value: "vacation"}
+  {text: "🕒 Vapaa aika", value: "time"},
+  {text: "📝 Muistiinpano", value: "vacation"}
 ])
 
 
@@ -465,11 +819,73 @@ const editForm = ref({
   note: ''
 })
 
+const editOfferForm = ref({
+  id: '',
+  title: '',
+  note: '',
+  address: '',
+  priceOffer: '',
+  location: ''
+})
+
 onMounted(() => {
   console.log("Mounted is on...");
-  const eventDate = new Date("2025-10-31T15:00:00.000Z")
-  const now = new Date()
+  //const eventDate = new Date("2025-10-31T15:00:00.000Z")
+  //const now = new Date()
 })
+
+function openClientEventEdit() {
+  editOfferForm.value = {
+    id: selectedEvent.value?.id || '',
+    title: selectedEvent.value?.title || '',
+    note: selectedEvent.value?.note || '',
+    address: selectedEvent.value?.address || '',
+    priceOffer: selectedEvent.value?.priceOffer || '',
+    location: selectedEvent.value?.location || ''
+  }
+
+  showClientEventModal.value = false
+  showEventEdit.value = true
+}
+
+async function saveOfferEdit() {
+  const payload = {
+    id: editOfferForm.value.id,
+    title: editOfferForm.value.title,
+    note: editOfferForm.value.note,
+    address: editOfferForm.value.address,
+    priceOffer: editOfferForm.value.priceOffer,
+    location: editOfferForm.value.location
+  }
+
+  const payloadForDatabase = {
+
+  }
+
+  //await proStore.onEditOffer(payload.id, payload)
+  //await clientStore.updateClientMain(payload.id, payload);
+  await clientStore.updatingBookingOffer(payload.id, {
+    price: Number(editOfferForm.value.priceOffer),
+    placeOrGo: editOfferForm.value.placeOrGo || ''
+  })
+  selectedEvent.value = {
+    ...selectedEvent.value,
+    ...payload
+  }
+
+  showEventEdit.value = false;
+  showClientEventModal.value = true;
+}
+
+const onEventChat = (otherId, eventId) => {
+  console.log("Clicked on chat - " + otherId + "event id - " + eventId);
+  emit("open-chat", {
+    otherId,
+    bookingId: eventId,
+    mode: "pro",
+    anchor: getBottomRightAnchor()
+  });
+}
 
 const formatLocalDate = (value) => {
   const d = fromLocalInput(value);
@@ -481,6 +897,24 @@ const formatLocalDate = (value) => {
     hour12: false,
     hourCycle: 'h23',
   }).format(d);
+};
+
+const formatLocalTime = (date) => {
+  return new Date(date).toLocaleTimeString('fi-FI', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+/* For time title formatting */
+const formatDateTitle = (date) => {
+  return new Intl.DateTimeFormat('fi-FI', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Helsinki',
+  }).format(new Date(date));
 };
 
 /* ensure end exists (30 min for timed, 1 day for allDay) */
@@ -511,14 +945,14 @@ function openCreate({ start, end, allDay }) {
 /* save new event with extendedProps */
 const saveEvent = async() => {
   const f = form.value
-  if (!f.title?.trim()) return alert('Please add a title')
+  if (!f.note?.trim()) return alert('Lisää muistinpano')
   console.log("CREATED time start - " + f.start);
   console.log("CREATED time end - " + f.end)
 
   const dEvent = {
     state: f.type,
     allDay: f.allDay,
-    title: f.title.trim(),
+    title: f.title.trim() || 'Muistiinpano',
     content: f.note?.trim(),
     start: f.start,
     end: f.end
@@ -544,7 +978,7 @@ const saveEvent = async() => {
         canEdit: true,
         canResize: true,
         location: f.location?.trim() || '',
-        note: f.note?.trim() || '',
+        note: f.note?.trim() || 'Muistiinpano',
       },
     },
   ]
@@ -565,45 +999,6 @@ const toLocalInput = (d) => {
   const hh = pad(d.getHours())
   const mi = pad(d.getMinutes())
   return `${yyyy}-${mm}-${dd}T${hh}:${mi}`
-}
-//const fromLocalInput = (s) => (s ? new Date(s) : null)
-
-function fromLocalInput_xxx(s) {
-  if (!s) return null;
-
-  // Already a Date?
-  if (s instanceof Date && !isNaN(s)) return s;
-
-  const str = String(s).trim();
-
-  // ISO-ish: 2025-11-17T12:00
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str)) {
-    const d = new Date(str);
-    return isNaN(d) ? null : d;
-  }
-
-  // dd/MM/yyyy, HH:mm AM/PM   e.g. "17/11/2025, 12:00 AM" or "18/11/2025, 05:00 PM"
-  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4}),\s*(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i.exec(str);
-  if (m) {
-    let [, dd, MM, yyyy, hh, mm, ap] = m;
-    dd = +dd; MM = +MM; yyyy = +yyyy; hh = +hh; mm = +mm;
-    if (ap) {
-      const isPM = ap.toUpperCase() === 'PM';
-      hh = (hh % 12) + (isPM ? 12 : 0);
-    }
-    const d = new Date(yyyy, MM - 1, dd, hh, mm, 0, 0);
-    return isNaN(d) ? null : d;
-  }
-
-  // dd.MM.yyyy HH:mm  e.g. "17.11.2025 05:00"
-  m = /^(\d{1,2})[.\-](\d{1,2})[.\-](\d{4})(?:[ ,T]?(\d{1,2}):(\d{2}))?$/.exec(str);
-  if (m) {
-    let [, dd, MM, yyyy, hh = '0', mm = '0'] = m;
-    const d = new Date(+yyyy, +MM - 1, +dd, +hh, +mm, 0, 0);
-    return isNaN(d) ? null : d;
-  }
-
-  return null; // unknown format
 }
 
 // Accept Date | ISO | "YYYY-MM-DD, HH:mm" | "YYYY-MM-DD HH:mm" | "DD.MM.YYYY HH:mm"
@@ -635,12 +1030,12 @@ const fromLocalInput = (v) => {
 
 
 
-/* ------------ edit modal state ------------ */
-const showEdit = ref(false)
+/* ------------ Time and note edit modal state ------------ */
+
 let editingEventApi = null // FullCalendar EventApi currently being edited
 
 
-function openEventModalFromPreview() {
+function openEditModalFromPreview() {
   const id = selectedEvent.value?.id;
   if (!id) return;
 
@@ -654,30 +1049,28 @@ function openEventModalFromPreview() {
   
 
   // reuse your existing editor opener
-  openEventModal(evApi);
+  openEdittModal(evApi);
 
   // optionally close the preview modal
-  showEventModal.value = false;
+  showProEventModal.value = false;
 }
 
 const editingEventId = ref(null);
 
 /* Open modal from an event click to edit */
-function openEventModal(eventLike) {
-  //showEventModal.value = false;
-
- /*  const eventApi = argOrEventApi.event ?? argOrEventApi; // supports eventClick(arg) or direct EventApi
-  editingEventId.value = eventApi.id; */
-
+function openEdittModal(eventLike) {
   const ev = eventLike?.event ?? eventLike;
   if (!ev) return;
+
+  showTimeEventModal.value = false;
+  showNotesEventModal.value = false;
 
   // Always store the id as a string (getEventById uses string matching)
   editingEventId.value = String(ev.id);
 
   editForm.value = {
     id: String(ev.id),
-    title: ev.title || '',
+    title: ev.title || 'Muistinpano',
     start: toLocalInput(ev.start),
     end:   toLocalInput(ev.end),
     location: ev.extendedProps?.location || '',
@@ -691,100 +1084,6 @@ function openEventModal(eventLike) {
   api.unselect();
   
 }
-
-/* Save edits: update FullCalendar event + mirror to our array */
-/* const saveEventEdits_old = async() => {
-  console.log('[saveEventEdits] fired'); 
-  console.log("Editing ID " + editingEventId.value)
- 
-  
-  const id = editingEventId.value;
-  if (!id) return;
-
-  const cal = calendarRef.value.getApi();
-  const evApi = cal.getEventById(id);          
-  if (!evApi) {
-    console.warn('No EventApi found for id', id);
-    return;
-  }
-
-  const f = editForm.value;
-
-  const newStart =  fromLocalInput(f.start); 
-  const newEnd   =  fromLocalInput(f.end);   
-
-  console.log("EVENT PROPS" + editingEventId.value, evApi, typeof evApi.setProp)
-
- 
-  const startForApi = isValidDate(newStart) ? newStart : evApi.start;
-  const endForApi   = isValidDate(newEnd)   ? newEnd   : evApi.end;
-
-  evApi.setProp('title', (f.title || '').trim());
-  evApi.setExtendedProp('location', f.location || '');
-  evApi.setExtendedProp('note',     f.note || '');
-  evApi.setDates(newStart || evApi.start, newEnd || evApi.end, { allDay: evApi.allDay });
-
-  
-  const startIso = isValidDate(startForApi) ? startForApi.toISOString() : null;
-  const endIso   = isValidDate(endForApi)   ? endForApi.toISOString()   : null;
-
-  
-
-  const allDayValue = newStart && newEnd ? false : true
-
-  const idx = createdEvents.value.findIndex(e => e.id === id);
-  if (idx !== -1) {
-    const old = createdEvents.value[idx];
-    createdEvents.value = [
-      ...createdEvents.value.slice(0, idx),
-      {
-        ...old,
-        title: (f.title || '').trim(),
-        start: startIso,
-        end:   endIso,
-        allDay: allDayValue,
-        extendedProps: {
-          ...(old.extendedProps || {}),
-          location: f.location || '',
-          note: f.note || '',
-        },
-      },
-      ...createdEvents.value.slice(idx + 1),
-    ];
-  }
-
-  if (!evApi) return;
-
-  const days = getEventDays(evApi);     
-  
-
-  await nextTick();
-  days.forEach(rebuildTypeBarForDay);   
-
-  console.log('saveEventEdits ->', {
-    startRaw: f.start, endRaw: f.end,
-    allday: newStart && newEnd ? false : true,
-    newStart, newEnd,
-    isDate: newStart instanceof Date, isDateEnd: newEnd instanceof Date,
-  });
-
-  const eventOnEdit = {
-    id: id,
-    state: f.type,
-    isAllDay: newStart && newEnd ? false : true,
-    title: f.title,
-    content: f.note,
-    start: newStart,
-    end: newEnd
-  } 
-
-  
-
-  await proStore.onEdit(id, eventOnEdit);
-
-  showEdit.value = false;
-} */
-
 
 const ymdLocal = (d) => {
   const dt = new Date(d);
@@ -821,15 +1120,21 @@ const dayKeysOfRange = (start, end, allDay) => {
   return out;
 };
 
+const saveTimeEdit = () => {
+
+}
+
 const saveEventEdits = async () => {
   const id = editingEventId.value;
   if (!id) return;
 
   const cal = calendarRef.value.getApi();
   const evApi = cal.getEventById(id);
+  
+  if (!evApi) return;
+
   console.log("Old event - ", evApi.extendedProps.type);
   const prevState = evApi.extendedProps.type;
-  if (!evApi) return;
 
   const f = editForm.value;
 
@@ -909,7 +1214,27 @@ const saveEventEdits = async () => {
   // New timerangeEvent to db
   await proStore.onEdit(id, eventOnEdit);
 
+  //console.log("PREV STATE - ", prevState);
+
   showEdit.value = false;
+  if (prevState === 'vacation') {
+    const updatedNoteEvent = {
+      id,
+      title: (f.title || '').trim(),
+      content: f.note || '',
+      note: f.note || '',
+      start: startForApi,
+      end: endForApi,
+      location: f.location || '',
+      state: prevState,
+    };
+    selectedEvent.value = {
+      ...selectedEvent.value,
+      ...updatedNoteEvent
+    };
+    showNotesEventModal.value = true;
+  }
+    
 };
 
 
@@ -971,39 +1296,6 @@ const handleEventDrop = async (info) => {
     revert(); // put event back
   }
 };
-
-/* async function deleteFromPreviewxxx() {
-  const id = selectedEvent.value?.id && String(selectedEvent.value.id);
-  if (!id) return;
-
-  const cal = calendarRef.value.getApi();
-  cal.getEventById(id)?.remove();
-
-  const idx = createdEvents.value.findIndex(e => String(e.id) === id);
-  if (idx !== -1) {
-    createdEvents.value = [
-      ...createdEvents.value.slice(0, idx),
-      ...createdEvents.value.slice(idx + 1)
-    ];
-  }
-
-  showEventModal.value = false;
-} */
-
-
-
-
-
-
-
-
-/* function clearAllTypeBars() {
-  calendarRef.value?.$el
-    ?.querySelectorAll('.cell-type-bar')
-    .forEach(el =>  el.remove());
-} */
-
-
 
 function isEventApi(x) {
   return x && typeof x === 'object' && typeof x.remove === 'function';
@@ -1116,7 +1408,10 @@ async function deleteFromPreview() {
 
   await nextTick();
   days.forEach(rebuildTypeBarForDay);   // rebuild only affected cells
-  showEventModal.value = false;
+
+  showProEventModal.value = false;
+  showTimeEventModal.value = false;
+  showNotesEventModal.value = false;
 }
 
 async function deleteEvent() {
@@ -1139,7 +1434,7 @@ async function deleteEvent() {
   days.forEach(rebuildTypeBarForDay);
 
   showEdit.value = false;
-  showEventModal.value = false;
+  showProEventModal.value = false;
 }
 
 
@@ -1188,220 +1483,18 @@ function getEventDays(ev) {
   return days
 }
 
-function clearTypeBarsForEvent(ev) {
-  if (!calendarRef.value) return
-  const root = calendarRef.value.$el
-  const days = getEventDays(ev)
-  if (!days.length) return
-
-  days.forEach(key => {
-    const cell = root.querySelector(`.fc-daygrid-day[data-date="${key}"]`)
-    if (!cell) return
-    const frame = cell.querySelector('.fc-daygrid-day-frame') || cell
-    frame.querySelector('.cell-type-bar')?.remove()
-  })
-}
-
-/* Optional delete from the edit modal */
-async function deleteEvent__() {
-  const id = editingEventId.value && String(editingEventId.value);
-  console.log("Event id " + id)
-  if (!id) return;
-
-  const cal = calendarRef.value?.getApi?.();
-  if (!cal) return;
-
-  // 1) Remove from FullCalendar
-  const evApi = cal.getEventById(id);
-  if (!evApi) console.warn('No EventApi for id', id);
-  else evApi.remove();
-
-  // 2) Mirror remove in your local arrays
-  // If you only add to createdEvents on the client:
-  const idx = createdEvents.value.findIndex(e => String(e.id) === id);
-  if (idx !== -1) {
-    createdEvents.value = [
-      ...createdEvents.value.slice(0, idx),
-      ...createdEvents.value.slice(idx + 1)
-    ];
-  }
-
-  // If events can also come from proTimetable/proCalendarEvents etc,
-  // do the same filtering there or call your backend:
-  // await proStore.deleteAvailableTimeEvent(id).catch(console.error);
-
-  //deleteFromPreview()
-  await nextTick();
-  
-  refreshTypeBars();
-  
-
-  // 3) Close modal(s)
-  showEdit.value = false;
-  showEventModal.value = false;
-}
 
 
-
-async function _deleteEvent() {
-  
-  const id = editingEventId.value && String(editingEventId.value)
-  console.log("DELETING IN EDIT " + id)
-  if (!id) return
-
-  const cal = calendarRef.value?.getApi?.()
-  if (!cal) return
-
-  const evApi = cal.getEventById(id)
-  console.log("EV API ID " + evApi)
-  if (evApi) {
-    // 👇 remove only affected bars
-    clearTypeBarsForEvent(evApi)
-    evApi.remove()
-  }
-
-  // mirror in your state
-  createdEvents.value = createdEvents.value.filter(e => String(e.id) !== id)
-
-  await nextTick()
-  refreshTypeBars()
-
-  showEdit.value = false
-  showEventModal.value = false
-}
-
-
-function isPastDay(d) {
-  const day = new Date(d); day.setHours(0,0,0,0);
-  const today = new Date(); today.setHours(0,0,0,0);
-  return day < today;
-}
-
-function isPastMoment(d) {
-  return d < new Date();
-}
-
-
-const { locale } = useI18n()
-// const events = ref([
-//   { id: '1', title: 'Team sync', start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', meetingId: 'ABC123', location: 'Room 1' } },
-//   { id: '2', title: 'Team sync',     start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', location: 'Room 2' } },
-//   { id: '3', title: 'Client call',   start: '2025-09-18T13:30:00', end: '2025-09-18T14:00:00', extendedProps: { type: 'client', location: 'Room 3' } },
-//   { id: '4', title: 'Vacation',      start: '2025-09-20', allDay: true, extendedProps: { type: 'vacation', location: 'Room 4' } },
-//   { id: '5', title: 'Write report',  start: '2025-09-19T09:00:00', end: '2025-09-19T10:00:00', extendedProps: { type: 'task', location: 'Room 5' } },
-//
-// ])
-//
-// // state for modal
-const showEventModal = ref(false)
-const selectedEvent = ref(null)
-// const calendarRef = ref(null)
-// const visibleTypes = ref(new Set(Object.keys(EVENT_TYPES)))
-// const filteredEvents = computed(() =>
-//     events.value.filter(e => visibleTypes.value.has(e.extendedProps?.type || ''))
-// )
-//
-const formatEventDate = (date) => {
-  return formatDate(date, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    locale: 'en' // or 'fi', 'et', etc.
-  })
-}
-//
-/* function isEventApi(x) {
-  return x && typeof x.getExtendedProp === 'function';
-}
- */
 // Avatakse event modal
-function openEventModalPreviewxxx(evt) {
-  // evt can be an EventApi or a plain object
-  event_state.value = evt.extendedProps.type;
-  const start = isEventApi(evt) ? evt.start : evt.start;
-  const end =
-      (isEventApi(evt) ? evt.end : evt.end) ??
-      (start
-          ? new Date(start.getTime() + (isEventApi(evt) ? (evt.allDay ? 86400000 : 1800000) : 1800000))
-          : null);
-
-  const location = isEventApi(evt)
-      ? (evt.getExtendedProp('location') ?? null)
-      : (evt.extendedProps?.location ?? evt.location ?? null);
-
-  /* const note = isEventApi(evt)
-      ? (evt.getExtendedProp('note') ?? null)
-      : (evt.extendedProps?.note ?? evt.note ?? null); */
-
-    const note = isEventApi(evt)
-    ? (evt.getExtendedProp('note') ?? null)
-    : (evt.extendedProps?.note ?? evt.note ?? null);
-
-
-  // Siit kuvatakse event peale klikkides ----
-  selectedEvent.value = {
-    
-    id: isEventApi(evt) ? evt.id : evt.id,
-    title: isEventApi(evt) ? evt.title : evt.title,
-    start: start ? start.toISOString() : null,
-    end: end ? end.toISOString() : null,
-    allDay: isEventApi(evt) ? evt.allDay : !!evt.allDay,
-    location,
-    note,
-    
-    /* extendedProps: isEventApi(evt) ? (evt.toPlainObject().extendedProps ?? {}) : (evt.extendedProps ?? {}) */
-  };
-
-  showEventModal.value = true;
-  
-}
-
-function openEventModalPreview_xx(raw) {
-  // Works with either eventClick arg or a direct EventApi/plain object
-  const ev = raw?.event ?? raw;
-
-  const type    = getType(ev);
-  const start   = getStart(ev);
-  const allDay  = getAllDay(ev);
-  const givenEnd = getEnd(ev);
-  const end     = givenEnd ?? (start ? new Date(start.getTime() + (allDay ? 86400000 : 1800000)) : null);
-
-  const location = ev?.extendedProps?.location
-                ?? ev?._def?.extendedProps?.location
-                ?? ev?.location
-                ?? null;
-
-  const note     = ev?.extendedProps?.note
-                ?? ev?._def?.extendedProps?.note
-                ?? ev?.note
-                ?? null;
-
-  // Store type for your button visibility logic
-  event_state.value = type || '';
-
-  // Build selectedEvent for your modal
-  selectedEvent.value = {
-    id: String(ev?.id ?? ev?._def?.publicId ?? ev?._instance?.instanceId ?? ''),
-    title: ev?.title ?? ev?._def?.title ?? '',
-    start: start ? start.toISOString() : null,
-    end:   end   ? end.toISOString()   : null,
-    allDay,
-    location,
-    note,
-  };
-
-  showEventModal.value = true;
-}
-
 function openEventModalPreview(raw) {
   const ev = raw?.event ?? raw;
 
-  const type    = getType(ev);
-  const start   = getStart(ev);
-  const allDay  = getAllDay(ev);
+  const type = getType(ev);
+  const start = getStart(ev);
+  const allDay = getAllDay(ev);
   const givenEnd = getEnd(ev);
+
+  console.log("TYPE -- ", type);
 
   // derive end only when start is valid
   const end = givenEnd
@@ -1414,10 +1507,10 @@ function openEventModalPreview(raw) {
                 ?? ev?.location
                 ?? null;
 
-  const note     = ev?.extendedProps?.note
-                ?? ev?._def?.extendedProps?.note
-                ?? ev?.note
-                ?? null;
+  const note = ev?.extendedProps?.note
+        ?? ev?._def?.extendedProps?.note
+        ?? ev?.note
+        ?? null;
 
   event_state.value = type || '';
 
@@ -1426,141 +1519,52 @@ function openEventModalPreview(raw) {
     title: ev?.title ?? ev?._def?.title ?? '',
     start: toIso(start),      // <-- SAFE
     end:   toIso(end),        // <-- SAFE
+    otherId: ev?.extendedProps?.otherId,
+    client: ev?.extendedProps?.client,
+    address: ev?.extendedProps?.address,
+    priceOffer: ev?.extendedProps?.priceOffer,
+    budget: ev?.extendedProps?.budget || '',
     allDay,
+    
     location,
     note,
   };
 
-  showEventModal.value = true;
+  switch (type) {
+    case "pro":
+      showProEventModal.value = true;
+      break;
+    case "time":
+      showTimeEventModal.value = true;
+      break;
+    case "client":
+      showClientEventModal.value = true;
+      break;
+    case "vacation":
+      showNotesEventModal.value = true;
+      break;
+    default:
+      showProEventModal.value = true; // fallback
+  }
+
+  /* if (type === "pro") {
+    showEventModal.value = true;
+  } else if (type === "time") {
+    showTimeEventModal.value = true;
+  } else {
+    showClientEventModal.value = true;
+  } */
+    
 }
 
-//
-// /* ---------- delete button handler ---------- */
-// function deleteEvent() {
-//   if (!selectedEvent.value) return
-//   const id = selectedEvent.value.id
-//   events.value = events.value.filter(e => e.id !== id)
-//   showEventModal.value = false
-// }
-//
 const fcLocaleCode = computed(() => ({ fi:'fi', sv:'sv', et:'et', en:'en-gb' }[locale.value] ?? 'en-gb'))
 const clickedDate = ref(null);
-//
-//
-//
-// function persistChange({ event, revert }) {
-//   // TODO: save to your backend; if it fails, call revert()
-//   // Example of payload you might send:
-//   console.log("Created event start: " + event.start);
-//   console.log("Created event end: " + event.end);
-//   const payload = {
-//     id: event.id,
-//     start: event.start?.toISOString(),
-//     end:   event.end?.toISOString(),
-//     allDay: event.allDay
-//   }
-//   console.log('save', payload)
-//
-//   // fake error example:
-//   // if (someError) revert()
-// }
-//
-// function handleDrop(info) {
-//   // The dragged event
-//   const e = info.event
-//
-//   // New dates (in JS Date objects)
-//   console.log('event moved:')
-//   console.log('id:', e.id)
-//   console.log('start:', e.start) // Date object
-//   console.log('end:', e.end)
-//
-//   // ISO strings (useful to send to backend)
-//   console.log('start ISO:', e.start?.toISOString())
-//   console.log('end ISO:', e.end?.toISOString())
-//
-//   // If your save fails, call:
-//   // info.revert()
-// }
-//
-// function handleResize(info) {
-//   const e = info.event
-//   console.log('event resized:', e.start?.toISOString(), e.end?.toISOString())
-// }
 
-function onEventClick(info) {
+/* function onEventClick(info) {
   info.jsEvent.preventDefault()
-  openEventModalPreview(info.event)     // ← pass EventApi
+  openEventModalPreview(info.event)
   
-}
-//
-// function removeEventClick(info) {
-//   if (confirm(`Delete event "${info.event.title}"?`)) {
-//     // Remove from your data
-//     events.value = events.value.filter(e => e.id !== info.event.id)
-//
-//     // Or directly from calendar API:
-//     // info.event.remove()
-//   }
-// }
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-/* Calendar options */
-// const options = computed(() => ({
-//   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-//   initialView: 'dayGridMonth',
-//   headerToolbar: {
-//     left: 'prev,next today',
-//     center: 'title',
-//     right: 'dayGridMonth,timeGridWeek,timeGridDay'
-//   },
-//   selectable: true,
-//
-//   selectAllow(selectInfo) {
-//     // disallow if start is before "now"
-//     return selectInfo.start >= new Date()
-//   },
-//   eventAllow(dropInfo, draggedEvent) {
-//     return dropInfo.start >= new Date()
-//   },
-//   events: upcomingEvents.value,
-//
-//   //events: events.value,
-//   eventClick(info) {
-//     info.jsEvent?.preventDefault()
-//     openEventModal(info.event)
-//   },
-//
-//   /* A) click a single day/slot */
-//   dateClick(info) {
-//     if (info.view.type.startsWith('dayGrid')) {
-//       if (isPastDay(info.date)) return;         // ⛔ do nothing
-//     } else {
-//       // timeGridDay/Week: respect time
-//       if (isPastMoment(info.date)) return;      // ⛔ do nothing
-//     }
-//
-//     // allowed → open your modal
-//     openCreate({ start: info.date, end: null, allDay: info.allDay });
-//   },
-//
-//   /* B) drag to select a range (has start+end) */
-//   select(info) {
-//     openCreate({ start: info.start, end: info.end, allDay: info.allDay })
-//   },
-//
-//   /* show fewer events per cell so they fit on mobile */
-//   dayMaxEventRows: true,
-// }))
+} */
 
 const showDayEvents = ref(false)
 const selectedDayEvents = ref([])
@@ -1568,45 +1572,12 @@ const selectedDayEvents = ref([])
 
 function handleEventClick(arg) {
   // arg is { event: EventApi, jsEvent, ... }
-  arg.jsEvent?.preventDefault()
+  arg.jsEvent?.preventDefault();
+
+  console.log("ARG -- ", arg.event);
   
   openEventModalPreview(arg.event)
 }
-
-
-function handleDateClick(info) {
-  const api = calendarRef.value.getApi()
-  
-  // Prevent past days if needed
-  if (info.view.type.startsWith('dayGrid')) {
-    if (isPastDay(info.date)) return
-  } else {
-    if (isPastMoment(info.date)) return
-  }
-
-  // Collect all events for that day and open your modal
-  const dayEvents = info.view.calendar.getEvents().filter(
-    ev => ev.startStr.slice(0, 10) === info.dateStr
-  )
-  selectedDayEvents.value = dayEvents
-  showDayEvents.value = true
-
-  // (optional) change view on mobile
-  if (window.innerWidth < 640) api.changeView('timeGridDay', info.date)
-}
-
-function handleMoreLinkClick(arg) {
-  // arg has: date, allSegs (array of segments for that day)
-  console.log('✅ custom moreLinkClick fired')
-  console.log('handleMoreLinkClick fired for', arg.date?.toISOString?.() ?? arg.date);
-  
-
-  selectedDayEvents.value = arg.allSegs.map(seg => seg.event)
-  showDayEvents.value = true
-  return false // prevent FC’s built-in popover
-}
-
-
 
 function refreshTypeBars() {
   const api = calendarRef.value?.getApi?.();
@@ -1628,16 +1599,6 @@ function refreshTypeBars() {
     const bar = document.createElement('div');
     bar.className = 'cell-type-bar';
 
-    // ---------- REPLACE THIS PART (equal segments) ----------
-    // Array.from(typeSet).forEach(t => {
-    //   const seg = document.createElement('span');
-    //   seg.className = 'cell-type-segment';
-    //   seg.style.backgroundColor = (EVENT_TYPES[t]?.color) || '#999';
-    //   bar.appendChild(seg);
-    // });
-
-    // ---------- WITH THIS WEIGHTED-BY-COUNT VERSION ----------
-    // Count how many events of each type occur *on this exact day (key)*
     const counts = {};
     Array.from(typeSet).forEach(t => { counts[t] = 0; });
 
@@ -1681,35 +1642,6 @@ function refreshTypeBars() {
   });
 }
 
-function refreshTypeBars_sameSizeEventColors() {
-  const cal = calendarRef.value?.getApi?.();
-  if (!cal) return;
-
-  const cells = calendarRef.value.$el.querySelectorAll('.fc-daygrid-day');
-  cells.forEach(cell => {
-    const key = cell.getAttribute('data-date'); // local YYYY-MM-DD
-    const frame = cell.querySelector('.fc-daygrid-day-frame') || cell;
-
-    frame.querySelector('.cell-type-bar')?.remove();
-
-    const set = typeBarByDate.value.get(key);
-    if (!set || set.size === 0) return;
-
-    const bar = document.createElement('div');
-    bar.className = 'cell-type-bar';
-
-    Array.from(set).forEach(t => {
-      const seg = document.createElement('span');
-      seg.className = 'cell-type-segment';
-      seg.style.backgroundColor = (EVENT_TYPES[t]?.color) || '#999';
-      bar.appendChild(seg);
-    });
-
-    if (getComputedStyle(frame).position === 'static') frame.style.position = 'relative';
-    frame.appendChild(bar);
-  });
-}
-
 // If events arrive/change async, nudge a render so dayCellDidMount reruns:
 watch(filteredEvents, async () => {
   await nextTick();
@@ -1717,27 +1649,6 @@ watch(filteredEvents, async () => {
   refreshTypeBars();
   api && api.render();
 });
-
-
-
-// Build a lookup: 'YYYY-MM-DD' -> Set(types)
-function buildTypeMap(events) {
-  const map = new Map();
-  (events || []).forEach(ev => {
-    const d = new Date(ev.start);
-    if (isNaN(+d)) return;
-    d.setHours(0,0,0,0);
-    const key = d.toISOString().slice(0,10);          // canonical key
-    const t = ev && ev.extendedProps && ev.extendedProps.type;
-    if (!t) return;
-    if (!map.has(key)) map.set(key, new Set());
-    map.get(key).add(t);
-  });
-  return map;
-}
-
-
-/* const typeBarByDate = computed(() => buildTypeMap(filteredEvents.value)); */
 
 const typeBarByDate = computed(() => {
   const map = new Map();
@@ -1822,19 +1733,8 @@ const handleEventResize = async (info) => {
 
 const ymd = d => d.toISOString().slice(0, 10);
 
-// aggregate all events -> { [date]: { [type]: count } }
-function aggregateTypeCounts(calendar) {
-  const counts = {};
-  calendar.getEvents().forEach(ev => {
-    const day = ymd(ev.start);
-    const type = ev.extendedProps?.type ?? 'unknown';
-    counts[day] ??= {};
-    counts[day][type] = (counts[day][type] || 0) + 1;
-  });
-  return counts;
-}
 
-  const handleEventDrop_previous = async (info) => {
+/* const handleEventDrop_previous = async (info) => {
   const event = info.event;
 
   console.log('📅 Event moved!');
@@ -1843,7 +1743,7 @@ function aggregateTypeCounts(calendar) {
   console.log('New end:', event.end);
   console.log('AllDay:', event.allDay);
 
-  // Format output
+  
   const formatLocal = (d) =>
     d?.toLocaleString('fi-FI', {
       dateStyle: 'short',
@@ -1857,7 +1757,7 @@ function aggregateTypeCounts(calendar) {
 
   console.log("Event id on drop - " + event.id)
 
-  // To backend
+  
   const eventOnMove = {
     id: event.id,
     state: event.extendedProps.type,
@@ -1870,39 +1770,8 @@ function aggregateTypeCounts(calendar) {
 
   await proStore.onEdit(event.id, eventOnMove);
 
-
-  // If saving fails, revert it:
-  // info.revert();
 }
-
-
-const handleEventDrop___ = async (info) => {
-  const event = info.event;
-
-  // Build payload; note content must come from extendedProps in FC
-  const eventOnMove = {
-    id: event.id,
-    state: event.extendedProps.type,
-    allDay: event.allDay,
-    title: event.title,
-    content: event.extendedProps.content, // <-- fix compared to your snippet
-    start: event.start.toISOString(),
-    end: event.end?.toISOString() ?? null,
-  };
-
-  try {
-    await proStore.onEdit(event.id, eventOnMove);
-
-    // Refresh bars after a successful save
-    const cal = info.view.calendar;
-    typeBars.value = aggregateTypeCounts(cal);
-  } catch (e) {
-    // Roll back the drag if backend fails
-    info.revert();
-  }
-}
-
-
+ */
 
 // does an all-day event cover this date?
 const allDayCovers = (ev, dateStr) => {
@@ -1922,38 +1791,20 @@ const ymdx = d => d.toISOString().slice(0, 10);
 
 const MAX_ALLDAY_PER_DAY = 1;
 
-const createAllDayEvent__xx = (date) => {
-  const cal = calendarRef.value?.getApi?.();
-  if (!cal) return;
-
-  const dateStr = ymd(date);
-  if (countAllDayOn(cal, dateStr) >= 1) {
-    alert('⚠️ Only one all-day event allowed on this day.');
-    return;
-  }
-
-  cal.addEvent({
-    title: 'New All-Day Event',
-    start: dateStr,
-    end: ymd(new Date(date.getTime() + MS_DAY)), // exclusive end
-    allDay: true,
-  });
-};
 
 const pad = n => String(n).padStart(2, '0');
 
-const addDaysLocalStr = (yyyyMmDd, days) => {
+/* const addDaysLocalStr = (yyyyMmDd, days) => {
   const [y,m,da] = yyyyMmDd.split('-').map(Number);
   const dt = new Date(y, m-1, da);
   dt.setDate(dt.getDate() + days);
   return ymdLocal(dt);
-};
+}; */
 
-function createAllDayEvent(date /* Date from dateClick/select */) {
+/* function createAllDayEvent(date) {
   const cal = calendarRef.value.getApi();
   const startStr = ymdLocal(date);
 
-  // enforce your “max 1 per day” rule
   if (countAllDayOn(cal, startStr) >= 1) {
       console.log("Is already all day event")
       alert('⚠️ Only one all-day event allowed on this day.');
@@ -1963,14 +1814,17 @@ function createAllDayEvent(date /* Date from dateClick/select */) {
 
   cal.addEvent({
     title: 'New all-day',
-    start: startStr,                               // local date string
-    end: addDaysLocalStr(startStr, 1),             // exclusive end
+    start: startStr,
+    end: addDaysLocalStr(startStr, 1),
     allDay: true,
   });
-}
+} */
 
 const options = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  height: window.innerWidth < 640 ? 600 : 800,
+  
+  aspectRatio: 0.75,
   initialView: 'dayGridMonth',
   nowIndicator: true,
   datesSet() { refreshTypeBars() },
@@ -2054,12 +1908,18 @@ const options = computed(() => ({
 
     const timeStrOnlyStart = ev.allDay
     ? 'Koko päivän'
-    : `${formatTime(start)}`
+    : `${formatTime(start)} Sopimus`
 
-      
-      const t = arg.event.extendedProps?.type;
+    const isMobile = window.innerWidth < 640;
+    let title = arg.event.title || '';
 
-    if (['offer', 'booking'].includes(t)) {
+    if (isMobile && title.length > 10) {
+      title = title.slice(0, 7) + '...';
+    }
+
+    const t = arg.event.extendedProps?.type;
+
+    if (['client', 'pro'].includes(t)) {
       return { html: `<div class="event-time-only">${timeStrOnlyStart}</div>`};
     }
     if (['time'].includes(t)) {
@@ -2067,7 +1927,7 @@ const options = computed(() => ({
     }
 
     return {
-      html: `<div>${arg.event.title}</div>`
+      html: `<div>${title}</div>`
     };
   },
 
@@ -2082,7 +1942,9 @@ const options = computed(() => ({
     return event.extendedProps.canEdit === true;
   },
 
+
   select(info) {
+    console.log("Info - ", info)
     const viewType = info.view.type;
 
     if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
@@ -2201,205 +2063,11 @@ const options = computed(() => ({
       return;
     }
 
-    handleEventDrop(info);
-    }
+  handleEventDrop(info);
 
-  }))
+  }
 
-
-
-
-
-
-
-
-  /* const options = computed(() => ({
-    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-
-    initialView: 'dayGridMonth',
-    nowIndicator: true,
-    datesSet() {
-      refreshTypeBars();
-    },
-
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
-
-    locales: [fiLocale, svLocale, etLocale, enLocale],
-    locale: fcLocaleCode.value,
-
-    aspectRatio: window.innerWidth < 640 ? 0.9 : 1,
-
-    dayMaxEvents: true,
-    dayMaxEventRows: 3,
-    moreLinkClick: 'popover',
-
-    events: filteredEvents.value,
-
-    displayEventTime: true,
-    editable: false,
-    droppable: false,
-    selectMirror: true,
-
-    
-    selectable: false,
-
-    views: {
-      dayGridMonth: {
-        selectable: false,
-        dateClick(info) {
-          const cal = calendarRef.value?.getApi();
-          if (!cal) return;
-
-          cal.changeView('timeGridDay', info.dateStr);
-        }
-      },
-
-      timeGridWeek: {
-        selectable: isUserPro.value
-      },
-
-      timeGridDay: {
-        selectable: isUserPro.value
-      }
-    },
-
-    eventTimeFormat: {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
-
-    dayCellDidMount(info) {
-      const key = ymdLocal(info.date);
-      const set = typeBarByDate.value.get(key);
-      if (!set || set.size === 0) return;
-
-      const frame =
-        info.el.querySelector('.fc-daygrid-day-frame') ||
-        info.el;
-
-      if (!frame) {
-        console.warn('[typebar] no frame for', key, info.el);
-        return;
-      }
-
-      if (!frame.style.position || frame.style.position === 'static') {
-        frame.style.position = 'relative';
-      }
-
-      const old = frame.querySelector('.cell-type-bar');
-      if (old) old.remove();
-
-      const bar = document.createElement('div');
-      bar.className = 'cell-type-bar';
-
-      Array.from(set).forEach(t => {
-        const seg = document.createElement('span');
-        seg.className = 'cell-type-segment';
-        seg.style.backgroundColor =
-          (EVENT_TYPES[t] && EVENT_TYPES[t].color) || '#999';
-        bar.appendChild(seg);
-      });
-
-      frame.appendChild(bar);
-    },
-
-    eventContent(arg) {
-      const ev = arg.event;
-      const start = ev.start;
-      const end = ev.end;
-
-      const formatTime = (d) =>
-        d
-          ? d.toLocaleTimeString('fi-FI', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          : '';
-
-      const timeStr = ev.allDay
-        ? 'Koko päivän'
-        : `${formatTime(start)}${end ? ' - ' + formatTime(end) : ''}`;
-
-      const timeStrOnlyStart = ev.allDay
-        ? 'Koko päivän'
-        : `${formatTime(start)}`;
-
-      const t = ev.extendedProps?.type;
-
-      if (['offer', 'booking'].includes(t)) {
-        return {
-          html: `<div class="event-time-only">${timeStrOnlyStart}</div>`
-        };
-      }
-
-      if (['time'].includes(t)) {
-        return {
-          html: `<div class="event-time-only">${timeStr}</div>`
-        };
-      }
-
-      return {
-        html: `<div>${arg.event.title}</div>`
-      };
-    },
-
-    eventClassNames(arg) {
-      const t = arg.event.extendedProps?.type;
-      return t && EVENT_TYPES[t]?.class ? [EVENT_TYPES[t].class] : [];
-    },
-
-    selectAllow(selectInfo) {
-      const viewType = selectInfo.view.type;
-
-      
-      if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
-        return false;
-      }
-
-      if (selectInfo.start < new Date()) {
-        return false;
-      }
-
-      const cal = calendarRef.value?.getApi();
-      if (!cal) return true;
-
-      const dateStr = selectInfo.startStr.slice(0, 10);
-      return countAllDayOn(cal, dateStr) < 1;
-    },
-
-    select(info) {
-      const viewType = info.view.type;
-
-      if (!['timeGridWeek', 'timeGridDay'].includes(viewType)) {
-        return;
-      }
-
-      openCreate({
-        start: info.start,
-        end: info.end,
-        allDay: info.allDay
-      });
-    },
-
-    eventClick: handleEventClick,
-    eventResize: handleEventResize,
-
-    eventDrop(info) {
-      if (info.event.allDay !== info.oldEvent.allDay) {
-        info.revert();
-        return;
-      }
-
-      handleEventDrop(info);
-    }
-  })); */
-
-
+}))
 </script>
 
 <style>
@@ -2617,10 +2285,10 @@ const options = computed(() => ({
 }
 
 /* Color classes (use your dark palette) */
-.fc-event.event-offer  { background:#48769c; border:none; color:#fff; }
+.fc-event.event-client  { background:#48769c; border:none; color:#fff; }
 .fc-event.event-time   { background:#e29657; border:none; color:#fff; }
 .fc-event.event-vacation { background:#c04b4bff; border:none; color:#fff; }
-.fc-event.event-booking     { background:#097a5e; border:none; color:#fff; }
+.fc-event.event-pro     { background:#097a5e; border:none; color:#fff; }
 
 /* Make events compact on mobile */
 @media (max-width: 640px) {
@@ -2629,8 +2297,144 @@ const options = computed(() => ({
 }
 
 /* Slightly tighter padding helps on small screens */
-@media (max-width: 640px) {
+/* @media (max-width: 640px) {
   .fc .fc-daygrid-event { padding: 0 2px; }
-  .fc .fc-daygrid-day-frame { padding: 2px; }
+  .fc .fc-daygrid-day {
+    height: 58px !important;
+  }
+  .fc .fc-daygrid-day-frame {
+    min-height: 43px !important;
+    padding: 3px;
+  }
+  .fc .fc-daygrid-day-events {
+    min-height: 18px;
+  }
+
+  .fc .fc-daygrid-event {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+} */
+
+
+/* @media (max-width: 640px) {
+  .fc .fc-daygrid-day {
+    height: 58px !important;
+  }
+
+  .fc .fc-daygrid-day-frame {
+    min-height: 58px !important;
+  }
 }
+ */
+
+ @media (max-width: 640px) {
+  .fc .fc-daygrid-day-frame {
+    min-height: 80px !important;
+  }
+
+  .fc .fc-daygrid-day-events {
+    min-height: 40px !important;
+  }
+
+  .fc .fc-daygrid-event-harness .fc-daygrid-event {
+    width: 100%;
+  }
+
+  /* .fc .fc-event-main {
+    overflow: hidden;
+  }
+
+  .fc .fc-event-title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } */
+}
+
+/* Modal for event details */
+.event-modal-body {
+  color: #e5e7eb;
+}
+
+.event-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.event-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.event-subtitle {
+  color: #cbd5e1;
+  margin-bottom: 18px;
+}
+
+.event-card {
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 16px;
+  
+  /* margin-top: 14px; */
+}
+
+.event-card h4 {
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.info-row:last-child {
+  border-bottom: 0;
+}
+
+.info-row span {
+  color: #94a3b8;
+}
+
+.info-row strong {
+  text-align: right;
+  color: #f8fafc;
+}
+
+.status-waiting {
+  color: #fbbf24;
+}
+
+.event-note {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(251,191,36,0.12);
+  color: #fde68a;
+}
+
+.event-chat {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 12px; /* horizontal space between buttons */
+}
+/* .event-chat :hoover{
+  background-color: red;
+} */
 </style>

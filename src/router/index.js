@@ -24,6 +24,11 @@ const routes = [
         component: () => import("../components/Home.vue"),
     },
     {
+        path: "/terms",
+        name: "Terms",
+        component: () => import("../components/Terms.vue")
+    },
+    {
         path: "/login-register",
         name: "LoginRegister",
         component: () => import("../components/login/LoginRegisterPanel.vue")

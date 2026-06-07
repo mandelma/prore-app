@@ -60,6 +60,14 @@
             {{client.description}}
           </td>
         </tr>
+        <tr v-if="!client.isIncludeOffers">
+          <td>
+            Budjetti:
+          </td>
+          <td>
+            {{client.budget ? `${client.budget.min} - ${client.budget.max} €` : "Ei budjettia"}}
+          </td>
+        </tr>
         <tr v-if="client.photos.length">
           <td>
             Kuvat tehtävästä:
@@ -332,6 +340,17 @@
     @cancel="handleCancelRemoving"
   />
 
+  <ConfirmDealModal
+    v-model="showDealConfirm"
+    :title="'Sopimus!'"
+    :message="dealMessage"
+    confirm-text="Hienoa!"
+    cancel-text="Peruuta"
+    :show-icon="true"
+    @confirm= "confirmDeal"
+    @cancel="cancelDeal" 
+  />
+
   <!-- Overlay -->
     <div v-if="loading" class="on-overlay">
       <div class="on-spinner"></div>
@@ -358,6 +377,7 @@ import {
 } from 'mdb-vue-ui-kit';
 import { ref, nextTick, inject, toRefs, onMounted, onUnmounted, watch, computed } from 'vue';
 import ConfirmModal from '../helpers/ConfirmModal.vue';
+import ConfirmDealModal from '../helpers/ConfirmDealModal.vue';
 
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
@@ -417,7 +437,7 @@ const { providerId, provider } = storeToRefs(proStore);
 const { openChat } = storeToRefs(conversationStore);
 
 const offerPrice = ref(null);
-const offerPlace = ref('here');
+const offerPlace = ref('');
 const offerAbout = ref('');
 const reason = ref('');
 const isQuitClientBooking = ref(false);
@@ -445,6 +465,11 @@ const showDeleteModal = ref(false);
 const cTitle = ref("");
 const cMessage = ref("");
 
+const showDealConfirm = ref(false);
+const dealMessage = computed(() => {
+  const clientName = client.value?.user?.firstName || 'asiakkaan';
+  return `Olet vahvistamassa ${clientName} tilausta. Haluatko varmasti varmistaa tilauksen?`;
+})
 
 onMounted(async() => {
   await validateMaps();
@@ -730,7 +755,13 @@ const undoRejectMapOffer = () => {
   reason.value = "";
 }
 
+
 const confirmClientBooking = async () => {
+  showDealConfirm.value = true;
+}
+
+const confirmDeal = async () => {
+
   console.log("client user id: " + client.value.author_id);
   console.log("Client user name?? " + client.value.user.firstName);
 
@@ -755,6 +786,7 @@ const confirmClientBooking = async () => {
     price: offerPrice.value,
     description: offerAbout.value,
     place: offerPlace.value,
+    budget: client.value.budget,
     //provider: providerId.value
     provider: provider.value
   }    
@@ -790,10 +822,11 @@ const confirmClientBooking = async () => {
   console.log('Button clicked in child')
 
   try {
-    const confirmation = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' })
-    const addConfirmation = await clientService.addConfirmedOffer(bookingId, offer)
+    const confirmation = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
+    const addConfirmation = await clientService.addConfirmedOffer(bookingId, {offer: offer, confirmed_provider_user_id: myself});
 
     if (!confirmation || !addConfirmation) return;
+    emit('just-test');
     emit('toast', {
       state: "success",
       message: "Asiakkaan tilaus on varmistettu onnistuneesti!",
@@ -803,7 +836,7 @@ const confirmClientBooking = async () => {
     })
     console.log('grandchild emitted')
 
-    emit('just-test')
+    
 
     await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, providerId.value, notes);
 
@@ -819,7 +852,11 @@ const confirmClientBooking = async () => {
   } finally {
     loading.value = false;
   }
-}
+};
+
+const cancelDeal = () => {
+  showDealConfirm.value = false;
+};  
 
 // Removing client map offer
 const confirmRejectMapBooking = async () => {

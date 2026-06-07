@@ -421,7 +421,7 @@ const timeAgo = (iso) => {
   overflow-x: hidden;
   box-sizing: border-box;
   
-  background: #161A22FF;
+  background: rgb(34, 22, 22);
   /*box-shadow: 0.3em 0.3em 1em rgba(104,101,101,0.6);*/
   border-radius: 7px;
   box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);

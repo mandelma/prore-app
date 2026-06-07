@@ -110,19 +110,45 @@
       <p v-if="pwConfirmValidateError && registerPasswordRepeat" style="color: palevioletred" >{{pwConfirmValidateError}}</p>
 
 
-      <!-- Checkbox -->
-      <MDBCheckbox
+      <div class="login-check mb-4">
+        <MDBCheckbox
           :label="t('register_remember_me')"
 
           size="lg"
           id="registerSubscribeCheck"
           v-model="registerSubscribeCheck"
           wrapperClass="d-flex justify-content-center mb-4"
-      />
+        />
+        <!-- Olen lukenut ja hyväksyn käyttöehdot sekä tietosuojaselosteen. -->
+        <div style="display: flex; align-items: center;">
+          <MDBCheckbox
+          v-model="acceptedTerms"
+          id="registerTermsCheck"
+          class="me-2"
+        />
 
-      <!--        <input required="required" v-model="registerEmail" :error-messages="emailErrors"-->
-      <!--               @input="$v.registerEmail.$touch()" @blur="$v.registerEmail.$touch()" label="Email"-->
-      <!--               />-->
+          <label for="registerTermsCheck" style="cursor:pointer;">
+            Olen lukenut ja hyväksyn
+            <a
+              href="/terms"
+              
+              @click.stop
+            >
+              käyttöehdot
+            </a>
+            <!-- <router-link to="/terms"  @click.stop>
+              käyttöehdot
+            </router-link> -->
+          </label>
+          
+        </div>
+
+        <p v-if="!acceptedTerms && isSubmitted" style="color: palevioletred;">
+          Sinun tulee hyväksyä käyttöehdot jatkaaksesi.
+        </p>
+        
+      </div>
+      
 
       <!-- Submit button -->
       <div class="form-actions">
@@ -149,6 +175,7 @@ defineOptions({
 })
 const router = useRouter();
 const { t } = useI18n();
+const isSubmitted = ref(false);
 const registerFirstName = ref("");
 const registerLastName = ref("");
 const registerUsername = ref("");
@@ -156,6 +183,7 @@ const registerEmail = ref("");
 const registerPassword = ref("");
 const registerPasswordRepeat = ref("");
 const registerSubscribeCheck = ref(true);
+const acceptedTerms = ref(false);
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const isRegisterError = ref(false);
@@ -205,6 +233,7 @@ watch(registerPasswordRepeat, (newValue) => {
 
 const submitUser = async () => {
   //isRegisterError.value = false;
+  isSubmitted.value = true;
   const newUser = {
     firstName: registerFirstName.value,
     lastName: registerLastName.value,
@@ -217,6 +246,7 @@ const submitUser = async () => {
       && registerUsername.value !== ""
       && registerPassword.value !== ""
       && registerEmail.value !== ""
+      && acceptedTerms.value
   ) {
 
     if (registerUsername.value.length < 4) {
@@ -262,6 +292,7 @@ const submitUser = async () => {
           //this.$emit('register:data', loggedInUser)
           login.onLogin(loggedInUser);
           checkFieldValues();
+          isSubmitted.value = false;
           await router.push('/');
 
         } else {
@@ -290,5 +321,9 @@ const checkFieldValues = () => {
 </script>
 
 <style >
-
+.login-check {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; 
+}
 </style>

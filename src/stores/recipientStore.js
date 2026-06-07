@@ -31,7 +31,7 @@ export const useClientStore = defineStore('client', () => {
     const clientNewOffersAmount = computed(() => clientNewOffers.value.length);
     const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed' || order.status === 'done') || []);
     const liveBookings = computed(() => bookings.value.filter(booking => booking.status === 'active') || []);
-    const archievedBookings = computed(() => bookings.value.filter(item => item.status === 'archieved') || []);
+    const archivedBookings = computed(() => bookings.value.filter(item => item.status === 'archieved') || []);
     const confirmedOffer = 0
     
     const getBookingById = (id) => {
@@ -56,7 +56,7 @@ export const useClientStore = defineStore('client', () => {
 
         if (!orders.length) return;
 
-        console.log("O -- " + orders.map(ord => ord.created_ms > ms_now ? ord.header + " is valid" : ord.header + " expired"));
+        console.log("O -- " + orders.map(ord => ord.created_ms > ms_now ? ord.header + " is + valid" : ord.header + " expired"));
 
         
     }
@@ -64,6 +64,11 @@ export const useClientStore = defineStore('client', () => {
     const isValid = (msTime) => {
         const ms_now = new Date().getTime();
         return msTime < ms_now;
+    }
+
+    const removeExpiredBookings = (orders) => {
+        const ms_now = new Date().getTime();
+        return orders.filter(order => order.created_ms > ms_now);
     }
     
     const orderList = async(id) => {
@@ -75,17 +80,21 @@ export const useClientStore = defineStore('client', () => {
             // Checking expired bookings
             checkExpired(orders || []);
 
+            //removeExpiredBookings(orders || []);
 
+            let list = removeExpiredBookings(orders || []);
 
-            let list = orders ? orders : [];
+            //let list = orders ? orders : [];
 
             console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
 
-            list = list.map(b => isValid(b.created_ms) ? {...b, valid: false} : {...b, valid: true});
+            //list = list.map(b => isValid(b.created_ms) ? {...b, valid: false} : {...b, valid: true});
 
             console.log("LIST ", list)
 
-            list = list.filter(booking => !isValid(booking.created_ms));
+            //list = list.filter(booking => !isValid(booking.created_ms));
+
+            console.log("Expired bookings removed:", removeExpiredBookings(list));
 
             const bookingOffers = list.reduce((acc, booking) => {
                 const offerList = booking.offers;
@@ -286,7 +295,25 @@ export const useClientStore = defineStore('client', () => {
         
     }
 
-    
+    const updatingBookingOffer = async (bookingId, payload) => {
+        console.log("Payload - ", payload);
+        const updatedOffer = await clientService.updateOffer(bookingId, payload);
+        if (updatedOffer) {
+            bookings.value = bookings.value.map(co =>
+                co.id === bookingId
+                ?
+                {
+                    ...co,
+                    offer: {
+                        ...co.offer,
+                        price: updatedOffer.offer.price,
+                        placeOrGo: updatedOffer.offer.placeOrGo
+                    }
+                }
+                : co
+            )
+        }
+    }
 
     const handleEditStatus = async (bookingId, new_status) => {
         const status = await clientService.updateRecipientStatus(bookingId, { status: new_status });
@@ -301,13 +328,8 @@ export const useClientStore = defineStore('client', () => {
 
         await handleEditStatus(bookingId, status);
 
-        socket.emit('archieve-booking', target, bookingId, pHistory);
+        socket.emit('archive-booking', target, bookingId, pHistory);
 
-        /* const ended = await clientService.updateRecipientStatus(bookingId, { status: 'done' });
-        if (ended) {
-            const booking = bookings.value.find(booking => booking.id === bookingId);
-            if (booking) booking.status = 'done';
-        } */
     }
 
 
@@ -379,11 +401,12 @@ export const useClientStore = defineStore('client', () => {
         updateClientMain,
         handleEditStatus,
         handleGivenFeedback,
+        updatingBookingOffer,
         clientOffers, 
         clientNewOffers, 
         clientNewOffersAmount, 
         clientConfirmed,
-        archievedBookings,
+        archivedBookings,
         isBookings, 
         count, 
         isLoading, 

@@ -44,8 +44,8 @@
               <MDBCardBody class="py-3">
                 <div class="text-muted small">Arkistoidut tilaukset</div>
                 <!-- <div class="fs-5 fw-semibold"></div> -->
-                <MDBBtn v-if="archievedBookings.length" color="dark" block @click="callHistory">
-                  <span class="fs-5 fw-semibold">{{archievedBookings.length}}</span>
+                <MDBBtn v-if="archivedBookings.length" color="dark" block @click="callHistory">
+                  <span class="fs-5 fw-semibold">{{archivedBookings.length}}</span>
                 </MDBBtn>
                 <div v-else class="fs-5 fw-semibold">0</div>
               </MDBCardBody>
@@ -359,7 +359,7 @@ const clientQuitBookingReason = ref("");
 
 const isDone = ref(false);
 
-const { bookings, clientConfirmed, archievedBookings } = storeToRefs(clientStore);
+const { bookings, clientConfirmed, archivedBookings } = storeToRefs(clientStore);
 const { userId } = storeToRefs(notificationStore);
 
 const { cHistory } = storeToRefs(cArchiveStore);

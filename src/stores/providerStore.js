@@ -129,6 +129,11 @@ export const useProStore = defineStore("pro", () => {
         return offerTime < now;
     };
 
+    const removeExpiredOffers = (offers) => {
+        const ms_now = new Date().getTime();
+        return offers.filter(offer => offer.created_ms > ms_now);       
+    };
+
     const getProState = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
@@ -156,12 +161,9 @@ export const useProStore = defineStore("pro", () => {
 
             incomingOffersList = incomingOffersList.map(p => !isOfferValid(p) ? { ...p, valid: true } : { ...p, valid: false });
 
-            incomingOffersList = incomingOffersList.filter(p => !isOfferValid(p));
+            //incomingOffersList = incomingOffersList.filter(p => !isOfferValid(p));
 
-            /* proCredit.value = Math.max(
-                0,
-                Math.floor((pro.proTime - Date.now()) / 86400000)
-            ); */
+            incomingOffersList = removeExpiredOffers(incomingOffersList);
 
             proCredit.value = ((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((pro.proTime - new Date().getTime()) / 86400000).toFixed();
 

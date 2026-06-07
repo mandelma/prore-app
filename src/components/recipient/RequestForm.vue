@@ -78,18 +78,18 @@
           </div>
 
           <div class="field-wrapper">
-              <MDBInput
-                  label="Syötä tilauksen avainsana *"
-                  v-model="form.requestHeader"
-                  size="lg"
-                  invalidFeedback="Ole hyvä ja kirjoita avainsana."
-                  validFeedback="Ok!"
-                  required
+            <MDBInput
+                label="Syötä tilauksen avainsana *"
+                v-model="form.requestHeader"
+                size="lg"
+                invalidFeedback="Ole hyvä ja kirjoita avainsana."
+                validFeedback="Ok!"
+                required
 
-              />
-              <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span>
-              <!-- custom error text -->
-              
+            />
+            <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span>
+            <!-- custom error text -->
+          </div>
           <div style="margin-top: 17px;" class="field-wrapper">
               <MDBTextarea
                   maxlength="70"
@@ -102,11 +102,36 @@
               />
               <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span>
               <span class="message-counter"> {{form.requestContent.length}} / 70</span>
-              </div>
-
           </div>
 
-
+          
+          <!-- Budjetti ja muut yksityiskohdat voit kertoa myöhemmin chatissä palveluntarjoajien kanssa. Budjetti auttaa palveluntarjoajia arvioinnissa. -->
+           Budjetti
+          <div style="margin-top: 17px;" class="field-wrapper">
+            <div class="budget-field">
+              <MDBInput
+                label="Alin hinta *"
+                v-model="form.budgetMin"
+                size="lg"
+                type="number"
+                min="0"
+                @keydown="preventInvalidKeys"
+              />
+              <MDBInput
+                  label="Ylin hinta *"
+                  v-model="form.budgetMax"
+                  size="lg"
+                  type="number"
+                  min="0"
+                  @keydown="preventInvalidKeys"
+              />
+            </div>
+            <div class="budget-field">
+              <span v-if="errors.budgetMin" class="field-footer">{{ errors.budgetMin }}</span>
+              <span v-if="errors.budgetMax" class="field-footer">{{ errors.budgetMax }}</span>
+            </div>
+            
+          </div>
 
 
           <!-- About pictures -->
@@ -117,23 +142,6 @@
               </div>
               
               
-
-              <!-- <div v-if="addedPhotos?.length" class="photos-grid">
-                
-                <figure
-                  v-for="(photo, idx) in addedPhotos"
-                  :key="photo.id || idx"
-                  class="photo-card"
-                >
-                  <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
-                  <div v-if="photo?.text?.trim()" class="photo-overlay">
-              
-                    <p>{{ photo.text }}</p>
-                  </div>
-                </figure>
-                
-              </div> -->
-
               <BookingPhotos
                 
                 :photos="addedPhotos"
@@ -191,34 +199,6 @@
                     <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
                     <p class="dropzone__text">tai paina “Lisää kuvia”</p>
                   </div>
-
-
-                  
-
-                  <!-- <div v-if="draftPhotos?.length" class="photos-grid">
-                    <figure
-                      v-for="(photo, idx) in draftPhotos"
-                      :key="photo.id || idx"
-                      class="photo-card"
-                    >
-                        <div class="photo-media">
-                        <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
-                        <textarea
-                          v-model="photo.text"
-                          class="photo-caption"
-                          placeholder="Lisää kuvaus..."
-                        ></textarea>
-                        
-                      </div>
-                      <figcaption class="photo-actions">
-                        
-                        <i class="fas fa-trash-alt fa-lg" style="color: red;" @click="removeDraftPhoto(idx)"></i>
-                        
-                      </figcaption>
-                    </figure>
-                  </div> -->
-
-                  
 
                   <BookingPhotos
                     
@@ -292,6 +272,12 @@
     saveBookingPhotos,
   } = useBookingPhotosLogic(addedPhotos);
 
+  const preventInvalidKeys = (e) => {
+  if (['-', '+'].includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
   const openFilePicker = () => {
     fileInput.value?.click();
     if (!isAddPhotos.value) isAddPhotos.value = true;
@@ -316,7 +302,9 @@
   const form = reactive({
     address: "",  
     requestHeader: "",
-    requestContent: ""
+    requestContent: "",
+    budgetMin: null,
+    budgetMax: null
   });
   const mapStore = useMapStore();
   const conversationStore = useConversationStore();
@@ -324,20 +312,88 @@
   const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
   const errors = reactive({});
+  const isValidating = ref(false);
 
   const validateForm = () => {
     errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
     errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
     errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
+    errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
+    errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!";
 
-    return !errors.address && !errors.requestHeader && !errors.requestContent;
+    if (
+      form.budgetMin != null &&
+      form.budgetMax != null &&
+      Number(form.budgetMin) > Number(form.budgetMax)
+    ) {
+      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
+      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+    }
+
+    return Object.values(errors).every(error => !error);
+
+    //return !errors.address && !errors.requestHeader && !errors.requestContent;
   }
 
-  watch(() => form.address, () => (errors.address = ""));
+  const validateBudgets = () => {
+    if (!isValidating.value) return;
+    // Required validation
+    if (form.budgetMin == null || form.budgetMin === "") {
+      errors.budgetMin = "Alin hinta on pakollinen!";
+    } else {
+      errors.budgetMin = "";
+    }
 
-  watch(() => form.requestHeader, () => (errors.requestHeader = ""));
+    if (form.budgetMax == null || form.budgetMax === "") {
+      errors.budgetMax = "Ylin hinta on pakollinen!";
+    } else {
+      errors.budgetMax = "";
+    }
 
-  watch(() => form.requestContent, () => (errors.requestContent = ""));
+    // Range validation only if both exist
+    if (
+      form.budgetMin !== null &&
+      form.budgetMin !== "" &&
+      form.budgetMax !== null &&
+      form.budgetMax !== "" &&
+      Number(form.budgetMin) > Number(form.budgetMax)
+    ) {
+      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
+      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+    }
+  };
+
+  watch(
+    [() => form.budgetMin, () => form.budgetMax],
+    validateBudgets
+  );
+
+  const validateHeader = () => {
+    if (!isValidating.value) return;
+    errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kenttä!";
+  };
+
+  watch(() => form.requestHeader, validateHeader);
+
+  const validateContent = () => {
+    if (!isValidating.value) return;
+    errors.requestContent = form.requestContent ? "" : "Tilauksen kuvaus on pakollinen kenttä!";
+  };
+
+  watch(() => form.requestContent, validateContent);
+
+  const validateAddress = () => {
+    if (!isValidating.value) return;
+    errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
+  };
+
+  watch(() => form.address, validateAddress);
+
+  //watch(() => form.requestHeader, () => (errors.requestHeader = ""));
+
+  //watch(() => form.requestContent, () => (errors.requestContent = ""));
+
+  
 
   watch(props.date, (date) => {
     if (date) {
@@ -402,24 +458,6 @@
       return null
     }
   }
-
-
-  /* const testPredictions = () => {
-    const service = new google.maps.places.AutocompleteService()
-
-    service.getPlacePredictions(
-      {
-        input: "Helsinki",
-        componentRestrictions: { country: "fi" },
-        types: ["address"],
-      },
-      (predictions, status) => {
-        console.log("status:", status)
-        console.log("predictions:", predictions)
-      }
-    )
-  }
-  */
 
   const initAutocomplete = async () => {
     await nextTick()
@@ -491,19 +529,6 @@
 
     
   }
-
-  /* function parseMaybeDate(v) {
-    if (v instanceof Date) return isValidDate(v) ? v : null;
-    if (typeof v === 'string') {
-      const d = new Date(v);
-      return isValidDate(d) ? d : null;
-    }
-    if (typeof v === 'number') {
-      const d = new Date(v);
-      return isValidDate(d) ? d : null;
-    }
-    return null;
-  } */
 
   const fromLocalInput = (v) => {
     if (!v) return null;
@@ -583,7 +608,7 @@
     upload?.upload?.id;
 
   const handleRequest = async() => {
-
+    isValidating.value = true;
     if (!validateForm()) {
         console.log("No validated");
     } else {
@@ -635,7 +660,11 @@
         header: form.requestHeader,
         content: form.requestContent,
         serverPhotos: photosForBackend,
-        localPhotos: photosForLocalState
+        localPhotos: photosForLocalState,
+        budget: {
+          min: form.budgetMin,
+          max: form.budgetMax
+        }   
       });
     }
   }
@@ -656,6 +685,10 @@
 }
 .hideInput {
   display: none;
+}
+.budget-field {
+  display: flex;
+  gap: 17px;
 }
 
 </style>

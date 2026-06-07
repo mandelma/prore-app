@@ -1168,7 +1168,7 @@
   margin-top: 17px;
   display: flex;
   gap: 8px;
-  padding: 8px;
+  /* padding: 8px; */
   overflow-x: auto;    /* horizontal scrolling */
   overflow-y: hidden;
   white-space: nowrap;
@@ -1178,12 +1178,14 @@
   border-radius: 8px;
 
   scrollbar-width: thin !important;                 /* Firefox */
-  scrollbar-color: #5d6b8a transparent;
+ /*  scrollbar-color: #5d6b8a transparent; */
+ scrollbar-color: red;
 }
 
 /* Chrome / Edge / Safari */
-.chat-dropdown.horizontal::-webkit-scrollbar {
-  height: 2px;
+:deep(.chat-dropdown.horizontal::-webkit-scrollbar) {
+  height: 1px !important;
+  
 }
 
 .chat-dropdown.horizontal::-webkit-scrollbar-track {
@@ -1191,7 +1193,8 @@
 }
 
 .chat-dropdown.horizontal::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.25);
+  /* background: rgba(255,255,255,0.25); */
+  
   border-radius: 999px;
   transition: background 0.2s ease;
 }

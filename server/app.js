@@ -109,6 +109,7 @@ app.use('/api/providers', require('./routers/providers'));
 app.use('/api/offer', offerRouter);
 app.use('/api/timeoffers', require('./routers/timetable'));
 app.use('/api/notifications', require('./routers/notifications'));
+app.use('/api/mail', require('./routers/contact'));
 //app.use('/api/messages', require('./routers/messages'));
 
 app.use('/api/client_history', require('./routers/client_history'));

@@ -74,7 +74,7 @@
                   Manual
                 </MDBDropdownItem>
 
-                <MDBDropdownItem v-if="client.isBookings" :tag="RouterLink" to="/client-panel" class="dd-item">
+                <MDBDropdownItem v-if="client.isBookings || clientArchiveStore.clientHistory.length" :tag="RouterLink" to="/client-panel" class="dd-item">
                   Tilaukset
                 </MDBDropdownItem>
 
@@ -93,6 +93,44 @@
       </div>
     </MDBNavbar>
 
+    <MDBModal
+      id="contactModal"
+      side="bottom"
+      position="bottom-left"
+      
+      tabindex="-1"
+      labelledby="contactModalLabel"
+      v-model="contactModal"
+    >
+      <MDBModalHeader class="modal-header-custom">
+        <MDBModalTitle id="contactModalLabel"> Uusi viesti </MDBModalTitle>
+      </MDBModalHeader>
+      <MDBModalBody>
+        <form class="form-card">
+          <div class="mb-3">
+            <h6 class="col-form-label" style="color: orange;">PROKEIKKATORI</h6>
+            <!-- <input
+            
+              type="text"
+              class="form-control"
+              
+              id="recipient-name"
+              :value="modalContent"
+            /> -->
+          </div>
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label" style="color: #ddd;">Palautetta</label>
+            <textarea class="form-control" id="message-text" placeholder="Kerro meille mitä mieltä olet palvelusta..." v-model="contactMessage"></textarea>
+            <p v-if="messageFieldError" class="text-danger">Viesti on pakollinen</p>
+          </div>
+        </form>
+      </MDBModalBody>
+      <MDBModalFooter class="footer-buttons">
+        <MDBBtn color="secondary" @click="contactModal = false"> poistu </MDBBtn>
+        <MDBBtn color="primary" @click="sendClientMessage"> Lähetä viesti </MDBBtn>
+      </MDBModalFooter>
+    </MDBModal>
+
     <MDBToast
       :stacking="false"
       autohide
@@ -106,6 +144,21 @@
       <template #title> PROKEIKKATORI </template>
       <!-- <template #small> 11 mins ago </template> -->
       {{ confirmedOrderMessage }}
+    </MDBToast>
+
+    <MDBToast
+      :stacking="false"
+      autohide
+      :delay="3000"
+      v-model="isContactMsgSent"
+      position="top-center"
+      toast="success"
+      icon="fas fa-check fa-lg me-2"
+    >
+      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+      <template #title> PROKEIKKATORI </template>
+      <!-- <template #small> 11 mins ago </template> -->
+      {{ contactSentMessage }}
     </MDBToast>
   
     <main class="app-content" style=" flex: 1;">
@@ -194,12 +247,12 @@
       <!-- Grid container -->
       <MDBContainer class="p-4 pb-0">
         <!-- Section: CTA -->
-<!--        <section class="">-->
-<!--          <p class="d-flex justify-content-center align-items-center">-->
+       <section v-if="login.isAuthenticated" class="">
+        <p class="d-flex justify-content-left align-items-center">
 <!--            <span class="me-3">Register for free</span>-->
-<!--            <MDBBtn outline="light" rounded> Sign up! </MDBBtn>-->
-<!--          </p>-->
-<!--        </section>-->
+          <MDBBtn outline="light" rounded @click="contactModal = true"> Lähettää palauttetta </MDBBtn>
+        </p>
+       </section>
         <!-- Section: CTA -->
          <section>
 
@@ -242,6 +295,11 @@ import {
   MDBInput,
   MDBCollapse,
   MDBToast,
+  MDBModal,
+  MDBModalHeader,
+  MDBModalBody,
+  MDBModalFooter,
+  MDBModalTitle,
   MDBFooter,
   MDBContainer
 } from 'mdb-vue-ui-kit';
@@ -252,6 +310,7 @@ import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
 import loginService from './service/login.js';
 import ChatWidget from './components/ChatWidget.vue';
+import contactService from './service/contact.js';
 import { useLoginStore } from "@/stores/login.js";
 import { useUserStore } from './stores/userStore';
 import { useClientStore} from "@/stores/recipientStore.js";
@@ -299,6 +358,11 @@ const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOff
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
 const { openChat, conversations, totalUnread } = storeToRefs(conversationStore);
 
+const contactModal = ref(false);
+const contactMessage = ref("");
+const isContactMsgSent = ref(false);
+const contactSentMessage = ref("");
+const messageFieldError = ref(false);
 
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
@@ -1038,7 +1102,7 @@ const listen = async() => {
     await handleProvider.handleOfferDone(bookingId);
   })
   // Archieve client booking for provider
-  socket.on('handle-archieve-booking', async (bookingId, pHistory) => {
+  socket.on('handle-archive-booking', async (bookingId, pHistory) => {
     console.log("Got booking id to archieve - " + bookingId);
     console.log("PPP ", pHistory )
     await proArchiveStore.addArchiveLocal(pHistory);
@@ -1187,6 +1251,40 @@ const handleShowNotifications = async () => {
   }
 }
 
+watch(() => contactMessage.value, () => {
+  if (contactMessage.value.trim() !== "") {
+    messageFieldError.value = false;
+  }
+});
+
+const sendClientMessage = async () => {
+  console.log("Send message to pro");
+  const name = "Testi asiakas";
+  const email = "majaana@live.com";
+  const message = "Hei, olen kiinnostunut palvelustasi. Voimmeko keskustella lisää?";
+
+  if (contactMessage.value.trim() === "") {
+    messageFieldError.value = true;
+    return;
+  } else {
+    messageFieldError.value = false;
+    const realEmail = profile.value?.email || email;
+    const realName = profile.value ? `${profile.value.firstName} ${profile.value.lastName}` : name;
+    console.log("Sending message with name: " + realName + ", email: " + realEmail + ", message: " + contactMessage.value);
+    contactMessage.value = "";
+    messageFieldError.value = false;
+    
+
+    contactSentMessage.value = "Viestisi on lähetetty! Kiitos palautteestasi.";
+    isContactMsgSent.value = true;
+
+    contactModal.value = false;
+    
+    //const mailResponse = await contactService.sendEmail(name, email, message);
+    //console.log("Email response: " + JSON.stringify(mailResponse));
+  }
+  
+}
 
 </script>
 
@@ -1220,5 +1318,11 @@ html, body { height: 100%; }
   user-select: none;
   padding: 8px 12px;
   background: #ddd;
+}
+
+/* Contact modal footer buttons */
+.footer-buttons {
+  display: flex;
+  gap: 12px; /* horizontal space between buttons */
 }
 </style>

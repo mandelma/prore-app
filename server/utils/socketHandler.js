@@ -107,10 +107,10 @@ const hs = (socket) => {
         socket.to(target).emit('handle-booking-done', bookingId);
     })
 
-    socket.on('archieve-booking', (target, bookingId, pHistory) => {
+    socket.on('archive-booking', (target, bookingId, pHistory) => {
         console.log("Target " + target);
         console.log("pHistory - ", pHistory);
-        socket.to(target).to(socket.userId).emit('handle-archieve-booking', bookingId, pHistory);
+        socket.to(target).to(socket.userId).emit('handle-archive-booking', bookingId, pHistory);
     })
 }
 

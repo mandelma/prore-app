@@ -114,12 +114,11 @@ const handlePayment = async () => {
 
   const daysToAdd = Number(days.value);
   const newCreditMs = daysToAdd * DAY_MS;
+  
   // Existing expiry timestamp in milliseconds (or 0 if no credit)  
   const oldCreditMs = Number(props.credit || 0);
   //const now = new Date().getTime();
-  const now = Date.now();
-
-  //const newCreditMs = (daysToAdd + (oldCreditMs > now ? (oldCreditMs - now) / DAY_MS : 0)) * DAY_MS; 
+  const now = Date.now(); 
 
   let updatedCredit;
 
@@ -139,15 +138,6 @@ const handlePayment = async () => {
   console.log("Old credit ms:", oldCreditMs);
   console.log("Updated credit timestamp:", updatedCredit);
   console.log("Days after update:", daysAfterUpdate);
-
-
-  /* const daysAccountToAdd = parseInt(days.value);
-  const daysLeftAccount = parseInt(props.credit);
-  console.log("DAYS LEFT " + props.credit)
-  const daysAfterUpdate = daysAccountToAdd + daysLeftAccount;
-  console.log("Days after update: " + daysAfterUpdate);
-  const updatedCredit = new Date().getTime() + ((daysAccountToAdd + daysLeftAccount) * 86400000) ;
-  console.log("Olet maksanut " + amount.value + " euroa!"); */
 
   await proStore.updateCredit(updatedCredit);
 

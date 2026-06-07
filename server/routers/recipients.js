@@ -76,7 +76,7 @@ module.exports = (io) => {
                 day: '2-digit'
             })
             console.log("Photos", body.photos);
-            //console.log(formatted)               // → 09/26/2025
+            console.log("BODY - ", body);               // → 09/26/2025
             console.log("DateObj " + body.created)
             const recipient = new Recipient({
                 author_id: body.author_id,
@@ -92,6 +92,8 @@ module.exports = (io) => {
                 zone: body.zone,
                 professional: body.professional,
                 isIncludeOffers: body.isIncludeOffers,
+
+                budget: body.budget,
 
                 date: body.dateStr,
                 //bookings: body.booking,
@@ -190,35 +192,6 @@ module.exports = (io) => {
         }
     });
 
-
-    /* router.put("/update-client-main/:clientId", async (req, res) => {
-        try {
-            const { description, date, photos } = req.body;
-    
-            
-            const photoIds = Array.isArray(photos)
-                ? photos.map(p => (typeof p === "string" ? p : p.id)).filter(Boolean)
-                : [];
-    
-            const update = {
-                description,
-                date: date,
-                created: new Date(date),
-                photos: photoIds,
-            };
-    
-            const main = await Recipient.findByIdAndUpdate(
-                req.params.clientId,
-                { $set: update },
-                { new: true, runValidators: true }
-            );
-    
-            res.status(200).json(main);
-        } catch (err) {
-            console.log("Error to update client main!", err);
-            res.status(500).json({ error: err.message });
-        }
-    }); */
     // Update date and time
     recipientRouter.put('/:id/updateDate', async (req, res) => {
         //const dateID = req.params.dateId;
@@ -302,10 +275,15 @@ module.exports = (io) => {
         const { bookingId } = req.params;
         const body = req.body;
         try {
-            const booking = await Recipient.findById(bookingId);
+            /* const booking = await Recipient.findById(bookingId);
             booking.offer = body;
             await booking.save();
-            res.send(booking);
+            res.send(booking); */
+            const confirmed = await Recipient.findByIdAndUpdate(
+                bookingId,
+                body,
+                {new: true}
+            )
         } catch (e) {
             console.log("Error - " + e.message);
         }
@@ -341,6 +319,34 @@ module.exports = (io) => {
         }
 
     })
+
+    // Update offer in booking
+    recipientRouter.put('/:id/offer', async (req, res) => {
+        try {
+            const { price, placeOrGo } = req.body;
+
+            const updated = await Recipient.findByIdAndUpdate(
+                req.params.id,
+                {
+                    $set: {
+                        'offer.price': price,
+                        'offer.placeOrGo': placeOrGo,
+                    }
+                },
+                { new: true }
+            );
+
+            if (!updated) {
+                return res.status(404).json({ message: 'Booking not found' });
+            }
+
+            res.json(updated);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: 'Update failed' });
+        }
+    });
+
     // Add images id to array
     recipientRouter.post('/:recipientId/addImage/:id', async (req, res) => {
         try {

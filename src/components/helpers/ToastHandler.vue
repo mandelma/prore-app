@@ -1,7 +1,7 @@
 <template>
   <MDBToast
     v-model="model"
-    autohide
+    :autohide="true"
     :delay="3000"
     :stacking="false"
     position="top-center"
