@@ -331,7 +331,7 @@
             <MDBCard v-if="isCalendar">
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                  <table style="width: 40%; text-align: left;">
+                  <table class="table-sm small" style="width: 40%; text-align: left;">
                     <tbody>
                       <tr>
                         <th>
@@ -364,7 +364,7 @@
               <MDBCardBody>
                 <div class="d-flex align-items-center justify-content-between mb-2">
 
-                  <table style="width: 40%; text-align: left;">
+                  <table class="table-sm small" style="width: 40%; text-align: left;">
                     <tbody>
                       <tr>
                         <th>
@@ -1320,12 +1320,6 @@ function sleep(ms) {
   margin-bottom: 13px; 
   
   border-radius: 7px;
-}
-
-@media (max-width: 767px) {
-  .mobile-orders {
-    
-  }
 }
 
 .proMap {
