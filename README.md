@@ -126,7 +126,7 @@ Current development focus:
 
 Marko Mandli
 
-Software Development Student (Metropolia University of Applied Sciences)
+Software Developer | Metropolia University of Applied Sciences Graduate
 
 Full Stack Developer
 
