@@ -2,6 +2,12 @@
 const Dialog = require('../models/messages');
 
 const hs = (socket) => {
+    socket.on("join-user-room", (userId) => {
+        socket.join(userId)
+    })
+    socket.on("user-action", (action) => {
+        socket.to(action.userId).emit("user-action", action);
+    })
     socket.on("create booking multiple - pro", async(proIdArr, bookingId) => {
         console.log("Pro id arr length " + proIdArr.length);
         proIdArr.forEach(id => {

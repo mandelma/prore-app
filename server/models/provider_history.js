@@ -23,10 +23,6 @@ const proHistorySchema = new Schema({
     user: {
         type: String
     }
-    /* user: {
-        type: mongoose.Schema.Types.ObjectID,
-        ref: 'user'
-    }, */
 
 })
 

@@ -9,7 +9,6 @@ const Upload = require("../models/awsUploads");
 
 const s3 = new S3Client({
     region: process.env.AWS_REGION,
-    // endpoint: `https://s3.${process.env.AWS_REGION}.amazonaws.com`,  // Explicitly set the endpoint
     forcePathStyle: true, // Ensures requests go to the correct endpoint
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -53,7 +52,7 @@ router.get('/:id/by-provider-id', async (req, res) => {
         .populate('reference.imageId')
         .populate('user')
         .populate({path: 'proposal', populate: {path: 'user'}})
-        .populate('timetable')
+        .populate('timetable').exec()
         //.populate({path: 'booking', populate: {path: 'image'}}).exec()
 
     //const provider = await Provider.findById(req.params.id)
@@ -118,8 +117,7 @@ router.post('/:id', async(req, res) =>{
 router.post('/:id/booking', async(req, res) =>{
     try {
         const body = req.body;
-        //const user = await User.findById(req.params.id)
-        //const provider =
+        
         const provider = new Provider({
             yritys: body.yritys,
             ytunnus: body.ytunnus,
@@ -156,78 +154,6 @@ router.put('/:id/main-update', async(req, res) => {
 })
 
 // Updating pro reference
-router.put("/update-referenceee/:proId", async (req, res) => {
-    try {
-        const {
-            reference,               // final photos list (ids or objects)
-            removedPhotoIds, // ids to delete from Upload + S3
-        } = req.body;
-
-
-        console.log("Reference -- ", reference)
-        console.log("Removed photo ids - ", removedPhotoIds);
-
-        // 1) Normalize final photo ids (the ones to keep)
-        const photoIds = Array.isArray(reference)
-            ? reference
-                .map(p => (typeof p === "string" ? p : (p.id ?? p.imageId)))
-                .filter(Boolean)
-            : [];
-
-        // 2) Update provider first (remove references by overwriting final list)
-        const update = {
-            reference: photoIds,
-        };
-
-        const main = await Provider.findByIdAndUpdate(
-            req.params.proId,
-            { $set: update },
-            { new: true, runValidators: true }
-        );
-
-        if (!main) {
-            return res.status(404).json({ error: "Provider not found" });
-        }
-
-        // 3) Delete removed uploads (S3 + Upload collection)
-        const idsToDelete = Array.isArray(removedPhotoIds)
-            ? removedPhotoIds.filter(Boolean)
-            : [];
-
-        console.log("idsToDelete normalized:", idsToDelete);
-
-        if (idsToDelete.length) {
-            // find keys from DB
-            const docs = await Upload.find(
-                { _id: { $in: idsToDelete } },
-                { key: 1 }
-            ).lean();
-
-            console.log("Upload docs found for deletion:", docs.length, docs);
-
-            // delete from S3
-            await Promise.all(
-                docs.map(doc =>
-                    s3.send(
-                        new DeleteObjectCommand({
-                            Bucket: process.env.AWS_S3_BUCKET_NAME,
-                            Key: doc.key,
-                        })
-                    )
-                )
-            );
-
-            // delete Upload documents
-            await Upload.deleteMany({ _id: { $in: idsToDelete } });
-        }
-
-        return res.status(200).json(main);
-    } catch (err) {
-        console.log("Error to update client main!", err);
-        return res.status(500).json({ error: err.message });
-    }
-});
-
 router.put("/update-reference/:proId", async (req, res) => {
     try {
         const { reference, removedPhotoIds } = req.body;
@@ -314,7 +240,7 @@ router.put("/update-reference/:proId", async (req, res) => {
 });
 
 
-// Adding recipient to providers booking array
+// Adding recipient to providers offers array
 router.post('/:providerId/addRecipient/:id', async (req, res) => {
     try {
         const provider = await Provider.findById(req.params.providerId);
@@ -346,7 +272,7 @@ router.put('/:id/edit-portfolio', async (req, res) => {
 
 })
 
-// Switch between available and not
+// Switch between available on map and not
 router.put('/set-availability/:id', async (req, res) => {
     const body = req.body
     const params = req.params;
@@ -362,7 +288,7 @@ router.put('/set-availability/:id', async (req, res) => {
     }
 })
 
-
+// Add feedback ( star and text )
 router.put('/:id/feedback', async (req, res) => {
     const { star, content } = req.body
     const { id } = req.params
@@ -427,7 +353,7 @@ router.put('/:id/feedback', async (req, res) => {
     }
 })
 
-// Add positive rating text to provider
+// Add positive rating text to provider - Currently not actual
 router.put('/:id/rating-pos', async (req, res) => {
     const body = req.body;
     const params =req.params;
@@ -497,7 +423,7 @@ router.put('/:id/raters-count', async (req, res) => {
         res.status(500).json({Error: "No raters count is increased!"})
     }
 })
-// Profession
+
 // Add profession to providers array
 router.post('/:id/addProfession', async (req, res) => {
     const params = req.params;
@@ -543,6 +469,7 @@ router.put('/:id/updateRange', async (req, res) => {
         console.log("Error " + err.message);
     }
 })
+
 // Update credit (days to use pro side)
 router.put('/:id/renewCredit', async (req, res) => {
     try {
@@ -555,6 +482,7 @@ router.put('/:id/renewCredit', async (req, res) => {
         res.status(500).send({ error: "No renewing succeeded!" });
     }
 })
+
 // Edit address
 router.put('/:id/editAddress', async (req, res) => {
     const body = req.body
@@ -571,6 +499,7 @@ router.put('/:id/editAddress', async (req, res) => {
         res.status({error: err})
     }
 })
+
 // Delete profession in providers's array
 router.put('/:id/removeProfession', async (req, res) => {
     try {
@@ -603,24 +532,7 @@ router.post('/:id/addRoom', async (req, res) => {
         res.send("There is error to add room!")
     }
 })
-// Add pro reference image id
-/* router.post('/:id/addSlide', async (req, res) => {
-    const params = req.params;
-    const body = req.body;
-    try {
-        const provider = await Provider.findById(params.id)
-        console.log("iodfoia " + params.id)
-        console.log("TTTTTT " + body.slideID)
-        provider.reference.push(body.slideID)
-        //provider.reference = provider.reference.concat(body.slideID);
-        await provider.save();
-        res.send("Slide is added successfully!")
 
-    } catch (err) {
-        console.log("Error " + err.message)
-        res.send("There is error to add slide!")
-    }
-}) */
 // Remove room from provider
 router.delete('/:id/remove-room', async (req,res) => {
     try {
@@ -633,6 +545,7 @@ router.delete('/:id/remove-room', async (req,res) => {
         res.send("There is error to remove room!")
     }
 })
+
 // Removes booking object id from array
 router.put('/:id/recipient/:recipientId', async (req, res) => {
     try {

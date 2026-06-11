@@ -33,14 +33,6 @@ router.post('/:providerId', async (req,res) => {
 
         const provider = await Provider.findById(req.params.providerId);
         const additionalTimeRange = new Offer({
-            /* timerange: {
-                state: state,
-                title: title,
-                content: content,
-                start: new Date(start),
-                end: new Date(end)
-            } */
-
             state: state,
             isAllDay: allDay,
             title: title,

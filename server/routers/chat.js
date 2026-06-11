@@ -145,13 +145,9 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
       conversation: updatedConvo,
     };
 
-    //io.to(`convo:${conversationId}`).emit("message:new", payload);
-
-    // important: notify receiver even if they have not opened the conversation
     io.to(`user:${otherKey}`).emit("message:new", payload);
   }
 
-  //res.json(msg);
   res.json({
     message: msg,
     conversation: updatedConvo,
@@ -167,7 +163,7 @@ router.post("/conversations/:conversationId/read", async (req, res) => {
   res.json({ ok: true });
 });
 
-// About visible participants in a conversation (when removing other participant fromconvercation)
+// About visible participants in a conversation (when removing other participant from convercation)
 router.put("/conversations/localState/:conversationId/:otherUserId", async (req, res) => {
   const { conversationId, otherUserId } = req.params;
   const { isExisting } = req.body;

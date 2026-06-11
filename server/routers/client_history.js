@@ -8,6 +8,7 @@ historyRouter.get('/',httpAuth, async (req, res) => {
     const clientHistory = await cHistory.find({bookerId: req.user.id});
     res.send(clientHistory);
 });
+
 historyRouter.post('/', async (req, res) => {
     const body = req.body;
     try {
@@ -32,6 +33,7 @@ historyRouter.post('/', async (req, res) => {
         console.log("Error: " + err.message);
     }
 })
+
 // Update status
 historyRouter.put('/:id', async (req, res) => {
     const body = req.body
@@ -64,6 +66,7 @@ historyRouter.put('/:id/update_rating', async (req, res) => {
     }
 })
 
+// Delete archived row
 historyRouter.delete('/:id', async (req, res) => {
     try {
         console.log("Is deleting client archive row?? " + req.params.id);

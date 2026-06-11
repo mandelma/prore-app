@@ -60,7 +60,7 @@
             {{client.description}}
           </td>
         </tr>
-        <tr v-if="!client.isIncludeOffers">
+        <tr v-if="client.isIncludeOffers">
           <td>
             Budjetti:
           </td>

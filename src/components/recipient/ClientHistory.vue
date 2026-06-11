@@ -474,7 +474,7 @@ const handleRequest = async (payload) => {
     isIncludeOffers: false,
     description: payload.content,
     photos: payload.serverPhotos || [],
-    budget: payload.budget,
+    //budget: payload.budget,
     status: "active",
   }
 

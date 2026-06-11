@@ -6,15 +6,14 @@ const conversationSchema = new Schema(
   {
     type: { type: String, enum: ["dm"], default: "dm" },
 
-    participantIds: [{ type: Types.ObjectId, ref: "User", required: true }], // sorted
-    participantKey: { type: String, required: true, unique: true }, // "u1_u2"
+    participantIds: [{ type: Types.ObjectId, ref: "User", required: true }],
+    participantKey: { type: String, required: true, unique: true },
     //isParticipant: { type: Boolean, default: true },
-    isParticipant: { type: Map, of: Boolean, default: {} }, // userId -> bool
+    isParticipant: { type: Map, of: Boolean, default: {} },
     lastMessageAt: { type: Date },
     lastMessageText: { type: String },
     lastMessageSenderId: { type: Types.ObjectId, ref: "User" },
 
-    // map userId -> number
     unread: { type: Map, of: Number, default: {} },
   },
   { timestamps: true }

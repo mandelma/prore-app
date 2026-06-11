@@ -211,7 +211,8 @@
     
     
     
-
+    <!-- Processed {{ processedActions }}
+    <MDBBtn color="info" @click="doAction">Action</MDBBtn> -->
 
 
 <!--    <h2>is user pro  {{isUserPro}}</h2><br>-->
@@ -306,6 +307,7 @@ import {
 
 import { ref, watch, onMounted, onBeforeMount,  computed, onUnmounted, nextTick } from "vue";
 import { storeToRefs } from 'pinia';
+import { v4 as uuidv4 } from 'uuid';
 import language from './components/LanguageContents.vue'
 import userService from './service/users.js';
 import loginService from './service/login.js';
@@ -335,6 +337,8 @@ import socket from "@/socket";
 
 const router = useRouter();
 const route = useRoute();
+const deviceID = ref(null);
+const processedActions = ref(new Set());
 const userID = ref('');
 const username = ref('')
 let userDropdown = ref(false);
@@ -415,16 +419,6 @@ const getPointerPos = (e) => ({
   x: e.clientX,
   y: e.clientY
 });
-
-/* const getEventPos = (e) => {
-  if (e?.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-  if (typeof e?.x === "number" && typeof e?.y === "number") {
-    return { x: e.x, y: e.y };
-  }
-  return { x: e.clientX, y: e.clientY };
-}; */
 
 function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
   const isMobile = viewportW <= 640;
@@ -544,6 +538,40 @@ const onDrag = (e) => {
 
   if (e.cancelable) e.preventDefault();
 };
+
+// Update user other devices
+const identifyUserDevice = () => {
+
+  deviceID.value = localStorage.getItem("deviceId");
+
+  if (!deviceID.value) {
+    deviceID.value = uuidv4();
+    localStorage.setItem("deviceId", deviceID.value);
+  }
+
+  /* const deviceId = localStorage.getItem("deviceId") || uuidv4();
+  deviceID.value = deviceId;
+  localStorage.setItem("deviceId", deviceId); */
+}
+
+// Will send to own account if another browser is open
+const sendUserAction = (type = 'generic-update') => {
+  console.log("Sended user action - " + type);
+  const action = {
+    id: uuidv4(),
+    type,
+    timestamp: Date.now(),
+    userId: userID.value,
+    origin: deviceID.value
+  }
+
+  processedActions.value.add(action.id);
+  socket.emit("user-action", action);
+}
+const applyUserAction = (userId) => {
+  console.log("Apply action!!");
+  //this.handleUpdate(userId);
+}
 
 const snapAnchorToOpenWindow = () => {
   if (!conversationStore.openChat) return;
@@ -669,6 +697,10 @@ const normalizeWidgetPositionForOpen = (side = "right") => {
   pos.value.y = nextY;
 };
 
+const doAction = () => {
+  console.log("Action");
+  sendUserAction();
+}
 const openChatFromLauncher__ = async ({ side } = {}) => {
   normalizeWidgetPositionForOpen(side || "right");
   await nextTick();
@@ -845,9 +877,18 @@ const closeChatWindow = () => {
 };
 
 
-/* watch(() => profile?.avatar?.imageUrl, () => {
-  avatarError.value = false
-}) */
+const refreshUserData = async (userId) => {
+  await Promise.all([
+    userStore.fetchMe(),
+    client.orderList(userId),
+    handleProvider.getProState(userId),
+    notificationStore.handleNotifications(userId),
+    clientArchiveStore.initClientArchive(),
+    proArchiveStore.initProviderArchive(),
+    conversationStore.getConversations()
+  ])
+}
+
 watch(() => profile.value?.avatar?.imageUrl, () => {
   avatarError.value = false;
 });
@@ -876,8 +917,8 @@ watch(
     userID.value = u.id;
     username.value = u.username;
 
-    // If these are independent, run in parallel
-    await Promise.all([
+    
+    /* await Promise.all([
       userStore.fetchMe(),
       clientHistoryService.setToken(login.token),
       proHistoryService.setProSideToken(login.token),
@@ -894,7 +935,20 @@ watch(
         proHistoryService.setProSideToken(login.token),
         proArchiveStore.initProviderArchive()
       ]);
-    }
+    } */
+
+
+    await identifyUserDevice();
+
+    clientHistoryService.setToken(login.token)
+    proHistoryService.setProSideToken(login.token)
+
+    conversationStore.initSocket()
+    socket.emit("join-user-room", u.id)
+
+    await refreshUserData(u.id)
+
+
 
     /* const promises = [
       userStore.fetchMe(),
@@ -980,6 +1034,18 @@ const joinServer = () => {
 const listen = async() => {
   if (isListening) return;
   isListening = true;
+
+  socket.on("user-action", async (action) => {
+   console.log("Action origin before - ", action)
+   if (!deviceID.value) return;
+   if (action.origin === deviceID.value) return;
+   if (processedActions.value.has(action.id)) return;
+
+   console.log("User device control...")
+
+   processedActions.value.add(action.id);
+   await refreshUserData(action.userId);
+  })
 
   socket.on("conversation:list:refresh", async () => {
     await conversationStore.getConversations();

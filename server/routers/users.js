@@ -44,8 +44,6 @@ router.patch("/me", authMiddleware, async (req, res) => {
         res.send("There is an error to update email!")
     }
 
-
-
   
 });
 
@@ -71,10 +69,6 @@ router.post('/', async (req, res) => {
         const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
         const user = new User({
-            // yritys: body.yritys,
-            // ytunnus: body.ytunnus,
-            // isAgreementAsClient: false,
-            // isAgreementAsPro: false,
             created: new Date(),
             username: body.username,
             firstName: body.firstName,

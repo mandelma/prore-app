@@ -1,6 +1,6 @@
 <template>
   <MDBContainer >
-    <div style="padding: 13px 0 20px 0;">
+    <div style="padding: 13px 0 20px 0; ">
       <MDBToast
           v-model="isRegisterError"
           autohide
@@ -16,147 +16,149 @@
         {{currentErrorMessage}}
       </MDBToast>
     </div>
-
-    <form class="form-card" @submit.prevent="submitUser" autocomplete="off">
+    <div class="auth-register">
+      <form class="form-card" @submit.prevent="submitUser" autocomplete="off">
       <!-- 2 column grid layout with text inputs for the first and last names -->
       <!-- First name input -->
 
 
-      <MDBInput
-          type="text"
-          size="lg"
-          :label="t('register_firstname')"
-
-          id="registerFirstName"
-          v-model="registerFirstName"
-          wrapperClass="mb-4"
-
-      />
-
-      <!-- Last name input -->
-      <MDBInput
-          type="text"
-          size="lg"
-          :label="t('register_lastname')"
-
-          id="registerLastName"
-          v-model="registerLastName"
-          wrapperClass="mb-4"
-      />
-
-      <!-- Username input -->
-      <MDBInput
-          type="text"
-          size="lg"
-          :label="t('register_username')"
-
-          id="registerUsername"
-          v-model="registerUsername"
-          wrapperClass="mb-4"
-      />
-      <!-- Email input -->
-      <MDBInput
-          type="text"
-          size="lg"
-          :label="t('register_email')"
-
-          id="registerEmail"
-          v-model="registerEmail"
-          wrapperClass="mb-4"
-      />
-
-      <div class="input-group mb-3">
-        <!-- MDB input inside input-group -->
         <MDBInput
-
+            type="text"
             size="lg"
-            v-model="registerPassword"
-            :type="showPassword ? 'text' : 'password'"
-            :label="t('register_password_1')"
-            wrapperClass="form-outline flex-grow-3"
-            :inputClass="'ps-0'"
-            aria-describedby="button-addon2"
+            :label="t('register_firstname')"
+
+            id="registerFirstName"
+            v-model="registerFirstName"
+            wrapperClass="mb-4"
+
         />
 
-        <MDBBtn  style="border: 1px white;" type="button">
-          <i :class="!showPassword ? 'far fa-eye' : 'far fa-eye-slash'" style="color: #dddddd;" @click="togglePassword"></i>
-        </MDBBtn>
-      </div>
-
-
-
-
-
-      <p v-if="pwValidateError && registerPassword" style="color: palevioletred" >{{pwValidateError}}</p>
-
-
-      <div class="input-group mb-3">
-        <!-- MDB input inside input-group -->
+        <!-- Last name input -->
         <MDBInput
+            type="text"
             size="lg"
-            v-model="registerPasswordRepeat"
-            :type="showConfirmPassword ? 'text' : 'password'"
-            :label="t('register_password_2')"
-            wrapperClass="form-outline flex-grow-3"
-            :inputClass="'ps-0'"
-            aria-describedby="button-addon2"
+            :label="t('register_lastname')"
+
+            id="registerLastName"
+            v-model="registerLastName"
+            wrapperClass="mb-4"
         />
 
-        <MDBBtn  style="border: 1px white;" type="button">
-          <i :class="!showConfirmPassword ? 'far fa-eye' : 'far fa-eye-slash'" style="color: #dddddd;" @click="toggleConfirmPassword"></i>
-        </MDBBtn>
-      </div>
+        <!-- Username input -->
+        <MDBInput
+            type="text"
+            size="lg"
+            :label="t('register_username')"
 
-      <p v-if="pwConfirmValidateError && registerPasswordRepeat" style="color: palevioletred" >{{pwConfirmValidateError}}</p>
-
-
-      <div class="login-check mb-4">
-        <MDBCheckbox
-          :label="t('register_remember_me')"
-
-          size="lg"
-          id="registerSubscribeCheck"
-          v-model="registerSubscribeCheck"
-          wrapperClass="d-flex justify-content-center mb-4"
+            id="registerUsername"
+            v-model="registerUsername"
+            wrapperClass="mb-4"
         />
-        <!-- Olen lukenut ja hyväksyn käyttöehdot sekä tietosuojaselosteen. -->
-        <div style="display: flex; align-items: center;">
-          <MDBCheckbox
-          v-model="acceptedTerms"
-          id="registerTermsCheck"
-          class="me-2"
+        <!-- Email input -->
+        <MDBInput
+            type="text"
+            size="lg"
+            :label="t('register_email')"
+
+            id="registerEmail"
+            v-model="registerEmail"
+            wrapperClass="mb-4"
         />
 
-          <label for="registerTermsCheck" style="cursor:pointer;">
-            Olen lukenut ja hyväksyn
-            <a
-              href="/terms"
-              
-              @click.stop
-            >
-              käyttöehdot
-            </a>
-            <!-- <router-link to="/terms"  @click.stop>
-              käyttöehdot
-            </router-link> -->
-          </label>
-          
+        <div class="input-group mb-3">
+          <!-- MDB input inside input-group -->
+          <MDBInput
+
+              size="lg"
+              v-model="registerPassword"
+              :type="showPassword ? 'text' : 'password'"
+              :label="t('register_password_1')"
+              wrapperClass="form-outline flex-grow-3"
+              :inputClass="'ps-0'"
+              aria-describedby="button-addon2"
+          />
+
+          <MDBBtn  style="border: 1px white;" type="button">
+            <i :class="!showPassword ? 'far fa-eye' : 'far fa-eye-slash'" style="color: #dddddd;" @click="togglePassword"></i>
+          </MDBBtn>
         </div>
 
-        <p v-if="!acceptedTerms && isSubmitted" style="color: palevioletred;">
-          Sinun tulee hyväksyä käyttöehdot jatkaaksesi.
-        </p>
+
+
+
+
+        <p v-if="pwValidateError && registerPassword" style="color: palevioletred" >{{pwValidateError}}</p>
+
+
+        <div class="input-group mb-3">
+          <!-- MDB input inside input-group -->
+          <MDBInput
+              size="lg"
+              v-model="registerPasswordRepeat"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              :label="t('register_password_2')"
+              wrapperClass="form-outline flex-grow-3"
+              :inputClass="'ps-0'"
+              aria-describedby="button-addon2"
+          />
+
+          <MDBBtn  style="border: 1px white;" type="button">
+            <i :class="!showConfirmPassword ? 'far fa-eye' : 'far fa-eye-slash'" style="color: #dddddd;" @click="toggleConfirmPassword"></i>
+          </MDBBtn>
+        </div>
+
+        <p v-if="pwConfirmValidateError && registerPasswordRepeat" style="color: palevioletred" >{{pwConfirmValidateError}}</p>
+
+
+        <div class="login-check mb-4">
+          <MDBCheckbox
+            :label="t('register_remember_me')"
+
+            size="lg"
+            id="registerSubscribeCheck"
+            v-model="registerSubscribeCheck"
+            wrapperClass="d-flex justify-content-center mb-4"
+          />
+          <!-- Olen lukenut ja hyväksyn käyttöehdot sekä tietosuojaselosteen. -->
+          <div style="display: flex; align-items: center;">
+            <MDBCheckbox
+            v-model="acceptedTerms"
+            id="registerTermsCheck"
+            class="me-2"
+          />
+
+            <label for="registerTermsCheck" style="cursor:pointer;">
+              Olen lukenut ja hyväksyn
+              <a
+                href="/terms"
+                
+                @click.stop
+              >
+                käyttöehdot
+              </a>
+              <!-- <router-link to="/terms"  @click.stop>
+                käyttöehdot
+              </router-link> -->
+            </label>
+            
+          </div>
+
+          <p v-if="!acceptedTerms && isSubmitted" style="color: palevioletred;">
+            Sinun tulee hyväksyä käyttöehdot jatkaaksesi.
+          </p>
+          
+        </div>
         
-      </div>
-      
 
-      <!-- Submit button -->
-      <div class="form-actions">
-        <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> {{ t('register_create_account') }} </MDBBtn>
-      </div>
+        <!-- Submit button -->
+        <div class="form-actions">
+          <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> {{ t('register_create_account') }} </MDBBtn>
+        </div>
 
 
-    </form>
+      </form>
+    </div>
+    
   </MDBContainer>
 </template>
 
@@ -321,6 +323,11 @@ const checkFieldValues = () => {
 </script>
 
 <style >
+.auth-register {
+  width: 100%;
+  max-width: 520px;
+  margin: auto;
+}
 .login-check {
   display: flex;
   flex-direction: column;

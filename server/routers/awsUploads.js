@@ -19,7 +19,7 @@ uploadRouter.get('/images/:userId', async (req, res) => {
 });
 
 
-
+// Load avatar image
 uploadRouter.post('/upload-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const userId = req.params.userID;
@@ -41,6 +41,7 @@ uploadRouter.post('/upload-avatar/:userID', awsAvatarUpload.single('file'), asyn
     }
 });
 
+// Edit avatar image
 uploadRouter.put('/update-avatar/:userID', awsAvatarUpload.single('file'), async (req, res) => {
     const userId = req.params.userID;
     const oldKey = req.body.oldKey;
@@ -74,7 +75,7 @@ uploadRouter.put('/update-avatar/:userID', awsAvatarUpload.single('file'), async
     }
 });
 
-// 📌 Delete Avatar Image
+// Delete Avatar Image
 uploadRouter.put('/delete-avatar/:userID', async (req, res) => {
     const userId = req.params.userID;
     const key = req.body.key
@@ -94,12 +95,10 @@ uploadRouter.put('/delete-avatar/:userID', async (req, res) => {
             { new: true }
         )
 
-        //await Upload.findOneAndDelete({ _id: id });
         res.json({ message: "User avatar is replased!" });
 
         await s3.send(command);
 
-        //res.json({ message: 'Image deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Error deleting avatar', details: error.message });
     }
@@ -115,8 +114,6 @@ uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, 
         const saved = await Promise.all(
             req.files.map(async (f) => {
                 const doc = new Upload({
-                    //imageUrl: f.location,
-                    //key: f.key,
                     url: f.location,
                     key: f.key,
                     mime: f.mimetype,
@@ -136,7 +133,6 @@ uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, 
                     mime: f.mimetype,
                     name: f.originalname,
                     size: f.size,
-                    //isImage: (f.mimetype || "").startsWith("image/"),
                     isImage: f.mimetype.startsWith("image/"),
                 };
             })
@@ -151,6 +147,7 @@ uploadRouter.post("/upload-chat", awsChatUpload.array("files", 10), async (req, 
         res.status(500).json({ error: "Upload failed", details: err.message });
     }
 });
+
 // Upload client images (multiple)
 uploadRouter.post('/upload-client', awsClientUpload.array('files', 10), async(req, res) => {
     if (!req.files || req.files.length === 0) {
@@ -190,6 +187,7 @@ uploadRouter.post('/upload-client', awsClientUpload.array('files', 10), async(re
     
 })
 
+// Uplload provider images
 uploadRouter.post('/upload-pro', awsProUpload.array('files', 10), async (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: 'No pro files uploaded!' });
@@ -215,7 +213,6 @@ uploadRouter.post('/upload-pro', awsProUpload.array('files', 10), async (req, re
                 }
             })
 
-
         )
         res.json({
             message: "Images uploaded successfully",
@@ -236,7 +233,6 @@ uploadRouter.post('/upload-client-single', awsClientUpload.single('file'), async
             userId: "12345", // Optional: Store which user uploaded it
             imageUrl: req.file.location,
             key: req.file.key, // Store file key for deletion
-            // title: req.body.title // Optional: Custom title
         });
 
         await newImage.save();
@@ -246,7 +242,7 @@ uploadRouter.post('/upload-client-single', awsClientUpload.single('file'), async
     }
 });
 
-// 📌 Get Signed URLs for Images
+// Get Signed URLs for Images
 uploadRouter.get('/images', async (req, res) => {
     try {
         const command = new ListObjectsV2Command({
@@ -268,34 +264,9 @@ uploadRouter.get('/images', async (req, res) => {
     }
 });
 
-// 📌 Update  client Image (Delete Old & Upload New)
-/* uploadRouter.put('/update_client/:id', awsClientUpload.single('file'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const id = req.params.id;
-    const key = req.params.key;
-    try {
-        
-        const deleteCommand = new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: key,
-        });
-        await s3.send(deleteCommand);
-
-       
-        const updatedImage = await Upload.findOneAndUpdate(
-            { _id: id },
-            { imageUrl: req.file.location, key: req.file.key },
-            { new: true }
-        );
-
-        res.json({ message: 'Image updated', key: updatedImage.key,  imageUrl: updatedImage.imageUrl });
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating image', details: error.message });
-    }
-}); */
 
 
-//📌 Update  client Image (Delete Old & Upload New)
+//Update  client Image (Delete Old & Upload New)
 uploadRouter.put("/update_client/:id", awsClientUpload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -305,13 +276,13 @@ uploadRouter.put("/update_client/:id", awsClientUpload.single("file"), async (re
     const existing = await Upload.findById(id);
     if (!existing) return res.status(404).json({ error: "Image not found" });
 
-    // delete old from S3
+    // Delete old from S3
     await s3.send(new DeleteObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: existing.key,
     }));
 
-    // update DB with new file info
+    // Update DB with new file info
     existing.key = req.file.key;
     existing.imageUrl = req.file.location;
     await existing.save();
@@ -322,7 +293,7 @@ uploadRouter.put("/update_client/:id", awsClientUpload.single("file"), async (re
   }
 });
 
-// 📌 Delete Image
+// Delete Image
 uploadRouter.delete("/delete-image/:id", async (req, res) => {
     try {
         const doc = await Upload.findById(req.params.id);
@@ -333,10 +304,10 @@ uploadRouter.delete("/delete-image/:id", async (req, res) => {
             Key: doc.key,
         });
 
-        // delete from S3 first (optional order, but better to avoid orphan S3)
+        // delete from S3 first (optional order)
         await s3.send(command);
 
-        // then delete DB doc
+        // Delete DB doc
         await Upload.findByIdAndDelete(req.params.id);
 
         return res.json({ ok: true });
@@ -369,10 +340,6 @@ uploadRouter.post("/delete-images", async (req, res) => {
 
 
 
-
-
-
-
 // Upload provider image
 
 uploadRouter.post('/upload-pro-old', awsProUpload.single('file'), async (req, res) => {
@@ -380,10 +347,8 @@ uploadRouter.post('/upload-pro-old', awsProUpload.single('file'), async (req, re
     try {
         console.log("Server test " + req.file.location);
         const newImage = new Upload({
-            //userId: "12345", // Optional: Store which user uploaded it
             imageUrl: req.file.location,
             key: req.file.key, // Store file key for deletion
-            // title: req.body.title // Optional: Custom title
         });
 
         await newImage.save();
@@ -393,7 +358,7 @@ uploadRouter.post('/upload-pro-old', awsProUpload.single('file'), async (req, re
     }
 });
 
-// 📌 Update provider Image (Delete Old & Upload New)
+// Update provider Image (Delete Old & Upload New)
 uploadRouter.put('/update_pro/:id', awsProUpload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const id = req.params.id;
@@ -405,9 +370,6 @@ uploadRouter.put('/update_pro/:id', awsProUpload.single('file'), async (req, res
             Key: key,
         });
         await s3.send(deleteCommand);
-
-        // console.log("HHHHH " + key + " --- " + req.file.key);
-        // console.log("ID " + id);
 
         // Update DB record with new image URL and key
         const updated = await Upload.findOneAndUpdate(
@@ -421,29 +383,6 @@ uploadRouter.put('/update_pro/:id', awsProUpload.single('file'), async (req, res
         res.status(500).json({ error: 'Error updating image', details: error.message });
     }
 });
-
-
-
-
-/* uploadRouter.post('/upload-chat', awsChatUpload.single('file'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    try {
-        console.log("Server test " + req.file.location);
-        const newChatImage = new Upload({
-            imageUrl: req.file.location,
-            key: req.file.key, // Store file key for deletion
-        });
-
-        await newChatImage.save();
-        res.json({ message: 'Image uploaded successfully', id: newChatImage._id, key: req.file.key,  imageUrl: req.file.location });
-    } catch (err) {
-        console.log("Error: " + err.message);
-    }
-});
- */
-
-
-
 
 
 

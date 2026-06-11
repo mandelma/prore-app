@@ -695,7 +695,8 @@ const events = computed(() => [
       canResize: false,
       address:  cc?.offer?.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Sovitaan erikseen',
       priceOffer: cc?.offer?.price,
-      budget: cc.isIncludeOffers ? cc?.offer?.price : cc?.budget.min + " - " + cc?.budget.max,
+      /* budget: cc.isIncludeOffers ? cc?.offer?.price : cc?.budget.min + " - " + cc?.budget.max, */
+      budget: cc.isIncludeOffers ? cc?.offer?.price : 'Sovitaan erikseen',
       location: cc?.offer.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Palvelun sijainti sopimuksen mukaan',
       note: cc.description || ' - '
       /* `
@@ -732,7 +733,8 @@ const events = computed(() => [
         note: pce.description,
         address: `${pce?.isIncludeOffers ? (place === 'go' ? pce.address : pce?.offers?.provider?.address) : 'Sovitaan erikseen'}`,
         priceOffer: pce?.offer?.price,
-        budget: pce?.isIncludeOffers ? pce?.offer?.price : pce?.budget.min + " - " + pce?.budget.max,
+        /* budget: pce?.isIncludeOffers ? pce?.offer?.price : pce?.budget.min + " - " + pce?.budget.max, */
+        budget: pce.isIncludeOffers ? pce?.offer?.price : 'Sovitaan erikseen',
         /* place === 'go' ? `
           <p>Tilauksen tiedot:</p>
           <ul>
@@ -945,7 +947,7 @@ function openCreate({ start, end, allDay }) {
 /* save new event with extendedProps */
 const saveEvent = async() => {
   const f = form.value
-  if (!f.note?.trim()) return alert('Lisää muistinpano')
+  //if (!f.note?.trim()) return alert('Lisää muistinpano')
   console.log("CREATED time start - " + f.start);
   console.log("CREATED time end - " + f.end)
 

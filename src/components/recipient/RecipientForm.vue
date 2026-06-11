@@ -188,6 +188,34 @@
 
           </div>
 
+          <!-- Budjetti ja muut yksityiskohdat voit kertoa myöhemmin chatissä palveluntarjoajien kanssa. Budjetti auttaa palveluntarjoajia arvioinnissa. -->
+           Budjetti
+          <div style="margin-top: 17px;" class="field-wrapper">
+            <div class="budget-field">
+              <MDBInput
+                label="Alin hinta *"
+                v-model="form.budgetMin"
+                size="lg"
+                type="number"
+                min="0"
+                @keydown="preventInvalidKeys"
+              />
+              <MDBInput
+                  label="Ylin hinta *"
+                  v-model="form.budgetMax"
+                  size="lg"
+                  type="number"
+                  min="0"
+                  @keydown="preventInvalidKeys"
+              />
+            </div>
+            <div class="budget-field">
+              <span v-if="errors.budgetMin" class="field-footer">{{ errors.budgetMin }}</span>
+              <span v-if="errors.budgetMax" class="field-footer">{{ errors.budgetMax }}</span>
+            </div>
+            
+          </div>
+
           <div style="color: #fff;">
 
           </div>
@@ -410,9 +438,12 @@ const form = reactive({
   orderHeader: "",
   address: "",
   dateTime: "",
-  explanation: ""
+  explanation: "",
+  budgetMin: null,
+  budgetMax: null
 });
 const errors = reactive({});
+const isValidating = ref(false);
 
 
 const validateForm = () => {
@@ -421,15 +452,66 @@ const validateForm = () => {
   errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
   errors.dateTime = form.dateTime ? "" : "Päivämäära on pakollinen kenttä";
   errors.explanation = form.explanation ? "" : "Kuvaus on pakollinen kentta";
+  errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
+  errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!";
 
-  return !errors.profession && !errors.orderHeader && !errors.address && !errors.dateTime && !errors.explanation;
+  if (
+      form.budgetMin != null &&
+      form.budgetMax != null &&
+      Number(form.budgetMin) > Number(form.budgetMax)
+    ) {
+      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
+      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+    }
+
+  return !errors.profession && !errors.orderHeader && !errors.address && !errors.dateTime && !errors.explanation && !errors.budgetMin && !errors.budgetMax;
 }
+
+const validateBudgets = () => {
+  if (!isValidating.value) return;
+  // Required validation
+  if (form.budgetMin == null || form.budgetMin === "") {
+    errors.budgetMin = "Alin hinta on pakollinen!";
+  } else {
+    errors.budgetMin = "";
+  }
+
+  if (form.budgetMax == null || form.budgetMax === "") {
+    errors.budgetMax = "Ylin hinta on pakollinen!";
+  } else {
+    errors.budgetMax = "";
+  }
+
+  // Range validation only if both exist
+  if (
+    form.budgetMin !== null &&
+    form.budgetMin !== "" &&
+    form.budgetMax !== null &&
+    form.budgetMax !== "" &&
+    Number(form.budgetMin) > Number(form.budgetMax)
+  ) {
+    errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
+    errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+  }
+};
+
+watch(
+  [() => form.budgetMin, () => form.budgetMax],
+  validateBudgets
+);
 
 watch(() => form.profession, () => (errors.profession = ""));
 watch(() => form.orderHeader, () => (errors.orderHeader = ""));
 watch(() => form.address, () => (errors.address = ""));
 watch(() => form.dateTime, () => (errors.dateTime = ""));
 watch(() => form.explanation, () => (errors.explanation = ""));
+
+// Invalid key check in budget fields
+const preventInvalidKeys = (e) => {
+  if (['-', '+'].includes(e.key)) {
+    e.preventDefault();
+  }
+};
 
 const filterClientInput = ref((event) => {
   // Filter out non-digit characters
@@ -980,6 +1062,7 @@ const getUploadId = (upload) =>
   upload?.upload?.id;
 
 const createClient = async() => {
+  isValidating.value = true;
   if (!validateForm()) {
     console.log("Midagi puudu:", form);
 
@@ -1064,6 +1147,10 @@ const createClient = async() => {
       professional: form.profession.label,
       isIncludeOffers: true,
       description: form.explanation,
+      budget: {
+        min: form.budgetMin,
+        max: form.budgetMax
+      },  
       photos: photosForBackend,
       status: "active",
     }
@@ -1076,6 +1163,7 @@ const createClient = async() => {
         ...booking,
         photos: photosForLocalState,
       });
+      isValidating.value = false;
     }
 
   }
@@ -1098,6 +1186,12 @@ const createClient = async() => {
 
 .hideInput {
   display: none;
+}
+
+/* Budget */
+.budget-field {
+  display: flex;
+  gap: 17px;
 }
 
 /* Photos */

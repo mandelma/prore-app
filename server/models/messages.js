@@ -7,7 +7,7 @@ const chatDialogSchema = new Schema({
     created_ms: {type: Number},
     room: String,
     
-    msg_type: String, /* Like text or */
+    msg_type: String,
     message: String,
 
     imgID: String,

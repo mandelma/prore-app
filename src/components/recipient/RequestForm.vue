@@ -105,33 +105,7 @@
           </div>
 
           
-          <!-- Budjetti ja muut yksityiskohdat voit kertoa myöhemmin chatissä palveluntarjoajien kanssa. Budjetti auttaa palveluntarjoajia arvioinnissa. -->
-           Budjetti
-          <div style="margin-top: 17px;" class="field-wrapper">
-            <div class="budget-field">
-              <MDBInput
-                label="Alin hinta *"
-                v-model="form.budgetMin"
-                size="lg"
-                type="number"
-                min="0"
-                @keydown="preventInvalidKeys"
-              />
-              <MDBInput
-                  label="Ylin hinta *"
-                  v-model="form.budgetMax"
-                  size="lg"
-                  type="number"
-                  min="0"
-                  @keydown="preventInvalidKeys"
-              />
-            </div>
-            <div class="budget-field">
-              <span v-if="errors.budgetMin" class="field-footer">{{ errors.budgetMin }}</span>
-              <span v-if="errors.budgetMax" class="field-footer">{{ errors.budgetMax }}</span>
-            </div>
-            
-          </div>
+          
 
 
           <!-- About pictures -->
@@ -272,11 +246,6 @@
     saveBookingPhotos,
   } = useBookingPhotosLogic(addedPhotos);
 
-  const preventInvalidKeys = (e) => {
-  if (['-', '+'].includes(e.key)) {
-    e.preventDefault();
-  }
-};
 
   const openFilePicker = () => {
     fileInput.value?.click();
@@ -303,8 +272,7 @@
     address: "",  
     requestHeader: "",
     requestContent: "",
-    budgetMin: null,
-    budgetMax: null
+    
   });
   const mapStore = useMapStore();
   const conversationStore = useConversationStore();
@@ -312,61 +280,28 @@
   const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
   const errors = reactive({});
-  const isValidating = ref(false);
+  //const isValidating = ref(false);
 
   const validateForm = () => {
     errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
     errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
     errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
-    errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
-    errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!";
+   /*  errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
+    errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!"; */
 
-    if (
+    /* if (
       form.budgetMin != null &&
       form.budgetMax != null &&
       Number(form.budgetMin) > Number(form.budgetMax)
     ) {
       errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
       errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
-    }
+    } */
 
     return Object.values(errors).every(error => !error);
 
     //return !errors.address && !errors.requestHeader && !errors.requestContent;
   }
-
-  const validateBudgets = () => {
-    if (!isValidating.value) return;
-    // Required validation
-    if (form.budgetMin == null || form.budgetMin === "") {
-      errors.budgetMin = "Alin hinta on pakollinen!";
-    } else {
-      errors.budgetMin = "";
-    }
-
-    if (form.budgetMax == null || form.budgetMax === "") {
-      errors.budgetMax = "Ylin hinta on pakollinen!";
-    } else {
-      errors.budgetMax = "";
-    }
-
-    // Range validation only if both exist
-    if (
-      form.budgetMin !== null &&
-      form.budgetMin !== "" &&
-      form.budgetMax !== null &&
-      form.budgetMax !== "" &&
-      Number(form.budgetMin) > Number(form.budgetMax)
-    ) {
-      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
-      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
-    }
-  };
-
-  watch(
-    [() => form.budgetMin, () => form.budgetMax],
-    validateBudgets
-  );
 
   const validateHeader = () => {
     if (!isValidating.value) return;
@@ -661,10 +596,10 @@
         content: form.requestContent,
         serverPhotos: photosForBackend,
         localPhotos: photosForLocalState,
-        budget: {
+        /* budget: {
           min: form.budgetMin,
           max: form.budgetMax
-        }   
+        }    */
       });
     }
   }
@@ -686,9 +621,6 @@
 .hideInput {
   display: none;
 }
-.budget-field {
-  display: flex;
-  gap: 17px;
-}
+
 
 </style>

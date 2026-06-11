@@ -1239,7 +1239,7 @@ const handleSendRequest = async (_form) => {
     isIncludeOffers: false,
     description: _form.content,
     photos: _form.serverPhotos || [],
-    budget: _form.budget,
+    //budget: _form.budget,
     status: "active",
   }
 

@@ -41,17 +41,14 @@ module.exports = (io) => {
             .populate('photos.imageId')
             .populate('offers')
             .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'user' } } })
-            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference.imageId' } } })
+            .populate({ path: 'offers', populate: { path: 'provider', populate: { path: 'reference.imageId' } } }).exec();
         // .populate({path: 'offers', populate: {path: 'provider', populate: {path: 'reference'}}}).exec();
 
-
-        //const provider = await Provider.findById(req.params.id)
         res.send(recipients)
     })
 
     recipientRouter.get('/booking/:id', async (req, res) => {
         const booking = await Recipient.findOne({ _id: req.params.id })
-            //.populate('image')
             .populate('user')
             .populate('ordered')
 
@@ -65,7 +62,7 @@ module.exports = (io) => {
     })
 
 
-
+    // Add recipient
     recipientRouter.post('/:id', async (req, res, next) => {
         try {
             const body = req.body;
@@ -222,6 +219,7 @@ module.exports = (io) => {
             console.log("Error: " + err.message);
         }
     })
+
     // Add ordered provider id to ordered array
     recipientRouter.post('/:recipientId/addOrdered/:id', async (req, res) => {
         try {
@@ -254,7 +252,8 @@ module.exports = (io) => {
             res.send("No pro is removed!").end()
         }
     })
-    // Add offer
+
+    // Add providers made offer to booking
     recipientRouter.post('/:bookingID/offer/:id', async (req, res) => {
         const { bookingID, id } = req.params;
         try {
@@ -288,6 +287,7 @@ module.exports = (io) => {
             console.log("Error - " + e.message);
         }
     })
+
     // Add provider id to recipient
     recipientRouter.put('/:id', async (req, res) => {
         try {
@@ -371,13 +371,7 @@ module.exports = (io) => {
             console.log("Error: " + err.message)
         }
     })
-    // Add provider name
-    // router.put('/:id', async (req, res) => {
-    //     try {
-    //         const
-    //     }
-    // })
-
+    
     // Add feedBack given
     recipientRouter.put('/client/:id', async (req, res) => {
         try {
@@ -418,6 +412,7 @@ module.exports = (io) => {
             res.send("No image is removed!").end()
         }
     })
+
     // Edit booking address
     recipientRouter.put('/:id/editBookingAddress', async (req, res) => {
         const body = req.body
@@ -434,6 +429,7 @@ module.exports = (io) => {
             res.status({ error: err })
         }
     })
+
     // Edit booking status
 
     recipientRouter.put('/:id', async (req, res) => {
@@ -455,22 +451,6 @@ module.exports = (io) => {
         }
     });
 
-
-
-    /* router.put('/:id', async (req, res) => {
-        const body = req.body
-        const params = req.params;
-        console.log("Status: ", body)
-        try {
-            const updated = await Recipient.findByIdAndUpdate(
-                params.id, body, { new: true }
-            )
-    
-            res.status(200).send(updated)
-        } catch (err) {
-            console.log('Error: ', err)
-        }
-    }) */
 
     async function deleteBookingUploadsByIds(ids = []) {
         if (!ids.length) return 0;
@@ -583,7 +563,3 @@ module.exports = (io) => {
 
     return recipientRouter;
 }
-
-
-
-//module.exports = recipientRouter;
