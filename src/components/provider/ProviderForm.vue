@@ -18,7 +18,7 @@
             toast="danger"
             icon="fas fa-exclamation-circle fa-lg me-2"
         >
-          <template #title> TAPAHTUI VIRHE! </template>
+          <template #title> {{ t('providerForm.notifications.error_title') }} </template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
           <template #small></template>
           {{proFormErrorMsg}}
@@ -29,7 +29,7 @@
         <form @submit.prevent="submitPro">
           <div class="field-wrapper">
             <MDBInput
-                label="Anna yrityksen tai oma nimi *"
+                :label="t('providerForm.fields.company_name')"
                 v-model="pForm.proName"
                 id="yritys"
                 size="lg"
@@ -39,7 +39,7 @@
           </div>
           <div class="field-wrapper">
             <MDBInput
-                label="Anna yrityksen y-tunnus"
+                :label="t('providerForm.fields.business_id')"
                 v-model="pForm.ideNum"
                 id="ytunnus"
                 size="lg"
@@ -55,7 +55,7 @@
                   id="pro-location"
 
                   v-model="pForm.address"
-                  label="Anna osoite"
+                  :label="t('providerForm.fields.address')"
                   placeholder=""
                   wrapperClass="form-outline flex-grow-3"
                   :inputClass="'ps-0'"
@@ -77,14 +77,16 @@
           >
             <MDBSpinner grow color="info" />
           </div>
-          <p style="text-align: left; color: deepskyblue; font-size: 18px;">jos sädettä ei ole merkitty, se tarkoittaa, että tarjoat palvelua vain määritetyssä osoitteessa</p>
+          <p style="text-align: left; color: deepskyblue; font-size: 18px;">
+            {{ t('providerForm.help.radius_info') }}
+          </p>
           <div class="field-wrapper">
             <MDBInput
                 type="text"
 
                 :value="rangeValue"
                 @input="filterInput"
-                label="Anna toiminta-alueen säde - km"
+                :label="t('providerForm.fields.service_radius')"
                 v-model="range"
                 size="lg"
             />
@@ -99,7 +101,7 @@
                 filter optionLabel="label"
                 optionGroupLabel="label"
                 optionGroupChildren="items"
-                placeholder="Anna oma aammatti *"
+                :placeholder="t('providerForm.fields.profession')"
                 v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
                 class="w-full md:w-[30rem]"
 
@@ -127,18 +129,17 @@
 
           <div class="field-wrapper">
             <MDBRadio
-                label="Tuntihinta"
+                :label="t('providerForm.fields.hourly_price')"
                 name="aboutPrice"
                 v-model="about_price"
                 value="hour"
             />
           </div>
 
-          <!--        v-model="price"-->
           <div class="field-wrapper">
             <MDBInput
                 v-if="about_price === 'hour'"
-                label="Anna tuntihinta"
+                :label="t('providerForm.fields.hourly_price_input')"
                 type="text"
 
                 @input="filterInput"
@@ -150,18 +151,17 @@
 
           <div class="field-wrapper">
             <MDBRadio
-                label="Urakkahinta"
+                :label="t('providerForm.fields.fixed_price')"
                 name="aboutPrice"
                 v-model="about_price"
                 value="piece"
             />
           </div>
-<!--          style="width: 100%; color: #ddd; "-->
           <div class="field-wrapper">
             <MDBTextarea
                 maxlength="100"
                 v-model="proDescription"
-                label="Kirjuta siia midagi endast ja oma tegevusest..."
+                :label="t('providerForm.fields.description')"
             ></MDBTextarea>
             <span class="message-counter">{{ proDescription.length }} / 100</span>
           </div>
@@ -169,19 +169,16 @@
 
           <div class="field-wrapper">
             <MDBInput
-                label="Anna yrityksen kotisivun osoite jos on"
+                :label="t('providerForm.fields.website')"
                 size="lg"
                 v-model="pro_link"
 
             />
           </div>
 
-          <!-- <div class="field-wrapper">
-            <MDBCheckbox  label="Saatavilla 24/7"  v-model="isAvailable24_7" />
-          </div> -->
-
-
-          <MDBBtn color="primary" type="submit">Luo tili</MDBBtn>
+          <MDBBtn color="primary" type="submit">
+            {{ t('providerForm.buttons.create_account') }}
+          </MDBBtn>
         </form>
       </div>
 
@@ -192,6 +189,7 @@
 <script setup>
 import { MDBContainer, MDBInput, MDBBtn, MDBRadio, MDBTextarea, MDBCheckbox, MDBSpinner, MDBIcon, MDBToast } from 'mdb-vue-ui-kit';
 import Select from 'primevue/select';
+import { useI18n } from 'vue-i18n';
 import { useLoginStore } from "@/stores/login.js";
 import { useRouter } from 'vue-router';
 import { useProStore } from '@/stores/providerStore.js';
@@ -201,6 +199,7 @@ import proService from '../../service/providers.js'
 import axios from "axios";
 import ToastHandler from '../helpers/ToastHandler.vue';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
+//import i18n from '../controllers/i18n.js';
 defineOptions({
   name: 'provider-form'
 })
@@ -215,21 +214,21 @@ const pForm = reactive({
 });
 
 const router = useRouter();
+const { t } = useI18n();
 const proAuth = useLoginStore();
 const proStore = useProStore();
 const pfErrors = reactive({});
 const isProAddress = ref(false);
 const isInitProError = ref(false);
 const proFormErrorMsg = ref("");
-//const proName = ref("");
-//const ideNum = ref("");
+
 const rangeValue = ref(null);
 const professions = proList;
-//const profession = ref("");
+
 const lat = ref(0);
 const long = ref(0);
 const range = ref("");
-//const pAddress = ref("");
+
 const about_price = ref("hour");
 const proDescription = ref("");
 const price = ref("");
@@ -269,10 +268,10 @@ const pro_link = ref(null);
 const isAvailable24_7 = ref(false);
 
 const validateProForm = () => {
-  pfErrors.proName = pForm.proName ? "" : "Nimi on pakollinen!";
-  pfErrors.ideNum = pForm.ideNum ? "" : "Ident num on pakollinen!";
-  pfErrors.profession = pForm.profession ? "" : "Ammatti on pakollinen!";
-  pfErrors.address = pForm.address ? "" : "Osoite on pakollinen!";
+  pfErrors.proName = pForm.proName ? "" : t('providerForm.validations.name_required');
+  pfErrors.ideNum = pForm.ideNum ? "" : t('providerForm.validations.business_id_required');
+  pfErrors.profession = pForm.profession ? "" : t('providerForm.validations.profession_required');
+  pfErrors.address = pForm.address ? "" : t('providerForm.validations.address_required');
 
   return !pfErrors.proName && !pfErrors.ideNum && !pfErrors.profession && !pfErrors.address;
 }
@@ -282,7 +281,7 @@ watch(() => pForm.ideNum, () => (pfErrors.ideNum = ""));
 watch(() => pForm.profession, () => (pfErrors.profession = ""));
 watch(() => pForm.address, () => (pfErrors.address = ""));
 
-const isLocating = ref(false)                     // used to show the spinner
+const isLocating = ref(false)
 
 onMounted(async() => {
   await handleMaps();
@@ -328,7 +327,7 @@ const handleMaps = async() => {
     toastModel.value = true;
     toastState.value = 'danger'
     toastIcon.value = "fas fa-check fa-lg me-2";
-    toastContent.value = 'Google Maps failed to load ❌. Check internet connection!'
+    toastContent.value = t('providerForm.notifications.google_maps_failed')
     mapsError.value = true;
   }
 }
@@ -387,7 +386,7 @@ const submitPro = async() => {
   if (!validateProForm()) {
     console.log("Some error! " + pfErrors);
 
-    proFormErrorMsg.value = "Form kentät pitää huomioida!";
+    proFormErrorMsg.value = t('providerForm.notifications.form_fields_required');
     isInitProError.value = true;
   } else {
     console.log("Provider is created!")
@@ -414,7 +413,7 @@ const submitPro = async() => {
       proStore.createPro(newProvider);
       router.push("/admin/provider");
     } else {
-      console.log("Tapahtui virhe, yritä uudelleen!");
+      console.log(t('providerForm.notifications.provider_create_failed'));
     }
   }
 }

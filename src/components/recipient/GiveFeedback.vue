@@ -68,7 +68,7 @@ import clientHistoryService from '../../service/client_history';
 import providerHistoryService from '../../service/provider_history';
 
 const props = defineProps({
-  providerId: {type: String},
+  //providerId: {type: String},
   target: {type: String},
   booking_id: {type: String}
 })
@@ -106,62 +106,68 @@ function formatDateTime(iso) {
 }
 
 
-const handleArchiveClient = async () => {
-  const booking = clientStore.getBookingById(props.booking_id);
-  const provider = await providerService.getProvByProvId(props.providerId);
+const handleArchiveClient = async (booking, provider) => {
+  
+
   const clientName = profile.value.firstName + " " + profile.value.lastName;
-  if (booking && provider) {
-    const providerHistory = {
-      name: clientName,
+
+  //if (booking && provider) {
+  const providerHistory = {
+    name: clientName,
+    header: booking.header,
+    content: booking.description,
+    address: booking.address,
+    distance: booking.offer.distance,
+    date: booking.created,
+    //userID: provider.user.id
+    userID: props.target
+  }
+
+  const clientHistory = {
+      status: "",
       header: booking.header,
-      content: booking.description,
-      address: booking.address,
-      distance: booking.offer.distance,
-      date: booking.created,
-      userID: provider.user.id
+      proID: provider.id,
+      company:  provider.pName,
+      id_number:  provider.ide,
+      rating: provider.rating,
+      address:  provider.address,
+      date:  booking.created,
+      professional:  provider.profession,
+      deal: booking.offer,
+      bookerId: profile.value.id
     }
 
-    const clientHistory = {
-        status: "",
-        header: booking.header,
-        proID: props.providerId,
-        company:  provider.pName,
-        id_number:  provider.ide,
-        rating: provider.rating,
-        address:  provider.address,
-        date:  booking.created,
-        professional:  provider.profession,
-        deal: booking.offer,
-        bookerId: profile.value.id
-      }
+    const complitedClientBooking = await clientHistoryService.updateClientHistory(clientHistory);
+    const complitedBooking = await providerHistoryService.updateProHistory(providerHistory);
 
-      const complitedClientBooking = await clientHistoryService.updateClientHistory(clientHistory);
-      const complitedBooking = await providerHistoryService.updateProHistory(providerHistory);
+    if (complitedClientBooking) cArchiveStore.addArchievedClientLocal(complitedClientBooking);
+    if (complitedBooking) {
+      pArchiveStore.archiveProviderLocal(complitedBooking);
+      console.log("ID " + complitedBooking.id);
+      providerHistory.id = complitedBooking.id;
+      await clientStore.handleGivenFeedback(props.booking_id, props.target, providerHistory, 'archived');
+    } 
 
-      if (complitedClientBooking) cArchiveStore.addArchievedClientLocal(complitedClientBooking);
-      if (complitedBooking) {
-        pArchiveStore.archiveProviderLocal(complitedBooking);
-        console.log("ID " + complitedBooking.id);
-        providerHistory.id = complitedBooking.id;
-        await clientStore.handleGivenFeedback(props.booking_id, props.target, providerHistory, 'archived');
-      } 
+    console.log("Client archive - ", complitedClientBooking);
 
-      console.log("Client archive - ", complitedClientBooking);
-
-  }
+  //}
   
 }
 
-
-
-
 const handleConfirmRating = async () => {
-  console.log("Confirm feedback PROVIDER - ", props.providerId);
+  const booking = clientStore.getBookingById(props.booking_id);
+  //const provider = await providerService.getProvByProvId(props.providerId);
+  const provider = await providerService.getProvider(props.target);
+
   console.log("TARGET " + props.target)
   console.log("Booking id in feedback page " + props.booking_id);
 
+  if (!booking && !provider) return;
+
+  console.log("Confirm feedback PROVIDER - ", provider.id);
+
   try {
-    const rated = await providerService.setRating(props.providerId, {
+    const rated = await providerService.setRating(provider.id, {
       star: Number(rating.value.toFixed(1)),
       content: {
         date: new Date().toISOString(),
@@ -171,7 +177,7 @@ const handleConfirmRating = async () => {
     });
 
     if (rated) {
-      await handleArchiveClient();
+      await handleArchiveClient(booking, provider);
       
       emit('rating-done');
     }

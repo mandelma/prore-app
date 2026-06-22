@@ -18,11 +18,11 @@
         </div>
 
         <h2 class="confirm-title" :id="titleId">
-          {{ title }}
+          {{ modalTitle }}
         </h2>
 
         <p class="confirm-message" :id="descriptionId">
-          {{ message }}
+          {{ modalMessage }}
         </p>
 
         <div class="confirm-actions">
@@ -31,7 +31,7 @@
             class="btn btn-cancel"
             @click="onCancel"
           >
-            {{ cancelText }}
+            {{ modalCancelText }}
           </button>
 
           <button
@@ -40,7 +40,7 @@
             :class="{ danger }"
             @click="onConfirm"
           >
-            {{ confirmText }}
+            {{ modalConfirmText }}
           </button>
         </div>
       </div>
@@ -50,6 +50,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
@@ -58,19 +59,19 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Confirm action',
+    default: '',
   },
   message: {
     type: String,
-    default: 'Are you sure you want to continue?',
+    default: '',
   },
   confirmText: {
     type: String,
-    default: 'Confirm',
+    default: '',
   },
   cancelText: {
     type: String,
-    default: 'Cancel',
+    default: '',
   },
   closeOnOverlay: {
     type: Boolean,
@@ -92,30 +93,38 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
 
+const t = useI18n();
+
+const modalTitle = computed(() => props.title || t('confirmModal.title'))
+const modalMessage = computed(() => props.message || t('confirmModal.message'))
+const modalConfirmText = computed(() => props.confirmText || t('confirmModal.confirm'))
+const modalCancelText = computed(() => props.cancelText || t('confirmModal.cancel'))
+
+
 const titleId = computed(() => `confirm-title-${Math.random().toString(36).slice(2, 9)}`)
 const descriptionId = computed(() => `confirm-desc-${Math.random().toString(36).slice(2, 9)}`)
 
-function close() {
+const close = () => {
   emit('update:modelValue', false)
 }
 
-function onConfirm() {
+const onConfirm = () => {
   emit('confirm')
   close()
 }
 
-function onCancel() {
+const onCancel = () => {
   emit('cancel')
   close()
 }
 
-function handleOverlayClick() {
+const handleOverlayClick = () => {
   if (props.closeOnOverlay) {
     onCancel()
   }
 }
 
-function handleKeydown(event) {
+const handleKeydown = (event) => {
   if (props.modelValue && props.closeOnEsc && event.key === 'Escape') {
     onCancel()
   }

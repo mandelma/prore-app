@@ -4,10 +4,10 @@
       <MDBBtnClose white @click="router.go(-1)" />
     </div>
     <div class="photos__header">
-      <h6 class="section-title">Referenssit</h6>
+      <h6 class="section-title">{{ t('photoGallery.references') }}</h6>
       <div style="display: flex; gap: 5px;">
-        <MDBBtn color="primary" @click="openFilePicker"><MDBIcon icon="plus" class="me-1" /> Lisää</MDBBtn>
-        <MDBBtn v-if="reference?.length" color="success" @click="handleEditBtn" >Muokkaa</MDBBtn>
+        <MDBBtn color="primary" @click="openFilePicker"><MDBIcon icon="plus" class="me-1" />{{ t('photoGallery.add') }}</MDBBtn>
+        <MDBBtn v-if="reference?.length" color="success" @click="handleEditBtn" >{{ t('photoGallery.edit') }}</MDBBtn>
       </div>
       
       <input
@@ -46,17 +46,10 @@
                         class="px-1"
                     >
                         <div class="lightbox-thumb">
-                          
-                          <!-- <MDBLightboxItem
-                              :src="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
-                              :fullScreenSrc="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
-                              caption="xxx"
-                              alt="Pro reference"
-                          /> -->
                           <MDBLightboxItem
                               :src="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
                               :fullScreenSrc="image.imageUrl || image.imageId?.imageUrl || image.previewUrl"
-                              :caption="image.text || 'Kuva palvelusta'"
+                              :caption="image.text || t('photoGallery.service_photo')"
                               alt="Pro reference"
                           >
                           
@@ -77,8 +70,8 @@
         </div>
 
         <div v-else class="empty-state">
-          <p class="text-muted small no-images">Ei vielä kuvia</p>
-          <p class="empty-state__text">Lisää kuvia palvelustasi  asiakkaille näkyviksi.</p>
+          <p class="text-muted small no-images">{{ t('photoGallery.no_images') }}</p>
+          <p class="empty-state__text">{{ t('photoGallery.empty_text') }}</p>
         </div>
       </div>
     </div>
@@ -90,10 +83,6 @@
       <div>
         <div class="photos">
           <div class="photos__header">
-            <!-- <h5 class="section-title">Kuvat</h5>
-            <button class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
-              Lisää kuvia
-            </button> -->
             <input
               ref="fileInput"
               class="sr-only"
@@ -112,7 +101,7 @@
             />
           </div>
 
-          <!-- (Optional) dropzone -->
+          <!-- dropzone -->
           <div
             class="dropzone"
             @dragenter.prevent="onDragEnter"
@@ -121,8 +110,8 @@
             @drop.prevent="onDrop"
             :class="{ 'dropzone--active': isDragOver }"
           >
-            <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
-            <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+            <p class="dropzone__title">{{ t('photoGallery.dropzone_title') }}</p>
+            <p class="dropzone__text">{{ t('photoGallery.dropzone_text') }}</p>
           </div>
 
           <div v-if="draft.reference?.length" class="photos-grid">
@@ -132,27 +121,23 @@
               class="photo-card"
             >
               <div class="photo-media">
-                <img class="photo-img" :src="image.imageUrl || image.previewUrl" :alt="image.alt || 'Reference photo'" />
-                <!-- <textarea
-                  v-model="image.text"
-                  class="photo-caption"
-                  placeholder="Add a note..."
-                ></textarea> -->
+                <img class="photo-img" :src="image.imageUrl || image.previewUrl" :alt="image.alt || t('photoGallery.reference_photo')" />
+                
                 <div class="photo-overlay">
-                  <textarea v-model="image.text" placeholder="Lisää kuvaus..." />
+                  <textarea v-model="image.text" :placeholder="t('photoGallery.description_placeholder')" />
                 </div>
               </div>
               
               <figcaption class="photo-actions">
                 
-                <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="Replace">
+                <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="t('photoGallery.replace')">
                   ♻️
                 </button>
                 <button
                   class="icon-btn icon-btn--danger"
                   type="button"
                   @click="removeDraftPhoto(idx)"
-                  aria-label="Delete"
+                  aria-label="t('photoGallery.delete')"
                 >
                   🗑️
                 </button>
@@ -162,9 +147,9 @@
         </div>
 
         <div class="actions">
-          <MDBBtn color="danger"  @click="cancelEdits">Peruuta</MDBBtn>
+          <MDBBtn color="danger"  @click="cancelEdits">{{ t('photoGallery.cancel') }}</MDBBtn>
           
-          <MDBBtn color="primary" type="submit" :disabled="!isDirty">Tallenna muutokset</MDBBtn>
+          <MDBBtn color="primary" type="submit" :disabled="!isDirty">{{ t('photoGallery.save_changes') }}</MDBBtn>
           
         </div>
         
@@ -179,6 +164,7 @@
 <script setup>
   import {MDBContainer, MDBCard, MDBCardBody, MDBIcon, MDBRow, MDBCol, MDBBtn, MDBLightbox, MDBLightboxItem, MDBBtnClose} from 'mdb-vue-ui-kit';
   import { ref, watch, computed, nextTick, onMounted } from 'vue';
+  import { useI18n } from 'vue-i18n';
   import { useRouter, useRoute } from 'vue-router';
   import { storeToRefs } from 'pinia';
   import { useProStore } from '@/stores/providerStore';
@@ -190,7 +176,7 @@
   
   
   const proStore = useProStore();
-
+  const { t } = useI18n();
   const { referenceNavImages, reference } = storeToRefs(proStore);
   const router = useRouter();
   const route = useRoute();
@@ -374,22 +360,6 @@
     }
   }
 
-
-  /* function addFiles__(files) {
-    if (!draft.value) return;
-    draft.value.reference ||= [];
-
-    for (const file of files) {
-      draft.value.reference.push({
-        imageId: null,
-        imageUrl: null,
-        previewUrl: URL.createObjectURL(file),
-        file,
-        slotId: crypto.randomUUID()
-      });
-    }
-  } */
-
   function addFiles(files) {
     if (!draft.value) return;
     draft.value.reference ||= [];
@@ -454,15 +424,6 @@ const uploadDraftPhotos = async () => {
   const uploaded = res?.files ?? [];      // ✅ never undefined
   return { pending, uploaded };
 }
-
-/* const buildPayload__ = () => {
-  return {
-    reference: (draft.value.reference || [])
-      .map(p => p.imageId)
-      .filter(Boolean),
-    removedPhotoIds: removedPhotoIds.value.filter(Boolean),
-  };
-} */
 
 const buildPayload = () => {
   return {
@@ -655,12 +616,7 @@ const savePhotos = async () => {
   bottom: 0;
 
   background: rgba(0, 0, 0, 0.5);
-  /* background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8),
-    rgba(0, 0, 0, 0.2),
-    transparent
-  ); */
+
   padding: 6px;
   border-radius: 0 0 8px 8px;
   font-size: 13px;
@@ -668,7 +624,7 @@ const savePhotos = async () => {
 
 .photo-overlay p {
   display: -webkit-box;
-  -webkit-line-clamp: 3;   /* max 3 lines */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden  ;
   
@@ -697,11 +653,6 @@ const savePhotos = async () => {
 }
 
 .photo-actions {
-  /* display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px;
-  background: #fff; */
   display: flex; 
   gap: 8px;
   padding: 8px;

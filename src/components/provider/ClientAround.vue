@@ -3,11 +3,10 @@
   
 <div id="map-container">
   <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 17px;">
-    <!-- v-if="isMainPanel" -->
     <div v-if="isMainPanel" class="pro-map-panel">
       
       <div style="display: flex; justify-content: space-between;">
-        <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">Päivitä</p>
+        <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">{{ t('clientAround.refresh') }}</p>
         <div style="display: flex; justify-content: right;">
           <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
             <i class="fas fa-expand-arrows-alt"></i>
@@ -29,7 +28,7 @@
           <MDBInput
               size="sm"
               v-model="address"
-              label="Osoitteeni"
+              :label="t('clientAround.address')"
               id="pro-input"
               placeholder=""
               wrapperClass="form-outline flex-grow-3"
@@ -44,8 +43,6 @@
         </div>
       </div>
 
-      
-
       <div class="proselect-wrapper">
         <div>
           <Select
@@ -56,7 +53,7 @@
               filter optionLabel="label"
               optionGroupLabel="label"
               optionGroupChildren="items"
-              placeholder="Valitse ammattisi *"
+              :placeholder="t('clientAround.select_profession')"
               showClear
               v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
               class="w-full md:w-[30rem]"
@@ -81,14 +78,34 @@
           </Select>
         </div>
       </div>
-
       
       <div v-show="hasProfession" style="margin-top: 13px;">
-        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions label="Etsi etäisyys" id="client-dist"/>
+        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions :label="t('clientAround.search_distance')" id="client-dist"/>
       </div>
       
-      <div v-if="isClients" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
-        <p class=" semibold">Löydetyt asiakkaat - {{ selectedClientsCount }}</p>
+      <!-- <div v-if="isClients" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
+        <p class=" semibold"> {{ t('clientAround.found_clients') }} - {{ selectedClientsCount }}</p>
+      </div>
+      <div v-else-if="!isClients && selectedRange" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
+        <p>No clients</p>
+      </div> -->
+
+      <div
+        v-if="hasProfession && selectedRange !== null && selectedClientsCount === 0"
+        class="empty-clients"
+      >
+        <p class="empty-title">
+          {{ t('clientAround.no_clients_found') }}
+        </p>
+        <p class="empty-text">
+          {{ t('clientAround.try_adjust_filters') }}
+        </p>
+      </div>
+      <div 
+        v-else-if="hasProfession && selectedRange !== null && selectedClientsCount > 0"
+        class="has-clients"
+      >
+        <p class="client-info"> {{ t('clientAround.found_clients') }} - {{ selectedClientsCount }}</p>
       </div>
       
         
@@ -100,13 +117,10 @@
       class="open-panel-btn"
       @click="isMainPanel = true"
     >
-      Paneeli
+      {{ t('clientAround.panel') }}
     </MDBBtn>
     
   </div>
-
-  
-  
 
   <div style="padding: 13px 0 20px 0;">
     <MDBToast
@@ -132,27 +146,24 @@
 
     <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
       <div class="location-error-box">
-        Sijaintia ei voitu hakea.
+        {{ t('clientAround.location_error') }}
       </div>
     </div>
 
     <div v-show="!!startPos" id="map"></div>
 
     <div v-if="!!startPos && isLocating" class="locating-badge">
-      Päivitetään sijaintia...
+      {{ t('clientAround.updating_location') }}
     </div>
   </div>
-  <!-- <div id="map"></div>
   
-  <div id="spinner" class="spinner-overlay">
-    <div class="spinner"><img :src="spinner_world" alt="from_map" /></div>
-  </div> -->
 </div>
 
 </template>
 <script setup>
 import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
+import { useI18n } from 'vue-i18n';
 import { ref, onMounted, watch, computed, reactive, nextTick } from 'vue';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
@@ -171,6 +182,7 @@ defineOptions({
 })
 
 const mapStore = useMapStore();
+const {t} = useI18n();
 const clientStore = useClientStore();
 const auth = useLoginStore();
 const providerStore = useProStore();
@@ -225,8 +237,6 @@ let lastMapState = {
   center: null,
 };
 
-//const hasProfession = computed(() => !!profession.value?.label);
-
 function setRange(val) {
   selectedRange.value = val;
   rangeOptions.forEach(o => (o.selected = o.value === val));
@@ -252,16 +262,6 @@ const hasProfession = computed(() => {
 
   return false;
 });
-
-/* watch(isMapLoaded, (ready) => {
-  if (ready) {
-    console.log("Ready? " + ready)
-    watch(selectedRange, (newVal) => {
-      console.log("Dist is changed ", newVal);
-      showClientLocationOnTheMap(profession.value.label, newVal)
-    }, { immediate: true })
-  }
-}) */
 
 watch(
   userPos,
@@ -320,7 +320,6 @@ watch(selectedRange, (range) => {
 });
 
 onMounted (async () => {
-  //await handleMaps();
   try {
     const initPromise = mapStore.init()
 
@@ -400,18 +399,14 @@ const handleMaps = async() => {
       componentRestrictions: { country: "fi" },
       fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
       strictBounds: false,
-      //types: ["establishment"],
     };
-    const autocomplete = new google.maps.places.Autocomplete(input, options)
-    //const autocomplete = client.places.Autocomplete(input, options);
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
 
     autocomplete.addListener("place_changed", () => {
       let place = autocomplete.getPlace()
       myLat.value = place.geometry.location.lat();
       myLng.value = place.geometry.location.lng();
 
-      // getAddressFrom(place.geometry.location.lat(), place.geometry.location.lng())
-      //address.value = place.formatted_address;
       console.log("Address xxxx " + place.formatted_address)
       console.log("place-----lat------" + myLat.value)
     });
@@ -539,7 +534,7 @@ const showUserMarker = (lat, lng) => {
     userMarker = new google.maps.Marker({
       position: { lat, lng },
       map,
-      title: "Sinu asukoht",
+      title: "" /* t('clientAround.your_location') */,
       icon: circleMarker('orange')
     });
   } else {
@@ -581,7 +576,7 @@ const addClientMarker = (client, inner_color, outer_color) => {
       lng: Number(client.longitude)
     },
     map,
-    title: "Tarvitaan " + client.professional[0],
+    title: ""/* t('clientAround.client_marker_title') + client.professional[0] */,
     /* icon: pinSymbol(inner_color, outer_color) */
     icon: starMarker('#E23C89')
   });
@@ -633,20 +628,6 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
     if (!el) throw new Error('Map container #map not found');
     if (!(el instanceof HTMLElement)) throw new Error('Map container is not an HTMLElement');
 
-
-    
-
-    // 3) Create the map only once, then add listeners
-    //const map = new google.maps.Map(el, { center: {lat: 60.17, lng: 24.94}, zoom: 12 });
-
-    /* map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 13,
-      center: new google.maps.LatLng(latitude, longitude),
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      accuracy: 50,
-
-    }); */
-
     if (!map) {
       map = new google.maps.Map(document.getElementById("map"), {
         zoom: 13,
@@ -661,7 +642,7 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
 
     const spinner = document.getElementById("spinner");
 
-    // 4) Add listeners only on defined targets
+    // Add listeners only on defined targets
     google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
       console.log('tiles loaded');
       spinner.style.opacity = "0";
@@ -676,14 +657,11 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
 }
 // Siis kui sisestada käsitsi aadress
 const getAddressFrom = (lat, long) => {
-  //const client = new Client({});
   axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
       "," + long
       + "&key=" + import.meta.env.VITE_APP_MAP_KEY)
       .then(response => {
         if (response.data.error_message) {
-          //this.error = response.data.error_message;
-
           console.log(response.data.error_message)
         } else {
           map = new google.maps.Map(document.getElementById("map"), {
@@ -697,7 +675,6 @@ const getAddressFrom = (lat, long) => {
 
       })
       .catch(error => {
-        //this.error = error.message
         console.log(error.message)
       })
 }
@@ -707,7 +684,6 @@ const clearAddress = () => {
   address.value = '';
 }
 const showClientLocationOnTheMap = async(profession, dist) => {
-
 
   const recipients = await recipientService.getRecipients()
   const activeRecipients = recipients.filter(client => client.status !== 'archived');
@@ -721,16 +697,8 @@ const otherUserLocations = (recipients, profession, dist) => {
   if (!window.google || !window.google.maps) return
   if (!map) return
   if (myLat.value == null || myLng.value == null) return
-
-  
+ 
   clearClientMarkers()
-
-
- /*  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 9,
-    center: new google.maps.LatLng(myLat.value, myLng.value),
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  }); */
   
   console.log("Users count: " + recipients.length);
   console.log("Current distance " + dist)
@@ -740,55 +708,31 @@ const otherUserLocations = (recipients, profession, dist) => {
     let recipientCount = [];
     for (let pos = 0; pos < recipients.filter(client => client.status === 'active').length; pos++) {
 
-      //console.log("Client latitude: " + recipient[pos].latitude)
-      //console.log("Client longitude: " + recipient[pos].longitude)
-
       recipients[pos].professional.forEach(prof => {
         if (prof === profession) {
-          //this.countOfSelectedClient++;0,2
           console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude));
-          //this.isActiveClients = true;
-          // Removing same user bookings with same profeccional to display only one user
+          
           if (!recipientCount.includes(recipients[pos].user))
             recipientCount.push(recipients[pos].user);
 
-          //count = recipientCount.length;
-
-
-
           if (distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude) <= dist) {
             count ++;
-            //count = recipientCount.length + 1;
-            
             addClientMarker(recipients[pos], 'green', 'green');
-            /* new google.maps.Marker({
-              position: new google.maps.LatLng(recipients[pos].latitude, recipients[pos].longitude),
-              accuracy: 50,
-              map: map,
-              title: "Tarvitaan " + recipients[pos].professional[0],
-              label: { color: '#f79859',  fontWeight: 'bold', fontSize: '11px', text: "Tarvitaan " + recipients[pos].professional[0]}
-            }) */
+            
           }
-
         }
       })
 
     }
 
     if (count > 0) {
-      //this.isActiveClients = true;
       isClients.value = true;
       console.log("There are some recipients")
     } else {
-      //this.isActiveClients = false;
       isClients.value = false;
       console.log("There are not any recipient")
     }
     selectedClientsCount.value = count;
-    //this.countOfSelectedClients = count;
-    //this.identifyClientText();
-    //console.log("Count " + this.countOfSelectedClients)
-
   }
 
 }
@@ -796,7 +740,6 @@ const otherUserLocations = (recipients, profession, dist) => {
 const changedProfession = () => {
       console.log("Changed in pro " + profession.value?.label);
       currentProfession.value = profession.value?.label;
-      //isDistSelection.value = true;
 }
 
 const refreshMapState = async() => {
@@ -865,8 +808,6 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
   animation: spin 1s linear infinite;
 }
 
-
-
 .location-error-box {
   color: white;
   background: rgba(255, 255, 255, 0.08);
@@ -885,31 +826,6 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
   border-radius: 999px;
   font-size: 13px;
 }
-
-/* #map-container {
-  width: 100%;
-}
-
-#map {
-  position: absolute;
-  top: 60px;
-  right: 0;
-  bottom: 50px;
-  left: 0;
-} */
-
-/* #map-container{
-  
-  position: relative;
-  width: 100%;
-  height: calc(100vh - 110px);
-  overflow: hidden;
-}
-
-#map{
-  position: absolute;
-  inset: 0;
-} */
 
 .pro-map-panel {
   /* background-color: #1B2330; */
@@ -933,6 +849,40 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
   z-index: 2;
 }
 
+/* Info about find clients */
+.empty-clients {
+  margin-top: 13px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f4f6;
+  text-align: left;
+}
+
+.empty-title {
+  /* margin: 0 0 4px; */
+  font-weight: 600;
+}
+
+.has-clients {
+  margin-top: 13px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f4f6;
+  text-align: left;
+}
+.client-info {
+  /* margin: 0 0 4px; */
+  font-weight: 600;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
 @media only screen and (max-width: 1000px) {
   .pro-map-panel {
     background-color: #1B2330;
@@ -954,47 +904,6 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 .hideSelect {
   display: none;
 }
-
-/* Overlay spinner */
-/* .spinner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #0b1618;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-} */
-
-/* .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #ccc;
-  border-top-color: #4285f4;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-} */
-
-/* .spinner {
-  width: 37px;
-} */
-
-/* .spinner-overlay{
-  position: absolute;
-  inset: 0;
-  background: #0b1618;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.spinner{
-  width: 57px;
-} */
 .spinner img{
   display:block;
   width:100%;

@@ -26,16 +26,6 @@ export const useLoginStore = defineStore('login', () => {
         token.value = payload.token ?? null;
         localStorage.setItem('loggedAppUser', JSON.stringify(payload));
 
-        const proStore = useProStore();
-
-        try {
-            await proStore.getProState(payload.id);
-        } catch (e) {
-            // no provider found, stay normal user
-            console.log("No provider for this user");
-        }
-
-
         const target = route.query.redirect || "/";
         await router.replace(target);
     }

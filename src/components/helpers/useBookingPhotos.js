@@ -44,7 +44,7 @@ export function useBookingPhotos(initialPhotos = ref([])) {
         return signature(draftPhotos.value) !== signature(addedPhotos.value);
     });
 
-    function addFiles(files) {
+    const addFiles = (files) => {
         for (const file of files) {
             draftPhotos.value.push({
                 imageId: null,

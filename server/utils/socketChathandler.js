@@ -1,6 +1,6 @@
 const { Conversation, Message } = require('../models/chat')
 
-const onlineUsers = new Map(); // userId -> socket.id[]
+const onlineUsers = new Map();
 
 const hsc = (io, socket) => {
     socket.on("join-conversation", ({ conversationId }) => {
@@ -8,7 +8,6 @@ const hsc = (io, socket) => {
     });
 
     // For display users online - offline
-
     const userId = String(socket.userId);
     socket.join(`user:${userId}`);
 
@@ -20,10 +19,10 @@ const hsc = (io, socket) => {
     if (!onlineUsers.has(userId)) onlineUsers.set(userId, []);
     onlineUsers.get(userId).push(socket.id);
 
-    // Notify everyone that user is now online
+    // Notifying everyone that user is now online
     io.emit("user:online", userId);
 
-    // Send initial list JUST to the connected user
+    // Sending initial list JUST to the connected user
     socket.emit("online:list", [...onlineUsers.keys()]);
 
     socket.on("disconnect", () => {
@@ -41,47 +40,9 @@ const hsc = (io, socket) => {
         const participants = convo.participantIds.map(String);
 
         socket.to(otherUserId).to(socket.userId).emit('conversation-upsert', convo);
-        /* participants.forEach((pid) => {
-            //io.to(`user:${pid}`).emit("conversation-upsert", updatedConvo);
-            socket.to(pid).to(socket.userId).emit('conversation-upsert', convo);
-        }); */
+        
     })
 
-
-    /* socket.on("send-message", async ({ conversationId, text, attachments }) => {
-        // 1) Save message in DB
-        const msg = await Message.create({
-            conversationId,
-            senderId: socket.userId, // set from auth middleware
-            text,
-            attachments,
-            createdAt: new Date(),
-        });
-
-        // 2) Update conversation lastMessageAt + unread for others
-        const convo = await Conversation.findById(conversationId);
-        const participants = convo.participantIds.map(String);
-
-        const unreadUpdate = {};
-        for (const pid of participants) {
-            if (pid !== String(socket.userId)) unreadUpdate[`unread.${pid}`] = (convo.unread?.[pid] || 0) + 1;
-        }
-
-        const updatedConvo = await Conversation.findByIdAndUpdate(
-            conversationId,
-            { $set: { lastMessageAt: msg.createdAt, updatedAt: msg.createdAt }, $inc: unreadUpdate },
-            { new: true }
-        ).lean();
-
-        // 3) Emit message to room
-        io.to(`convo:${conversationId}`).emit("message:new", msg);
-
-        
-        participants.forEach((pid) => {
-            //io.to(`user:${pid}`).emit("conversation-upsert", updatedConvo);
-            socket.to(pid).to(socket.userId).emit('conversation-upsert', updatedConvo);
-        });
-    }); */
 }
 
 module.exports = hsc;

@@ -21,6 +21,7 @@ const hs = (socket) => {
         console.log("Receiver ++ " + receiver);
         socket.to(receiver).to(socket.userId).emit('handle-pro-remove-public-offer', bookingId)
     })
+
     // Provider created offer
     socket.on('client get offer', (addressee, clientID, offer) => {
             console.log("Offer to client " + offer.name);
@@ -33,7 +34,6 @@ const hs = (socket) => {
     })
 
 
-    // See tuleb üle vaadata kas eksisteerib!!
     socket.on("client made request", (receiver, bookingId) => {
         console.log("Request: " + receiver + " - " + bookingId);
         socket.to(receiver).to(socket.userId).emit('handle client request', {bookingId});
@@ -101,11 +101,6 @@ const hs = (socket) => {
         socket.to(receiverId).to(socket.userId).emit('handle-client-report', report);
     })
 
-
-    /* socket.on('pro-confirm-client', (receiver, providerId) => {
-        console.log("Receiver --- ", receiver);
-        socket.to(receiver).emit('handle-pro-confirm-client', providerId);
-    }) */
 
     /* Archieve */
     socket.on('booking-done', (bookingId, target) => {

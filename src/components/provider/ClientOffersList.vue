@@ -15,9 +15,9 @@
         <template #title>PROKEIKKATORI</template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
-        Luotto on vanhentunut, et voi enää toimia!
+          {{ t('clientOfferList.credit_expired') }}
         <div style="float: right; padding: 10px;">
-          <MDBBtn color="danger" @click="addCredit">Lisää luottoa</MDBBtn>
+          <MDBBtn color="danger" @click="addCredit">{{ t('clientOfferList.add_credit') }}</MDBBtn>
         </div>
       
       </MDBToast>
@@ -46,7 +46,7 @@
                 <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
 
                 {{booking.isIncludeOffers ? ( booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId)
-                    ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
+                    ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.confirm_order')}}
                 </span>
                 
               </span>
@@ -54,7 +54,13 @@
             </span>
             
             <div v-if="booking?.disabled" style=" padding-top: 33px;">
-              <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">Valmis</strong></p>
+              <p style="color: red">{{ t('clientOfferList.booking_removed', {
+                  name: booking.user.firstName
+                }) }}&nbsp; &nbsp;
+                <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}
+
+                </strong>
+              </p>
             </div>
             <MDBCollapse
                 v-if="booking.id === bookingID"
@@ -74,14 +80,12 @@
                     @just-test="hJustTest"
                     @toast="payload => {console.log('child received', payload); emit('toast', payload)}"
                 />
-
                 
               </div>
             </MDBCollapse>
             
           </div>
           
-
           <div v-else class="booking-row-seen">
             <div class="line">
               <span class="left-item">
@@ -104,7 +108,7 @@
                   <!-- {{booking.header.length < HEADER_LENGTH ? booking.header : booking.header.substr(0, HEADER_LENGTH) + "..."}} -->
                   
                   <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
-                    {{booking.isIncludeOffers ? (booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId) ? "Tarjous lähetetty" : "Tee tarjous")  : "Varmista tilaus"}}
+                    {{booking.isIncludeOffers ? (booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId) ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.confirm_order')}}
                   </span>
 
                 </span>
@@ -112,7 +116,7 @@
               </span>
               
               <div v-if="booking?.disabled" style=" padding-top: 33px;">
-                <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">Valmis</strong></p>
+                <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}</strong></p>
                 
               </div>
 
@@ -128,11 +132,12 @@
               <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
                     :open="childOpen"
-
+                    
                     :is-disabled="booking?.disabled"
                     
                     :client="client"
                     
+                    @handle-user-action="$emit('handle-user-action', $event)"
                     @open-chat="$emit('open-chat', $event)"
                     @toast="toastForward"
                 />
@@ -140,7 +145,6 @@
               </div>
             </MDBCollapse>
           </div>
-
 
         </div>
 
@@ -160,8 +164,6 @@
           <!-- <template #small> 11 mins ago </template> -->
           {{ confirmedOrderMessage }}
         </MDBToast>
-        <!-- <p style="text-align: right; color: forestgreen; padding-bottom: 50px;" @click="quitBookingOffers">Poistu</p>
-        <h2>Ei tarjouksia!</h2> -->
       </div>
 
     </div>
@@ -171,6 +173,7 @@
 <script setup>
 import {MDBContainer, MDBRow, MDBCol, MDBToast, MDBBtn, MDBBtnClose, MDBCollapse} from'mdb-vue-ui-kit';
 import {ref, toRefs, onMounted, onBeforeUnmount, provide, computed, nextTick} from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useProStore } from '@/stores/providerStore.js';
@@ -182,11 +185,7 @@ defineOptions({
   name: 'client-offers-list'
 });
 
-/* defineProps({
-  clients: { type: Array, default: () => [] }
-}); */
 const clientStore = useClientStore();
-// credit: {type: Number}
 const _props = defineProps({
   clients: { type: Array, default: () => [] },
   isPro: {type: Boolean},
@@ -194,14 +193,12 @@ const _props = defineProps({
   offersIn: {type: Array, default: () => []}
 })
 
-const emit = defineEmits(['toast', 'confirm-order-toast', "open-chat"])
+const emit = defineEmits(['toast', 'confirm-order-toast', 'handle-user-action', "open-chat"])
 
-// keep them reactive
 const { offersIn, isPro } = toRefs(_props);
 
-
-
 const router = useRouter();
+const { t } = useI18n(); 
 const HEADER_LENGTH = ref(33);
 const proStore = useProStore();
 const { incomingOffers, providerId, proCredit } = storeToRefs(proStore);
@@ -218,52 +215,12 @@ const bookingIndex = ref(0);
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
 
-const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : [])
-
-
-
+const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : []);
 
 const collapseEl = ref(null)
 const collapseRoot = ref(null)
 
-/* function setCollapseRoot(el) {
-  collapseRoot.value = el?.$el || el
-}
-
-function syncParentHeight() {
-  nextTick(() => {
-    requestAnimationFrame(() => {
-      const root = collapseRoot.value
-      const body = collapseEl.value
-
-      if (!root || !body || !parentOpen.value) return
-
-      root.style.height = `${body.scrollHeight}px`
-      root.style.overflow = 'visible'
-    })
-  })
-}
-
-function unlockParentHeight() {
-  nextTick(() => {
-    requestAnimationFrame(() => {
-      const root = collapseRoot.value
-      if (!root || !parentOpen.value) return
-
-      root.style.height = 'auto'
-      root.style.overflow = 'visible'
-    })
-  })
-} */
-
-
-
-
-
-
-
-
-/** ✅ The actual collapse root DOM element (from <MDBCollapse>) */
+/** The actual collapse root DOM element (from <MDBCollapse>) */
 const collapseRootEl = ref(null)
 
 
@@ -325,14 +282,16 @@ const hJustTest = () => {
   console.log("JUST TEST");
   //emit('confirm-order-toast')
   isOrderConfirmed.value = true;
-  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
+  confirmedOrderMessage.value = confirmedOrderMessage.value =
+  t('clientOfferList.order_confirmed_by_you')
 }
 
 const handleConfirmedOrderToast = () => {
   console.log('Parent received confirmed-order-toast')
   console.log("EMIT in list");
   isOrderConfirmed.value = true;
-  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
+  confirmedOrderMessage.value = confirmedOrderMessage.value =
+  t('clientOfferList.order_confirmed_by_you')
 }
 
 function parseDmyTime(dmyStr) {
@@ -404,11 +363,18 @@ const timeAgo = (iso) => {
   let diffMs = Date.now() - new Date(iso).getTime()
   diffMs = Math.max(0, diffMs) // prevent negative time
   const mins = Math.floor(diffMs / 60000)
-  if (mins < 60) return `${mins} minuuttia sitten`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs} tuntia sitten`
   const days = Math.floor(hrs / 24)
-  return `${days} päivää sitten`
+
+  if (mins < 60) {
+    return t('clientOfferList.minutes_ago', { count: mins })
+  }
+
+  if (hrs < 24) {
+    return t('clientOfferList.hours_ago', { count: hrs })
+  }
+
+  return t('clientOfferList.days_ago', { count: days })
 
 }
 
@@ -468,8 +434,8 @@ const timeAgo = (iso) => {
 
 .line {
   display: flex;
-  justify-content: space-between; /* pushes items to edges */
-  align-items: center;            /* vertically centers them */
+  justify-content: space-between;
+  align-items: center;
 }
 .left-item {
   color: #66aab1;
@@ -477,11 +443,6 @@ const timeAgo = (iso) => {
 }
 
 span {
-
-  /*background: #48abe0;*/
-  /*color: white;*/
-  /*padding: 1.5rem;*/
-  /*font-size: 2rem;*/
   display: inline-block;
 }
 span.strong-tilt-move-shake {
@@ -497,10 +458,6 @@ span.strong-tilt-move-shake {
 }
 /* Helps avoid margin-collapsing visual glitches inside height-animated blocks */
 .card.card-body { display: flow-root; }
-
-
-
-
 .booking-row-new,
 .booking-row-seen {
   width: 100%;
@@ -602,17 +559,6 @@ span.strong-tilt-move-shake {
   width: 100%;
   height: 100%;
 }
-
-/* .photo-media {
-  width: 100%;
-  overflow: hidden;
-}
-
-.lightbox-thumb img {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-} */
 
 @media (max-width: 767px) {
   .client-collapse .card-body {

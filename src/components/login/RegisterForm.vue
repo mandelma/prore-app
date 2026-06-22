@@ -10,7 +10,7 @@
           toast="danger"
           icon="fas fa-exclamation-circle fa-lg me-2"
       >
-        <template #title> TAPAHTUI VIRHE! </template>
+        <template #title> {{ t('register.error_title') }} </template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
         {{currentErrorMessage}}
@@ -18,14 +18,12 @@
     </div>
     <div class="auth-register">
       <form class="form-card" @submit.prevent="submitUser" autocomplete="off">
-      <!-- 2 column grid layout with text inputs for the first and last names -->
+
       <!-- First name input -->
-
-
         <MDBInput
             type="text"
             size="lg"
-            :label="t('register_firstname')"
+            :label="t('register.firstname')"
 
             id="registerFirstName"
             v-model="registerFirstName"
@@ -37,7 +35,7 @@
         <MDBInput
             type="text"
             size="lg"
-            :label="t('register_lastname')"
+            :label="t('register.lastname')"
 
             id="registerLastName"
             v-model="registerLastName"
@@ -48,7 +46,7 @@
         <MDBInput
             type="text"
             size="lg"
-            :label="t('register_username')"
+            :label="t('register.username')"
 
             id="registerUsername"
             v-model="registerUsername"
@@ -58,7 +56,7 @@
         <MDBInput
             type="text"
             size="lg"
-            :label="t('register_email')"
+            :label="t('register.email')"
 
             id="registerEmail"
             v-model="registerEmail"
@@ -72,7 +70,7 @@
               size="lg"
               v-model="registerPassword"
               :type="showPassword ? 'text' : 'password'"
-              :label="t('register_password_1')"
+              :label="t('register.password_1')"
               wrapperClass="form-outline flex-grow-3"
               :inputClass="'ps-0'"
               aria-describedby="button-addon2"
@@ -83,20 +81,14 @@
           </MDBBtn>
         </div>
 
-
-
-
-
         <p v-if="pwValidateError && registerPassword" style="color: palevioletred" >{{pwValidateError}}</p>
 
-
         <div class="input-group mb-3">
-          <!-- MDB input inside input-group -->
           <MDBInput
               size="lg"
               v-model="registerPasswordRepeat"
               :type="showConfirmPassword ? 'text' : 'password'"
-              :label="t('register_password_2')"
+              :label="t('register.password_2')"
               wrapperClass="form-outline flex-grow-3"
               :inputClass="'ps-0'"
               aria-describedby="button-addon2"
@@ -112,14 +104,14 @@
 
         <div class="login-check mb-4">
           <MDBCheckbox
-            :label="t('register_remember_me')"
+            :label="t('register.remember_me')"
 
             size="lg"
             id="registerSubscribeCheck"
             v-model="registerSubscribeCheck"
             wrapperClass="d-flex justify-content-center mb-4"
           />
-          <!-- Olen lukenut ja hyväksyn käyttöehdot sekä tietosuojaselosteen. -->
+          <!-- Terms -->
           <div style="display: flex; align-items: center;">
             <MDBCheckbox
             v-model="acceptedTerms"
@@ -128,33 +120,30 @@
           />
 
             <label for="registerTermsCheck" style="cursor:pointer;">
-              Olen lukenut ja hyväksyn
+              {{ t('register.terms.accept_prefix') }}
               <a
                 href="/terms"
                 
                 @click.stop
               >
-                käyttöehdot
+                {{ t('register.terms.terms_link') }}
               </a>
-              <!-- <router-link to="/terms"  @click.stop>
-                käyttöehdot
-              </router-link> -->
+              
             </label>
             
           </div>
 
           <p v-if="!acceptedTerms && isSubmitted" style="color: palevioletred;">
-            Sinun tulee hyväksyä käyttöehdot jatkaaksesi.
+            {{ t('register.terms.required') }}
+            
           </p>
           
         </div>
         
-
         <!-- Submit button -->
         <div class="form-actions">
-          <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> {{ t('register_create_account') }} </MDBBtn>
+          <MDBBtn color="primary" size="lg" type="submit"  block class="mb-4" :disabled="!!pwValidateError"> {{ t('register.create_account') }} </MDBBtn>
         </div>
-
 
       </form>
     </div>
@@ -220,7 +209,7 @@ const validateConfirmPassword = () => {
   const regex =
       /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};':"\\|,.<>/?]).{8,}$/;
   if (!regex.test(registerPasswordRepeat.value)) {
-    pwConfirmValidateError.value = "Salasanan on oltava vähintään 8 merkkiä pitkä ja sen on sisällettävä iso kirjain, numero ja erikoismerkki.";
+    pwConfirmValidateError.value = t('register.validation.password_requirements');
   } else {
     pwConfirmValidateError.value = "";
   }
@@ -253,33 +242,27 @@ const submitUser = async () => {
 
     if (registerUsername.value.length < 4) {
       isRegisterError.value = true;
-      currentErrorMessage.value = "Username must be longer than 4 characters!"
-      //registerErrorMessage.value = "Username must be longer than 4 characters!"
+      currentErrorMessage.value = t('register.validation.username_too_short');
 
     } else if (!/^[^@]+@\w+(\.\w+)+\w$/.test(registerEmail.value)) {
       isRegisterError.value = true;
-      currentErrorMessage.value = "Anna kelvollinen sähköpostiosoite!"
-      //registerEmailErrorMessage.value = "Anna kelvollinen sähköpostiosoite!";
-      // setTimeout(() => {
-      //   this.registerEmailErrorMessage = null;
-      // }, 2000);
+      currentErrorMessage.value = t('register.validation.invalid_email');
+      
     } else if (registerPassword.value !== registerPasswordRepeat.value) {
       isRegisterError.value = true;
-      currentErrorMessage.value = "Salasana on oltava sama!";
-      //registerPwRepeatErrorMessage.value = "Salasana on oltava sama!";
+      currentErrorMessage.value = t('register.validation.passwords_not_match');
+      
     }
     else {
       console.log("Uus kasutaja")
       const userExisting = await userService.addUser(newUser);
       if (userExisting.error === "username existing") {
         isRegisterError.value = true;
-        currentErrorMessage.value = "Käyttäjätunnus on jo olemassa! Vaihda käyttäjätunnus";
-        //usernameExisting.value = "Käyttäjätunnus on jo olemassa! Vaihda käyttäjätunnus";
+        currentErrorMessage.value = t('register.validation.username_exists');
 
       } else if (userExisting.error === "email existing") {
         isRegisterError.value = true;
-        currentErrorMessage.value = "Antamasi sähköpostiosoite on jo olemassa!";
-        //registerEmailErrorMessage.value = "Antamasi sähköpostiosoite on jo olemassa!";
+        currentErrorMessage.value = t('register.validation.email_exists');
       }
       else {
 
@@ -291,7 +274,6 @@ const submitUser = async () => {
         const loggedInUser = await loginService.login({username: registerUsername.value, password: registerPassword.value});
         console.log("Login error: " + loggedInUser.error)
         if (loggedInUser.error !== "login error") {
-          //this.$emit('register:data', loggedInUser)
           login.onLogin(loggedInUser);
           checkFieldValues();
           isSubmitted.value = false;
@@ -306,8 +288,7 @@ const submitUser = async () => {
     }
   } else {
     isRegisterError.value = true;
-    currentErrorMessage.value = "Kaikki kentät ovat täytettävä!!"
-    //registerErrorMessage.value = "Kaikki kentät ovat täytettävä!!"
+    currentErrorMessage.value = t('register.validation.required_fields')
   }
 }
 

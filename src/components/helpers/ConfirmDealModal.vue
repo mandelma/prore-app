@@ -18,20 +18,20 @@
         </div>
 
         <h2 class="deal-title" :id="titleId">
-          {{ title }}
+          {{ modalTitle }}
         </h2>
 
         <p class="deal-message" :id="descriptionId">
-          {{ message }}
+          {{ modalMessage }}
         </p>
 
         <div class="deal-actions">
           <button type="button" class="btn btn-cancel" @click="onCancel">
-            {{ cancelText }}
+            {{ modalCancelText }}
           </button>
 
           <button type="button" class="btn btn-confirm" @click="onConfirm">
-            {{ confirmText }}
+            {{ modalConfirmText }}
           </button>
         </div>
       </div>
@@ -41,7 +41,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, watch } from 'vue'
-
+import { useI18n } from 'vue-i18n'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -49,19 +49,19 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Confirm deal',
+    default: '',
   },
   message: {
     type: String,
-    default: 'Are you sure you would confirm this deal?',
+    default: '',
   },
   confirmText: {
     type: String,
-    default: 'Confirm deal',
+    default: '',
   },
   cancelText: {
     type: String,
-    default: 'Cancel',
+    default: '',
   },
   closeOnOverlay: {
     type: Boolean,
@@ -79,10 +79,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
 
+const t = useI18n();
+
+const modalTitle = computed(() => props.title || t('dealConfirm.title'))
+const modalMessage = computed(() => props.message || t('dealConfirm.message'))
+const modalConfirmText = computed(() => props.confirmText || t('dealConfirm.confirm'))
+const modalCancelText = computed(() => props.cancelText || t('dealConfirm.cancel'))
+
+
 const titleId = computed(() => `deal-title-${Math.random().toString(36).slice(2, 9)}`)
 const descriptionId = computed(() => `deal-desc-${Math.random().toString(36).slice(2, 9)}`)
 
-function close() {
+const  close = () => {
   emit('update:modelValue', false)
 }
 

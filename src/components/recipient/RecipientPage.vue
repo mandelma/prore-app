@@ -44,8 +44,8 @@
               <MDBCardBody class="py-3">
                 <div class="text-muted small">Arkistoidut tilaukset</div>
                 <!-- <div class="fs-5 fw-semibold"></div> -->
-                <MDBBtn v-if="archivedBookings.length" color="dark" block @click="callHistory">
-                  <span class="fs-5 fw-semibold">{{archivedBookings.length}}</span>
+                <MDBBtn v-if="clientHistory.length" color="dark" block @click="callHistory">
+                  <span class="fs-5 fw-semibold">{{clientHistory.length}}</span>
                 </MDBBtn>
                 <div v-else class="fs-5 fw-semibold">0</div>
               </MDBCardBody>
@@ -206,7 +206,7 @@
                           {{ formatDateTime(a.created) }},
                         </div>
                         
-                        <MDBBtn v-if="a.offer?.bookingID !== selectedBookingId && a.status !== 'done'"  color="info" block @click="handleDone(a.offer?.bookingID, a.offer?.provider?.user?.id)">Aeg läbi, töö tehtud</MDBBtn>
+                        <!-- <MDBBtn v-if="a.offer?.bookingID !== selectedBookingId && a.status !== 'done'"  color="info" block @click="handleDone(a.offer?.bookingID, a.offer?.provider?.user?.id)">Aeg läbi, töö tehtud</MDBBtn> -->
                         <div v-if="a.status === 'done'">
                           <!-- v-if="selectedBookingId === a.offer?.bookingID " -->
                           <MDBBtn 
@@ -214,7 +214,7 @@
                             style="margin-top: 7px;"  
                             outline="warning" ,
                             block 
-                            @click="handleFeedback(a.offer?.name, a.offer?.provider?.id, a.offer?.provider?.user?.id, a.offer?.bookingID)">
+                            @click="handleFeedback(a.offer?.name, a.offer?.sender, a.offer?.bookingID)">
                             Anna palautetta
                             </MDBBtn>
                           <!-- <p style="font-size: 12px; color: red;">{{a.offer?.name ||""}} </p> -->
@@ -268,7 +268,7 @@
       </MDBModalHeader>
       <MDBModalBody>
         <p class="text-muted">Antaa palveluntarjoajalle palautetta saamastaan ​palvelusta.</p>
-        <GiveFeedback :providerId="proId" :target="personalId" :booking_id="bookingId" @rating-done="handleRatingDone" @no-rating="handleNoRating"/>
+        <GiveFeedback :target="personalId" :booking_id="bookingId" @rating-done="handleRatingDone" @no-rating="handleNoRating"/>
       </MDBModalBody>
       <MDBModalFooter>
         <MDBBtn color="danger" @click="handleFeedbackModal = false"> Peruuta </MDBBtn>
@@ -312,7 +312,7 @@
 import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBTextarea, MDBCard,
   MDBCardBody, MDBBadge, MDBToast, MDBIcon, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdb-vue-ui-kit';
 import { useI18n } from 'vue-i18n';
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import world from '@/assets/map.gif'
 import RecipientContent from "../recipient/RecipientContent.vue";
 import ConfirmModal from '../helpers/ConfirmModal.vue';
@@ -359,10 +359,12 @@ const clientQuitBookingReason = ref("");
 
 const isDone = ref(false);
 
-const { bookings, clientConfirmed, archivedBookings } = storeToRefs(clientStore);
+const { bookings, clientConfirmed } = storeToRefs(clientStore);
 const { userId } = storeToRefs(notificationStore);
 
-const { cHistory } = storeToRefs(cArchiveStore);
+const { clientHistory } = storeToRefs(cArchiveStore);
+
+
 
 //const singleBookings = computed(() => bookings.value.filter(sb => sb.status !== 'confirmed' && !sb.isIncludeOffers));
 //const multiBookings = computed(() => bookings.value.filter(mp => mp.status !== 'confirmed' && mp.isIncludeOffers));
@@ -376,7 +378,7 @@ const myBooking = ref(null);
 
 const loading = ref(false);
 
-const c_archive = computed( async() => await cArchiveStore.initClientArchive());
+//const c_archive = computed( async() => await cArchiveStore.initClientArchive());
 
 const showDeleteModal = ref(false);
 const cTitle = ref("");
@@ -392,6 +394,24 @@ watch(loading, (val) => {
   document.body.style.overflow = val ? 'hidden' : '';
   document.documentElement.style.overflow = val ? 'hidden' : '';
 });
+
+const confirmedBookingsExpiration = () => {
+  const now = new Date();
+  clientConfirmed.value.forEach(async cca => {
+    console.log("Header - ", cca.header)
+    if (cca.created_ms < now && cca.status !== 'done') {
+      console.log("Need to act with " + cca?.offer?.bookingID + " - " + cca?.offer?.sender);
+      const booking_id = cca?.offer?.bookingID;
+      const target = cca?.offer?.sender; 
+      await handleDone(booking_id, target);
+    }
+  })
+}
+
+onMounted(() => {
+  // Check confirmed bookings expiration date and send to feedback status if expired
+  confirmedBookingsExpiration();
+})
 
 onUnmounted(() => {
   document.body.style.overflow = '';
@@ -465,8 +485,7 @@ const toastTest = () => {
   onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
 }
 
-
-// Test
+// Acting if confirmed booking is overtime
 const handleDone = async (bookingId, target) => {
   isDone.value = true;
   selectedBookingId.value = bookingId;
@@ -475,7 +494,6 @@ const handleDone = async (bookingId, target) => {
   socket.emit("booking-done", bookingId, target);
 
   console.log("DONE")
-
 }
 
 
@@ -522,10 +540,10 @@ const handleCancelRecipientContent = () => {
   isRecipientContent.value = false;
 }
 
-const handleOutHere = () => {
+/* const handleOutHere = () => {
   console.log("OUT")
   isRecipientContent.value = false;
-}
+} */
 
 const handleCanselRecipientContentConfirmed = (pro) => {
   isRecipientContent.value = false;
@@ -548,11 +566,11 @@ const canselQuitSelectedBooking = () => {
 
 
 
-const handleFeedback = (name, id, pId, bId) => {
-  console.log("Provider id - " + id);
+const handleFeedback = (name, pId, bId) => {
+  console.log("Provider personal id - " + pId);
 
   company.value = name;
-  proId.value = id;
+  //proId.value = id;
   personalId.value = pId;
   bookingId.value = bId;
   handleFeedbackModal.value = true;

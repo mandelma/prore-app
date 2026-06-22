@@ -283,8 +283,15 @@ module.exports = (io) => {
                 body,
                 {new: true}
             )
+
+            if (!confirmed) {
+                return res.status(404).json({ error: 'Recipient not found' });
+            }
+
+            return res.status(200).json(confirmed);
         } catch (e) {
             console.log("Error - " + e.message);
+            return res.status(500).json({ error: e.message });
         }
     })
 

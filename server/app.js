@@ -6,8 +6,6 @@ const serveStatic = require('serve-static');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
-//const path = require("path");
-
 
 
 require('dotenv').config();
@@ -25,10 +23,7 @@ const io = require('socket.io')(server, {
         transports: ['websocket'],
 
         credentials: true,
-        // origins: [
-        //     'http://localhost:8080'
-        //  //   '*'
-        // ]
+       
     },
     allowEIO3: true,
 
@@ -40,10 +35,8 @@ console.log("Mongoose... " + process.env.NODE_ENV);
 
 app.set("io", io); 
 
-//if (!process.env.MONGODB_URL_LOCAL) throw new Error('MONGODB_URI is not set');
-//await mongoose.connect(process.env.MONGODB_URI);
-
 let mongo_access = "";
+
 if (process.env.NODE_ENV === 'production') {
     console.log('App is running in production mode');
     mongo_access = process.env.MONGODB_URL_PUBLIC;
@@ -73,19 +66,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 
-//app.use(serveStatic(path.join(__dirname, '../dist')));
-
-
-
-
-
-
-
 const distPath = path.join(__dirname, "dist");
-
-
-
-
 
 app.use((req, res, next) => {
   const auth = req.headers.authorization ? "auth" : "no-auth";
@@ -97,8 +78,6 @@ app.use((req, res, next) => {
     console.log("HIT:", req.method, req.originalUrl);
     next();
 });
-
-//  httpAuth,
 
 const offerRouter = require('./routers/offers')
 
@@ -121,9 +100,6 @@ const httpAuth = require('./middleware/httpAuth');
 
 app.use('/api/chat', httpAuth, require('./routers/chat'));
 
-
-
-
 app.use(history());
 app.use("/assets", express.static(path.join(distPath, "assets")));
 app.use(express.static(distPath));
@@ -131,7 +107,6 @@ app.use(express.static(distPath));
 app.get(/^\/(?!api|assets).*/, (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
 });
-
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;

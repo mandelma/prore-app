@@ -20,7 +20,7 @@
         </div>
         <div class="d-flex align-items-center gap-2 flex-shrink-0">
           <MDBBadge v-if="provider.status" :color="provider.status === 'Saatavilla' ? 'success' : 'warning'">
-            {{ provider.status }}
+            {{ provider.status === 'Saatavilla' ? t('providerAdmin.available') : t('providerAdmin.byAgreement') }}
           </MDBBadge>
         </div>
       </div>
@@ -288,6 +288,7 @@
 
               <client-offers-list
                 :clients="filteredClients"
+                @handle-user-action="$emit('handle-user-action', $event)"
                 @open-chat="$emit('open-chat', $event)"
                 @toast="handleToast"
               />
@@ -314,6 +315,7 @@
 
           <client-offers-list
             :clients="filteredClients"
+            @handle-user-action="$emit('handle-user-action', $event)"
             @open-chat="$emit('open-chat', $event)"
             @toast="handleToast"
           />
@@ -488,7 +490,7 @@ import ClientOffersList from "./ClientOffersList.vue";
 import providerService from '../../service/providers'
 import socket from "@/socket";
 
-const emit = defineEmits(["open-chat"]);
+const emit = defineEmits(["handle-user-action", "open-chat"]);
 
 const { t } = useI18n();
 const providerStore = useProStore();

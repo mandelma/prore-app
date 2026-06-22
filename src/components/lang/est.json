@@ -1,5 +1,5 @@
 {
-  "login": "kirjuta sisse",
+  "log_in": "kirjuta sisse",
   "home_title": "Kiirus on kõige olulisem!",
   "home_client_btn": "Otsin teenust",
   "home_pro_btn": "Pakun teenust",
@@ -37,6 +37,50 @@
   "recipient_result_new": "uus!",
   "recipient_result_waiting_offers": "Oodatakse pakkumisi...",
   "recipient_result_remove_order": "Kustuta tellimus",
+
+  "loginRegister": {
+    "login": "Logi sisse",
+    "register": "Registreeru"
+  },
+
+  "login": {
+    "username": "Kasutajanimi",
+    "password": "Parool",
+    "rememberme": "Jäta mind meelde",
+    "forgot_password": "Unustasid parooli?",
+    "log_in": "Logi sisse",
+    "no_member": "Pole veel liige?",
+    "register": "Registreeru",
+    "error_title": "VIGA!",
+    "error_invalid_credentials": "Vale kasutajanimi või parool!",
+    "error_required_fields": "Kõik väljad peavad olema täidetud!"
+  },
+
+  "register": {
+    "firstname": "Eesnimi",
+    "lastname": "Perekonnanimi",
+    "username": "Kasutajanimi",
+    "email": "E-post",
+    "password_1": "Parool",
+    "password_2": "Korda parooli",
+    "remember_me": "Jäta mind meelde",
+    "create_account": "Loo konto",
+    "error_title": "VIGA!",
+    "terms": {
+      "accept_prefix": "Olen lugenud ja nõustun",
+      "terms_link": "kasutustingimustega",
+      "required": "Jätkamiseks pead nõustuma kasutustingimustega."
+    },
+    "validation": {
+      "password_requirements": "Parool peab olema vähemalt 8 tähemärki pikk ning sisaldama suurtähte, numbrit ja erimärki.",
+      "username_too_short": "Kasutajanimi peab olema vähemalt 4 tähemärki pikk.",
+      "invalid_email": "Sisesta korrektne e-posti aadress.",
+      "passwords_not_match": "Paroolid peavad ühtima.",
+      "username_exists": "See kasutajanimi on juba kasutusel. Palun vali teine kasutajanimi.",
+      "email_exists": "Sisestatud e-posti aadress on juba kasutusel.",
+      "required_fields": "Kõik väljad peavad olema täidetud."
+    }
+  },
 
   "home": {
     "title": "Kiirus on kõige tähtsam!",
@@ -125,5 +169,145 @@
     "commentTableOnMd": "Tabel keskmistel ja suurematel ekraanidel",
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisa ajakava teavitused ja arvelduse ülevaade",
     "commentSimpleToast": "Lihtne teavitus"
+  },
+
+  "dealConfirm": {
+    "title": "Kinnita tehing",
+    "message": "Kas oled kindel, et soovid selle tehingu kinnitada?",
+    "confirm": "Kinnita tehing",
+    "cancel": "Tühista"
+  },
+
+  "confirmModal": {
+    "title": "Kinnita tegevus",
+    "message": "Kas oled kindel, et soovid jätkata?",
+    "confirm": "Kinnita",
+    "cancel": "Tühista"
+  },
+
+  "clientAround": {
+    "refresh": "Uuenda",
+    "address": "Minu aadress",
+    "select_profession": "Vali oma amet *",
+    "search_distance": "Otsi kaugust",
+    "found_clients": "Leitud kliendid",
+    "panel": "Paneel",
+    "toast_title": "PROKEIKKATORI",
+    "location_error": "Asukohta ei õnnestunud tuvastada.",
+    "updating_location": "Asukoha uuendamine...",
+    "your_location": "Sinu asukoht",
+    "client_marker_title": "Vajatakse",
+    "no_clients_found": "Valitud ameti ja kauguse kohta kliente ei leitud.",
+    "try_adjust_filters": "Proovi muuta ametit või suurendada otsingukaugust."
+  },
+
+  "clientOffer": {
+    "maps_error_title": "VIGA!",
+    "maps_error_message": "Google Mapsi ei õnnestunud laadida. Kontrolli internetiühendust ja proovi hiljem uuesti.",
+    "address": "Aadress",
+    "professional_needed": "Vajalik spetsialist",
+    "date": "Kuupäev",
+    "description": "Töö kirjeldus",
+    "budget": "Eelarve",
+    "no_budget": "Eelarve puudub",
+    "photos": "Töö fotod",
+    "distance": "Kaugus",
+    "travel_time": "Sõiduaeg",
+    "location": "Asukoht",
+    "make_offer": "Tee hinnapakkumine",
+    "delete_order": "Eemalda tellimus",
+    "confirm_order": "Kinnita tellimus",
+    "offer_price": "Sisesta oma hind",
+    "offer_at_client": "Pakun teenust kliendi juures",
+    "offer_at_my_place": "Pakun teenust oma asukohas",
+    "offer_details": "Lisa täpsustusi...",
+    "send_offer": "Saada",
+    "reason": "Sisesta põhjus...",
+    "confirm_delete": "Kinnita eemaldamine",
+    "delete_title": "Kas eemaldada tellimus?",
+    "delete_message": "Kas oled kindel, et soovid kliendi tellimuse eemaldada?",
+    "deal_title": "Kokkulepe!",
+    "deal_confirm": "Oled kinnitamas kliendi {name} tellimust. Kas soovid jätkata?",
+    "deal_confirm_button": "Suurepärane!",
+    "deal_cancel_button": "Tühista",
+    "keep_button": "Jäta alles",
+    "notifications": {
+      "order_removed": "{name} tellimus on eemaldatud!",
+      "offer_sent": "{name} tellimusele saadeti hinnapakkumine edukalt!",
+      "order_confirmed": "Kliendi tellimus kinnitati edukalt!",
+      "deal_created_title": "Kokkulepe sõlmitud!",
+      "deal_created_client": "{provider} kinnitas tellimuse \"{booking}\". Täpsem info on kalendris.",
+      "deal_created_provider": "Tellimus \"{booking}\" kinnitati. Täpsem info on kalendris.",
+      "order_rejected_title": "Tellimus tagasi lükatud!",
+      "order_rejected": "{provider} ei nõustunud sinu tellimusega \"{booking}\". Põhjus: {reason}."
+    }
+  },
+
+  "clientOfferList": {
+    "credit_expired": "Krediit on aegunud, sa ei saa enam tegevusi teha!",
+    "add_credit": "Lisa krediiti",
+    "offer_sent": "Pakkumine saadetud",
+    "make_offer": "Tee pakkumine",
+    "confirm_order": "Kinnita tellimus",
+    "booking_removed": "{name} on tellimuse eemaldanud!",
+    "done": "Valmis",
+    "order_confirmed_by_you": "Oled tellimuse kinnitanud!",
+    "minutes_ago": "{count} minutit tagasi",
+    "hours_ago": "{count} tundi tagasi",
+    "days_ago": "{count} päeva tagasi"
+  },
+
+  "feedback": {
+    "no_written_reviews": "Kirjalikke arvustusi pole veel!"
+  },
+
+  "photoGallery": {
+    "references": "Referentsid",
+    "add": "Lisa",
+    "edit": "Muuda",
+    "service_photo": "Teenuse foto",
+    "no_images": "Pilte pole veel",
+    "empty_text": "Lisa oma teenusest pilte, et kliendid neid näeksid.",
+    "dropzone_title": "Lohista pildid siia",
+    "dropzone_text": "või klõpsa “Lisa pilte”",
+    "description_placeholder": "Lisa kirjeldus...",
+    "cancel": "Tühista",
+    "save_changes": "Salvesta muudatused",
+    "replace": "Asenda",
+    "delete": "Kustuta",
+    "reference_photo": "Referentsfoto"
+  },
+
+  "providerForm": {
+    "notifications": {
+      "error_title": "VIGA!",
+      "form_fields_required": "Palun täida kõik kohustuslikud väljad!",
+      "google_maps_failed": "Google Mapsi laadimine ebaõnnestus. Kontrolli internetiühendust!",
+      "provider_create_failed": "Tekkis viga. Proovi uuesti!"
+    },
+    "fields": {
+      "company_name": "Sisesta ettevõtte nimi või oma nimi *",
+      "business_id": "Sisesta ettevõtte registrikood",
+      "address": "Sisesta aadress",
+      "service_radius": "Sisesta teenindusraadius (km)",
+      "profession": "Vali amet *",
+      "hourly_price": "Tunnihind",
+      "hourly_price_input": "Sisesta tunnihind",
+      "fixed_price": "Fikseeritud hind",
+      "description": "Kirjuta midagi endast ja oma tegevusest...",
+      "website": "Sisesta ettevõtte veebilehe aadress (kui on olemas)"
+    },
+    "help": {
+      "radius_info": "Kui raadiust pole määratud, pakud teenust ainult määratud aadressil."
+    },
+    "buttons": {
+      "create_account": "Loo konto"
+    },
+    "validations": {
+      "name_required": "Nimi on kohustuslik!",
+      "business_id_required": "Registrikood on kohustuslik!",
+      "profession_required": "Amet on kohustuslik!",
+      "address_required": "Aadress on kohustuslik!"
+    }
   }
 }

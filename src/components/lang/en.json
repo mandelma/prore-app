@@ -1,9 +1,53 @@
 {
-  "login": "login",
+  "log_in": "login",
   "home_title": "Speed is most important",
   "home_client_btn": "Find a Service",
   "home_pro_btn": "Provide a Service",
   "client_form_offersOrQuickSolution": "Fill out the order for offers or find a quick solution on the map!",
+
+  "loginRegister": {
+    "login": "Log in",
+    "register": "Register"
+  }, 
+
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "rememberme": "Remember me",
+    "forgot_password": "Forgot password?",
+    "log_in": "Log in",
+    "no_member": "Not a member?",
+    "register": "Register",
+    "error_title": "ERROR!",
+    "error_invalid_credentials": "Incorrect username or password!",
+    "error_required_fields": "All fields are required!"
+  },
+
+  "register": {
+    "firstname": "First name",
+    "lastname": "Last name",
+    "username": "Username",
+    "email": "Email",
+    "password_1": "Password",
+    "password_2": "Repeat password",
+    "remember_me": "Remember me",
+    "create_account": "Create account",
+    "error_title": "ERROR!",
+    "terms": {
+      "accept_prefix": "I have read and accept the",
+      "terms_link": "Terms of Service",
+      "required": "You must accept the Terms of Service to continue."
+    },
+    "validation": {
+      "password_requirements": "Password must be at least 8 characters long and contain an uppercase letter, a number and a special character.",
+      "username_too_short": "Username must be at least 4 characters long.",
+      "invalid_email": "Please enter a valid email address.",
+      "passwords_not_match": "Passwords must match.",
+      "username_exists": "Username already exists. Please choose another username.",
+      "email_exists": "The email address you entered already exists.",
+      "required_fields": "All fields are required."
+    }
+  },
 
   "recipient_panel_confirmed_orders": "Confirmed orders",
   "recipient_panel_you_have": "You have",
@@ -114,7 +158,145 @@
     "commentSimpleToast": "Simple toast"
   },
 
-  
+  "dealConfirm": {
+    "title": "Confirm deal",
+    "message": "Are you sure you want to confirm this deal?",
+    "confirm": "Confirm deal",
+    "cancel": "Cancel"
+  },
+
+  "confirmModal": {
+    "title": "Confirm action",
+    "message": "Are you sure you want to continue?",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+
+  "clientAround": {
+    "refresh": "Refresh",
+    "address": "My address",
+    "select_profession": "Select your profession *",
+    "search_distance": "Search distance",
+    "found_clients": "Found clients",
+    "panel": "Panel",
+    "toast_title": "PROKEIKKATORI",
+    "location_error": "Could not retrieve location.",
+    "updating_location": "Updating location...",
+    "your_location": "Your location",
+    "client_marker_title": "Needed",
+    "no_clients_found": "No clients were found for the selected profession and distance.",
+    "try_adjust_filters": "Try changing the profession or increasing the search distance."
+  },
+
+  "clientOffer": {
+    "maps_error_title": "ERROR!",
+    "maps_error_message": "We couldn’t load Google Maps right now. Please check your network connection and try again later.",
+    "address": "Address",
+    "professional_needed": "Professional needed",
+    "date": "Date",
+    "description": "Task description",
+    "budget": "Budget",
+    "no_budget": "No budget",
+    "photos": "Task photos",
+    "distance": "Distance",
+    "travel_time": "Travel time",
+    "location": "Location",
+    "make_offer": "Make an offer",
+    "delete_order": "Remove order",
+    "confirm_order": "Confirm order",
+    "offer_price": "Enter your price",
+    "offer_at_client": "I provide the service at the client's location",
+    "offer_at_my_place": "I provide the service at my location",
+    "offer_details": "Additional details...",
+    "send_offer": "Send",
+    "reason": "Enter reason...",
+    "confirm_delete": "Confirm removal",
+    "delete_title": "Remove order?",
+    "delete_message": "Are you sure you want to remove the customer's order?",
+    "deal_title": "Agreement!",
+    "deal_confirm": "You are about to confirm {name}'s order. Are you sure you want to continue?",
+    "deal_confirm_button": "Great!",
+    "deal_cancel_button": "Cancel",
+    "keep_button": "Keep it",
+    "notifications": {
+      "order_removed": "{name}'s order has been removed!",
+      "offer_sent": "Price offer for {name}'s order has been sent successfully!",
+      "order_confirmed": "Customer order has been confirmed successfully!",
+      "deal_created_title": "Agreement confirmed!",
+      "deal_created_client": "{provider} has confirmed the order \"{booking}\". See the calendar for details.",
+      "deal_created_provider": "Order \"{booking}\" has been confirmed. See the calendar for details.",
+      "order_rejected_title": "Order rejected!",
+      "order_rejected": "{provider} did not accept your order \"{booking}\". Reason given: {reason}."
+    }
+  },
+
+  "clientOfferList": {
+    "credit_expired": "Your credit has expired. You can no longer perform actions!",
+    "add_credit": "Add Credit",
+    "offer_sent": "Offer Sent",
+    "make_offer": "Make Offer",
+    "confirm_order": "Confirm Order",
+    "booking_removed": "{name} has removed the order!",
+    "done": "Done",
+    "order_confirmed_by_you": "You have confirmed the order!",
+    "minutes_ago": "{count} minutes ago",
+    "hours_ago": "{count} hours ago",
+    "days_ago": "{count} days ago"
+  },
+
+  "feedback": {
+    "no_written_reviews": "No written reviews yet!"
+  },
+
+  "photoGallery": {
+    "references": "References",
+    "add": "Add",
+    "edit": "Edit",
+    "service_photo": "Service photo",
+    "no_images": "No images yet",
+    "empty_text": "Add photos of your service to show them to customers.",
+    "dropzone_title": "Drag and drop images here",
+    "dropzone_text": "or click “Add photos”",
+    "description_placeholder": "Add a description...",
+    "cancel": "Cancel",
+    "save_changes": "Save changes",
+    "replace": "Replace",
+    "delete": "Delete",
+    "reference_photo": "Reference photo"
+  },
+
+  "providerForm": {
+    "notifications": {
+      "error_title": "ERROR!",
+      "form_fields_required": "Please fill in all required fields!",
+      "google_maps_failed": "Google Maps failed to load. Check your internet connection!",
+      "provider_create_failed": "An error occurred. Please try again!"
+    },
+    "fields": {
+      "company_name": "Enter company name or your name *",
+      "business_id": "Enter business ID",
+      "address": "Enter address",
+      "service_radius": "Enter service radius (km)",
+      "profession": "Select profession *",
+      "hourly_price": "Hourly rate",
+      "hourly_price_input": "Enter hourly rate",
+      "fixed_price": "Fixed price",
+      "description": "Tell something about yourself and your business...",
+      "website": "Enter company website address (if available)"
+    },
+    "help": {
+      "radius_info": "If no radius is specified, you provide services only at the specified address."
+    },
+    "buttons": {
+      "create_account": "Create Account"
+    },
+    "validations": {
+      "name_required": "Name is required!",
+      "business_id_required": "Business ID is required!",
+      "profession_required": "Profession is required!",
+      "address_required": "Address is required!"
+    }
+  },
 
   "recipient_result_need_a_pro": "I need a pro",
   "recipient_result_order_is_expired": "Order is expired. Edit order's date / time or quit a order!",

@@ -10,11 +10,10 @@
           toast="danger"
           icon="fas fa-exclamation-circle fa-lg me-2"
       >
-        <template #title>VIRHE LOMAKEELLA! </template>
+        <template #title>{{ t('clientOffer.maps_error_title') }}</template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
-        ⚠️ We couldn’t load Google Maps right now.
-        Please check your network connection and try again later.
+          {{t('clientOffer.maps_error_message')}}
       </MDBToast>
     </div>
     
@@ -29,7 +28,7 @@
         <tbody>
         <tr>
           <td>
-            Osoite:
+            {{ t('clientOffer.address') }}
           </td>
           <td>
             {{client.address}}
@@ -37,7 +36,7 @@
         </tr>
         <tr>
           <td>
-            Tarvitaan ammattilaista:
+            {{ t('clientOffer.professional_needed') }}
           </td>
           <td>
             {{client?.professional?.[0]}}
@@ -46,7 +45,7 @@
         </tr>
         <tr>
           <td>
-            Ajankohda:
+            {{ t('clientOffer.date') }}
           </td>
           <td>
             {{client.date}}
@@ -54,7 +53,7 @@
         </tr>
         <tr>
           <td>
-            Tehtävän kuvaus:
+            {{ t('clientOffer.description') }}
           </td>
           <td>
             {{client.description}}
@@ -62,15 +61,15 @@
         </tr>
         <tr v-if="client.isIncludeOffers">
           <td>
-            Budjetti:
+            {{ t('clientOffer.budget') }}
           </td>
           <td>
-            {{client.budget ? `${client.budget.min} - ${client.budget.max} €` : "Ei budjettia"}}
+            {{client.budget ? `${client.budget.min} - ${client.budget.max} €` : t('clientOffer.no_budget')}}
           </td>
         </tr>
         <tr v-if="client.photos.length">
           <td>
-            Kuvat tehtävästä:
+            {{ t('clientOffer.photos') }}
           </td>
           <td>
             <!-- class="photo-media" -->
@@ -110,7 +109,7 @@
         </tr>
         <tr>
           <td>
-            Etäisyys
+            {{ t('clientOffer.distance') }}
           </td>
           <td>
             {{roadDistance}} km
@@ -118,14 +117,14 @@
         </tr>
         <tr>
           <td>
-            Matkan aikaa:
+            {{ t('clientOffer.travel_time') }}
           </td>
           <td>
             {{roadDuration}}
           </td>
         </tr>
         <tr>
-          <td>Sijainti</td>
+          <td>{{ t('clientOffer.location') }}</td>
           <td>
             <div id="map-container">
               <div id="client-location"></div>
@@ -137,16 +136,7 @@
             </div>
           </td>
         </tr>
-        <tr>
-          <td>
-
-          </td>
-          <td>
-            <!-- <MDBBtn color="primary">
-              <MDBIcon size="2x" ><i class="far fa-comment"></i></MDBIcon>
-            </MDBBtn> -->
-          </td>
-        </tr>
+        
         </tbody>
       </MDBTable>
       <div v-if="!openChat" style="display: flex; justify-content: right;">
@@ -166,10 +156,8 @@
               size="lg"
               @click="makeOfferBtn(booking)"
           >
-            Tee Hintatarjous
+            {{ t('clientOffer.make_offer') }}
           </MDBBtn>
-
-          
 
           <transition
               name="fade-slide"
@@ -189,10 +177,10 @@
                   </div>
 
                   <form class="form-card">
-                    <MDBInput type="text" label="Tarjoa hintasi" @input="filterInput" :value="offerValueFiltered" v-model="offerPrice" wrapperClass="mb-4" />
+                    <MDBInput type="text" :label="t('clientOffer.offer_price')" @input="filterInput" :value="offerValueFiltered" v-model="offerPrice" wrapperClass="mb-4" />
                     <div style="text-align: left; margin-bottom: 10px;">
                       <MDBRadio
-                          label="Tarjoan palvelu asiakkaan luona"
+                          :label="t('clientOffer.offer_at_client')"
                           name="area"
                           v-model="offerPlace"
                           value="go"
@@ -200,7 +188,7 @@
 
                       </MDBRadio>
                       <MDBRadio
-                          label="Tarjoan palvelua paikalla"
+                          :label="t('clientOffer.offer_at_my_place')"
                           name="area"
                           v-model="offerPlace"
                           value="here"
@@ -212,7 +200,7 @@
 
                     <MDBTextarea
                         style=""
-                        label="Anna tarvittaessa lisäselvityksiä..."
+                        :label="t('clientOffer.offer_details')"
                         rows="3"
                         v-model="offerAbout"
                     >
@@ -221,37 +209,29 @@
                     <MDBBtn
                         :disabled="isDisabled"
                         v-if="offerPrice"
-                        label="Anna hintatarjous"
+                        :label="t('clientOffer.make_offer')"
                         block size="lg"
                         outline="success"
                         style="margin-top: 12px;"
                         @click="createOffer"
                     >
-                      Lähetä
+                      {{ t('clientOffer.send_offer') }}
                     </MDBBtn>
                   </form>
-
-                  
 
                 </div>
               </div>
             </div>
           </transition>
 
-
-          
-
           <div>
 
           </div>
 
           <MDBBtn v-if="!isHandleOffer" :disabled="isDisabled" block outline="danger" @click="rejectFormBooking">
-            Poista tilaus
+            {{ t('clientOffer.delete_order') }}
           </MDBBtn>
  
-          
-          
-          
         </div>
       </div>
       <!--:::With offers::-->
@@ -266,7 +246,7 @@
             size="lg"
             @click="confirmClientBooking()"
         >
-          Varmista tilaus
+            {{ t('clientOffer.confirm_order') }}
         </MDBBtn>
 
         <transition
@@ -283,11 +263,9 @@
             <MDBBtnClose white @click="undoRejectMapOffer"/>
           </div>
 
-          
-
           <MDBTextarea
               style=""
-              label="Anna syy..."
+              :label="t('clientOffer.reason')"
               rows="3"
               v-model="reason"
           >
@@ -300,7 +278,7 @@
               style="margin-top: 12px;"
               @click="confirmRejectMapBooking"
           >
-            Varmista
+            {{ t('clientOffer.confirm_delete') }}
           </MDBBtn>
         </div>
         </transition>
@@ -316,7 +294,7 @@
             size="lg"
             @click="quitMapOffer"
         >
-          Poista tilaus
+          {{ t('clientOffer.delete_order') }}
         </MDBBtn>
 
         <!-- Spinner test -->
@@ -333,8 +311,8 @@
     v-model="showDeleteModal"
     :title="cTitle"
     :message="cMessage"
-    confirm-text="Poista"
-    cancel-text="Pidä se"
+    :confirm-text="t('clientOffer.deal_cancel_button')"
+    :cancel-text="t('clientOffer.keep_button')"
     :danger="true"
     @confirm="handleConfirmRemoveClientBooking"
     @cancel="handleCancelRemoving"
@@ -342,10 +320,10 @@
 
   <ConfirmDealModal
     v-model="showDealConfirm"
-    :title="'Sopimus!'"
+    :title="t('clientOffer.deal_title')"
     :message="dealMessage"
-    confirm-text="Hienoa!"
-    cancel-text="Peruuta"
+    :confirm-text="t('clientOffer.deal_confirm_button')"
+    :cancel-text="t('clientOffer.deal_cancel_button')"
     :show-icon="true"
     @confirm= "confirmDeal"
     @cancel="cancelDeal" 
@@ -379,6 +357,8 @@ import { ref, nextTick, inject, toRefs, onMounted, onUnmounted, watch, computed 
 import ConfirmModal from '../helpers/ConfirmModal.vue';
 import ConfirmDealModal from '../helpers/ConfirmDealModal.vue';
 
+import { useI18n } from 'vue-i18n';
+
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
 import { useConversationStore } from '@/stores/conversationStore.js';
@@ -395,10 +375,6 @@ import { getChatWindowGeometry, getBottomRightAnchor } from '../helpers/chatGeom
 defineOptions({
   name: 'client-offer'
 });
-/* defineProps({
-  client: {type: Object, default: {}},
-  open: {type: Boolean}
-}) */
 
 const _props = defineProps({
   client: { type: Object, default: () => ({}) },
@@ -407,10 +383,10 @@ const _props = defineProps({
 })
 
 
-const emit = defineEmits(['toast', 'just-test', "open-chat"])
+const emit = defineEmits(['toast', 'just-test', 'handle-user-action', "open-chat"])
 
 const { client, open } = toRefs(_props)
-
+const { t } = useI18n();
 const sender = useLoginStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();
@@ -424,10 +400,7 @@ const unlockParent = inject('unlockParent')
 // tiny wrappers (defensive)
 function onResize () { if (typeof resizeParent === 'function') resizeParent() }
 function onUnlock () { if (typeof unlockParent === 'function') unlockParent() }
-// const _props = defineProps({
-//   client: {type: Object, default: {}},
-//   //parentCollapse: {type: null}
-// })
+
 const d = handleLocation;
 const roadDistance = ref(null);
 const roadDuration = ref(null);
@@ -448,10 +421,6 @@ const offerValueFiltered = ref('');
 
 const isMapLoading = ref(true);
 
-
-// const parentCollapse = ref(null); // <MDBCollapse> component
-// const parentContent  = ref(null); // inner content we measure
-
 const mapsError = ref(false);
 
 const final = ref(null);
@@ -459,17 +428,18 @@ const final = ref(null);
 const loadingImages= ref({});
 
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
-//const road = computed(async() => await d.findDistance([60.276451557679316, 24.858190796621688], [60.29733169999999, 25.0449442]))
 
 const showDeleteModal = ref(false);
 const cTitle = ref("");
 const cMessage = ref("");
 
 const showDealConfirm = ref(false);
-const dealMessage = computed(() => {
-  const clientName = client.value?.user?.firstName || 'asiakkaan';
-  return `Olet vahvistamassa ${clientName} tilausta. Haluatko varmasti varmistaa tilauksen?`;
-})
+
+const dealMessage = computed(() =>
+  t('clientOffer.deal_confirm', {
+    name: client.value?.user?.firstName || ''
+  })
+)
 
 onMounted(async() => {
   await validateMaps();
@@ -499,9 +469,6 @@ function handleImageLoaded(idx) {
 
   onResize();
 
-  /* requestAnimationFrame(() => {
-    emit('resize-parent')
-  }) */
 }
 
 
@@ -588,66 +555,6 @@ const filterInput = ref((event) => {
   offerValueFiltered.value = filtered;
 })
 
-/* function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
-  const isMobile = viewportW <= 640;
-
-  const buttonW = 57;
-  const buttonH = 67;
-  const gap = 12;
-
-  const sideMargin = isMobile ? 8 : 10;
-  const topMargin = isMobile ? 8 : 10;
-  const bottomMargin = isMobile ? 8 : 32;
-
-  const winW = Math.min(360, viewportW - sideMargin * 2);
-  const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
-  
-
-  const leftOffset = side === "left"
-    ? -winW - gap + buttonW
-    : buttonW + gap;
-
-  const topOffset = 0;
-
-  return {
-    buttonW,
-    buttonH,
-    gap,
-    sideMargin,
-    topMargin,
-    bottomMargin,
-    winW,
-    winH,
-    leftOffset,
-    topOffset,
-    absLeft: x + leftOffset,
-    absTop: y + topOffset,
-    absRight: x + leftOffset + winW,
-    absBottom: y + topOffset + winH
-  };
-} */
-
-
-/* const getBottomRightAnchor = () => {
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-
-  const g = getChatWindowGeometry({
-    x: viewportW,
-    y: viewportH,
-    viewportW,
-    viewportH,
-    side: "left",
-  });
-
-  return {
-    x: viewportW - g.winW - g.sideMargin,
-    y: viewportH - g.winH - g.bottomMargin,
-    side: "left",
-  };
-}; */
-
-
 const onChat = async () => {
   console.log("Chat btn");
   console.log("otheruserId - ", client.value.author_id);
@@ -659,10 +566,6 @@ const onChat = async () => {
     mode: "pro",
     anchor: getBottomRightAnchor()
   });
-
-
-  //conversationStore.openCreateRoom(otherId, client.value.id, "pro");
-  //conversationStore.openChatWidget();
 }
 
 const makeOfferBtn = () => {
@@ -676,9 +579,6 @@ watch(loading, (val) => {
   document.body.style.overflow = val ? 'hidden' : '';
   document.documentElement.style.overflow = val ? 'hidden' : '';
 });
-
-
-
 
 async function handleOrder() {
   loading.value = true;
@@ -696,7 +596,6 @@ async function handleOrder() {
 function fakeApiCall() {
   return new Promise((resolve) => setTimeout(resolve, 2000));
 }
-
 
 const createOffer = async () => {
   
@@ -721,18 +620,19 @@ const createOffer = async () => {
   console.log("Client in top: " + {client}.value);
   const addressee = client.value.author_id;
   console.log("Addressee - " + addressee);
-  //clientStore.addOffer(client.value.id, offer);
-
-
   try {
     await proStore.addProviderOffer(client.value.id, addressee, offer);
     emit('toast', {
       state: "success",
-      message: `${client.value?.user?.firstName} tilaus. Hintatarjous on lähetetty onnistuneesti!`,
+      message: t('clientOffer.notifications.offer_sent', {
+        name: client.value?.user?.firstName
+      }),
       icon: "fas fa-check fa-lg me-2",
       color: "success"
 
     })
+
+    emit('handle-user-action');
   } catch (error) {
     console.log("CL error " + error.message);
   } finally {
@@ -748,13 +648,10 @@ const quitMapOffer = async () => {
   
 }
 
-
-
 const undoRejectMapOffer = () => {
   isQuitClientBooking.value = false;
   reason.value = "";
 }
-
 
 const confirmClientBooking = async () => {
   showDealConfirm.value = true;
@@ -770,9 +667,14 @@ const confirmDeal = async () => {
   const receiver = client.value.author_id;
   const myself = user.value.id;
   const bookingId = client.value.id;
-  const header = "Sopimus tehty!";
-  const clientContent = `${provider.value.pName} on vahvistanut tilauksen - "${client.value.header}". Tarkemmat tiedot kalenterissa!`;
-  const proContent = `Tilaus "${client.value.header}" on vahvistettu. Tiedot kalenterissa!`;
+  const header = t('clientOffer.notifications.deal_created_title');
+  const clientContent = t('clientOffer.notifications.deal_created_client', {
+    provider: provider.value.pName,
+    booking: client.value.header
+  })
+  const proContent = t('clientOffer.notifications.deal_created_provider', {
+    booking: client.value.header
+  });
 
   const offer = {
     bookingID: client.value.id,
@@ -788,10 +690,8 @@ const confirmDeal = async () => {
     place: offerPlace.value,
     budget: client.value.budget,
     //provider: providerId.value
-    provider: provider.value
+    //provider:   provider.value
   }    
-
-  
 
   const notificationForClient = {
       bookingId: bookingId,
@@ -822,24 +722,25 @@ const confirmDeal = async () => {
   console.log('Button clicked in child')
 
   try {
+    console.log('1 updateRecipientStatus start');
     const confirmation = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
+     console.log('2 updateRecipientStatus done');
     const addConfirmation = await clientService.addConfirmedOffer(bookingId, {offer: offer, confirmed_provider_user_id: myself});
-
+     console.log('3 addConfirmedOffer done');
     if (!confirmation || !addConfirmation) return;
-    emit('just-test');
+    //emit('just-test');
+    emit('handle-user-action');
     emit('toast', {
       state: "success",
-      message: "Asiakkaan tilaus on varmistettu onnistuneesti!",
+      message: t('clientOffer.notifications.order_confirmed'),
       icon: "fas fa-check fa-lg me-2",
       color: "success"
 
     })
-    console.log('grandchild emitted')
-
-    
+    console.log('4 onClientBooking start');
 
     await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, providerId.value, notes);
-
+    console.log('5 onClientBooking done');
     socket.emit('pro-confirm-client', receiver, providerId.value);
 
     console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
@@ -861,46 +762,27 @@ const cancelDeal = () => {
 // Removing client map offer
 const confirmRejectMapBooking = async () => {
   showDeleteModal.value = true;
-  cTitle.value = "Poistetaanko tilaus?";
-  cMessage.value = "Oletko varma, että haluat poistaa asiakkaan tilauksen?";
-  /* if (confirm("Oletko varmaa että tilaus poistetaan?")) {
-    console.log("Quit offer user - " + client.value.author_id);
-    console.log(Object.keys(client.value.user));
-    const bookingId = client.value.id;
-    const addressaat = client.value.author_id;
-    const header = "Tilaus hylätty!"
-    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
-    console.log("111")
-
-    await proStore.removeMapOffer(bookingId, addressaat);
-    console.log("222")
-    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
-  } else {
-    console.log("Keskeytetty poistaminen!");
-  } */
+  cTitle.value = t('clientOffer.delete_title');
+  cMessage.value = t(clientOffer.delete_message);
+  
 }
 
 // Removing client form offer
 const rejectFormBooking = async () => {
   showDeleteModal.value = true;
-  cTitle.value = "Poistetaanko tilaus?";
-  cMessage.value = "Oletko varma, että haluat poistaa asiakkaan tilauksen?";
-  /* if (confirm("Oletko varmaa, että haluat poistaa tilauksen kokonaan?")) {
-    isQuitClientBooking.value = true;
-    console.log("Reject");
-    const receiver = client.value.author_id;
-    console.log("RECEIVER - " + receiver);
-    await proStore.removeBookingPublicOffer(client.value.id, receiver);
-  } else {
-    console.log("Cancelled")
-  } */
+  cTitle.value = t('clientOffer.delete_title');
+  cMessage.value = t('clientOffer.delete_message');
+ 
 }
 
+// Removing booking after confirmation done
 const handleConfirmRemoveClientBooking = async () => {
   console.log("Tilaus poisto confirmed!!!");
   const clientName = client.value?.user?.firstName || 'asiakkaan';
-  const toastMessage = `${clientName} tilaus on poistettu!`;
-  // removing only provider client booking not client itself
+  const toastMessage = t('clientOffer.notifications.order_removed', {
+    name: clientName
+  });
+  // Removing form booking
   if (client.value.isIncludeOffers) {
     isQuitClientBooking.value = true;
     console.log("Reject form booking--");
@@ -915,18 +797,24 @@ const handleConfirmRemoveClientBooking = async () => {
     })
     console.log('grandchild emitted')
     await proStore.removeBookingPublicOffer(client.value.id, receiver);
+    emit('handle-user-action');
     //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
     
   } else {
+    // removing map booking
     console.log("Quit offer user - " + client.value.author_id);
     console.log(Object.keys(client.value.user));
     const bookingId = client.value.id;
     const addressaat = client.value.author_id;
-    const header = "Tilaus hylätty!"
-    const noteContent = `${provider.value.pName} ei hyväksynyt lähettämääsi tilausta "${client.value.header}". Syyksi ilmoitettu: ${reason.value}!`;
+    const header = t('clientOffer.notifications.order_rejected_title');
+    const noteContent = t('clientOffer.notifications.order_rejected', {
+      provider: provider.value.pName,
+      booking: client.value.header,
+      reason: reason.value
+    });
     
     console.log("111 - quit map offer")
-
+    
     emit('toast', {
       state: "info",
       message: toastMessage,
@@ -937,7 +825,8 @@ const handleConfirmRemoveClientBooking = async () => {
     console.log('grandchild emitted')
 
     await proStore.removeMapOffer(bookingId, addressaat);
-    console.log("222")
+    emit('handle-user-action');
+  
     await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
     //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
     
@@ -961,8 +850,8 @@ const handleCancelRemoving = () => {
 #map-container {
   position: relative;
   width: 150px;
-  height: 150px;       /* important! */
-  overflow: hidden;    /* optional, keeps it clean in table cell */
+  height: 150px;
+  overflow: hidden;
 }
 
 @media (max-width: 470px){
@@ -985,10 +874,6 @@ const handleCancelRemoving = () => {
   }
 }
 
-/* .page-wrap{
-  overflow-x: hidden;
-} */
-
 /* The actual map div must fill the container */
 #client-location {
   width: 100%;
@@ -997,7 +882,7 @@ const handleCancelRemoving = () => {
 
 /* Overlay spinner */
 .spinner-overlay {
-  position: absolute;  /* overlay inside #map-container */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -1064,36 +949,12 @@ const handleCancelRemoving = () => {
 
 .photo-overlay p {
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow: hidden  ;
+  overflow: hidden;
   
 }
-
-
-
-
-/* .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #ddd;
-  border-top-color: #333;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: auto;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-} */
-
-
-
-
-
-
 
 .spinner {
   width: 30px;

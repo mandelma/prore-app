@@ -20,7 +20,7 @@
             </div>
         </div>
         <div v-else>
-            <p class="text-muted" style="text-align: center;">Ei vielä annettua kirjallisia arvosteluja!</p>
+            <p class="text-muted" style="text-align: center;">{{ t('feedback.no_written_reviews') }}</p>
         </div>
         
         
@@ -29,6 +29,7 @@
 </template>
 <script setup>
 import { MDBContainer, MDBCard, MDBCardBody, MDBCardText, MDBCardTitle, MDBBadge, MDBBtnClose, MDBCardHeader } from 'mdb-vue-ui-kit';
+import { useI18n } from 'vue-i18n';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia';
@@ -45,25 +46,18 @@ const props = defineProps({
     target: {type: Object}
 })
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const providerStore = useProStore();
 const provider = ref(null);
 
-//const provider = computed(() => providerStore?.provider);
-
-
-//const providerId = computed(() => route.params.id);
-
 onMounted( async() => {
-    
-    // 1. If component received provider via props, use it
     if (props.target) {
         provider.value = props.target;
         return;
     }
 
-    // 2. Otherwise get id from route params and fetch
     const providerId = route.params.id;
 
     if (providerId) {

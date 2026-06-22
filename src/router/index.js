@@ -9,13 +9,26 @@ const routes = [
         name: "Root",
         beforeEnter: async (to, from, next) => {
             const proStore = useProStore();
-            const providerCount = proStore.isUserPro; // your logic here
 
-            if (providerCount) {
-                next({ name: "providerAdmin" });
-            } else {
-                next({name: 'Home'});
+            const savedUser = localStorage.getItem("loggedAppUser");
+
+            if (!savedUser) {
+                return next({ name: "Home" });
             }
+
+            const user = JSON.parse(savedUser);
+
+            try {
+                await proStore.getProState(user.id);
+            } catch (e) {
+                proStore.isUserPro = false;
+            }
+
+            if (proStore.isUserPro) {
+                return next({ name: "providerAdmin" });
+            }
+
+            return next({ name: "Home" });
         }
     },
     {
@@ -76,18 +89,24 @@ const routes = [
         })
     },
     {
-        path: "/pro-form",
-        name: "provider-form",
+        path: "/provider-form",
+        name: "ProviderForm",
         component: () => import("../components/provider/ProviderForm.vue"),
-        meta: {
-            requiresAuth: true
+        meta: { requiresAuth: true },
+        beforeEnter: async (to, from, next) => {
+            const savedUser = localStorage.getItem("loggedAppUser");
+            const user = JSON.parse(savedUser);
+            const proStore = useProStore();
+
+            await proStore.getProState(user.id);
+
+            if (proStore.isUserPro) {
+                return next({ name: "providerAdmin" });
+            }
+
+            return next();
         }
     },
-    /* {
-        path: "/pro-panel",
-        name: "pro-panel",
-        component: () => import("../components/provider/ProviderPanel.vue")
-    }, */
     {
         path: "/feedback/:id",
         name: "pro-feedback",

@@ -186,16 +186,48 @@ const clientInitial = () => {
 
 // <!-- <span class="btn-hero__icon">🔍</span> -->
 // <!-- <span class="btn-hero__icon btn-hero__icon--accent">＋</span> -->
-const proInitial = () => {
+/* const proInitial = () => {
   console.log("Pro form");
   if (proStore.isUserPro) {
-    //router.push('/pro-panel');
     router.push('/admin/provider')
   } else {
     router.push('/pro-form');
   }
+} */
 
-}
+const proInitial = async () => {
+  const savedUser = localStorage.getItem("loggedAppUser");
+
+  if (!savedUser) {
+    router.push({
+      path: "/login-panel",
+      query: { redirect: "/provider-form" }
+    });
+    return;
+  }
+
+  const user = JSON.parse(savedUser);
+
+  await proStore.getProState(user.id);
+
+  if (proStore.isUserPro) {
+    return router.push({ name: "providerAdmin" });
+  }
+
+  return router.push({ name: "ProviderForm" });
+
+  /* try {
+    await proStore.getProState(user.id);
+  } catch (e) {
+    proStore.isUserPro = false;
+  }
+
+  if (proStore.isUserPro) {
+    router.push("/admin/provider");
+  } else {
+    router.push("/pro-form");
+  } */
+};
 
 </script>
 

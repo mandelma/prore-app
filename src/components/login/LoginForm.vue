@@ -11,20 +11,18 @@
             toast="danger"
             icon="fas fa-exclamation-circle fa-lg me-2"
         >
-          <template #title> TAPAHTUI VIRHE! </template>
+          <template #title> {{t('login.error_title')}} </template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
           <template #small></template>
           {{ loginErrorMessage }}
         </MDBToast>
       </div>
 
-
-
       <form class="form-card" @submit.prevent="userLoginData" autocomplete="off">
         <MDBInput
             type="text"
             size="lg"
-            :label="t('login_uername')"
+            :label="t('login.username')"
             id="loginUsername"
             v-model="loginUsername"
 
@@ -33,10 +31,9 @@
 
         <!-- Password input -->
         <MDBInput
-
             type="password"
             size="lg"
-            :label="t('login_password')"
+            :label="t('login.password')"
             id="loginPassword"
             v-model="loginPassword"
             wrapperClass="mb-4"
@@ -47,7 +44,7 @@
           <MDBCol class="d-flex justify-content-center">
             <!-- Checkbox -->
             <MDBCheckbox
-                :label="t('login_rememberme')"
+                :label="t('login.rememberme')"
                 id="loginCheck"
                 v-model="loginCheck"
                 wrapperClass="mb-3 mb-md-0"
@@ -56,17 +53,17 @@
 
           <MDBCol>
             <!-- Simple link -->
-            <router-link to="/forgot_auth">{{ t('login_forgot_password') }}</router-link>
+            <router-link to="/forgot_auth">{{ t('login.forgot_password') }}</router-link>
             <!--          <a href="/recipients">Unohtuiko salasana?</a>-->
           </MDBCol>
         </MDBRow>
 
         <!-- Submit button -->
-        <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> {{ t('login_log_in') }} </MDBBtn>
+        <MDBBtn color="primary" size="lg" type="submit" block class="mb-4"> {{ t('login.log_in') }} </MDBBtn>
 
         <!-- Register buttons -->
         <div class="text-center">
-          <p style="color: #22D3EE;">{{ t('login_no_member') }} <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">{{ t('login_register') }}</span></p>
+          <p style="color: #22D3EE;">{{ t('login.no_member') }} <span id="reg" @click="$router.push('/register-panel')" style="cursor: pointer; color: #0E7490;">{{ t('login.register') }}</span></p>
         </div>
       </form>
     </MDBContainer>
@@ -82,7 +79,6 @@ import { useRouter } from 'vue-router';
 import { useI18n } from "vue-i18n";
 defineOptions({
   name: 'LoginForm'
-  // you can also set other options here if needed
 })
 const { t } = useI18n();
 const loginUsername = ref("");
@@ -120,16 +116,15 @@ const userLoginData = async () => {
       userApp.onLogin(res);
     } catch (err) {
       console.log("Login request failed:", err);
-      loginErrorMessage.value = "Väärä käyttäjätunnus tai salasana!"
+      loginErrorMessage.value = t('login.error_invalid_credentials')
       loginError.value = true;
     }
   } else {
     console.log("Error - Kaikki kentät ovat täytettävä!")
     loginError.value = true;
-    loginErrorMessage.value = "kaikki kentät ovat täytettävä!"
+    loginErrorMessage.value = t('login.error_required_fields')
   }
 
-  //this.$emit('login:data', userLogin)
   emptyLoginFields();
 }
 const emptyLoginFields = () => {
@@ -150,6 +145,6 @@ const emptyLoginFields = () => {
 /* keep container from stretching wide */
 .auth-container{
   width: 100%;
-  max-width: 520px; /* adjust */
+  max-width: 520px;
 }
 </style>

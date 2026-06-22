@@ -1,9 +1,56 @@
 {
-  "login": "Kirjaudu",
+  "main_login": "Kirjaudu",
   "home_title": "Nopeus on tärkkein!",
   "home_client_btn": "Etsin palvelua",
   "home_pro_btn": "Tarjoan palvelua",
   "client_form_offersOrQuickSolution": "Täytä tilaus tarjousten varten tai löytää nopea ratkaisu kartalta!",
+
+  "loginRegister": {
+    "login": "Kirjaudu",
+    "register": "Rekisteröidy"
+  },
+
+  "login": {
+    "username": "Käyttäjätunnus",
+    "password": "Salasana",
+    "rememberme": "Muista minut",
+    "forgot_password": "Unohdin salasanani",
+    "log_in": "Kirjaudu sisään",
+    "no_member": "Etkö ole jäsen?",
+    "register": "Rekisteröidy",
+    "error_title": "VIRHE!",
+    "error_invalid_credentials": "Virheellinen käyttäjätunnus tai salasana!",
+    "error_required_fields": "Kaikki kentät ovat pakollisia!"
+  },
+
+  "register": {
+    "firstname": "Etunimi",
+    "lastname": "Sukunimi",
+    "username": "Käyttäjätunnus",
+    "email": "Sähköposti",
+    "password_1": "Salasana",
+    "password_2": "Toista salasana",
+    "remember_me": "Muista minut",
+    "create_account": "Luo tili",
+
+    "error_title": "VIRHE!",
+    "terms": {
+      "accept_prefix": "Olen lukenut ja hyväksyn",
+      "terms_link": "käyttöehdot",
+      "required": "Sinun tulee hyväksyä käyttöehdot jatkaaksesi."
+    },
+    "validation": {
+      "password_requirements": "Salasanan on oltava vähintään 8 merkkiä pitkä ja sen on sisällettävä iso kirjain, numero ja erikoismerkki.",
+      "username_too_short": "Käyttäjätunnuksen on oltava vähintään 4 merkkiä pitkä.",
+      "invalid_email": "Anna kelvollinen sähköpostiosoite.",
+      "passwords_not_match": "Salasanojen on oltava samat.",
+      "username_exists": "Käyttäjätunnus on jo olemassa! Vaihda käyttäjätunnus.",
+      "email_exists": "Antamasi sähköpostiosoite on jo olemassa.",
+      "required_fields": "Kaikki kentät ovat täytettävä."
+    }
+  },
+
+  
 
   "recipient_panel_confirmed_orders": "Vahvistetut varaukset",
   "recipient_panel_you_have": "Sinulla on",
@@ -39,25 +86,8 @@
   "recipient_result_remove_order": "Poista tilaus",
   "recipient_final_feedback": "Palautteet",
 
-  "register_firstname": "Etunimi",
-  "register_lastname": "Sukunimi",
-  "register_username": "Käyttäjätunnus",
-  "register_email": "Sähköposti",
-  "register_password_1": "Salasana",
-  "register_password_2": "Toista salasana",
-  "register_remember_me": "Muista minut",
-  "register_create_account": "Luo tili",
-
-  "login_uername": "Käyttäjätunnus",
-  "login_password": "Salasana",
-  "login_rememberme": "Muista minut",
-  "login_forgot_password": "Unohdin salasanan",
-  "login_log_in": "Kirjaudu",
-  "login_no_member": "Ei jäsen?",
-  "login_register": "Registeröidy",
 
   
-
   "client_form_offersOrOnMap": "Täytä tilaus tarjousten varten tai löytää nopea ratkaisu kartalta!",
   "client_form_profession_field": "Valitse ammattilainen *",
   "client_form_title": "Syötä tilauksen avainsana *",
@@ -156,6 +186,146 @@
     "commentTableOnMd": "Taulukko keskikokoisilla ja suuremmilla näytöillä",
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisäosiot: aikataulu, ilmoitukset ja laskutuksen yhteenveto",
     "commentSimpleToast": "Yksinkertainen ilmoitus"
+  },
+
+  "dealConfirm": {
+    "title": "Vahvista kauppa",
+    "message": "Haluatko varmasti vahvistaa tämän kaupan?",
+    "confirm": "Vahvista kauppa",
+    "cancel": "Peruuta"
+  },
+
+  "confirmModal": {
+    "title": "Vahvista toiminto",
+    "message": "Haluatko varmasti jatkaa?",
+    "confirm": "Vahvista",
+    "cancel": "Peruuta"
+  },
+
+  "clientAround": {
+    "refresh": "Päivitä",
+    "address": "Osoitteeni",
+    "select_profession": "Valitse ammattisi *",
+    "search_distance": "Etsi etäisyys",
+    "found_clients": "Löydetyt asiakkaat",
+    "panel": "Paneeli",
+    "toast_title": "PROKEIKKATORI",
+    "location_error": "Sijaintia ei voitu hakea.",
+    "updating_location": "Päivitetään sijaintia...",
+    "your_location": "Sijaintisi",
+    "client_marker_title": "Tarvitaan",
+    "no_clients_found": "Valitulla ammatilla ja etäisyydellä ei löytynyt asiakkaita.",
+    "try_adjust_filters": "Kokeile vaihtaa ammattia tai suurentaa hakualuetta."
+  },
+
+  "clientOffer": {
+    "maps_error_title": "VIRHE!",
+    "maps_error_message": "⚠️ Google Mapsia ei voitu ladata juuri nyt. Tarkista verkkoyhteytesi ja yritä myöhemmin uudelleen.",
+    "address": "Osoite",
+    "professional_needed": "Tarvitaan ammattilaista",
+    "date": "Ajankohta",
+    "description": "Tehtävän kuvaus",
+    "budget": "Budjetti",
+    "no_budget": "Ei budjettia",
+    "photos": "Kuvat tehtävästä",
+    "distance": "Etäisyys",
+    "travel_time": "Matka-aika",
+    "location": "Sijainti",
+    "make_offer": "Tee hintatarjous",
+    "delete_order": "Poista tilaus",
+    "confirm_order": "Varmista tilaus",
+    "offer_price": "Tarjoa hintasi",
+    "offer_at_client": "Tarjoan palvelua asiakkaan luona",
+    "offer_at_my_place": "Tarjoan palvelua omassa toimipisteessä",
+    "offer_details": "Anna tarvittaessa lisäselvityksiä...",
+    "send_offer": "Lähetä",
+    "reason": "Anna syy...",
+    "confirm_delete": "Varmista poisto",
+    "delete_title": "Poistetaanko tilaus?",
+    "delete_message": "Oletko varma, että haluat poistaa asiakkaan tilauksen?",
+    "deal_title": "Sopimus!",
+    "deal_confirm": "Olet vahvistamassa {name} tilausta. Haluatko varmasti vahvistaa tilauksen?",
+    "deal_confirm_button": "Hienoa!",
+    "deal_cancel_button": "Peruuta",
+    "keep_button": "Pidä se",
+    "notifications": {
+      "order_removed": "{name} tilaus on poistettu!",
+      "offer_sent": "{name} tilaus. Hintatarjous on lähetetty onnistuneesti!",
+      "order_confirmed": "Asiakkaan tilaus on vahvistettu onnistuneesti!",
+      "deal_created_title": "Sopimus tehty!",
+      "deal_created_client": "{provider} on vahvistanut tilauksen \"{booking}\". Tarkemmat tiedot kalenterissa!",
+      "deal_created_provider": "Tilaus \"{booking}\" on vahvistettu. Tiedot kalenterissa!",
+      "order_rejected_title": "Tilaus hylätty!",
+      "order_rejected": "{provider} ei hyväksynyt lähettämääsi tilausta \"{booking}\". Syyksi ilmoitettu: {reason}."
+    }
+  },
+
+  "clientOfferList": {
+    "credit_expired": "Luotto on vanhentunut, et voi enää toimia!",
+    "add_credit": "Lisää luottoa",
+    "offer_sent": "Tarjous lähetetty",
+    "make_offer": "Tee tarjous",
+    "confirm_order": "Varmista tilaus",
+    "booking_removed": "{name} on poistanut tilauksen!",
+    "done": "Valmis",
+    "order_confirmed_by_you": "Olet vahvistanut tilauksen!",
+    "minutes_ago": "{count} minuuttia sitten",
+    "hours_ago": "{count} tuntia sitten",
+    "days_ago": "{count} päivää sitten"
+  },
+
+  "feedback": {
+    "no_written_reviews": "Ei vielä annettuja kirjallisia arvosteluja!"
+  },
+
+  "photoGallery": {
+    "references": "Referenssit",
+    "add": "Lisää",
+    "edit": "Muokkaa",
+    "service_photo": "Kuva palvelusta",
+    "no_images": "Ei vielä kuvia",
+    "empty_text": "Lisää kuvia palvelustasi asiakkaille näkyviksi.",
+    "dropzone_title": "Vedä ja pudota kuvia tähän",
+    "dropzone_text": "tai paina “Lisää kuvia”",
+    "description_placeholder": "Lisää kuvaus...",
+    "cancel": "Peruuta",
+    "save_changes": "Tallenna muutokset",
+    "replace": "Korvaa",
+    "delete": "Poista",
+    "reference_photo": "Referenssikuva"
+  },
+
+  "providerForm": {
+    "notifications": {
+      "error_title": "TAPAHTUI VIRHE!",
+      "form_fields_required": "Tarkista lomakkeen pakolliset kentät!",
+      "google_maps_failed": "Google Mapsin lataus epäonnistui. Tarkista internetyhteys!",
+      "provider_create_failed": "Tapahtui virhe, yritä uudelleen!"
+    },
+    "fields": {
+      "company_name": "Anna yrityksen tai oma nimesi *",
+      "business_id": "Anna yrityksen Y-tunnus",
+      "address": "Anna osoite",
+      "service_radius": "Anna toiminta-alueen säde (km)",
+      "profession": "Valitse ammatti *",
+      "hourly_price": "Tuntihinta",
+      "hourly_price_input": "Anna tuntihinta",
+      "fixed_price": "Urakkahinta",
+      "description": "Kirjoita tähän jotain itsestäsi ja toiminnastasi...",
+      "website": "Anna yrityksen verkkosivun osoite (jos on)"
+    },
+    "help": {
+      "radius_info": "Jos sädettä ei ole määritetty, tarjoat palvelua vain ilmoitetussa osoitteessa."
+    },
+    "buttons": {
+      "create_account": "Luo tili"
+    },
+    "validations": {
+      "name_required": "Nimi on pakollinen!",
+      "business_id_required": "Y-tunnus on pakollinen!",
+      "profession_required": "Ammatti on pakollinen!",
+      "address_required": "Osoite on pakollinen!"
+    }
   }
 }
 

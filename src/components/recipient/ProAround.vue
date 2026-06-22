@@ -35,7 +35,7 @@
             </MDBBtn>
           </div>
         </div>
-
+        
         <div class="field-wrapper">
           <Select
             v-model="profession"
@@ -243,6 +243,7 @@ const emit = defineEmits([ 'open-chat' ]);
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
+const { otherChatUsers } = storeToRefs(convoStore);
 
 const address = ref("");
 const selectedPlaceId = ref(null)
@@ -1026,10 +1027,10 @@ const otherUserLocations = async (providers, profession, dist) => {
                   </div>
                 `)
                 .join("");
-
-              const orderButton = provider.id !== providerId.value
-                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">TEE TILAUS</button>`
-                : "";
+            
+              const orderButton = provider.id !== providerId.value && otherChatUsers.value[provider?.user?.id]
+                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">TILAUS</button>`
+                : `<div class="order-btn-placeholder"></div>`;
 
               const chatButton = provider.id !== providerId.value
                 ? `<button class="chat-btn" onclick="myChatFunction(${p})">
@@ -1173,6 +1174,10 @@ const handleSelectedPro = (pro) => {
   onProvider.value = pro;
   displayProPanel.value = true;
 }
+
+watch (otherChatUsers, (users) => {
+  console.log("Chat users--- ", users)
+})
 
 //Open chat widget inside marker infowindow
 const handleOpenChat = (otherId) => {
@@ -2003,6 +2008,10 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 :deep(.infowindow-footer) {
   display: flex;
   justify-content: space-between;
+}
+
+.order-btn-placeholder {
+  width: 120px; /* same width as order button */
 }
 
 .info-table td:last-child {

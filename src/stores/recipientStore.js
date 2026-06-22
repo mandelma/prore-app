@@ -29,7 +29,7 @@ export const useClientStore = defineStore('client', () => {
 
     const isBookings = computed(() => !!count.value)
     const clientNewOffersAmount = computed(() => clientNewOffers.value.length);
-    const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed' || order.status === 'done') || []);
+    const clientConfirmed = computed(() => bookings.value.filter(order => order.status === 'confirmed' || order.status === 'done'));
     const liveBookings = computed(() => bookings.value.filter(booking => booking.status === 'active') || []);
     const archivedBookings = computed(() => bookings.value.filter(item => item.status === 'archieved') || []);
     const confirmedOffer = 0
@@ -66,9 +66,25 @@ export const useClientStore = defineStore('client', () => {
         return msTime < ms_now;
     }
 
-    const removeExpiredBookings = (orders) => {
+    /* const removeExpiredBookings = (orders) => {
         const ms_now = new Date().getTime();
-        return orders.filter(order => order.created_ms > ms_now);
+        const pendingOrders = orders.filter(pb => pb.status !== "confirmed");
+        console.log("PO - ", pendingOrders)
+        return orders.filter(order => order.created_ms > ms_now && order.status !== "confirmed");
+    } */
+
+    const removeExpiredBookings = (orders) => {
+        const now = Date.now();
+
+        return orders.filter(
+            order =>
+                ['confirmed', 'done'].includes(order.status) ||
+                order.created_ms > now
+        );
+    };
+
+    const removeExpiredPendingBookings = (orders) => {
+
     }
     
     const orderList = async(id) => {

@@ -280,7 +280,7 @@
   const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 
   const errors = reactive({});
-  //const isValidating = ref(false);
+  const isValidating = ref(false);
 
   const validateForm = () => {
     errors.address = form.address ? "" : "Osoite on pakollinen kenttä";

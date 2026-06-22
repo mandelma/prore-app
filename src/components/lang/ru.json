@@ -1,4 +1,48 @@
 {
+    "loginRegister": {
+        "login": "Войти",
+        "register": "Регистрация"
+    },
+    
+    "login": {
+        "username": "Имя пользователя",
+        "password": "Пароль",
+        "rememberme": "Запомнить меня",
+        "forgot_password": "Забыли пароль?",
+        "log_in": "Войти",
+        "no_member": "Ещё не зарегистрированы?",
+        "register": "Регистрация",
+        "error_title": "ОШИБКА!",
+        "error_invalid_credentials": "Неверное имя пользователя или пароль!",
+        "error_required_fields": "Все поля обязательны для заполнения!"
+    },
+
+    "register": {
+        "firstname": "Имя",
+        "lastname": "Фамилия",
+        "username": "Имя пользователя",
+        "email": "Электронная почта",
+        "password_1": "Пароль",
+        "password_2": "Повторите пароль",
+        "remember_me": "Запомнить меня",
+        "create_account": "Создать аккаунт",
+        "error_title": "ОШИБКА!",
+        "terms": {
+            "accept_prefix": "Я прочитал(а) и принимаю",
+            "terms_link": "условия использования",
+            "required": "Для продолжения необходимо принять условия использования."
+        },
+        "validation": {
+            "password_requirements": "Пароль должен содержать не менее 8 символов, включая заглавную букву, цифру и специальный символ.",
+            "username_too_short": "Имя пользователя должно содержать не менее 4 символов.",
+            "invalid_email": "Введите корректный адрес электронной почты.",
+            "passwords_not_match": "Пароли должны совпадать.",
+            "username_exists": "Имя пользователя уже существует. Пожалуйста, выберите другое.",
+            "email_exists": "Указанный адрес электронной почты уже используется.",
+            "required_fields": "Все поля обязательны для заполнения."
+        }
+    },
+
     "home": {
         "title": "Скорость важнее всего!",
         "clientButton": "Ищу услугу",
@@ -86,5 +130,145 @@
         "commentTableOnMd": "Таблица на средних и больших экранах",
         "commentExtrasScheduleAlertsBillingSnapshot": "Дополнительно: расписание, уведомления и обзор платежей",
         "commentSimpleToast": "Простое уведомление"
+    },
+
+    "dealConfirm": {
+        "title": "Подтвердить сделку",
+        "message": "Вы уверены, что хотите подтвердить эту сделку?",
+        "confirm": "Подтвердить сделку",
+        "cancel": "Отмена"
+    },
+
+    "confirmModal": {
+        "title": "Подтвердить действие",
+        "message": "Вы уверены, что хотите продолжить?",
+        "confirm": "Подтвердить",
+        "cancel": "Отмена"
+    },
+
+    "clientAround": {
+        "refresh": "Обновить",
+        "address": "Мой адрес",
+        "select_profession": "Выберите профессию *",
+        "search_distance": "Расстояние поиска",
+        "found_clients": "Найденные клиенты",
+        "panel": "Панель",
+        "toast_title": "PROKEIKKATORI",
+        "location_error": "Не удалось получить местоположение.",
+        "updating_location": "Обновление местоположения...",
+        "your_location": "Ваше местоположение",
+        "client_marker_title": "Требуется",
+        "no_clients_found": "По выбранной профессии и расстоянию клиенты не найдены.",
+        "try_adjust_filters": "Попробуйте изменить профессию или увеличить радиус поиска."
+    },
+
+    "clientOffer": {
+        "maps_error_title": "ОШИБКА!",
+        "maps_error_message": "Не удалось загрузить Google Maps. Проверьте подключение к интернету и попробуйте позже.",
+        "address": "Адрес",
+        "professional_needed": "Требуется специалист",
+        "date": "Дата",
+        "description": "Описание задачи",
+        "budget": "Бюджет",
+        "no_budget": "Без бюджета",
+        "photos": "Фотографии",
+        "distance": "Расстояние",
+        "travel_time": "Время в пути",
+        "location": "Местоположение",
+        "make_offer": "Сделать предложение",
+        "delete_order": "Удалить заказ",
+        "confirm_order": "Подтвердить заказ",
+        "offer_price": "Укажите цену",
+        "offer_at_client": "Оказываю услугу у клиента",
+        "offer_at_my_place": "Оказываю услугу у себя",
+        "offer_details": "Дополнительная информация...",
+        "send_offer": "Отправить",
+        "reason": "Укажите причину...",
+        "confirm_delete": "Подтвердить удаление",
+        "delete_title": "Удалить заказ?",
+        "delete_message": "Вы уверены, что хотите удалить заказ клиента?",
+        "deal_title": "Соглашение!",
+        "deal_confirm": "Вы собираетесь подтвердить заказ клиента {name}. Продолжить?",
+        "deal_confirm_button": "Отлично!",
+        "deal_cancel_button": "Отмена",
+        "keep_button": "Оставить",
+        "notifications": {
+            "order_removed": "Заказ клиента {name} удалён!",
+            "offer_sent": "Ценовое предложение по заказу {name} успешно отправлено!",
+            "order_confirmed": "Заказ клиента успешно подтверждён!",
+            "deal_created_title": "Соглашение подтверждено!",
+            "deal_created_client": "{provider} подтвердил заказ \"{booking}\". Подробности смотрите в календаре.",
+            "deal_created_provider": "Заказ \"{booking}\" подтверждён. Подробности смотрите в календаре.",
+            "order_rejected_title": "Заказ отклонён!",
+            "order_rejected": "{provider} отклонил ваш заказ \"{booking}\". Причина: {reason}."
+        }
+    },
+
+    "clientOfferList": {
+        "credit_expired": "Ваш кредит истёк, вы больше не можете выполнять действия!",
+        "add_credit": "Пополнить кредит",
+        "offer_sent": "Предложение отправлено",
+        "make_offer": "Сделать предложение",
+        "confirm_order": "Подтвердить заказ",
+        "booking_removed": "{name} удалил заказ!",
+        "done": "Готово",
+        "order_confirmed_by_you": "Вы подтвердили заказ!",
+        "minutes_ago": "{count} минут назад",
+        "hours_ago": "{count} часов назад",
+        "days_ago": "{count} дней назад"
+    },
+
+    "feedback": {
+        "no_written_reviews": "Письменных отзывов пока нет!"
+    },
+
+    "photoGallery": {
+        "references": "Референсы",
+        "add": "Добавить",
+        "edit": "Редактировать",
+        "service_photo": "Фото услуги",
+        "no_images": "Пока нет изображений",
+        "empty_text": "Добавьте фотографии вашей услуги, чтобы клиенты могли их увидеть.",
+        "dropzone_title": "Перетащите изображения сюда",
+        "dropzone_text": "или нажмите “Добавить изображения”",
+        "description_placeholder": "Добавить описание...",
+        "cancel": "Отмена",
+        "save_changes": "Сохранить изменения",
+        "replace": "Заменить",
+        "delete": "Удалить",
+        "reference_photo": "Референсное фото"
+    },
+
+    "providerForm": {
+        "notifications": {
+            "error_title": "ОШИБКА!",
+            "form_fields_required": "Пожалуйста, заполните все обязательные поля!",
+            "google_maps_failed": "Не удалось загрузить Google Maps. Проверьте подключение к интернету!",
+            "provider_create_failed": "Произошла ошибка. Попробуйте снова!"
+        },
+        "fields": {
+            "company_name": "Введите название компании или своё имя *",
+            "business_id": "Введите регистрационный номер компании",
+            "address": "Введите адрес",
+            "service_radius": "Введите радиус обслуживания (км)",
+            "profession": "Выберите профессию *",
+            "hourly_price": "Почасовая ставка",
+            "hourly_price_input": "Введите почасовую ставку",
+            "fixed_price": "Фиксированная цена",
+            "description": "Расскажите немного о себе и своей деятельности...",
+            "website": "Введите адрес сайта компании (если есть)"
+        },
+        "help": {
+            "radius_info": "Если радиус не указан, услуга предоставляется только по указанному адресу."
+        },
+        "buttons": {
+            "create_account": "Создать аккаунт"
+        },
+        "validations": {
+            "name_required": "Имя обязательно!",
+            "business_id_required": "Регистрационный номер обязателен!",
+            "profession_required": "Профессия обязательна!",
+            "address_required": "Адрес обязателен!"
+        }
     }
 }

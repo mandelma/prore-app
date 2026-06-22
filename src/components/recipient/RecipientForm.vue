@@ -1083,7 +1083,7 @@ const createClient = async() => {
     clientFormErrorMsg.value = "Kentät pitäisi huomioida!"
     isInitClientError.value = true;
   } else {
-    console.log("Header - " + form.orderHeader);
+    //console.log("Header - " + form.orderHeader);
     const dateObj = parseDmyTime(form.dateTime);
     let ms;
     if (dateObj) {

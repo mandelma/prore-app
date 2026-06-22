@@ -3,10 +3,10 @@
     <MDBTabs v-model="form1ActiveTab">
       <MDBTabNav pills justify tabsClasses="mb-3" style="margin: 33px auto;">
         <MDBTabItem style="background-color: #37546a; color: #ddd;" @click="pressLoginTab" tabId="ex3-1" href="ex3-1"
-        >Kirjaudu</MDBTabItem
+        >{{ t('loginRegister.login') }}</MDBTabItem
         >
         <MDBTabItem style="background-color: #223340; color: #ddd;" @click="pressRegisterTab" tabId="ex3-2" href="ex3-2"
-        >Registeröidy</MDBTabItem
+        >{{ t('loginRegister.register') }}</MDBTabItem
         >
       </MDBTabNav>
 
@@ -35,10 +35,11 @@
   import { ref } from 'vue';
   import LoginPanel from '@/components/login/LoginForm.vue'
   import RegisterPanel from '@/components/login/RegisterForm.vue'
+  import { useI18n } from 'vue-i18n';
   defineOptions({
     name: 'LoginRegister'
-    // you can also set other options here if needed
   })
+  const {t} = useI18n();
   const form1ActiveTab = ref('ex3-1')
   const isLogin = ref(true)
   const isRegister = ref(false);

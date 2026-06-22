@@ -22,8 +22,8 @@ defineOptions({ name: 'HandleToast' })
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
-  toastName: { type: String, default: '' },  // e.g. 'success' | 'danger'
-  iconState: { type: String, default: '' },   // optional, depends on MDB version
+  toastName: { type: String, default: '' },
+  iconState: { type: String, default: '' },
   text: { type: String, default: '' },
 })
 

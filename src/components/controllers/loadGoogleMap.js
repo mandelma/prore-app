@@ -10,7 +10,7 @@ export function loadGoogleMaps() {
             libraries: ['places', 'geometry', 'marker'],
             
         });
-        mapsPromise = loader.load();   // load once
+        mapsPromise = loader.load();
     }
-    return mapsPromise;              // reuse same promise
+    return mapsPromise;
 }

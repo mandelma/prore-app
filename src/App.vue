@@ -1,5 +1,4 @@
 <template>
-<!--  light-->
 <!--  style="background-color: #275155"-->
   <div class="app-shell">
     <MDBNavbar class="dark" position="top" container expand="lg">
@@ -47,8 +46,6 @@
                   />
                 </template>
 
-                
-                
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
@@ -109,14 +106,7 @@
         <form class="form-card">
           <div class="mb-3">
             <h6 class="col-form-label" style="color: orange;">PROKEIKKATORI</h6>
-            <!-- <input
             
-              type="text"
-              class="form-control"
-              
-              id="recipient-name"
-              :value="modalContent"
-            /> -->
           </div>
           <div class="mb-3">
             <label for="message-text" class="col-form-label" style="color: #ddd;">Palautetta</label>
@@ -175,6 +165,8 @@
 
             @open-chat="handleOpenChat"
 
+            @handle-user-action="sendUserAction"
+
             @confirm-order-toast="hConfirmOrderToast"
 
             :provider="provider"
@@ -211,34 +203,9 @@
     
     
     
-    <!-- Processed {{ processedActions }}
-    <MDBBtn color="info" @click="doAction">Action</MDBBtn> -->
-
-
-<!--    <h2>is user pro  {{isUserPro}}</h2><br>-->
-<!--    <h2>incoming offers {{incomingOffers}}</h2><br>-->
-<!--    <p>offers count {{incomingOffersCount}}</p><br>-->
-<!--    <p>Credit left: {{proCredit}}</p><br>-->
-<!--    <p>Incoming offers {{isIncomingOffers}}</p><br>-->
-<!--    <p>booking {{bookings}}</p><br>-->
-<!--    <p>Is bookings {{isBookings}}</p><br>-->
-<!--    <p>Bookings count {{count}}</p><br>-->
-<!--    <p>Is pro {{isUserPro}}</p>-->
-
-
-
-<!--    <p v-if="isLoading">Loading…</p>-->
-<!--    <p v-else-if="error" class="text-red-600">{{ error }}</p>-->
-<!--    <template v-else>-->
-<!--      <h2>My bookings ({{ count }})</h2>-->
-<!--      <ul v-if="bookings.length">-->
-<!--        <li v-for="b in bookings" :key="b.id">-->
-<!--          {{ b.header }} — {{ b.date }}-->
-<!--        </li>-->
-<!--      </ul>-->
-<!--      <p v-else>No bookings yet.</p>-->
-<!--    </template>-->
-
+    <!--  Processed {{ processedActions }}
+    <MDBBtn color="info" @click="doAction">Action</MDBBtn>
+    -->
     <MDBFooter
 
         bg="none"
@@ -250,8 +217,7 @@
         <!-- Section: CTA -->
        <section v-if="login.isAuthenticated" class="">
         <p class="d-flex justify-content-left align-items-center">
-<!--            <span class="me-3">Register for free</span>-->
-          <MDBBtn outline="light" rounded @click="contactModal = true"> Lähettää palauttetta </MDBBtn>
+          <MDBBtn outline="light" rounded @click="contactModal = true"> Palauttetta sovelluksesta</MDBBtn>
         </p>
        </section>
         <!-- Section: CTA -->
@@ -259,22 +225,17 @@
 
          </section>
       </MDBContainer>
-      <!-- Grid container -->
-      <!-- Copyright -->
       
+      <!-- Copyright -->
       <div
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
       >
         © 2025 Copyright: DuVa OY
-
       </div>
       <!-- Copyright -->
     </MDBFooter>
   </div>
-
-
-
 
 </template>
 
@@ -1193,7 +1154,8 @@ const hConfirmOrderToast = () => {
 
 // Client created booking and finding matching providers to send this booking to
 const handleCreateBookingMultiple = async (booking) => {
-
+  // Same user all devices update
+  sendUserAction();
   console.log("Booking zone - " + booking.zone);
   booking.ordered = [];
   //const createBookingStatus = await recipientService.updateRecipient(booking.id, {status: "notSeen"});
@@ -1270,11 +1232,7 @@ const handleCreateBookingMultiple = async (booking) => {
 
 
   }
-  // if (_image) {
-  //   booking.image = [];
-  //   booking.image = booking.image.concat(_image);
-  //   console.log("IMAGE DATA " + image.name)
-  // }
+  
   console.log("proIdArr length is " + proIdArr.length)
 
   if (proIdArr.length > 0) {
@@ -1289,9 +1247,6 @@ const handleCreateBookingMultiple = async (booking) => {
 
   await router.push('/client-panel');
 
-  //const proBooking = await recipientService.getBookingById(booking.id);
-  //socket.emit("send created booking", proIdArr, proBooking);
-  //this.recipientBookings = this.recipientBookings.concat(booking);
 }
 
 const handleOver = (greeting) => {

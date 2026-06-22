@@ -1,3 +1,4 @@
+// Calendar event types
 export const EVENT_TYPES = {
     client:  { label: 'Confirmed offer',     class: 'event-client',  color: '#48769c' },
     time:   { label: 'Time', class: 'event-time',   color: '#e29657' },

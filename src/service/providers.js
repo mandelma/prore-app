@@ -11,11 +11,13 @@ const getProviders = async () => {
     return result.data;
 }
 
+// Get provider count by personal id
 const getProvider = async (id) => {
     const provider = await axios.get(`${baseUrl}/${id}`);
     return provider.data;
 }
 
+// Get provider count by provider count id
 const getProvByProvId = async (id) => {
     const prov = await axios.get(`${baseUrl}/${id}/by-provider-id`);
     return prov.data;

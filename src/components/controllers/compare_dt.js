@@ -1,6 +1,4 @@
 const compare = (receiver_dt, provider_dt) => {
-    //const receiverDate = new Date(rec.y, rec.m, rec.d, rec.hour, rec.min);
-    //onst providerDate = new Date(prov.y, prov.m, prov.d, prov.hour, prov.min)
     const receiverDate = new Date(receiver_dt);
     const providerDate = new Date(provider_dt)
     return providerDate >= receiverDate;

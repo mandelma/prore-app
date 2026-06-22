@@ -1,5 +1,5 @@
 {
-  "login": "logga in",
+  "log_in": "logga in",
   "home_title": "Hastigheten är det viktigaste",
   "home_client_btn": "Sök tjänst",
   "home_pro_btn": "Erbjud tjänst",
@@ -38,6 +38,49 @@
   "recipient_result_waiting_offers": "Väntar på erbjudanden...",
   "recipient_result_remove_order": "Ta bort beställning",
 
+  "loginRegister": {
+    "login": "Logga in",
+    "register": "Registrera dig"
+  },
+
+  "login": {
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "rememberme": "Kom ihåg mig",
+    "forgot_password": "Glömt lösenordet?",
+    "log_in": "Logga in",
+    "no_member": "Inte medlem?",
+    "register": "Registrera dig",
+    "error_title": "FEL!",
+    "error_invalid_credentials": "Fel användarnamn eller lösenord!",
+    "error_required_fields": "Alla fält måste fyllas i!"
+  },
+
+  "register": {
+    "firstname": "Förnamn",
+    "lastname": "Efternamn",
+    "username": "Användarnamn",
+    "email": "E-post",
+    "password_1": "Lösenord",
+    "password_2": "Upprepa lösenord",
+    "remember_me": "Kom ihåg mig",
+    "create_account": "Skapa konto",
+    "error_title": "FEL!",
+    "terms": {
+      "accept_prefix": "Jag har läst och accepterar",
+      "terms_link": "användarvillkoren",
+      "required": "Du måste acceptera användarvillkoren för att fortsätta."
+    },
+    "validation": {
+      "password_requirements": "Lösenordet måste vara minst 8 tecken långt och innehålla en versal, en siffra och ett specialtecken.",
+      "username_too_short": "Användarnamnet måste vara minst 4 tecken långt.",
+      "invalid_email": "Ange en giltig e-postadress.",
+      "passwords_not_match": "Lösenorden måste vara identiska.",
+      "username_exists": "Användarnamnet finns redan. Välj ett annat användarnamn.",
+      "email_exists": "Den angivna e-postadressen finns redan.",
+      "required_fields": "Alla fält måste fyllas i."
+    }
+  },
 
   "home": {
     "title": "Snabbhet är viktigast!",
@@ -126,6 +169,146 @@
     "commentTableOnMd": "Tabell på medelstora och större skärmar",
     "commentExtrasScheduleAlertsBillingSnapshot": "Extra schema varningar och faktureringsöversikt",
     "commentSimpleToast": "Enkel toast"
+  },
+
+  "dealConfirm": {
+    "title": "Bekräfta affär",
+    "message": "Är du säker på att du vill bekräfta den här affären?",
+    "confirm": "Bekräfta affär",
+    "cancel": "Avbryt"
+  },
+
+  "confirmModal": {
+    "title": "Bekräfta åtgärd",
+    "message": "Är du säker på att du vill fortsätta?",
+    "confirm": "Bekräfta",
+    "cancel": "Avbryt"
+  },
+
+  "clientAround": {
+    "refresh": "Uppdatera",
+    "address": "Min adress",
+    "select_profession": "Välj ditt yrke *",
+    "search_distance": "Sök avstånd",
+    "found_clients": "Hittade kunder",
+    "panel": "Panel",
+    "toast_title": "PROKEIKKATORI",
+    "location_error": "Platsen kunde inte hämtas.",
+    "updating_location": "Uppdaterar plats...",
+    "your_location": "Din plats",
+    "client_marker_title": "Behövs",
+    "no_clients_found": "Inga kunder hittades för det valda yrket och avståndet.",
+    "try_adjust_filters": "Prova att ändra yrke eller öka sökavståndet."
+  },
+
+  "clientOffer": {
+    "maps_error_title": "FEL!",
+    "maps_error_message": "Google Maps kunde inte laddas just nu. Kontrollera din internetanslutning och försök igen senare.",
+    "address": "Adress",
+    "professional_needed": "Yrkesperson behövs",
+    "date": "Tidpunkt",
+    "description": "Beskrivning",
+    "budget": "Budget",
+    "no_budget": "Ingen budget",
+    "photos": "Bilder",
+    "distance": "Avstånd",
+    "travel_time": "Restid",
+    "location": "Plats",
+    "make_offer": "Ge prisförslag",
+    "delete_order": "Ta bort uppdrag",
+    "confirm_order": "Bekräfta uppdrag",
+    "offer_price": "Ange ditt pris",
+    "offer_at_client": "Jag erbjuder tjänsten hos kunden",
+    "offer_at_my_place": "Jag erbjuder tjänsten på min plats",
+    "offer_details": "Ytterligare information...",
+    "send_offer": "Skicka",
+    "reason": "Ange orsak...",
+    "confirm_delete": "Bekräfta borttagning",
+    "delete_title": "Ta bort uppdrag?",
+    "delete_message": "Är du säker på att du vill ta bort kundens uppdrag?",
+    "deal_title": "Avtal!",
+    "deal_confirm": "Du håller på att bekräfta {name}s uppdrag. Är du säker?",
+    "deal_confirm_button": "Toppen!",
+    "deal_cancel_button": "Avbryt",
+    "keep_button": "Behåll",
+    "notifications": {
+      "order_removed": "{name}s uppdrag har tagits bort!",
+      "offer_sent": "Prisförslaget för {name}s uppdrag har skickats!",
+      "order_confirmed": "Kundens uppdrag har bekräftats!",
+      "deal_created_title": "Avtal bekräftat!",
+      "deal_created_client": "{provider} har bekräftat uppdraget \"{booking}\". Se kalendern för mer information.",
+      "deal_created_provider": "Uppdraget \"{booking}\" har bekräftats. Se kalendern för mer information.",
+      "order_rejected_title": "Uppdrag avvisat!",
+      "order_rejected": "{provider} accepterade inte ditt uppdrag \"{booking}\". Angiven orsak: {reason}."
+    }
+  },
+
+  "clientOfferList": {
+    "credit_expired": "Din kredit har gått ut. Du kan inte längre utföra åtgärder!",
+    "add_credit": "Lägg till kredit",
+    "offer_sent": "Offert skickad",
+    "make_offer": "Ge offert",
+    "confirm_order": "Bekräfta beställning",
+    "booking_removed": "{name} har tagit bort beställningen!",
+    "done": "Klart",
+    "order_confirmed_by_you": "Du har bekräftat beställningen!",
+    "minutes_ago": "{count} minuter sedan",
+    "hours_ago": "{count} timmar sedan",
+    "days_ago": "{count} dagar sedan"
+  },
+
+  "feedback": {
+    "no_written_reviews": "Inga skriftliga recensioner ännu!"
+  },
+
+  "photoGallery": {
+    "references": "Referenser",
+    "add": "Lägg till",
+    "edit": "Redigera",
+    "service_photo": "Bild av tjänsten",
+    "no_images": "Inga bilder ännu",
+    "empty_text": "Lägg till bilder av din tjänst så att kunder kan se dem.",
+    "dropzone_title": "Dra och släpp bilder här",
+    "dropzone_text": "eller klicka på “Lägg till bilder”",
+    "description_placeholder": "Lägg till en beskrivning...",
+    "cancel": "Avbryt",
+    "save_changes": "Spara ändringar",
+    "replace": "Ersätt",
+    "delete": "Ta bort",
+    "reference_photo": "Referensbild"
+  },
+
+  "providerForm": {
+    "notifications": {
+      "error_title": "FEL!",
+      "form_fields_required": "Fyll i alla obligatoriska fält!",
+      "google_maps_failed": "Google Maps kunde inte laddas. Kontrollera internetanslutningen!",
+      "provider_create_failed": "Ett fel uppstod. Försök igen!"
+    },
+    "fields": {
+      "company_name": "Ange företagsnamn eller ditt namn *",
+      "business_id": "Ange FO-nummer",
+      "address": "Ange adress",
+      "service_radius": "Ange verksamhetsområde (km)",
+      "profession": "Välj yrke *",
+      "hourly_price": "Timpris",
+      "hourly_price_input": "Ange timpris",
+      "fixed_price": "Fast pris",
+      "description": "Berätta något om dig själv och din verksamhet...",
+      "website": "Ange företagets webbplatsadress (om sådan finns)"
+    },
+    "help": {
+      "radius_info": "Om ingen radie anges erbjuds tjänsten endast på den angivna adressen."
+    },
+    "buttons": {
+      "create_account": "Skapa konto"
+    },
+    "validations": {
+      "name_required": "Namn är obligatoriskt!",
+      "business_id_required": "FO-nummer är obligatoriskt!",
+      "profession_required": "Yrke är obligatoriskt!",
+      "address_required": "Adress är obligatorisk!"
+    }
   }
 
 }
