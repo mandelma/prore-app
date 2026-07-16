@@ -231,7 +231,7 @@
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
       >
-        © 2025 Copyright: DuVa OY
+        © 2026 Copyright
       </div>
       <!-- Copyright -->
     </MDBFooter>

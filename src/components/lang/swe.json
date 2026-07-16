@@ -309,6 +309,188 @@
       "profession_required": "Yrke är obligatoriskt!",
       "address_required": "Adress är obligatorisk!"
     }
+  },
+
+  "clientHistory": {
+    "title": "Beställda tjänster",
+    "subtitle": "Välj en beställning för att se detaljer eller boka samma tjänst igen.",
+    "search": "Sök tjänsteleverantör...",
+    "status": {
+      "done": "Slutförd"
+    },
+    "table": {
+      "date": "Datum",
+      "provider": "Tjänsteleverantör",
+      "task": "Uppgift",
+      "actions": "Åtgärder"
+    },
+    "buttons": {
+      "details": "Detaljer",
+      "book": "Boka",
+      "book_again": "Boka igen",
+      "book_same_provider": "Boka samma tjänsteleverantör igen",
+      "back": "← Tillbaka",
+      "show_profile": "Visa profil",
+      "cancel": "Avbryt",
+      "delete": "Ta bort",
+      "keep": "Behåll"
+    },
+    "details": {
+      "booking": "Bokning",
+      "provider": "Tjänsteleverantör",
+      "date": "Datum",
+      "task": "Uppgift",
+      "status": "Status",
+      "price": "Pris",
+      "notes": "Ytterligare information",
+      "company": "Företag",
+      "business_id": "FO-nummer",
+      "address": "Adress",
+      "professions": "Yrken"
+    },
+    "notifications": {
+      "delete_title": "Ta bort rad",
+      "delete_message": "Är du säker på att du vill ta bort denna rad?"
+    },
+    "rating": {
+      "raters": "{count} omdömen"
+    }
+  },
+
+  "bookingContent": {
+    "sections": {
+      "booking": "Bokning",
+      "photos": "Bilder"
+    },
+    "fields": {
+      "description": "Beskrivning",
+      "date": "Datum"
+    },
+    "labels": {
+      "select_date_time": "Välj datum och tid för uppdraget"
+    },
+    "placeholders": {
+      "description": "Beskriv kort vad du behöver..."
+    },
+    "empty": {
+      "no_photos": "Inga bilder har lagts till för denna bokning ännu."
+    },
+    "dropzone": {
+      "title": "Dra och släpp bilder här",
+      "text": "eller klicka på ”Lägg till bilder”"
+    },
+    "buttons": {
+      "add_photos": "Lägg till bilder",
+      "cancel": "Avbryt",
+      "save_changes": "Spara ändringar",
+      "replace": "Ersätt",
+      "delete": "Ta bort"
+    },
+    "alt": {
+      "booking_photo": "Bokningsbild"
+    }
+  },
+
+  "bookingPhotos": {
+    "photo_alt": "Bild för bokningen",
+    "description_placeholder": "Lägg till en beskrivning...",
+    "remove_photo": "Ta bort bild"
+  },
+
+  "giveFeedback": {
+    "comment_label": "Lämna gärna en kommentar",
+    "submit": "Skicka feedback",
+    "skip": "Jag vill inte lämna någon feedback"
+  },
+
+  "offerContent": {
+    "received_feedback": "Mottagen feedback",
+    "back": "Tillbaka",
+    "company": "Företag",
+    "business_id": "FO-nummer",
+    "address": "Adress",
+    "distance": "Avstånd",
+    "hourly_rate": "Timpris",
+    "offer_price": "Offertpris",
+    "description": "Beskrivning",
+    "references": "Referenser",
+    "reference_alt": "Referensbild från tjänsteleverantören",
+    "unknown_sender": "Okänd"
+  },
+
+  "picturesUp": {
+    "add_optional_photos": "Lägg till bilder på uppdraget om du vill",
+    "edit_photos": "Redigera bilder",
+    "photo_alt": "Bild på uppdraget",
+    "empty_hint": "Bilder hjälper tjänsteleverantörer att bedöma uppdraget.",
+    "photos_title": "Bilder",
+    "add_photos": "Lägg till bilder",
+    "dropzone_title": "Dra och släpp bilder här",
+    "dropzone_text": "eller klicka på “Lägg till bilder”",
+    "description_placeholder": "Lägg till en beskrivning...",
+    "remove_photo": "Ta bort bild",
+    "cancel": "Avbryt",
+    "save_photos": "Spara bilder"
+  },
+
+  "proAround": {
+    "refresh": "Uppdatera",
+    "addressLabel": "Ange en adress",
+    "professionalPlaceholder": "Välj en yrkesperson *",
+    "professionRequired": "Yrke måste väljas!",
+    "selectDateOrNow": "Välj en lämplig tid eller direkt!",
+    "dateTimeLabel": "Välj datum och tid för uppdraget",
+    "now": "Direkt!",
+    "searchArea": "Sökradie",
+    "distanceRequired": "Avstånd måste väljas!",
+    "noProfessionals": "Inga yrkespersoner hittades",
+    "search": "Sök",
+    "selection": "Val",
+    "locationFetchFailed": "Det gick inte att hämta din position.",
+    "updatingLocation": "Uppdaterar position...",
+    "yourLocation": "Din position",
+    "unknown": "Okänd",
+    "order": "BESTÄLL",
+    "feedback": "Omdömen",
+    "openWorkSamples": "Visa arbetsprover",
+    "closeWorkSamples": "Stäng arbetsprover",
+    "raters": "{count} omdömen",
+    "feedbackCloseHint": "Klicka på omdömesknappen igen för att stänga",
+    "availability": "Tillgänglighet",
+    "available": "Tillgänglig",
+    "negotiable": "Enligt överenskommelse",
+    "profession": "Yrke",
+    "information": "Information",
+    "website": "Webbplats",
+    "hourlyRate": "Timpris",
+    "contractPrice": "Fast pris",
+    "currencyEur": "{amount} €",
+    "requestSent": "Beställningen skickades!",
+    "requestFailed": "Det gick inte att skicka beställningen. Försök igen.",
+    "close": "Stäng"
+  },
+
+  "recipientContent": {
+    "cancelOrder": "Avbryt beställning",
+    "offers": "Offerter",
+    "distance": "Avstånd {distance} km",
+    "priceEur": "{price} €",
+    "newOffer": "Ny offert",
+    "noOffersYet": "Inga offerter ännu",
+    "raters": "{count} omdömen",
+    "order": "Beställ",
+    "delete": "Ta bort",
+    "keep": "Behåll",
+    "dealTitle": "Avtal!",
+    "great": "Toppen!",
+    "cancel": "Avbryt",
+    "dealMessage": "Tjänsten som erbjuds av {provider} kan beställas. Vill du bekräfta avtalet?",
+    "dealCreatedTitle": "Avtal klart!",
+    "providerNotification": "{client} har bekräftat beställningen “{booking}”. Mer information finns i kalendern.",
+    "clientNotification": "Beställningen har bekräftats. Information finns i kalendern.",
+    "deleteTitle": "Ta bort beställningen?",
+    "deleteMessage": "Är du säker på att du vill ta bort beställningen?",
+    "filterDistance": "Avstånd"
   }
 
 }

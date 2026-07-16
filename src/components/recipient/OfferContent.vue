@@ -2,10 +2,10 @@
     <div>
         <div style="display: flex; justify-content: left;">
             <div v-if="!isFeedback">
-                <MDBBtn v-if="offerContent.provider.feedback.length" color="info" block @click="goToFeedback">Vastaanotettu palaute</MDBBtn>
+                <MDBBtn v-if="offerContent.provider.feedback.length" color="info" block @click="goToFeedback">{{ t('offerContent.received_feedback') }}</MDBBtn>
             </div>
             
-            <MDBBtn v-else-if="isFeedback" outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← Takaisin</MDBBtn>
+            <MDBBtn v-else-if="isFeedback" outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← {{ t('offerContent.back') }}</MDBBtn>
         </div>
         
         
@@ -15,25 +15,25 @@
                 <tbody>
                     <tr>
                         <td class="c-td">
-                            Yritys
+                            {{ t('offerContent.company') }}
                         </td>
                         <td class="text-muted">
                             {{ offerContent.name }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="c-td">Y-tunnus</td>
+                        <td class="c-td">{{ t('offerContent.business_id') }}</td>
                         <td class="text-muted">{{ offerContent.provider.ide }}</td>
                     </tr>
                     <tr>
                         <td class="c-td">
-                            Osoite
+                            {{ t('offerContent.address') }}
                         </td>
                         <td class="text-muted">{{ offerContent.provider.address }}</td>
                     </tr>
                     <tr>
                         <td class="c-td">
-                            Etäisyys
+                            {{ t('offerContent.distance') }}
                         </td>
                         <td class="text-muted">
                             {{ offerContent.distance }} km.
@@ -41,7 +41,7 @@
                     </tr>
                     <tr v-if="offerContent.provider.pricePerHour !== ''">
                         <td class="c-td">
-                            Tuntihinta
+                            {{ t('offerContent.hourly_rate') }}
                         </td>
                         <td class="text-muted">
                             {{ offerContent.provider.priceByHour }} eur
@@ -49,7 +49,7 @@
                     </tr>
                     <tr>
                         <td class="c-td">
-                            Tarjous hinta
+                            {{ t('offerContent.offer_price') }}
                         </td>
                         <td class="text-muted">
                             {{ offerContent.price }} eur
@@ -57,7 +57,7 @@
                     </tr>
                     <tr>
                         <td class="c-td">
-                            Kuvaus
+                            {{ t('offerContent.description') }}
                         </td>
                         <td class="text-muted">
                             {{ offerContent.provider.description }}
@@ -65,7 +65,7 @@
                     </tr>
                     <tr v-if="offerContent.provider.reference.length">
                         <td class="c-td">
-                            Referenssit
+                            {{ t('offerContent.references') }}
                         </td>
                     </tr>
                     <tr v-if="offerContent.provider.reference.length">
@@ -86,7 +86,7 @@
                                         <MDBLightboxItem
                                             :src="photo.imageId?.imageUrl || photo.imageUrl || photo.previewUrl" 
                                             :fullScreenSrc="photo.imageId?.imageUrl || photo.imageUrl || photo.previewUrl"
-                                            alt="Pro reference"
+                                            :alt="t('offerContent.reference_alt')"
                                         />
                                     </div>
                                     </MDBCol>
@@ -113,6 +113,7 @@
 <script setup>
     import {MDBBtnClose, MDBContainer, MDBTable, MDBBtn, MDBLightbox, MDBLightboxItem, MDBRow, MDBCol} from 'mdb-vue-ui-kit';
     import { ref, computed } from 'vue';
+    import { useI18n } from 'vue-i18n';
     import clientService from '@/service/recipients'
     import { useClientStore } from '@/stores/recipientStore';
     import { useLoginStore } from '@/stores/login';
@@ -129,7 +130,7 @@
         bookingId: {type: String},
         offerId: {type: String}
     })
-
+    const { t } = useI18n();
     const clientStore = useClientStore();
     const notificationStore = useNotificationStore();
     const conversationStore = useConversationStore();
@@ -192,7 +193,7 @@
         .map(f => `
         <div class="feedback-item">
             <div class="feedback-meta">
-            <span class="feedback-sender">${escapeHtml(f.sender || 'Tuntematon')}</span>
+            <span class="feedback-sender">${escapeHtml(f.sender || t('offerContent.unknown_sender'))}</span>
             <span class="feedback-date">${new Date(f.date).toLocaleString('fi-FI')}</span>
             </div>
             <div class="feedback-text">${escapeHtml(f.text)}</div>

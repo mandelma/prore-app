@@ -7,13 +7,13 @@
     <div v-if="!showDetails">
       <div class="history__detailTop">
         <div class="history__header">
-          <h3 class="history__title">Tilatut palvelut</h3>
+          <h3 class="history__title">{{ t('clientHistory.title') }}</h3>
           <p class="history__subtitle">
-            Valitse tilaus nähdäksesi tiedot ja varataksesi uudelleen.
+            {{ t('clientHistory.subtitle') }}
           </p>
         </div>
         <div class="search-wrap">
-          <MDBInput size="sm" label="Hae yritys..." v-model="bookingQuery" />
+          <MDBInput size="sm" :label="t('clientHistory.search')" v-model="bookingQuery" />
         </div>
       </div>
       
@@ -32,13 +32,13 @@
               <div class="historyCard__service">{{ b.header }}</div>
             </div>
 
-            <span class="badge badge-success historyCard__badge">Valmis</span>
+            <span class="badge badge-success historyCard__badge">{{ t('clientHistory.status.done') }}</span>
           </div>
 
           <div class="historyCard__actions">
-            <MDBBtn outline="info" size="sm" @click="openDetails(b)">Tiedot</MDBBtn>
+            <MDBBtn outline="info" size="sm" @click="openDetails(b)">{{ t('clientHistory.buttons.details') }}</MDBBtn>
             <MDBBtn color="info" size="sm" @click="bookAgain(b)">
-              Varaa
+              {{ t('clientHistory.buttons.book') }}
             </MDBBtn>
             <MDBBtn color="danger" size="sm" @click="delChRow(b?.id)">
               P
@@ -51,10 +51,10 @@
       <MDBTable borderless class="historyTable d-none d-md-table">
         <thead>
           <tr>
-            <th>Päivä</th>
-            <th>Palveluntarjoaja</th>
-            <th>Tehtävä</th>
-            <th class="text-end">Toiminnot</th>
+            <th>{{ t('clientHistory.table.date') }}</th>
+            <th>{{ t('clientHistory.table.provider') }}</th>
+            <th>{{ t('clientHistory.table.task') }}</th>
+            <th class="text-end">{{ t('clientHistory.table.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -63,8 +63,8 @@
             <td class="history__strong">{{ b.company }}</td>
             <td class="history__muted">{{ b.header }}</td>
             <td class="text-end">
-              <MDBBtn outline="info" size="sm" class="ms-2" @click="openDetails(b)">Tiedot</MDBBtn>
-              <MDBBtn color="info" size="sm" class="ms-2" @click="bookAgain(b)">Varaa uudelleen</MDBBtn>
+              <MDBBtn outline="info" size="sm" class="ms-2" @click="openDetails(b)">{{ t('clientHistory.buttons.details') }}</MDBBtn>
+              <MDBBtn color="info" size="sm" class="ms-2" @click="bookAgain(b)">{{ t('clientHistory.buttons.book_again') }}</MDBBtn>
               <MDBBtn color="danger" size="sm" class="ms-2" @click="delChRow(b?.id)"><i class="fas fa-trash-alt"></i></MDBBtn>
             </td>
           </tr>
@@ -75,38 +75,38 @@
     <!-- DETAILS VIEW -->
     <div v-else>
       <div class="history__detailTop">
-        <MDBBtn outline="light" size="sm" @click="closeDetails">← Takaisin</MDBBtn>
+        <MDBBtn outline="light" size="sm" @click="closeDetails">{{ t('clientHistory.buttons.back') }}</MDBBtn>
 
         <MDBBtn color="info" @click="bookAgain(selectedBooking)">
-          Varaa sama palveluntarjoaja uudelleen
+          {{ t('clientHistory.buttons.book_same_provider') }}
         </MDBBtn>
       </div>
 
       <div class="history__grid">
         <!-- Booking details -->
         <section class="historySection">
-          <h4 class="historySection__title">Varaus</h4>
+          <h4 class="historySection__title">{{ t('clientHistory.details.booking') }}</h4>
 
           <div class="kv">
-            <div class="kv__k">Päivämäärä</div>
+            <div class="kv__k">{{ t('clientHistory.details.date') }}</div>
             <div class="kv__v">{{ formatDateTime(selectedBooking?.date) }}</div>
 
-            <div class="kv__k">Tehtävä</div>
+            <div class="kv__k">{{ t('clientHistory.details.task') }}</div>
             <div class="kv__v">{{ selectedBooking?.header }}</div>
 
-            <div class="kv__k">Tila</div>
+            <div class="kv__k">{{ t('clientHistory.details.status') }}</div>
             <div class="kv__v">
-              <span class="badge badge-success">Valmis</span>
+              <span class="badge badge-success">{{ t('clientHistory.status.done') }}</span>
             </div>
 
             <!-- Optional fields if you have them -->
             <template v-if="selectedBooking?.price">
-              <div class="kv__k">Hinta</div>
+              <div class="kv__k">{{ t('clientHistory.details.price') }}</div>
               <div class="kv__v">{{ selectedBooking.price }} €</div>
             </template>
 
             <template v-if="selectedBooking?.notes">
-              <div class="kv__k">Lisätiedot</div>
+              <div class="kv__k">{{ t('clientHistory.details.notes') }}</div>
               <div class="kv__v">{{ selectedBooking.notes }}</div>
             </template>
           </div>
@@ -116,19 +116,19 @@
 
         <!-- Provider details -->
         <section class="historySection">
-          <h4 class="historySection__title">Palveluntarjoaja</h4>
+          <h4 class="historySection__title">{{ t('clientHistory.details.provider') }}</h4>
 
           <div class="kv">
-            <div class="kv__k">Yritys</div>
+            <div class="kv__k">{{ t('clientHistory.details.company') }}</div>
             <div class="kv__v">{{ selectedBooking?.company }}</div>
 
-            <div class="kv__k">Y-tunnus</div>
+            <div class="kv__k">{{ t('clientHistory.details.business_id') }}</div>
             <div class="kv__v">{{ selectedBooking?.id_number }}</div>
 
-            <div class="kv__k">Osoite</div>
+            <div class="kv__k">{{ t('clientHistory.details.address') }}</div>
             <div class="kv__v">{{ selectedBooking?.address }}</div>
 
-            <div class="kv__k">Ammatit</div>
+            <div class="kv__k">{{ t('clientHistory.details.professions') }}</div>
             <div class="kv__v">
               <div class="chips">
                 <span
@@ -144,7 +144,7 @@
 
           <div class="historySection__actions">
             <MDBBtn outline="info" @click="goToProvider(selectedBooking?.deal)">
-              Näytä profiili
+              {{ t('clientHistory.buttons.show_profile') }}
             </MDBBtn>
           </div>
         </section>
@@ -179,7 +179,11 @@
 
         <div>
           <stars :rating="selectedProvider?.rating" />
-          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.ratersCount }} arvioijaa</p>
+          <p class="text-muted small" style="text-align: center;">
+            {{ t('clientHistory.rating.raters', {
+              count: selectedProvider?.ratersCount
+            }) }}
+          </p>
         </div>
       </div>
       <offer-content :offerId="null" :bookingId="dealID" />
@@ -187,7 +191,7 @@
     <MDBModalFooter>
       <div style="display: flex; justify-content: right;">
         <div style="display: flex; gap: 7px;">
-          <MDBBtn color="danger" @click="providerProfileModal = false"> Peruuta </MDBBtn>
+          <MDBBtn color="danger" @click="providerProfileModal = false"> {{ t('clientHistory.buttons.cancel') }} </MDBBtn>
           
         </div>
       </div>
@@ -222,7 +226,13 @@
 
         <div>
           <stars :rating="selectedProvider?.rating" />
-          <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.ratersCount }} arvioijaa</p>
+          <p 
+            class="text-muted small" style="text-align: center;"
+          >
+            {{ t('clientHistory.rating.raters', {
+              count: selectedProvider?.ratersCount
+            }) }}
+          </p>
         </div>
       </div>
       
@@ -237,7 +247,7 @@
     <MDBModalFooter>
       <div style="display: flex; justify-content: right;">
         <div style="display: flex; gap: 7px;">
-          <MDBBtn color="danger" @click="orderProviderModal = false"> Peruuta </MDBBtn>
+          <MDBBtn color="danger" @click="orderProviderModal = false"> {{ t('clientHistory.buttons.cancel') }} </MDBBtn>
           
         </div>
       </div>
@@ -249,8 +259,8 @@
     v-model="showDeleteModal"
     :title="cTitle"
     :message="cMessage"
-    confirm-text="Poista"
-    cancel-text="Pidä se"
+    :confirm-text="t('clientHistory.buttons.delete')"
+    :cancel-text="t('clientHistory.buttons.keep')"
     :danger="true"
     @confirm="handleRemoveRow"
     @cancel="handleCancelRemoving"
@@ -258,6 +268,7 @@
 </template>
 <script setup>
 import { ref, computed, watch, nextTick } from "vue"
+import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { useClientArchiveStore } from "@/stores/cArchiveStore"
 import { storeToRefs } from "pinia"
@@ -296,6 +307,8 @@ const showDetails = ref(false)
 const selectedBooking = ref(null)
 
 const { clientHistory } = storeToRefs(cArchiveStore);
+
+const { t } = useI18n();
 
 const providerProfileModal = ref(false);
 const orderProviderModal = ref(false);
@@ -387,8 +400,8 @@ const delChRow = (id) => {
   rowId.value = id;
 
   console.log("Got command to delete row " + id);
-  cTitle.value = "Poistetaan rivi";
-  cMessage.value = "Oletko varma, että haluat poistaa rivin?";
+  cTitle.value = t('clientHistory.notifications.delete_title');
+  cMessage.value = t('clientHistory.notifications.delete_message');
   showDeleteModal.value = true;
 }
 

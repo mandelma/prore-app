@@ -20,7 +20,7 @@
               v-if="rating > 0"
               v-model="feedbackContent"
               type="textarea"
-              label="Anna haluttaessa arvostelua!"
+              :label="t('giveFeedback.comment_label')"
               rows="3"
               class="mb-3"
           />
@@ -34,22 +34,13 @@
           @click="handleConfirmRating"
           :disabled="feedbackContent === '' && rating === 0"
           >
-            Lähettää palaute
+            {{ t('giveFeedback.submit') }}
           </MDBBtn>
-
-          <!-- <button
-              class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md disabled:opacity-50"
-              @click="handleConfirmRating"
-              :disabled="feedbackContent === '' && rating === 0"
-          >
-            Lähettää palaute
-          </button> -->
-
 
         </MDBCardBody>
 
       </MDBCard>
-      <p style="float: right; color: #e4548e; cursor: pointer; margin-top: 13px;" @click="handleNoRating">En halua antaa palautetta</p><br><br>
+      <p style="float: right; color: #e4548e; cursor: pointer; margin-top: 13px;" @click="handleNoRating">{{ t('giveFeedback.skip') }}</p><br><br>
     </div>
 
   </MDBContainer>
@@ -57,6 +48,7 @@
 <script setup>
 import { MDBContainer, MDBCardBody, MDBCard, MDBTextarea, MDBBtn } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { useProStore } from '@/stores/providerStore';
 import { useClientStore } from '@/stores/recipientStore';
@@ -90,6 +82,8 @@ const handleNoRating = async () => {
   emit('no-rating');
   await handleArchiveClient();
 }
+
+const { t } = useI18n();
 
 function formatDateTime(iso) {
   if (!iso) return "—";

@@ -270,5 +270,187 @@
             "profession_required": "Профессия обязательна!",
             "address_required": "Адрес обязателен!"
         }
+    },
+
+    "clientHistory": {
+        "title": "Заказанные услуги",
+        "subtitle": "Выберите заказ, чтобы просмотреть его детали или заказать ту же услугу снова.",
+        "search": "Поиск поставщика услуг...",
+        "status": {
+            "done": "Завершено"
+        },
+        "table": {
+            "date": "Дата",
+            "provider": "Исполнитель",
+            "task": "Задача",
+            "actions": "Действия"
+        },
+        "buttons": {
+            "details": "Подробнее",
+            "book": "Заказать",
+            "book_again": "Заказать снова",
+            "book_same_provider": "Заказать у того же исполнителя",
+            "back": "← Назад",
+            "show_profile": "Показать профиль",
+            "cancel": "Отмена",
+            "delete": "Удалить",
+            "keep": "Оставить"
+        },
+        "details": {
+            "booking": "Заказ",
+            "provider": "Исполнитель",
+            "date": "Дата",
+            "task": "Задача",
+            "status": "Статус",
+            "price": "Цена",
+            "notes": "Дополнительная информация",
+            "company": "Компания",
+            "business_id": "Регистрационный номер",
+            "address": "Адрес",
+            "professions": "Профессии"
+        },
+        "notifications": {
+            "delete_title": "Удалить запись",
+            "delete_message": "Вы уверены, что хотите удалить эту запись?"
+        },
+        "rating": {
+            "raters": "{count} оценок"
+        }
+    },
+
+    "bookingContent": {
+        "sections": {
+            "booking": "Заказ",
+            "photos": "Фотографии"
+        },
+        "fields": {
+            "description": "Описание",
+            "date": "Дата"
+        },
+        "labels": {
+            "select_date_time": "Выберите дату и время выполнения"
+        },
+        "placeholders": {
+            "description": "Кратко опишите, что вам нужно..."
+        },
+        "empty": {
+            "no_photos": "К этому заказу не добавлены фотографии."
+        },
+        "dropzone": {
+            "title": "Перетащите изображения сюда",
+            "text": "или нажмите «Добавить фотографии»"
+        },
+        "buttons": {
+            "add_photos": "Добавить фотографии",
+            "cancel": "Отмена",
+            "save_changes": "Сохранить изменения",
+            "replace": "Заменить",
+            "delete": "Удалить"
+        },
+        "alt": {
+            "booking_photo": "Фотография заказа"
+        }
+    },
+
+    "bookingPhotos": {
+        "photo_alt": "Фотография заказа",
+        "description_placeholder": "Добавьте описание...",
+        "remove_photo": "Удалить фотографию"
+    },
+
+    "giveFeedback": {
+        "comment_label": "При желании оставьте отзыв",
+        "submit": "Отправить отзыв",
+        "skip": "Я не хочу оставлять отзыв"
+    },
+
+    "offerContent": {
+        "received_feedback": "Полученные отзывы",
+        "back": "Назад",
+        "company": "Компания",
+        "business_id": "Идентификатор компании",
+        "address": "Адрес",
+        "distance": "Расстояние",
+        "hourly_rate": "Почасовая ставка",
+        "offer_price": "Цена предложения",
+        "description": "Описание",
+        "references": "Примеры работ",
+        "reference_alt": "Пример работы поставщика услуг",
+        "unknown_sender": "Неизвестно"
+    },
+
+    "picturesUp": {
+        "add_optional_photos": "При желании добавьте фотографии задания",
+        "edit_photos": "Редактировать фотографии",
+        "photo_alt": "Фотография задания",
+        "empty_hint": "Фотографии помогут исполнителям точнее оценить задание.",
+        "photos_title": "Фотографии",
+        "add_photos": "Добавить фотографии",
+        "dropzone_title": "Перетащите фотографии сюда",
+        "dropzone_text": "или нажмите «Добавить фотографии»",
+        "description_placeholder": "Добавьте описание...",
+        "remove_photo": "Удалить фотографию",
+        "cancel": "Отмена",
+        "save_photos": "Сохранить фотографии"
+    },
+
+    "proAround": {
+        "refresh": "Обновить",
+        "addressLabel": "Введите адрес",
+        "professionalPlaceholder": "Выберите специалиста *",
+        "professionRequired": "Необходимо выбрать профессию!",
+        "selectDateOrNow": "Выберите подходящее время или прямо сейчас!",
+        "dateTimeLabel": "Выберите дату и время выполнения работы",
+        "now": "Сейчас!",
+        "searchArea": "Радиус поиска",
+        "distanceRequired": "Необходимо выбрать расстояние!",
+        "noProfessionals": "Специалисты не найдены",
+        "search": "Найти",
+        "selection": "Выбор",
+        "locationFetchFailed": "Не удалось определить местоположение.",
+        "updatingLocation": "Местоположение обновляется...",
+        "yourLocation": "Ваше местоположение",
+        "unknown": "Неизвестно",
+        "order": "ЗАКАЗАТЬ",
+        "feedback": "Отзывы",
+        "openWorkSamples": "Открыть примеры работ",
+        "closeWorkSamples": "Закрыть примеры работ",
+        "raters": "{count} оценок",
+        "feedbackCloseHint": "Чтобы закрыть, снова нажмите кнопку отзывов",
+        "availability": "Доступность",
+        "available": "Доступен",
+        "negotiable": "По договорённости",
+        "profession": "Профессия",
+        "information": "Информация",
+        "website": "Веб-сайт",
+        "hourlyRate": "Почасовая ставка",
+        "contractPrice": "Фиксированная цена",
+        "currencyEur": "{amount} €",
+        "requestSent": "Заказ успешно отправлен!",
+        "requestFailed": "Не удалось отправить заказ. Попробуйте ещё раз.",
+        "close": "Закрыть"
+    },
+
+    "recipientContent": {
+        "cancelOrder": "Отменить заказ",
+        "offers": "Предложения",
+        "distance": "Расстояние {distance} км",
+        "priceEur": "{price} €",
+        "newOffer": "Новое предложение",
+        "noOffersYet": "Предложений пока нет",
+        "raters": "{count} оценок",
+        "order": "Заказать",
+        "delete": "Удалить",
+        "keep": "Оставить",
+        "dealTitle": "Соглашение!",
+        "great": "Отлично!",
+        "cancel": "Отмена",
+        "dealMessage": "Услуга от {provider} доступна для заказа. Хотите подтвердить соглашение?",
+        "dealCreatedTitle": "Соглашение заключено!",
+        "providerNotification": "{client} подтвердил заказ «{booking}». Подробная информация доступна в календаре.",
+        "clientNotification": "Заказ подтверждён. Информация доступна в календаре.",
+        "deleteTitle": "Удалить заказ?",
+        "deleteMessage": "Вы уверены, что хотите удалить этот заказ?",
+        "filterDistance": "Расстояние"
     }
 }

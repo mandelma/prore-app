@@ -1,124 +1,83 @@
-<!-- <template>
- <div style="text-align: center;">
-   <MDBContainer>
-     <MDBRow>
-      <MDBCol>
-        <div style="text-align: left;">
-          Side container on wide screens, bottom on mobile.
-        </div>
-        
-      </MDBCol>
-      <MDBCol>
-        <div class="center-page">
-          <main class="page">
-            <div class="logo-hero">
-              <img class="logo-hero__img img-box"
-                    style="border-radius: 100%;"
-                    :src="logo"
-                    alt="Prokeikkatori logo" width="1024" height="549" />
-            </div>
-            <h1 class="app-title"><span class="app-title__word">PROKEIKKATORI</span></h1>
-            <p class="tagline">{{ t('public_home_title') }}</p>
-
-            <div class="action-panel">
-              <button class="btn-hero btn-hero--primary" @click="clientInitial">
-                 {{ t('public_home_btn_client') }}
-              </button>
-              <button class="btn-hero btn-hero--accent" @click="proInitial">
-                
-                
-                {{ t('public_home_btn_pro') }}
-              </button>
-            </div>
-          </main>
-        </div>
-      </MDBCol>
-     </MDBRow>
-     
-   </MDBContainer>
-
- </div>
-</template> -->
 <template>
   <div class="home-wrap">
-    <MDBContainer fluid>
-      <MDBRow class="home-row align-items-center">
-        
-        <!-- {{ t('home.commentInfoSideMobileBottom') }} -->
-        <MDBCol col="12" lg="5" class="info-col order-2 order-lg-1">
+    <MDBContainer fluid class="home-container">
+      <MDBRow class="home-row align-items-stretch">
+        <!-- Vasak infopaneel: suurel ekraanil vasakul, väiksemal hero all. -->
+        <MDBCol col="12" xl="5" class="info-col order-2 order-xl-1">
           <section class="info-panel">
-            <div class="info-card client-card">
+            <article class="info-card client-card">
               <div class="info-label">{{ t('home.clientLabel') }}</div>
               <h2>{{ t('home.clientTitle') }}</h2>
+
               <p>
                 {{ t('home.clientTextBeforeMap') }}
-                <span style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #59b898;" @click="router.push('/pro-around')">
+                <button class="text-link text-link--client" type="button" @click="router.push('/pro-around')">
                   {{ t('home.map') }}
-                </span>.
+                </button>.
                 {{ t('home.clientTextAfterMap') }}
               </p>
 
               <div class="stats-row">
-                <div>
+                <div class="stat-box">
                   <strong>{{ providerCount }}+</strong>
                   <span>{{ t('home.professionals') }}</span>
                 </div>
-                <div>
+                <div class="stat-box">
                   <strong>{{ professionCount }}+</strong>
                   <span>{{ t('home.professionFields') }}</span>
                 </div>
-                <div>
+                <div class="stat-box">
                   <strong>{{ t('home.fast') }}</strong>
                   <span>{{ t('home.contact') }}</span>
                 </div>
               </div>
 
-              <button class="info-btn info-btn--client" @click="clientInitial">
+              <button class="info-btn info-btn--client" type="button" @click="clientInitial">
                 {{ t('home.clientButton') }}
               </button>
-            </div>
+            </article>
 
-            <div class="info-card provider-card">
+            <article class="info-card provider-card">
               <div class="info-label">{{ t('home.providerLabel') }}</div>
               <h2>{{ t('home.providerTitle') }}</h2>
+
               <p>
                 {{ t('home.providerTextBeforeClients') }}
-                <span style="cursor: pointer; font-weight: 700; text-decoration: underline; color: #e4b088;" @click="router.push('/client-around')">
+                <button class="text-link text-link--provider" type="button" @click="router.push('/client-around')">
                   {{ t('home.clients') }}
-                </span>
+                </button>
                 {{ t('home.providerTextAfterClients') }}
               </p>
 
               <div class="stats-row">
-                <div>
+                <div class="stat-box">
                   <strong>{{ t('home.mapTitle') }}</strong>
                   <span>{{ t('home.visibility') }}</span>
                 </div>
-                <div>
+                <div class="stat-box">
                   <strong>{{ t('home.offers') }}</strong>
                   <span>{{ t('home.directly') }}</span>
                 </div>
-                <div>
+                <div class="stat-box">
                   <strong>{{ t('home.calendar') }}</strong>
                   <span>{{ t('home.management') }}</span>
                 </div>
               </div>
 
-              <button class="info-btn info-btn--provider" @click="proInitial">
+              <button class="info-btn info-btn--provider" type="button" @click="proInitial">
                 {{ t('home.providerButton') }}
               </button>
-            </div>
+            </article>
           </section>
         </MDBCol>
 
-        <!-- {{ t('home.commentHero') }} -->
-        <MDBCol col="12" lg="7" class="order-1 order-lg-2">
+        <!-- Parempoolne hero: kaheveeruline paigutus algab alles xl breakpoint'ist. -->
+        <MDBCol col="12" xl="7" class="hero-col order-1 order-xl-2">
           <div class="center-page">
-            <main class="page">
+            <main class="hero-frame">
               <div class="logo-hero">
                 <img
                   class="logo-hero__img img-box"
-                  style="border-radius: 100%;"
                   :src="logo"
                   :alt="t('home.logoAlt')"
                   width="1024"
@@ -133,261 +92,594 @@
               <p class="tagline">{{ t('home.title') }}</p>
 
               <div class="action-panel">
-                <button class="btn-hero btn-hero--primary" @click="clientInitial">
+                <button class="btn-hero btn-hero--primary" type="button" @click="clientInitial">
                   {{ t('home.clientButton') }}
                 </button>
 
-                <button class="btn-hero btn-hero--accent" @click="proInitial">
+                <button class="btn-hero btn-hero--accent" type="button" @click="proInitial">
                   {{ t('home.providerButton') }}
                 </button>
               </div>
             </main>
           </div>
         </MDBCol>
-
       </MDBRow>
     </MDBContainer>
   </div>
 </template>
 
 <script setup>
-import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBIcon } from 'mdb-vue-ui-kit'
-import { ref, computed} from 'vue'
-import { useCounterStore } from '@/stores/counter'
-import { storeToRefs, mapStores, mapActions } from 'pinia'
-import { useLoginStore } from '@/stores/login'
-import { useUserStore } from '@/stores/userStore'
-import loginService from "@/service/login.js";
-import {useProStore} from "@/stores/providerStore.js";
+import { MDBContainer, MDBRow, MDBCol } from 'mdb-vue-ui-kit'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n/dist/vue-i18n'
+import { useProStore } from '@/stores/providerStore.js'
 import '@/styles/theme.css'
-import logo from '@/assets/logo_trans_main-edited.png';
-import { useRouter } from 'vue-router';
-import {useI18n} from "vue-i18n/dist/vue-i18n";
+import logo from '@/assets/logo_trans_main-edited.png'
+
 defineOptions({
-  name: 'home'
-  // you can also set other options here if needed
+  name: 'Home'
 })
 
-const counter = useCounterStore();
-const auth = useLoginStore()
-const proAdmin = useUserStore();
-const router = useRouter();
-const { t } = useI18n();
-const proStore = useProStore();
-
-const { profile } = storeToRefs(proAdmin);
-const { providerCount, professionCount } = storeToRefs(proStore);
-
+const router = useRouter()
+const { t } = useI18n()
+const proStore = useProStore()
+const { providerCount, professionCount } = storeToRefs(proStore)
 
 const clientInitial = () => {
-  console.log("Recipient form.");
-  router.push('/client-form');
+  router.push('/client-form')
 }
 
-// <!-- <span class="btn-hero__icon">🔍</span> -->
-// <!-- <span class="btn-hero__icon btn-hero__icon--accent">＋</span> -->
-/* const proInitial = () => {
-  console.log("Pro form");
-  if (proStore.isUserPro) {
-    router.push('/admin/provider')
-  } else {
-    router.push('/pro-form');
-  }
-} */
-
 const proInitial = async () => {
-  const savedUser = localStorage.getItem("loggedAppUser");
+  const savedUser = localStorage.getItem('loggedAppUser')
 
   if (!savedUser) {
     router.push({
-      path: "/login-panel",
-      query: { redirect: "/provider-form" }
-    });
-    return;
+      path: '/login-panel',
+      query: { redirect: '/provider-form' }
+    })
+    return
   }
 
-  const user = JSON.parse(savedUser);
+  let user
 
-  await proStore.getProState(user.id);
+  try {
+    user = JSON.parse(savedUser)
+  } catch (error) {
+    localStorage.removeItem('loggedAppUser')
+    router.push({
+      path: '/login-panel',
+      query: { redirect: '/provider-form' }
+    })
+    return
+  }
+
+  await proStore.getProState(user.id)
 
   if (proStore.isUserPro) {
-    return router.push({ name: "providerAdmin" });
+    router.push({ name: 'providerAdmin' })
+    return
   }
 
-  return router.push({ name: "ProviderForm" });
-
-  /* try {
-    await proStore.getProState(user.id);
-  } catch (e) {
-    proStore.isUserPro = false;
-  }
-
-  if (proStore.isUserPro) {
-    router.push("/admin/provider");
-  } else {
-    router.push("/pro-form");
-  } */
-};
-
+  router.push({ name: 'ProviderForm' })
+}
 </script>
 
 <style>
-.main-logo {
-  width: 70%;
-  margin: auto;
-  padding-top: 0;
+:root {
+  --home-header-height: 46px;
+  --home-max-width: 1480px;
+  --home-card-width: 500px;
+  --home-gap: clamp(18px, 2vw, 34px);
+
+  --home-bg: #0c1117;
+  --home-panel-start: rgba(24, 31, 43, 0.97);
+  --home-panel-end: rgba(10, 15, 23, 0.98);
+
+  --home-green: #59b898;
+  --home-green-light: #6ee4aa;
+  --home-green-dark: #116b4d;
+
+  --home-orange: #c9824b;
+  --home-orange-light: #e4b088;
+  --home-orange-dark: #8c4218;
+
+  --home-cyan: #49d2ff;
+  --home-cyan-light: #8eeaff;
+  --home-text: #f4f4f4;
+  --home-muted: #aeb7c5;
 }
 
-.home-vert-fit {
-  display: flex;
-  justify-content: space-around;
+html,
+body,
+#app {
+  min-height: 100%;
 }
 
-
-
-
-:root{
-  --header-h: 0px;   /* set if you have a fixed header, e.g. 56px */
-  --footer-h: 0px;
+.home-wrap,
+.home-container,
+.home-row,
+.info-col,
+.hero-col,
+.info-panel,
+.center-page,
+.hero-frame,
+.logo-hero,
+.action-panel {
+  min-width: 0;
+  box-sizing: border-box;
 }
-
-html, body, #app { height: 100%; }
-
 
 .home-wrap {
-  min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - var(--home-header-height));
   display: flex;
   align-items: center;
+  padding-block: clamp(18px, 3vh, 36px);
+}
+
+.home-container {
+  width: 100%;
+  max-width: var(--home-max-width);
+  margin-inline: auto;
+  padding-inline: clamp(12px, 2vw, 28px);
 }
 
 .home-row {
-  min-height: calc(100vh - 120px);
+  width: 100%;
+  margin-inline: 0;
+  row-gap: 24px;
+}
+
+.info-col,
+.hero-col {
+  display: flex;
+  align-items: stretch;
 }
 
 .info-col {
-  display: flex;
   justify-content: center;
 }
 
+.hero-col {
+  justify-content: stretch;
+}
+
+/*
+ * Võrdse kõrguse võti:
+ * - hero määrab rea loomuliku kõrguse;
+ * - mõlemad Bootstrap-veerud venivad rea kõrguseks;
+ * - info-panel täidab selle kõrguse;
+ * - justify-content: space-between venitab kaartide VAHET, mitte kaarte.
+ */
 .info-panel {
   width: 100%;
-  max-width: 460px;
-  display: grid;
-  gap: 18px;
-  padding: 20px 10px;
+  max-width: var(--home-card-width);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(22px, 4vh, 64px);
+  padding: 0;
 }
 
 .info-card {
+  width: 100%;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   text-align: left;
-  padding: 22px;
+  padding: clamp(18px, 1.7vw, 24px);
   border-radius: 22px;
-  background: linear-gradient(145deg, rgba(24, 31, 43, .96), rgba(10, 15, 23, .96));
-  border: 1px solid rgba(105, 210, 220, .25);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, .35);
+  background: linear-gradient(145deg, var(--home-panel-start), var(--home-panel-end));
+  border: 1px solid rgba(105, 210, 220, 0.25);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
 }
 
 .client-card {
-  border-color: rgba(81, 220, 170, .4);
+  border-color: rgba(81, 220, 170, 0.52);
 }
 
 .provider-card {
-  border-color: rgba(230, 150, 75, .45);
+  border-color: rgba(230, 150, 75, 0.55);
 }
 
 .info-label {
   display: inline-block;
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #39d7f2;
   margin-bottom: 8px;
+  color: #39d7f2;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .info-card h2 {
-  color: #f4f4f4;
-  font-size: 22px;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
+  color: var(--home-text);
+  font-size: clamp(19px, 1.6vw, 23px);
+  line-height: 1.2;
 }
 
 .info-card p {
-  color: #aeb7c5;
+  margin: 0 0 18px;
+  color: var(--home-muted);
   font-size: 14px;
   line-height: 1.6;
-  margin-bottom: 18px;
+}
+
+.text-link {
+  appearance: none;
+  display: inline;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.text-link--client {
+  color: var(--home-green);
+}
+
+.text-link--provider {
+  color: var(--home-orange-light);
 }
 
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
-.stats-row div {
-  padding: 10px;
+.stat-box {
+  min-width: 0;
+  padding: 11px 8px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, .045);
+  background: rgba(255, 255, 255, 0.045);
   text-align: center;
 }
 
-.stats-row strong {
+.stat-box strong,
+.stat-box span {
   display: block;
-  color: #ffffff;
+}
+
+.stat-box strong {
+  color: #fff;
   font-size: 15px;
 }
 
-.stats-row span {
-  display: block;
+.stat-box span {
+  margin-top: 3px;
   color: #8f9aaa;
   font-size: 11px;
+  line-height: 1.25;
 }
 
 .info-btn {
   width: 100%;
+  margin-top: 0;
   border: 0;
   border-radius: 12px;
-  padding: 13px 16px;
+  padding: 14px 16px;
   font-weight: 800;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
 .info-btn--client {
-  background: linear-gradient(180deg, #6ee4aa, #116b4d);
   color: #061514;
+  background: linear-gradient(180deg, var(--home-green-light), var(--home-green-dark));
 }
 
 .info-btn--provider {
-  background: linear-gradient(180deg, #e4b088, #8c4218);
   color: #160b04;
+  background: linear-gradient(180deg, var(--home-orange-light), var(--home-orange-dark));
 }
 
-@media (max-width: 991px) {
+.center-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  padding-left: var(--home-gap);
+}
+
+.hero-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  width: 100%;
+  height: 100%;
+  min-height: clamp(680px, calc(100dvh - 115px), 800px);
+  margin: 0;
+  padding: clamp(22px, 2.4vw, 38px);
+  border-radius: 24px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background: linear-gradient(145deg, var(--home-panel-start), var(--home-panel-end));
+  border: 1px solid transparent;
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.38),
+    -5px -4px 24px rgba(81, 220, 170, 0.07),
+    5px 4px 24px rgba(230, 150, 75, 0.08);
+}
+
+.hero-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: linear-gradient(
+    135deg,
+    rgba(81, 220, 170, 0.88),
+    rgba(81, 220, 170, 0.24) 42%,
+    rgba(230, 150, 75, 0.24) 58%,
+    rgba(230, 150, 75, 0.9)
+  );
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.hero-frame::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(81, 220, 170, 0.07), transparent 38%),
+    radial-gradient(circle at 90% 92%, rgba(230, 150, 75, 0.07), transparent 42%);
+}
+
+.logo-hero {
+  position: relative;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: clamp(2px, 0.8vw, 10px);
+}
+
+.logo-hero::before {
+  content: '';
+  position: absolute;
+  inset: -6% -8% -2%;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgba(231, 141, 99, 0.18), transparent 60%),
+    radial-gradient(30% 20% at 52% 18%, rgba(58, 190, 140, 0.22), transparent 60%);
+}
+
+.logo-hero__img {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.img-box {
+  padding: clamp(10px, 1.4vw, 20px);
+  border: 3px solid;
+  border-radius: 50%;
+  border-top-color: var(--home-green);
+  border-left-color: var(--home-green);
+  border-right-color: #c48c58;
+  border-bottom-color: #c48c58;
+  background: #1e2731;
+  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
+}
+
+/* margin-top:auto loob logo ja pealkirja vahele pildil nähtava paindliku ruumi. */
+.app-title {
+  width: 100%;
+  margin: auto 0 8px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.app-title__word {
+  position: relative;
+  max-width: 100%;
+  font: 900 clamp(30px, 4.1vw, 58px) / 1 'Orbitron', system-ui, sans-serif;
+  letter-spacing: clamp(0.06em, 0.72vw, 0.14em);
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  color: transparent;
+  background: linear-gradient(180deg, #eafcff 0%, var(--home-cyan-light) 55%, var(--home-cyan) 100%);
+  -webkit-background-clip: text;
+}
+
+.app-title__word::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -11px;
+  height: 4px;
+  border-radius: 999px;
+  opacity: 0.9;
+  filter: blur(1px);
+  background: radial-gradient(60% 140% at 50% 50%, #ff8a3d 0%, rgba(255, 138, 61, 0.65) 35%, transparent 70%);
+}
+
+@supports (-webkit-text-stroke: 1px transparent) {
+  .app-title__word {
+    -webkit-text-stroke: 1px rgba(255, 138, 61, 0.55);
+  }
+}
+
+.tagline {
+  margin: 16px auto 24px;
+  text-align: center;
+  font: 700 clamp(19px, 2.2vw, 29px) / 1.2 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+
+  color: transparent;
+  background: linear-gradient(180deg, #dff7ff 0%, var(--home-cyan-light) 65%, var(--home-cyan) 100%);
+  -webkit-background-clip: text;
+  text-shadow:
+    0 0 8px rgba(73, 210, 255, 0.35),
+    0 0 22px rgba(0, 180, 200, 0.25);
+}
+
+.action-panel {
+  width: min(100%, 760px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 1.4vw, 18px);
+}
+
+.btn-hero {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(20px, 2vw, 28px) 12px;
+  border: 1px solid rgba(142, 234, 255, 0.35);
+  border-radius: 8px;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgb(83, 31, 12);
+  font: 800 clamp(13px, 1.2vw, 17px) / 1 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  background:
+    radial-gradient(140% 200% at -10% -30%, rgba(255, 255, 255, 0.18), transparent 50%),
+    linear-gradient(180deg, #e2b895 0%, #773419 100%);
+
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 155, 73, 0.18) inset,
+    0 0 16px rgba(73, 210, 255, 0.35);
+
+  transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn-hero--primary {
+  color: rgb(4, 48, 4);
+  background:
+    radial-gradient(140% 200% at -10% -30%, rgba(255, 255, 255, 0.18), transparent 50%),
+    linear-gradient(180deg, #5ad396 0%, #0c4b3b 100%);
+}
+
+.btn-hero--accent {
+  border-color: rgba(255, 138, 61, 0.55);
+}
+
+.btn-hero:hover,
+.info-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.btn-hero:active,
+.info-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+.btn-hero:focus-visible,
+.info-btn:focus-visible,
+.text-link:focus-visible {
+  outline: 2px solid var(--home-cyan-light);
+  outline-offset: 3px;
+}
+
+/*
+ * Alla 1200 px lähevad plokid üksteise alla. See väldib varasemat
+ * umbes 1000 px laiuse probleemi, kus logo ja pealkiri suruti 7/12 veergu.
+ */
+@media (max-width: 1199.98px) {
   .home-wrap {
     align-items: flex-start;
   }
 
-  .home-row {
-    min-height: auto;
+  .info-col,
+  .hero-col {
+    justify-content: center;
+  }
+
+  .center-page {
+    max-width: 920px;
+    height: auto;
+    padding-left: 0;
+  }
+
+  .hero-frame {
+    height: auto;
+    min-height: 680px;
   }
 
   .info-panel {
-    max-width: 100%;
-    padding: 25px 4px 40px;
+    max-width: 920px;
+    height: auto;
+    justify-content: flex-start;
+    gap: 22px;
+  }
+
+  .app-title__word {
+    font-size: clamp(29px, 6vw, 54px);
+  }
+}
+
+@media (max-width: 720px) {
+  .home-container {
+    padding-inline: 10px;
+  }
+
+  .hero-frame {
+    min-height: auto;
+    padding: 18px 14px 22px;
+    border-radius: 19px;
+  }
+
+  .logo-hero {
+    padding: 0;
+  }
+
+  .app-title {
+    margin-top: 28px;
+  }
+
+  .app-title__word {
+    font-size: clamp(23px, 7.6vw, 42px);
+    letter-spacing: clamp(0.035em, 0.7vw, 0.08em);
+  }
+
+  .tagline {
+    margin-bottom: 18px;
+  }
+
+  .action-panel {
+    grid-template-columns: 1fr;
   }
 
   .info-card {
     padding: 18px;
     border-radius: 18px;
-  }
-
-  .info-card h2 {
-    font-size: 19px;
-  }
-
-  .stats-row {
-    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
@@ -395,384 +687,10 @@ html, body, #app { height: 100%; }
   .stats-row {
     grid-template-columns: 1fr;
   }
-}
 
-
-
-
-
-
-.center-page{
-  margin: 0;
-  /*min-block-size: calc(100svh - var(--header-h) - var(--footer-h));*/
-  display: grid;
-  place-items: center;                       /* centers horizontally + vertically */
-  padding: clamp(12px, 2vh, 24px);
-}
-
-.page{
-  /*width: min(92vw, 900px);*/
-  display: grid;
-  gap: 16px;
-  justify-items: center;
-  text-align: center;
-
-  /* allow scroll if content taller than viewport */
-  max-block-size: calc(100dvh - var(--header-h) - var(--footer-h) - 2 * clamp(12px, 2vh, 24px));
-  overflow: hidden;
-}
-
-/* optional: responsive horizontal buttons on wide screens */
-.hero-actions{ display:flex; flex-direction:column; gap:14px; width:100%; }
-.hero-actions > *{ width:100%; }
-@media (min-width:768px){
-  .hero-actions{ flex-direction:row; justify-content:center; }
-  .hero-actions > *{ width:auto; min-inline-size:260px; }
-}
-
-
-:root{
-  --bg:#0c1117;
-  --cyan:#49d2ff;
-  --cyan-2:#00b4c8;
-  --orange:#ff8a3d;
-}
-
-/* responsive container + subtle vignette & glow behind the logo */
-.logo-hero{
-  position: relative;
-  max-width: clamp(280px, 70vw, 760px);
-  margin: 18px auto 8px;
-  padding: 11px;
-}
-/* .logo-hero::beforexx{
-  content:"";
-  position:absolute; inset: -6% -8% -2%;
-  background:
-      radial-gradient(60% 60% at 50% 45%, rgba(255, 112, 73, 0.2), transparent 50%),
-      radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.25), transparent 50%);
-  filter: blur(4px);
-  pointer-events:none;
-} */
-
-/* .logo-hero::before{
-  content:"";
-  position:absolute; inset:-6% -8% -2%;
-  background:
-    radial-gradient(60% 60% at 50% 45%, rgba(255,112,73,.18) 0%, transparent 60%),
-    radial-gradient(30% 20% at 52% 18%, rgba(73,210,255,.22) 0%, transparent 60%);
- 
-  pointer-events:none;
-}
- */
-
- /* Shadows on logo */
- .logo-hero::before{
-  content:"";
-  position:absolute; inset:-6% -8% -2%;
-  background:
-    radial-gradient(60% 60% at 50% 45%, rgba(231, 141, 99, 0.18) 0%, transparent 60%),
-    radial-gradient(30% 20% at 52% 18%, rgba(58, 190, 140, 0.22) 0%, transparent 60%);
- 
-  pointer-events:none;
-}
-
-.logo-hero::after{
-  /* dark vignette so the logo pops on any section */
-  content:"";
-  position:absolute; inset:-12% -14%;
-  background: radial-gradient(60% 50% at 50% 45%, rgba(0,0,0,.25), transparent 70%);
-  z-index:-1;
-}
-
-/* the PNG itself: crisp + neon drop-shadow */
-.logo-hero__img{
-  display:block; width:100%; height:auto;
-  /* border: 4px outset green; */
-
-  /*image-rendering: -webkit-optimize-contrast;*/
-  /*filter:*/
-  /*    drop-shadow(0 0 10px rgba(73,210,255,.45))*/
-  /*    drop-shadow(0 0 28px rgba(0,180,200,.25));*/
-}
-@media (min-width:768px){
-  .logo-hero{ margin-top: 22px; }
-}
-
-
-.img-box {
-  /* background: #31353a; */
-  background: #1e2731;
-  padding: 20px;
-
-  border: 3px solid;
-
-  border-top-color: #59b898;
-  border-left-color: #59b898;
-
-  border-right-color: #c48c58;
-  border-bottom-color: #c48c58;
-
-  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
-
-  /* box-shadow:
-    -3px -3px 0 #afe2d1,
-     3px  3px 0 #dfc7af; */
-}
-
-:root{
-  --c-cyan:  #49d2ff;
-  --c-cyan2: #8eeaff;
-  --c-teal:  #00b4c8;
-  --c-orange:#ff8a3d;
-}
-
-/* konteiner – hoiab pealkirja keskel */
-.app-title{ display:flex; justify-content:center; margin: 28px 0 6px; }
-
-/* sõna ise – futuristlik, glowl, õrn oranž kontuur */
-.app-title__word{
-  font: 900 clamp(28px,6vw,56px)/1 "Orbitron", system-ui, sans-serif;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-
-  /* tsüaansinine gradienttekst */
-  background: linear-gradient(180deg, #eafcff 0%,
-  var(--c-cyan2) 55%, var(--c-cyan) 100%);
-  -webkit-background-clip: text;
-  color: transparent;
-
-  /* neon-glow, mis sobitub esilehe stiiliga */
-  /*text-shadow:*/
-  /*    0 1px 0 rgba(255,255,255,.35),*/
-  /*    0 0 10px rgba(73,210,255,.55),*/
-  /*    0 0 28px rgba(0,180,200,.35),*/
-  /*    0 0 54px rgba(0,160,180,.25);*/
-
-  position: relative;
-}
-
-/* diskreetne oranž aktsent all – järgib nuppude “helenduse” tunnet */
-.app-title__word::after{
-  content:"";
-  position:absolute; left:0; right:0; bottom:-10px;
-  height:4px; border-radius:999px;
-  background: radial-gradient(60% 140% at 50% 50%,
-  var(--c-orange) 0%, rgba(255,138,61,.65) 35%, transparent 70%);
-  filter: blur(1px);
-  opacity:.9;
-}
-
-/* kui brauser toetab, lisa õrn oranž “stroke” (hoiab tumedal taustal loetavuse tipptasemel) */
-@supports(-webkit-text-stroke:1px transparent){
-  .app-title__word{ -webkit-text-stroke:1px rgba(255,138,61,.55); }
-}
-
-.title {
-  /*color:#7F8A9A;*/
-  color: #ddd;
-  font-family: "Lucida Console", "Courier New", monospace;
-  text-shadow: 2px 2px 5px #35bbc7;
-  padding-top: 13px;
-  padding-bottom: 13px;
-}
-
-.action-panel {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 20px;
-}
-.action-button {
-  width: 330px;
-  /*border-radius: 3%;*/
-  margin-top: 17px;
-  padding: 20px 20px;
-}
-
-
-
-
-
-:root{
-  --bg:#0c1117;
-  --cyan:#49d2ff;
-  --cyan-2:#00b4c8;
-  --cyan-3:#8eeaff;
-  --cyan-deep:#0a3340;
-  --orange:#ff8a3d;
-  --text:#e8f6ff;
-}
-
-/* Tagline under PROKEIKKATORI */
-.tagline{
-  margin: 6px auto 18px;
-  font: 700 clamp(18px, 3.8vw, 28px)/1.2 "Inter", system-ui, sans-serif;
-  letter-spacing:.04em;
-  color: transparent;
-  background: linear-gradient(180deg, #dff7ff 0%, var(--cyan-3) 65%, var(--cyan) 100%);
-  -webkit-background-clip:text;
-  text-shadow:
-      0 0 8px rgba(73,210,255,.35),
-      0 0 22px rgba(0,180,200,.25);
-  text-align:center;
-}
-
-/* Actions container */
-.hero-actions{
-  display:grid;
-  gap:14px;
-  /*max-width: 320px;*/
-
-  margin-inline:auto;
-}
-
-/* Neon pill buttons */
-.btn-hero{
-  --btn-glow: rgba(73,210,255,.35);
-  display:flex; align-items:center; justify-content:center;
-  gap:.6rem;
-  
-  width: 290px;
-  
-  padding: 33px 13px;
-  
-  border-radius: 7px;
-  font: 800 17px/1 "Inter", system-ui, sans-serif;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  
-  color: rgb(83, 31, 12);
- 
-    background:
-      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #e2b895 0%, #773419 100%); 
-  border:1px solid rgba(142,234,255,.35);
-  
-      box-shadow:
-      0 8px 18px rgba(0,0,0,.35),
-      0 0 0 1px rgba(255, 155, 73, 0.18) inset,
-      0 0 16px var(--btn-glow);
-  transition: transform .12s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;
-}
-
-/* Primary (Find a service) – cool cyan */
-/* .btn-hero--primary{
-  background:
-      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #1d8cb2 0%, #126b86 100%);
-} */
-
-.btn-hero--primary{
-  color: rgb(4, 48, 4);
-  background:
-      radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-      linear-gradient(180deg, #5ad396 0%, #0c4b3b 100%);
-}
-
-/* Accent (Provide a service) – subtle orange edge */
-.btn-hero--accent{
-  border-color: rgba(255,138,61,.55);
-  /* box-shadow:
-      0 8px 18px rgba(0,0,0,.35),
-      0 0 0 1px rgba(255,138,61,.35) inset,
-      0 0 16px rgba(255,138,61,.28),
-      0 0 16px rgba(73,210,255,.25); */
-}
-
-/* Icons */
-.btn-hero__icon{ font-size: 2rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55));  }
-/* .btn-hero__icon--accent{ color:var(--orange); filter: drop-shadow(0 0 6px rgba(255,138,61,.6)); } */
-
-/* Hover / active / focus */
-.btn-hero:hover{
-  transform: translateY(-1px);
-  box-shadow:
-      0 12px 24px rgba(0,0,0,.38),
-      0 0 0 1px rgba(73,210,255,.28) inset,
-      0 0 22px rgba(73,210,255,.55);
-}
-.btn-hero:active{ transform: translateY(0); filter: brightness(.96); }
-.btn-hero:focus-visible{
-  outline: none;
-  box-shadow:
-      0 0 0 2px rgba(12,17,23,1),
-      0 0 0 4px rgba(73,210,255,.85),
-      0 8px 18px rgba(0,0,0,.35);
-}
-
-
-
-@media (max-width: 630px) {
-  .main-logo {
-
-    margin: auto;
-    padding-top: 30px;
-    padding-bottom: 50px;
+  .app-title__word {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
-  .action-panel {
-    display: block;
-    width: 80%;
-    flex-direction: column;
-
-    justify-content: center;
-    margin-inline:auto;
-    gap: 14px;
-  }
-  .btn-hero{
-    --btn-glow: rgba(73,210,255,.35);
-    display:flex; align-items:center; justify-content:center;
-    
-    width:100%;
-    
-    padding: 23px 13px;
-    margin-top: 17px;
-    /* border-radius:999px; */
-    border-radius: 9px;
-    font: 800 12px/1 "Inter", system-ui, sans-serif;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:rgb(83, 31, 12);
-    /* background:
-        radial-gradient(140% 200% at -10% -30%, rgba(255,255,255,.18) 0%, transparent 50%),
-        linear-gradient(180deg, #177da2 0%, #0f5a73 100%); */
-    border:1px solid rgba(142,234,255,.35);
-    box-shadow:
-        0 8px 18px rgba(0,0,0,.35),
-        0 0 0 1px rgba(73,210,255,.18) inset,
-        0 0 16px var(--btn-glow);
-    transition: transform .12s ease, box-shadow .15s ease, filter .15s ease, border-color .15s ease;
-  }
-
-  .btn-hero--primary {
-    color: rgb(4, 48, 4);
-  }
-
-  .btn-hero--accent{
-    border-color: rgba(255,138,61,.55);
-    box-shadow:
-        0 8px 18px rgba(0,0,0,.35),
-        0 0 0 1px rgba(255,138,61,.35) inset,
-        0 0 16px rgba(255,138,61,.28),
-        0 0 16px rgba(73,210,255,.25);
-  }
-  /*.action-button {*/
-  /*  width: 220px;*/
-  /*  !*border-radius: 3%;*!*/
-  /*  margin-top: 17px;*/
-  /*  padding: 20px 20px;*/
-  /*}*/
-}
-
-/* Keep everything tight on very small screens */
-@media (max-width:360px){
-  .btn-hero{ padding:.9rem 1rem; font-weight: 700; }
-}
-
-/* Optional: tiny orange underline under title if you want to mirror PROKEIKKATORI */
-.app-title__word::after{
-  content:""; display:block; height:4px; border-radius:999px; margin-top:6px;
-  background: radial-gradient(60% 140% at 50% 50%, var(--orange) 0%, rgba(255,138,61,.55) 40%, transparent 70%);
-  filter: blur(1px);
 }
 </style>

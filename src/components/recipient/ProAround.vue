@@ -6,7 +6,7 @@
       
       <div v-show="isMainPanel" class="client-map-panel">
         <div class="panel-header">
-          <button class="panel-refresh" @click="refreshMapState">Päivitä</button>
+          <button class="panel-refresh" @click="refreshMapState">{{ tr("proAround.refresh") }}</button>
 
           <div class="panel-actions">
             <MDBIcon size="lg" class="panel-icon" @click="isMainPanel = false">
@@ -22,7 +22,7 @@
             <MDBInput
               size="sm"
               v-model="address"
-              label="Anna osoite"
+              :label="tr('proAround.addressLabel')"
               id="client-input"
               wrapperClass="form-outline flex-grow-3"
               :inputClass="'ps-0'"
@@ -45,7 +45,7 @@
             optionLabel="label"
             optionGroupLabel="label"
             optionGroupChildren="items"
-            placeholder="Valitse ammattilainen *"
+            :placeholder="tr('proAround.professionalPlaceholder')"
             showClear
             :class="['modern-select', { 'field-error': isNoPro }]"
           >
@@ -62,16 +62,16 @@
             </template>
           </Select>
 
-          <p v-if="panelProError" class="error-text">Ammatti on pakollinen!</p>
+          <p v-if="panelProError" class="error-text">{{ tr("proAround.professionRequired") }}</p>
         </div>
 
         <div :class="{ hideDistSelectPanel: !isDistSelection }">
-          <p class="section-label">Valitse kiinnostavaa ajankohta tai heti!</p>
+          <p class="section-label">{{ tr("proAround.selectDateOrNow") }}</p>
 
           <div class="field-wrapper">
             <MDBDateTimepicker
               size="md"
-              label="Valitse tehtävän päivämäärä ja aika"
+              :label="tr('proAround.dateTimeLabel')"
               v-model="dt"
               :toggleButton="false"
               inputToggle
@@ -83,7 +83,7 @@
           </div>
 
           <MDBCheckbox
-            label="Heti!"
+            :label="tr('proAround.now')"
             name="selection"
             v-model="isDateNow"
             value="true"
@@ -97,21 +97,21 @@
           size="md"
           v-model:selected="selectedRange"
           :options="rangeOptions"
-          label="Etsi alue"
+          :label="tr('proAround.searchArea')"
           id="distance"
           class="modern-mdb-select"
         />
 
-        <p v-if="panelRangeError" class="error-text">Etäisyys on pakollinen valinta!</p>
+        <p v-if="panelRangeError" class="error-text">{{ tr("proAround.distanceRequired") }}</p>
 
         <div class="panel-footer">
           <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="empty-text">
-            Ei ammattilaisia
+            {{ tr("proAround.noProfessionals") }}
           </p>
           <span v-else></span>
 
           <MDBBtn color="primary" size="sm" class="search-btn" @click="onGetProviders">
-            Etsi
+            {{ tr("proAround.search") }}
           </MDBBtn>
         </div>
       </div>
@@ -123,7 +123,7 @@
         style="position: absolute; opacity: 0.8; top: 60px; left: 10px; z-index: 2;"
         @click="isMainPanel = true"
       >
-        Valinta
+        {{ tr("proAround.selection") }}
       </MDBBtn>
       
     </div>
@@ -139,7 +139,7 @@
             toast="success"
             icon="fas fa-check fa-lg me-2"
         >
-          <template #title>PROKEIKKATORI</template>
+          <template #title>{{ tr("proAround.requestSent") }}</template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
           <template #small></template>
           <p>{{ rs_success_msg }}</p>
@@ -191,14 +191,14 @@
 
     <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
       <div class="location-error-box">
-        Sijaintia ei voitu hakea.
+        {{ tr("proAround.locationFetchFailed") }}
       </div>
     </div>
 
     <div v-show="!!startPos" id="map"></div>
 
     <div v-if="!!startPos && isLocating" class="locating-badge">
-      Päivitetään sijaintia...
+      {{ tr("proAround.updatingLocation") }}
     </div>
   </div>
 </template>
@@ -210,6 +210,7 @@
 // });
 import {MDBIcon, MDBBtnClose, MDBInput, MDBBtn, MDBCheckbox, MDBSelect, MDBSpinner, MDBDateTimepicker, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter, MDBToast} from 'mdb-vue-ui-kit';
 import { ref, onMounted, watch, computed, createApp, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Select from 'primevue/select';
 import proList from '@/components/controllers/professions'
 //import { Loader } from "@googlemaps/js-api-loader"; // official way
@@ -239,7 +240,7 @@ defineOptions({
 })
 
 const emit = defineEmits([ 'open-chat' ]);
-
+const { tr } = useI18n();
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
@@ -618,7 +619,7 @@ const showUserMarker = (lat, lng) => {
     userMarker = new google.maps.Marker({
       position: { lat, lng },
       map,
-      title: "Sinu asukoht",
+      title: tr("proAround.yourLocation"),
       icon: circleMarker('darkgrey')
     });
   } else {
@@ -1020,7 +1021,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                 .map(f => `
                   <div class="feedback-item">
                     <div class="feedback-meta">
-                      <span class="feedback-sender">${escapeHtml(f.sender || "Tuntematon")}</span>
+                      <span class="feedback-sender">${escapeHtml(f.sender || tr("proAround.unknown"))}</span>
                       <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
                     </div>
                     <div class="feedback-text">${escapeHtml(f.text)}</div>
@@ -1029,7 +1030,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                 .join("");
             
               const orderButton = provider.id !== providerId.value && otherChatUsers.value[provider?.user?.id]
-                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">TILAUS</button>`
+                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">${tr("proAround.order")}</button>`
                 : `<div class="order-btn-placeholder"></div>`;
 
               const chatButton = provider.id !== providerId.value
@@ -1040,7 +1041,7 @@ const otherUserLocations = async (providers, profession, dist) => {
 
               const referenceBtn = `
                 <div class="reference-btn" onclick="myReferenceFunction(${p})">
-                  ${isOpenReferences ? "Sulje työnäytteet" : "Avaa työnäytteet"}
+                  ${isOpenReferences ? tr("proAround.closeWorkSamples") : tr("proAround.openWorkSamples")}
                 </div>
               `;
               infowindow.setContent(`
@@ -1050,7 +1051,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                   <div class="header">
                     <div class="stars" id="stars-mount"></div>
                     <div class="raters-count text-semibold small">
-                      / ${providers[p].ratersCount} arvostelijaa
+                      / ${providers[p].proAround.raters}
                     </div>
                   </div>
                   <table class="info-table" role="presentation">
@@ -1060,7 +1061,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                         ${
                           feedbackHtml
                             ? `
-                              <button class="bottom-btn" onclick="toggleFeedback()">Palautteet</button>
+                              <button class="bottom-btn" onclick="toggleFeedback()"> ${tr("proAround.feedback")} </button>
                               
                             `
                             : ""
@@ -1069,27 +1070,33 @@ const otherUserLocations = async (providers, profession, dist) => {
                     </tr>
                   </table>
                   <div id="feedback-section" class="feedback-section" style="display:none;">
-                    <div class="feedback-title">Sulje napsauttamalla palautepainiketta uudelleen</div>
+                    <div class="feedback-title">${tr("proAround.feedbackCloseHint")}</div>
                     <div class="feedback-list">
                       ${feedbackHtml}
                     </div>
                   </div>
                   <table class="info-table" role="presentation">
                     <tr>
-                      <th>Saatavuus</th>
-                      <td>${currentMatching || providers[p].status === 'Saatavilla' ? "Saatavilla" : "Sovittaessa"}</td>
+                      <th>${tr("proAround.availability")}</th>
+                      <td>${currentMatching || providers[p].status === 'Saatavilla' ? tr("proAround.available") : tr("proAround.negotiable")}</td>
                     </tr>
                     <tr>
-                      <th>Ammatti</th>
+                      <th>${tr("proAround.profession")}</th>
                       <td>${providers[p].profession.join(', ')}</td>
                     </tr>
                     <tr>
-                      <th>Tiedot</th>
-                      <td><span class="info-link">Kotisivu</span></td>
+                      <th>${tr("proAround.information")}</th>
+                      <td><span class="info-link">${tr("proAround.website")}</span></td>
                     </tr>
                     <tr>
-                      <th>${providers[p].priceByHour ? "Tuntihinta" : "Urakkahinta"}</th>
-                      <td>${providers[p].priceByHour ? providers[p].priceByHour + " eur" : "Sovittaessa"}</td>
+                      <th>${providers[p].priceByHour 
+                        ? tr('proAround.hourlyRate') : tr('proAround.contractPrice')}</th>
+                      <td>
+                        ${providers[p].priceByHour ? tr("proAround.currencyEur", {
+                          amount: providers[p].priceByHour
+                        }) 
+                        : tr("proAround.negotiable")}
+                      </td>
                     </tr>
                     <tr>
                       <th>${referenceBtn}</th>
@@ -1258,12 +1265,12 @@ const handleSendRequest = async (_form) => {
   clientStore.onRequest(receiverId, userId, target.value, user.value, request, _form.localPhotos, () => {
     // success callback
     console.log("Request sent successfully");
-    rs_success_msg.value = "Tilaus lähetetty onnistuneesti!";
+    rs_success_msg.value = tr("proAround.requestSent");
     isRequestSent.value = true;
   }, (err) => {
     // error callback
     console.error("Failed to send request:", err);
-    rs_error_msg.value = "Tilauksen lähettäminen epäonnistui. Yritä uudestaan.";
+    rs_error_msg.value = tr("proAround.requestFailed");
     isRequestSent.value = false;
   });
 

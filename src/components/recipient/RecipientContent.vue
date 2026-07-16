@@ -15,15 +15,15 @@
       <MDBCol lg="8">
         <booking-content :booking="booking"/>
         <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
-          Peruuta tilaus
+          {{ tr('cancelOrder') }}
         </div>
       </MDBCol>
       <MDBCol>
         <section class="panel panel--offers">
-          <!-- your offers list here -->
+          <!-- offers list -->
           <div class="offers-list">
             <div style="padding: 7px 0 7px 0;">
-              <h5>Tarjoukset</h5>
+              <h5>{{ tr('offers') }}</h5>
             </div>
             
             <div
@@ -36,19 +36,19 @@
               <div class="offer-main">
                 <p class="offer-name">{{offer.name}}</p>
                 
-                <p class="offer-sub">{{ t('recipient_result_distance') }} {{offer.distance}} km</p>
+                <p class="offer-sub">{{ tr('distance', { distance: offer.distance }) }}</p>
               </div>
 
               <div class="offer-price">
-                {{offer.price}} eur
+                {{ tr('priceEur', { price: offer.price }) }}
               </div>
-              <span v-if="offer.isNewOffer" class="new-dot" aria-label="New offer"></span>
+              <span v-if="offer.isNewOffer" class="new-dot" :aria-label="tr('newOffer')"></span>
               
             </div>
             
 
           </div>
-          <div v-if="!booking.offers.length" class="text-muted small">Ei vielä tarjouksia</div>
+          <div v-if="!booking.offers.length" class="text-muted small">{{ tr('noOffersYet') }}</div>
           
         </section>
         
@@ -83,7 +83,13 @@
 
           <div>
             <stars :rating="selectedProvider?.provider?.rating" />
-            <p class="text-muted small" style="text-align: center;">{{ selectedProvider?.provider?.ratersCount }} arvioijaa</p>
+            <p class="text-muted small" style="text-align: center;">
+              {{
+                tr("raters", {
+                  count: selectedProvider?.provider?.ratersCount || 0
+                })
+              }}
+            </p>
           </div>
         </div>
         
@@ -96,7 +102,7 @@
         <div style="display: flex; justify-content: right;">
           <div style="display: flex; gap: 7px;">
             <MDBBtn color="danger" @click="openProModal = false"> <i class="fas fa-undo"></i> </MDBBtn>
-            <MDBBtn color="primary" @click="orderProvider"> Tilaa  </MDBBtn>
+            <MDBBtn color="primary" @click="orderProvider"> {{ tr('order') }} </MDBBtn>
           </div>
         </div>
         
@@ -107,8 +113,8 @@
       v-model="showDeleteModal"
       :title="cTitle"
       :message="cMessage"
-      confirm-text="Poista"
-      cancel-text="Pidä se"
+      :confirm-text="tr('delete')"
+      :cancel-text="tr('keep')"
       :danger="true"
       @confirm="handleRemovePublicBooking"
       @cancel="handleCancelRemoving"
@@ -116,10 +122,10 @@
 
     <ConfirmDealModal
       v-model="showDealConfirm"
-      :title="'Sopimus!'"
+      :title="tr('dealTitle')"
       :message="dealMessage"
-      confirm-text="Hienoa!"
-      cancel-text="Peruuta"
+      :confirm-text="tr('great')"
+      :cancel-text="tr('cancel')"
       :show-icon="true"
       @confirm= "confirmProvider"
       @cancel="cancelProvider" 
@@ -177,15 +183,14 @@ const props = defineProps({
   bIndex: {type: Number}
 })
 
-/* const _props = defineProps({
-  booking: {type: Object}
-})
-
-const { booking } = toRefs(_props) */
-
 const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState', 'open-chat'])
 
-const {t} = useI18n();
+const {t} = useI18n({
+  useScope: 'global'
+});
+const tr = (key, params = {}) =>
+  t(`recipientContent.${key}`, params);
+
 const auth = useLoginStore();
 const clientStore = useClientStore();
 const booking_offers = ref([])
@@ -193,6 +198,8 @@ const offerId = ref("");
 const isOfferContent = ref(false);
 const selectedProvider = ref(null);
 const loadOffers = load_offers;
+
+// No active filter by default
 const filterOptions = ref([
   {text: "Distance", value: 25 }
 ])
@@ -215,7 +222,12 @@ const toastContent = ref('')
 
 const showDealConfirm = ref(false);
 const dealMessage = computed(() => {
-  return `${selectedProvider.value?.provider?.pName} tarjoama palvelu on tilattavissa! Haluatko vahvistaa sopimuksen?`
+  return tr("dealMessage", {
+    provider:
+      selectedProvider.value?.provider?.pName ||
+      selectedProvider.value?.name ||
+      ""
+  });
 })
 
 //const offerContent = clientStore.getOfferById(offerId);
@@ -234,57 +246,6 @@ const getProviderInfo = async (proID, offer) => {
   emit('updateOfferState', offer.bookingID, offer.id);
 }
 
-// How to handle server error, one way
-/* const orderProvider = async () => {
-  try {
-    console.log("[1] Offer id", offerId.value);
-
-    const offerContent = clientStore.getOfferById(offerId.value);
-    console.log("[2] offerContent", offerContent);
-    console.log("[3] selectedProvider", selectedProvider.value);
-
-    console.log("[4] OfferContent booking id", offerContent?.bookingID);
-
-    console.log("[5] read receiver...");
-    const receiver = selectedProvider.value.sender;
-
-    console.log("[6] find booking...");
-    const booking = bookings.value.find(b => b.id === selectedProvider.value.bookingID);
-    if (!booking) {
-      console.error("No booking found:", selectedProvider.value.bookingID);
-      return;
-    }
-
-    console.log("[7] build content...");
-    const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${booking.header}". Tarkemmat tiedot kalenterissa!`;
-
-    console.log("[8] calling updateRecipientStatus...");
-
-    let confirmed;
-    try {
-      confirmed = await clientService.updateRecipientStatus(
-        offerContent.bookingID,
-        { status: "confirmed" }
-      );
-      console.log("[9] Confirmed ---", confirmed);
-    } catch (e) {
-      console.error("[8x] updateRecipientStatus failed:", e);
-    
-      console.error("response:", e?.response?.status, e?.response?.data);
-      console.error("request:", e?.request);
-      console.error("message:", e?.message);
-      throw e; 
-    }
-
-    console.log("[9] Confirmed ---", confirmed);
-
-  } catch (err) {
-    console.error("orderProvider crashed:", err);
-  }
-}; */
-
-
-
 const onToast = (icon, content, color) => {
   console.log("Toast work?")
   toastState.value = color;
@@ -292,8 +253,6 @@ const onToast = (icon, content, color) => {
   toastContent.value = content;
   toastModel.value = true;
 }
-
-
 
 const orderProvider = async() => {
   showDealConfirm.value = true;
@@ -310,7 +269,7 @@ const confirmProvider = async () => {
   const receiver = selectedProvider.value.sender;
   const myId = user.value.id;
   const bookingId = selectedProvider.value.bookingID;
-  const header = "Sopimus tehty!";
+  const header = tr("dealCreatedTitle");;
 
 
   const booking = bookings.value.find(b => b.id === selectedProvider.value.bookingID);
@@ -319,8 +278,12 @@ const confirmProvider = async () => {
     return;
   }
 
-  const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
-  const clientContent = `Tilaus on vahvistettu. Tiedot kalenterissa!`;
+  //const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
+  const proContent = tr("providerNotification", {
+    client: user.value.firstName,
+    booking: booking.header
+  });
+  const clientContent = tr("clientNotification");
 
   const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
   console.log("Confirmed --- ", confirmed)
@@ -341,9 +304,7 @@ const confirmProvider = async () => {
   await clientStore.confirmOffer(offerContent);
   
   await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
-  //handleQuitContent();
   emit('canselRecipientContentConfirmed', selectedProvider.value.name);
-  //emit('quit-content-confirmed', selectedProvider.value.name);
 
   //onToast("fas fa-check fa-lg me-2", `${selectedProvider.value.pName} on tilattu onnistuneesti!`, "success");
 
@@ -375,8 +336,8 @@ const removePublicBooking = async () => {
   console.log("BOOKING ID " + props.booking.id);
 
   showDeleteModal.value = true;
-  cTitle.value = "Poistetaanko tilaus?";
-  cMessage.value = "Oletko varma, että haluat poistaa tilauksen?";
+  cTitle.value = tr('deleteOrderTitle');
+  cMessage.value = tr('deleteMessage');
   
 }
 

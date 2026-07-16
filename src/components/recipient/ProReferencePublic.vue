@@ -23,9 +23,7 @@
                         >
                           +{{ imagesToShow.length - 3 }} more
                         </div>
-                        <!-- <div v-if="image.text !== ''" class="photo-overlay">
-                          <p>{{image.text}}</p>
-                        </div> -->
+                        
                     </div>
                   </div>
                 </div>

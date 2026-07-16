@@ -27,12 +27,7 @@
         
 
         <div v-if="reference?.length" >
-          <!-- <figure
-            v-for="(photo, idx) in images"
-            :key="photo.id || idx"
-            class="photo-card"
-          > -->
-            <!-- <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Reference photo'" /> -->
+          
             <div class="photo-media">
               <MDBLightbox> 
                 <MDBRow class="g-2 mx-0">

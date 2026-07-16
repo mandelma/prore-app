@@ -326,6 +326,182 @@
       "profession_required": "Ammatti on pakollinen!",
       "address_required": "Osoite on pakollinen!"
     }
+  },
+
+  "clientHistory": {
+    "title": "Tilatut palvelut",
+    "subtitle": "Valitse tilaus nähdäksesi tiedot tai varataksesi saman palvelun uudelleen.",
+    "search": "Hae palveluntarjoajaa...",
+    "status": {
+      "done": "Valmis"
+    },
+    "table": {
+      "date": "Päivä",
+      "provider": "Palveluntarjoaja",
+      "task": "Tehtävä",
+      "actions": "Toiminnot"
+    },
+    "buttons": {
+      "details": "Tiedot",
+      "book": "Varaa",
+      "book_again": "Varaa uudelleen",
+      "book_same_provider": "Varaa sama palveluntarjoaja uudelleen",
+      "back": "← Takaisin",
+      "show_profile": "Näytä profiili",
+      "cancel": "Peruuta",
+      "delete": "Poista",
+      "keep": "Pidä"
+    },
+    "details": {
+      "booking": "Varaus",
+      "provider": "Palveluntarjoaja",
+      "date": "Päivämäärä",
+      "task": "Tehtävä",
+      "status": "Tila",
+      "price": "Hinta",
+      "notes": "Lisätiedot",
+      "company": "Yritys",
+      "business_id": "Y-tunnus",
+      "address": "Osoite",
+      "professions": "Ammatit"
+    },
+    "notifications": {
+      "delete_title": "Poistetaan rivi",
+      "delete_message": "Haluatko varmasti poistaa tämän rivin?"
+    },
+    "rating": {
+      "raters": "{count} arvioijaa"
+    }
+  },
+
+  "bookingContent": {
+    "sections": {
+      "booking": "Varaus",
+      "photos": "Kuvat"
+    },
+    "fields": {
+      "description": "Kuvaus",
+      "date": "Päivämäärä"
+    },
+    "labels": {
+      "select_date_time": "Valitse tehtävän päivämäärä ja aika"
+    },
+    "placeholders": {
+      "description": "Kerro lyhyesti, mitä tarvitset..."
+    },
+    "empty": {
+      "no_photos": "Tilaukseen ei ole lisätty kuvia."
+    },
+    "dropzone": {
+      "title": "Vedä ja pudota kuvia tähän",
+      "text": "tai paina ”Lisää kuvia”"
+    },
+    "buttons": {
+      "add_photos": "Lisää kuvia",
+      "cancel": "Peruuta",
+      "save_changes": "Tallenna muutokset",
+      "replace": "Korvaa",
+      "delete": "Poista"
+    },
+    "alt": {
+      "booking_photo": "Tilauksen kuva"
+    }
+  },
+
+  "giveFeedback": {
+    "comment_label": "Anna halutessasi palautetta!",
+    "submit": "Lähetä palaute",
+    "skip": "En halua antaa palautetta"
+  },
+
+  "offerContent": {
+    "received_feedback": "Vastaanotettu palaute",
+    "back": "Takaisin",
+    "company": "Yritys",
+    "business_id": "Y-tunnus",
+    "address": "Osoite",
+    "distance": "Etäisyys",
+    "hourly_rate": "Tuntihinta",
+    "offer_price": "Tarjoushinta",
+    "description": "Kuvaus",
+    "references": "Referenssit",
+    "reference_alt": "Palveluntarjoajan referenssikuva",
+    "unknown_sender": "Tuntematon"
+  },
+
+  "picturesUp": {
+    "add_optional_photos": "Lisää halutessasi kuvia tehtävästä",
+    "edit_photos": "Muokkaa kuvia",
+    "photo_alt": "Tehtävän kuva",
+    "empty_hint": "Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.",
+    "photos_title": "Kuvat",
+    "add_photos": "Lisää kuvia",
+    "dropzone_title": "Vedä ja pudota kuvia tähän",
+    "dropzone_text": "tai paina “Lisää kuvia”",
+    "description_placeholder": "Lisää kuvaus...",
+    "remove_photo": "Poista kuva",
+    "cancel": "Peruuta",
+    "save_photos": "Tallenna kuvat"
+  },
+
+  "proAround": {
+    "refresh": "Päivitä",
+    "addressLabel": "Anna osoite",
+    "professionalPlaceholder": "Valitse ammattilainen *",
+    "professionRequired": "Ammatti on pakollinen!",
+    "selectDateOrNow": "Valitse sopiva ajankohta tai heti!",
+    "dateTimeLabel": "Valitse tehtävän päivämäärä ja aika",
+    "now": "Heti!",
+    "searchArea": "Etsi alue",
+    "distanceRequired": "Etäisyys on pakollinen valinta!",
+    "noProfessionals": "Ei ammattilaisia",
+    "search": "Etsi",
+    "selection": "Valinta",
+    "locationFetchFailed": "Sijaintia ei voitu hakea.",
+    "updatingLocation": "Päivitetään sijaintia...",
+    "yourLocation": "Sijaintisi",
+    "unknown": "Tuntematon",
+    "order": "TILAUS",
+    "feedback": "Palautteet",
+    "openWorkSamples": "Avaa työnäytteet",
+    "closeWorkSamples": "Sulje työnäytteet",
+    "raters": "{count} arvostelijaa",
+    "feedbackCloseHint": "Sulje napsauttamalla palautepainiketta uudelleen",
+    "availability": "Saatavuus",
+    "available": "Saatavilla",
+    "negotiable": "Sovittaessa",
+    "profession": "Ammatti",
+    "information": "Tiedot",
+    "website": "Kotisivu",
+    "hourlyRate": "Tuntihinta",
+    "contractPrice": "Urakkahinta",
+    "currencyEur": "{amount} €",
+    "requestSent": "Tilaus lähetetty onnistuneesti!",
+    "requestFailed": "Tilauksen lähettäminen epäonnistui. Yritä uudestaan.",
+    "close": "Sulje"
+  },
+
+  "recipientContent": {
+    "cancelOrder": "Peruuta tilaus",
+    "offers": "Tarjoukset",
+    "distance": "Etäisyys {distance} km",
+    "priceEur": "{price} €",
+    "newOffer": "Uusi tarjous",
+    "noOffersYet": "Ei vielä tarjouksia",
+    "raters": "{count} arvioijaa",
+    "order": "Tilaa",
+    "delete": "Poista",
+    "keep": "Pidä se",
+    "dealTitle": "Sopimus!",
+    "great": "Hienoa!",
+    "cancel": "Peruuta",
+    "dealMessage": "Palveluntarjoajan {provider} tarjoama palvelu on tilattavissa! Haluatko vahvistaa sopimuksen?",
+    "dealCreatedTitle": "Sopimus tehty!",
+    "providerNotification": "{client} on vahvistanut tilauksen – “{booking}”. Tarkemmat tiedot kalenterissa!",
+    "clientNotification": "Tilaus on vahvistettu. Tiedot kalenterissa!",
+    "deleteTitle": "Poistetaanko tilaus?",
+    "deleteMessage": "Oletko varma, että haluat poistaa tilauksen?",
+    "filterDistance": "Etäisyys"
   }
 }
 

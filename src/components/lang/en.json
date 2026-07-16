@@ -298,6 +298,188 @@
     }
   },
 
+  "clientHistory": {
+    "title": "Ordered Services",
+    "subtitle": "Select an order to view its details or book the same service again.",
+    "search": "Search provider...",
+    "status": {
+      "done": "Completed"
+    },
+    "table": {
+      "date": "Date",
+      "provider": "Provider",
+      "task": "Task",
+      "actions": "Actions"
+    },
+    "buttons": {
+      "details": "Details",
+      "book": "Book",
+      "book_again": "Book Again",
+      "book_same_provider": "Book the Same Provider Again",
+      "back": "← Back",
+      "show_profile": "View Profile",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "keep": "Keep"
+    },
+    "details": {
+      "booking": "Booking",
+      "provider": "Provider",
+      "date": "Date",
+      "task": "Task",
+      "status": "Status",
+      "price": "Price",
+      "notes": "Additional Information",
+      "company": "Company",
+      "business_id": "Business ID",
+      "address": "Address",
+      "professions": "Professions"
+    },
+    "notifications": {
+      "delete_title": "Delete Row",
+      "delete_message": "Are you sure you want to delete this row?"
+    },
+    "rating": {
+      "raters": "{count} ratings"
+    }
+  },
+
+  "bookingContent": {
+    "sections": {
+      "booking": "Booking",
+      "photos": "Photos"
+    },
+    "fields": {
+      "description": "Description",
+      "date": "Date"
+    },
+    "labels": {
+      "select_date_time": "Select booking date and time"
+    },
+    "placeholders": {
+      "description": "Briefly describe what you need..."
+    },
+    "empty": {
+      "no_photos": "No photos have been added to this booking."
+    },
+    "dropzone": {
+      "title": "Drag and drop images here",
+      "text": "or click “Add Photos”"
+    },
+    "buttons": {
+      "add_photos": "Add Photos",
+      "cancel": "Cancel",
+      "save_changes": "Save Changes",
+      "replace": "Replace",
+      "delete": "Delete"
+    },
+    "alt": {
+      "booking_photo": "Booking photo"
+    }
+  },
+
+  "bookingPhotos": {
+    "photo_alt": "Booking photo",
+    "description_placeholder": "Add a description...",
+    "remove_photo": "Remove photo"
+  },
+
+  "giveFeedback": {
+    "comment_label": "Leave a comment (optional)",
+    "submit": "Submit feedback",
+    "skip": "I don't want to leave feedback"
+  },
+
+  "offerContent": {
+    "received_feedback": "Received feedback",
+    "back": "Back",
+    "company": "Company",
+    "business_id": "Business ID",
+    "address": "Address",
+    "distance": "Distance",
+    "hourly_rate": "Hourly rate",
+    "offer_price": "Offer price",
+    "description": "Description",
+    "references": "References",
+    "reference_alt": "Provider reference image",
+    "unknown_sender": "Unknown"
+  },
+
+  "picturesUp": {
+    "add_optional_photos": "Add photos of the task if you wish",
+    "edit_photos": "Edit photos",
+    "photo_alt": "Task photo",
+    "empty_hint": "Adding photos helps service providers assess the task.",
+    "photos_title": "Photos",
+    "add_photos": "Add photos",
+    "dropzone_title": "Drag and drop photos here",
+    "dropzone_text": "or click “Add photos”",
+    "description_placeholder": "Add a description...",
+    "remove_photo": "Remove photo",
+    "cancel": "Cancel",
+    "save_photos": "Save photos"
+  },
+
+  "proAround": {
+    "refresh": "Refresh",
+    "addressLabel": "Enter an address",
+    "professionalPlaceholder": "Select a professional *",
+    "professionRequired": "A profession is required!",
+    "selectDateOrNow": "Select a suitable time or choose now!",
+    "dateTimeLabel": "Select the task date and time",
+    "now": "Now!",
+    "searchArea": "Search radius",
+    "distanceRequired": "A distance must be selected!",
+    "noProfessionals": "No professionals found",
+    "search": "Search",
+    "selection": "Selection",
+    "locationFetchFailed": "Unable to retrieve your location.",
+    "updatingLocation": "Updating location...",
+    "yourLocation": "Your location",
+    "unknown": "Unknown",
+    "order": "ORDER",
+    "feedback": "Reviews",
+    "openWorkSamples": "View work samples",
+    "closeWorkSamples": "Close work samples",
+    "raters": "{count} reviewers",
+    "feedbackCloseHint": "Click the reviews button again to close",
+    "availability": "Availability",
+    "available": "Available",
+    "negotiable": "By agreement",
+    "profession": "Profession",
+    "information": "Information",
+    "website": "Website",
+    "hourlyRate": "Hourly rate",
+    "contractPrice": "Fixed price",
+    "currencyEur": "€{amount}",
+    "requestSent": "The order was sent successfully!",
+    "requestFailed": "Failed to send the order. Please try again.",
+    "close": "Close"
+  },
+
+  "recipientContent": {
+    "cancelOrder": "Cancel order",
+    "offers": "Offers",
+    "distance": "Distance {distance} km",
+    "priceEur": "€{price}",
+    "newOffer": "New offer",
+    "noOffersYet": "No offers yet",
+    "raters": "{count} reviewers",
+    "order": "Order",
+    "delete": "Delete",
+    "keep": "Keep it",
+    "dealTitle": "Agreement!",
+    "great": "Great!",
+    "cancel": "Cancel",
+    "dealMessage": "The service offered by {provider} is available to order. Would you like to confirm the agreement?",
+    "dealCreatedTitle": "Agreement confirmed!",
+    "providerNotification": "{client} confirmed the order “{booking}”. Further details are available in the calendar.",
+    "clientNotification": "The order has been confirmed. Details are available in the calendar.",
+    "deleteTitle": "Delete the order?",
+    "deleteMessage": "Are you sure you want to delete this order?",
+    "filterDistance": "Distance"
+  },
+
   "recipient_result_need_a_pro": "I need a pro",
   "recipient_result_order_is_expired": "Order is expired. Edit order's date / time or quit a order!",
   "recipient_result_edit_description": "Edit order description...",

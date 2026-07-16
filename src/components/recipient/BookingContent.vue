@@ -4,7 +4,7 @@
   <div class="client__panel">
     <header class="panel__header">
       <div>
-        <h4 class="panel__title">Varaus</h4>
+        <h4 class="panel__title">{{ t('bookingContent.sections.booking') }}</h4>
         <!-- <p class="panel__subtitle">Tarkista tiedot ja muokkaa tarvittaessa</p> -->
       </div>
 
@@ -15,14 +15,14 @@
     <div v-if="!isEditing" class="panel__body">
       <div class="info-grid">
         <div class="info-block">
-          <div class="info-label">Kuvaus</div>
+          <div class="info-label">{{ t('bookingContent.fields.description') }}</div>
           <div class="info-value info-value--multiline">
             {{ booking.description || '—' }}
           </div>
         </div>
 
         <div class="info-block">
-          <div class="info-label">Päivämäärä</div>
+          <div class="info-label">{{ t('bookingContent.fields.date') }}</div>
           <div class="info-value">
             {{ booking.date }}
           </div>
@@ -33,18 +33,8 @@
 
       <div class="photos">
         <div class="photos__header">
-          <h5 class="section-title">Kuvat</h5>
-          <!-- <button v-if="!booking.offers.length" class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
-            Lisää kuvia
-          </button>
-          <input
-            ref="fileInput"
-            class="sr-only"
-            type="file"
-            accept="image/*"
-            multiple
-            @change="onFilesSelected"
-          /> -->
+          <h5 class="section-title">{{ t('bookingContent.sections.photos') }}</h5>
+          
         </div>
 
         <div v-if="booking.photos?.length" class="photos-grid">
@@ -57,7 +47,7 @@
               <div v-if="loadingImages[idx]" class="spinner"></div>
               <img 
                 class="photo-img" 
-                :src="photo.imageId.imageUrl || photo.imageUrl || photo.imageId.previewUrl" :alt="photo.alt || 'Booking photo'" 
+                :src="photo.imageId.imageUrl || photo.imageUrl || photo.imageId.previewUrl" :alt="photo.alt || t('bookingContent.alt.booking_photo')" 
                 @load="loadingImages[idx] = false"
                 @error="loadingImages[idx] = false"
               />
@@ -71,7 +61,7 @@
         </div>
 
         <div v-else class="empty-state">      
-          <p  class="text-muted">Ei tilaukseen liittyviä kuvia!</p>        
+          <p class="text-muted">{{ t('bookingContent.empty.no_photos') }}</p>        
         </div>
       </div> 
     </div>
@@ -80,13 +70,13 @@
     <form v-else class="panel__body" @submit.prevent="saveBookingEdits">
       <div class="form-card">
         <div class="field">
-          <label class="label" for="desc">Kuvaus</label>
+          <label class="label" for="desc">{{ t('bookingContent.fields.description') }}</label>
           <textarea
             id="desc"
             v-model.trim="draft.description"
             class="input input--textarea"
             rows="5"
-            placeholder="Kerro lyhyesti mitä tarvitset..."
+            :placeholder="t('bookingContent.placeholders.description')"
           ></textarea>
           <div class="help">
             {{ (draft.description?.length || 0) }}/20
@@ -94,12 +84,12 @@
         </div>
 
         <div class="field">
-          <label class="label" for="date">Päivämäärä</label>
+          <label class="label" for="date">{{ t('bookingContent.fields.date') }}</label>
           <div class="field-row">
             
             <MDBDateTimepicker
               size="lg"
-              label="Valitse tehtävän päivämäärä ja aika"
+              :label="t('bookingContent.labels.select_date_time')"
               v-model="draft.date"
               :toggleButton="false"
               inputToggle
@@ -123,9 +113,9 @@
 
         <div class="photos">
           <div class="photos__header">
-            <h5 class="section-title">Kuvat</h5>
+            <h5 class="section-title">{{ t('bookingContent.sections.photos') }}</h5>
             <button class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
-              Lisää kuvia
+              {{ t('bookingContent.buttons.add_photos') }}
             </button>
             <input
               ref="fileInput"
@@ -154,8 +144,8 @@
             @drop.prevent="onDrop"
             :class="{ 'dropzone--active': isDragOver }"
           >
-            <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
-            <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+            <p class="dropzone__title">{{ t('bookingContent.dropzone.title') }}</p>
+            <p class="dropzone__text">{{ t('bookingContent.dropzone.text') }}</p>
           </div>
 
           <div v-if="draft.photos?.length" class="photos-grid">
@@ -164,16 +154,16 @@
               :key="photo.id || idx"
               class="photo-card"
             >
-              <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
+              <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || t('bookingContent.alt.booking_photo')" />
               <figcaption class="photo-actions">
-                <button class="icon-btn" type="button" @click="replacePhoto(idx)" aria-label="Replace">
+                <button class="icon-btn" type="button" @click="replacePhoto(idx)" :aria-label="t('bookingContent.buttons.replace')">
                   ♻️
                 </button>
                 <button
                   class="icon-btn icon-btn--danger"
                   type="button"
                   @click="removeDraftPhoto(idx)"
-                  aria-label="Delete"
+                  :aria-label="t('bookingContent.buttons.delete')"
                 >
                   🗑️
                 </button>
@@ -184,11 +174,11 @@
 
         <div class="actions">
           <button class="btn btn-danger" type="button" @click="cancelEdits">
-            Peruuta
+           {{ t('bookingContent.buttons.cancel') }}
           </button>
 
           <button class="btn btn-success" type="submit" :disabled="!isDirty">
-            Tallenna muutokset
+            {{ t('bookingContent.buttons.save_changes') }}
           </button>
         </div>
 
@@ -200,6 +190,7 @@
 <script setup>
 import { MDBDateTimepicker } from 'mdb-vue-ui-kit';
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from 'vue-i18n';
 import { useClientStore } from '@/stores/recipientStore';
 import uploadService from "@/service/awsUploads";
 
@@ -219,6 +210,7 @@ const emit = defineEmits(["update:booking", "save"]);
 // Optional: you can emit updated booking to parent instead of mutating props directly.
 
 // UI state
+const { t } = useI18n();
 const isEditing = ref(false);
 const draft = ref(null);
 const fileInput = ref(null);
@@ -840,8 +832,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 12px;
-  padding: 14px 14px 10px;
+  padding: 14px 0px 10px;
   border-bottom: 1px solid rgba(0,0,0,.06);
 }
 

@@ -309,5 +309,187 @@
       "profession_required": "Amet on kohustuslik!",
       "address_required": "Aadress on kohustuslik!"
     }
+  },
+
+  "clientHistory": {
+    "title": "Tellitud teenused",
+    "subtitle": "Vali tellimus, et vaadata selle üksikasju või tellida sama teenus uuesti.",
+    "search": "Otsi teenusepakkujat...",
+    "status": {
+      "done": "Valmis"
+    },
+    "table": {
+      "date": "Kuupäev",
+      "provider": "Teenusepakkuja",
+      "task": "Töö",
+      "actions": "Toimingud"
+    },
+    "buttons": {
+      "details": "Üksikasjad",
+      "book": "Telli",
+      "book_again": "Telli uuesti",
+      "book_same_provider": "Telli sama teenusepakkuja uuesti",
+      "back": "← Tagasi",
+      "show_profile": "Vaata profiili",
+      "cancel": "Tühista",
+      "delete": "Kustuta",
+      "keep": "Jäta alles"
+    },
+    "details": {
+      "booking": "Tellimus",
+      "provider": "Teenusepakkuja",
+      "date": "Kuupäev",
+      "task": "Töö",
+      "status": "Staatus",
+      "price": "Hind",
+      "notes": "Lisainfo",
+      "company": "Ettevõte",
+      "business_id": "Registrikood",
+      "address": "Aadress",
+      "professions": "Ametid"
+    },
+    "notifications": {
+      "delete_title": "Kustuta rida",
+      "delete_message": "Kas oled kindel, et soovid selle rea kustutada?"
+    },
+    "rating": {
+      "raters": "{count} hinnangut"
+    }
+  },
+
+  "bookingContent": {
+    "sections": {
+      "booking": "Tellimus",
+      "photos": "Fotod"
+    },
+    "fields": {
+      "description": "Kirjeldus",
+      "date": "Kuupäev"
+    },
+    "labels": {
+      "select_date_time": "Vali töö kuupäev ja kellaaeg"
+    },
+    "placeholders": {
+      "description": "Kirjelda lühidalt, mida vajad..."
+    },
+    "empty": {
+      "no_photos": "Selle tellimusega pole pilte seotud."
+    },
+    "dropzone": {
+      "title": "Lohista pildid siia",
+      "text": "või vajuta „Lisa pilte”"
+    },
+    "buttons": {
+      "add_photos": "Lisa pilte",
+      "cancel": "Tühista",
+      "save_changes": "Salvesta muudatused",
+      "replace": "Asenda",
+      "delete": "Kustuta"
+    },
+    "alt": {
+      "booking_photo": "Tellimuse foto"
+    }
+  },
+
+  "bookingPhotos": {
+    "photo_alt": "Tellimuse foto",
+    "description_placeholder": "Lisa kirjeldus...",
+    "remove_photo": "Eemalda foto"
+  },
+
+  "giveFeedback": {
+    "comment_label": "Soovi korral lisa tagasiside",
+    "submit": "Saada tagasiside",
+    "skip": "Ma ei soovi tagasisidet anda"
+  },
+
+  "offerContent": {
+    "received_feedback": "Saadud tagasiside",
+    "back": "Tagasi",
+    "company": "Ettevõte",
+    "business_id": "Registrikood",
+    "address": "Aadress",
+    "distance": "Kaugus",
+    "hourly_rate": "Tunnitasu",
+    "offer_price": "Pakkumise hind",
+    "description": "Kirjeldus",
+    "references": "Tehtud tööd",
+    "reference_alt": "Teenusepakkuja tehtud töö foto",
+    "unknown_sender": "Tundmatu"
+  },
+
+  "picturesUp": {
+    "add_optional_photos": "Soovi korral lisa tööst pilte",
+    "edit_photos": "Muuda pilte",
+    "photo_alt": "Töö foto",
+    "empty_hint": "Piltide lisamine aitab teenusepakkujatel tööd hinnata.",
+    "photos_title": "Pildid",
+    "add_photos": "Lisa pilte",
+    "dropzone_title": "Lohista pildid siia",
+    "dropzone_text": "või vajuta “Lisa pilte”",
+    "description_placeholder": "Lisa kirjeldus...",
+    "remove_photo": "Eemalda pilt",
+    "cancel": "Tühista",
+    "save_photos": "Salvesta pildid"
+  },
+
+  "proAround": {
+    "refresh": "Värskenda",
+    "addressLabel": "Sisesta aadress",
+    "professionalPlaceholder": "Vali spetsialist *",
+    "professionRequired": "Ameti valimine on kohustuslik!",
+    "selectDateOrNow": "Vali sobiv aeg või kohe!",
+    "dateTimeLabel": "Vali töö kuupäev ja kellaaeg",
+    "now": "Kohe!",
+    "searchArea": "Otsinguraadius",
+    "distanceRequired": "Kauguse valimine on kohustuslik!",
+    "noProfessionals": "Spetsialiste ei leitud",
+    "search": "Otsi",
+    "selection": "Valik",
+    "locationFetchFailed": "Asukohta ei õnnestunud tuvastada.",
+    "updatingLocation": "Asukohta värskendatakse...",
+    "yourLocation": "Sinu asukoht",
+    "unknown": "Tundmatu",
+    "order": "TELLI",
+    "feedback": "Tagasiside",
+    "openWorkSamples": "Ava töönäidised",
+    "closeWorkSamples": "Sulge töönäidised",
+    "raters": "{count} hindajat",
+    "feedbackCloseHint": "Sulgemiseks klõpsa uuesti tagasiside nupul",
+    "availability": "Saadavus",
+    "available": "Saadaval",
+    "negotiable": "Kokkuleppel",
+    "profession": "Amet",
+    "information": "Andmed",
+    "website": "Veebileht",
+    "hourlyRate": "Tunnitasu",
+    "contractPrice": "Fikseeritud hind",
+    "currencyEur": "{amount} €",
+    "requestSent": "Tellimus saadeti edukalt!",
+    "requestFailed": "Tellimuse saatmine ebaõnnestus. Proovi uuesti.",
+    "close": "Sulge"
+  },
+
+  "recipientContent": {
+    "cancelOrder": "Tühista tellimus",
+    "offers": "Pakkumised",
+    "distance": "Kaugus {distance} km",
+    "priceEur": "{price} €",
+    "newOffer": "Uus pakkumine",
+    "noOffersYet": "Pakkumisi veel ei ole",
+    "raters": "{count} hindajat",
+    "order": "Telli",
+    "delete": "Kustuta",
+    "keep": "Jäta alles",
+    "dealTitle": "Kokkulepe!",
+    "great": "Suurepärane!",
+    "cancel": "Tühista",
+    "dealMessage": "Teenusepakkuja {provider} pakutav teenus on tellimiseks saadaval. Kas soovid kokkuleppe kinnitada?",
+    "dealCreatedTitle": "Kokkulepe sõlmitud!",
+    "providerNotification": "{client} kinnitas tellimuse „{booking}“. Täpsem info on kalendris.",
+    "clientNotification": "Tellimus on kinnitatud. Andmed on kalendris.",
+    "deleteTitle": "Kas kustutada tellimus?",
+    "deleteMessage": "Kas oled kindel, et soovid selle tellimuse kustutada?",
+    "filterDistance": "Kaugus"
   }
 }
