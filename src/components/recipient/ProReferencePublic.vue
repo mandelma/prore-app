@@ -141,7 +141,7 @@ const openReferenceOverlay = () => {
 
 .photo-overlay p {
   display: -webkit-box;
-  -webkit-line-clamp: 3;   /* max 3 lines */
+  /* -webkit-line-clamp: 3; */   /* max 3 lines */
   -webkit-box-orient: vertical;
   overflow: hidden  ;
   

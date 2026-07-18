@@ -1,24 +1,12 @@
 <template>
   <div>
     <MDBContainer>
-<!--      g-3 needs-validation   -->
-
       <HandleToast
         v-model="toastModel"
         :toast-name="toastState"
         :icon-state="toastIcon"
         :text="toastContent"
       />
-
-      <!-- <HandleMapErrorToast
-        v-model="mapToastModel"
-        :toast-name="mapToastState"
-        :icon-state="mapToastIcon"
-        :text="mapToastContent" 
-      /> -->
-
-      <!-- <button @click="testToast">Show toast</button> -->
-
 
       <div style="padding: 13px 0 20px 0;">
         <MDBToast
@@ -30,7 +18,7 @@
             toast="danger"
             icon="fas fa-exclamation-circle fa-lg me-2"
         >
-          <template #title>VIRHE LOMAKEELLA! </template>
+          <template #title>{{ t('recipientForm.formErrorTitle') }} </template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
           <template #small></template>
           {{clientFormErrorMsg}}
@@ -38,7 +26,7 @@
       </div>
       <div class="form-card">
         <div style="display: flex; justify-content: space-between;">
-          <p style="margin-top: 10px; color: #00BFFFFF;">{{t('client_form_offersOrQuickSolution')}}</p>
+          <p style="margin-top: 10px; color: #00BFFFFF;">{{ t('recipientForm.intro') }}</p>
           <MDBBtnClose white @click="router.go(-1)"/>
         </div>
         
@@ -55,7 +43,7 @@
                       filter optionLabel="label"
                       optionGroupLabel="label"
                       optionGroupChildren="items"
-                      :placeholder="t('client_form_profession_field')"
+                      :placeholder="t('recipientForm.professionalPlaceholder')"
 
                       v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
                       class="w-full md:w-[30rem]"
@@ -81,7 +69,7 @@
                   </Select>
                 </div>
 
-                <span v-if="errors.profession" class="field-footer">{{ errors.profession }}</span>
+                <span v-if="errors.profession" class="field-footer text-danger">{{ errors.profession }}</span>
               </div>
             </MDBCol>
 
@@ -95,17 +83,16 @@
 
           <div class="field-wrapper">
             <MDBInput
-                :label="t('client_form_title')"
+                :label="t('recipientForm.orderKeyword')"
                 v-model="form.orderHeader"
                 size="lg"
-                invalidFeedback="Ole hyvä ja kirjoita avainsana."
-                validFeedback="Ok!"
+                :invalidFeedback="t('recipientForm.orderKeywordInvalid')"
+                :validFeedback="t('recipientForm.validOk')"
                 required
 
             />
-            <span v-if="errors.orderHeader" class="field-footer">{{ errors.orderHeader }}</span>
+            <span v-if="errors.orderHeader" class="field-footer text-danger">{{ errors.orderHeader }}</span>
             <!-- custom error text -->
-
 
           </div>
 
@@ -114,14 +101,14 @@
 
             <MDBCol lg="6">
 
-              <div :class="{hideInput: !form.address && isAddress}" style="width: 100%;" class="field-wrapper ">
+              <!-- <div :class="{hideInput: !form.address && isAddress}" style="width: 100%;" class="field-wrapper ">
                 <div  class="input-group">
                   <MDBInput
                       size="lg"
                       id="location"
 
                       v-model="form.address"
-                      :label="t('client_form_address')"
+                      :label="t('recipientForm.addressLabel')"
                       placeholder=""
                       wrapperClass="form-outline flex-grow-3"
                       :inputClass="'ps-0'"
@@ -134,15 +121,26 @@
                   </MDBBtn>
                 </div>
 
-                <span v-if="errors.address" class="field-footer">{{ errors.address }}</span>
+                <span v-if="errors.address" class="field-footer text-danger">{{ errors.address }}</span>
               </div>
-              <!-- overlay spinner, not removing input -->
+              
               <div v-show="!form.address && isAddress"
                    style="text-align: center; padding-bottom: 27px;"
 
               >
                 <MDBSpinner grow color="info" />
-              </div>
+              </div> -->
+
+              <address-autocomplete
+                v-model="form.address"
+                v-model:valid="addressValid"
+                v-model:error="errors.address"
+                :label="t('recipientForm.addressLabel')"
+                :error="errors.address"
+                @typing="onAddressInput"
+                @place="onPlaceSelected"
+              />
+              <!-- <span v-if="errors.address" class="field-footer text-danger">{{ errors.address }}</span> -->
 
             </MDBCol>
             <MDBCol>
@@ -152,7 +150,7 @@
 
                     :value="preferredRangeValue"
                     @input="filterClientInput"
-                    :label="t('client_form_range')"
+                    :label="t('recipientForm.radiusLabel')"
                     v-model="desiredRange"
                     size="lg"
                 />
@@ -162,11 +160,11 @@
           </MDBRow>
           <div >
 
-            <p style="text-align: left;">Mihin aikaan tarvitset ammattilaista?</p>
+            <p style="text-align: left;">{{ t('recipientForm.whenNeeded') }}</p>
             <div class="field-wrapper">
               <MDBDateTimepicker
                   size="lg"
-                  :label="t('client_form_when_field')"
+                  :label="t('recipientForm.dateTimeLabel')"
                   v-model="form.dateTime"
                   :toggleButton="false"
                   inputToggle
@@ -182,18 +180,18 @@
                   :key="reInitKey"
                   disablePast
               />
-              <span v-if="errors.dateTime" class="field-footer">{{ errors.dateTime }}</span>
+              <span v-if="errors.dateTime" class="field-footer text-danger">{{ errors.dateTime }}</span>
               
             </div>
 
           </div>
 
           <!-- Budjetti ja muut yksityiskohdat voit kertoa myöhemmin chatissä palveluntarjoajien kanssa. Budjetti auttaa palveluntarjoajia arvioinnissa. -->
-           Budjetti
+          {{ t('recipientForm.budget') }}
           <div style="margin-top: 17px;" class="field-wrapper">
             <div class="budget-field">
               <MDBInput
-                label="Alin hinta *"
+                :label="t('recipientForm.budgetMin')"
                 v-model="form.budgetMin"
                 size="lg"
                 type="number"
@@ -201,7 +199,7 @@
                 @keydown="preventInvalidKeys"
               />
               <MDBInput
-                  label="Ylin hinta *"
+                  :label="t('recipientForm.budgetMax')"
                   v-model="form.budgetMax"
                   size="lg"
                   type="number"
@@ -210,8 +208,8 @@
               />
             </div>
             <div class="budget-field">
-              <span v-if="errors.budgetMin" class="field-footer">{{ errors.budgetMin }}</span>
-              <span v-if="errors.budgetMax" class="field-footer">{{ errors.budgetMax }}</span>
+              <span v-if="errors.budgetMin" class="field-footer text-danger">{{ errors.budgetMin }}</span>
+              <span v-if="errors.budgetMax" class="field-footer text-danger">{{ errors.budgetMax }}</span>
             </div>
             
           </div>
@@ -222,7 +220,7 @@
 
           <div class="field-wrapper">
             <MDBCheckbox
-              :label="t('client_form_allow_email')"
+              :label="t('recipientForm.emailAgreement')"
               name="agreement_as_client"
               v-model="isClientContactAgreement"
               value="true"
@@ -235,44 +233,25 @@
               <div class="field-wrapper">
                 <MDBTextarea
                     maxlength="70"
-                    :label="t('client_form_description')"
+                    :label="t('recipientForm.descriptionLabel')"
                     rows="3"
                     v-model="form.explanation"
-                    invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
-                    validFeedback="Ok!"
+                    :invalidFeedback="t('recipientForm.descriptionInvalid')"
+                    :validFeedback="t('recipientForm.validOk')"
                     required
                 />
-                <span v-if="errors.explanation" class="field-footer">{{ errors.explanation }}</span>
+                <span v-if="errors.explanation" class="field-footer text-danger">{{ errors.explanation }}</span>
                 <span class="message-counter"> {{form.explanation.length}} / 70</span>
               </div>
 
             </MDBCol>
             <MDBCol lg="6">
               
-
               <div v-if="!isAddPhotos">
                 <div>
-                  <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">Lisää halutessasi kuvia tehtävästä</MDBBtn>
-                  <MDBBtn v-else color="light" @click="isAddPhotos = true">Muokkaa kuvia</MDBBtn>
+                  <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">{{ t('recipientForm.addOptionalPhotos')}}</MDBBtn>
+                  <MDBBtn v-else color="light" @click="isAddPhotos = true">{{ t('recipientForm.editPhotos') }}</MDBBtn>
                 </div>
-                
-                
-
-                <!-- <div v-if="addedPhotos?.length" class="photos-grid">
-                  
-                  <figure
-                    v-for="(photo, idx) in addedPhotos"
-                    :key="photo.id || idx"
-                    class="photo-card"
-                  >
-                    <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
-                    <div v-if="photo?.text?.trim()" class="photo-overlay">
-                
-                      <p>{{ photo.text }}</p>
-                    </div>
-                  </figure>
-                  
-                </div> -->
 
                 <BookingPhotos
                  
@@ -284,7 +263,7 @@
                 <!-- v-else -->
                 <div v-if="!addedPhotos?.length" class="empty-state">
                   
-                  <p v-if="!addedPhotos.length" class="empty-state__text">Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.</p>
+                  <p v-if="!addedPhotos.length" class="empty-state__text">{{ t('recipientForm.photosHelp') }}</p>
                 </div>
 
 
@@ -298,8 +277,8 @@
 
                   <div class="photos">
                     <div class="photos__header">
-                      <h5 class="section-title">Kuvat</h5>
-                      <MDBBtn color="primary" @click="openFilePicker">Lisää kuvia</MDBBtn>
+                      <h5 class="section-title">{{ t('recipientForm.photos') }}</h5>
+                      <MDBBtn color="primary" @click="openFilePicker">{{ t('recipientForm.addPhotos') }}</MDBBtn>
                       
                       <input
                         ref="fileInput"
@@ -328,37 +307,9 @@
                       @drop.prevent="onDrop"
                       :class="{ 'dropzone--active': isDragOver }"
                     >
-                      <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
-                      <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+                      <p class="dropzone__title">{{ t('recipientForm.dropPhotos') }}</p>
+                      <p class="dropzone__text">{{ t('recipientForm.orClickAddPhotos') }}</p>
                     </div>
-
-
-                    
-
-                    <!-- <div v-if="draftPhotos?.length" class="photos-grid">
-                      <figure
-                        v-for="(photo, idx) in draftPhotos"
-                        :key="photo.id || idx"
-                        class="photo-card"
-                      >
-                         <div class="photo-media">
-                          <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || 'Booking photo'" />
-                          <textarea
-                            v-model="photo.text"
-                            class="photo-caption"
-                            placeholder="Lisää kuvaus..."
-                          ></textarea>
-                          
-                        </div>
-                        <figcaption class="photo-actions">
-                          
-                          <i class="fas fa-trash-alt fa-lg" style="color: red;" @click="removeDraftPhoto(idx)"></i>
-                          
-                        </figcaption>
-                      </figure>
-                    </div> -->
-
-                    
 
                     <BookingPhotos
                       
@@ -372,11 +323,11 @@
 
                   <div class="actions">
                     <button class="btn btn-danger" type="button" @click="cancelAddPhotos">
-                      Peruuta
+                      {{ t('recipientForm.cancel') }}
                     </button>
 
                     <button class="btn btn-success" type="submit" :disabled="!isDirty">
-                      Tallenna
+                      {{ t('recipientForm.save') }}
                     </button>
                   </div>
 
@@ -386,7 +337,7 @@
 
           </MDBRow>
 
-          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">{{ t('client_form_btn_send') }}</MDBBtn>
+          <MDBBtn color="primary" size="lg"  style="margin-top:13px; margin-bottom: 20px;" type="submit">{{ t('recipientForm.submitOrder') }}</MDBBtn>
 
         </form>
       </div>
@@ -408,6 +359,7 @@ import map_image from '@/assets/map.gif'
 import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n';
+import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
 import clientService from '../../service/recipients';
 import uploadService from '../../service/awsUploads';
 import { loadGoogleMaps} from '../controllers/loadGoogleMap.js'
@@ -445,23 +397,34 @@ const form = reactive({
 const errors = reactive({});
 const isValidating = ref(false);
 
+const addressValid = ref(false);
+const selectedPlace = ref(null);
 
 const validateForm = () => {
-  errors.profession = form.profession ? "" : "Ammatti on pakollinen kenttä";
-  errors.orderHeader = form.orderHeader ? "" : "Avainsana on pakollinen kenttä";
-  errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
-  errors.dateTime = form.dateTime ? "" : "Päivämäära on pakollinen kenttä";
-  errors.explanation = form.explanation ? "" : "Kuvaus on pakollinen kentta";
-  errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
-  errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!";
+  errors.profession = form.profession ? "" : t('recipientForm.professionRequired');
+  errors.orderHeader = form.orderHeader ? "" : t('recipientForm.orderKeywordInvalid');
+  errors.address = form.address ? "" : t('recipientForm.addressRequired');
+
+  errors.dateTime = form.dateTime ? "" : t('recipientForm.dateRequired');
+  errors.explanation = form.explanation ? "" : t('recipientForm.descriptionRequired');
+  errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
+  errors.budgetMax = form.budgetMax != null ? "" : t('recipientForm.budgetMaxRequired');
+
+  if (form.address && (form.lat === null || form.lng === null) ) {
+      errors.address = t('recipientForm.addressAutocompleteError');
+  } else if (!form.address) {
+      errors.address = t('recipientForm.addressRequired');
+  } else {
+      errors.address = "";
+  }
 
   if (
       form.budgetMin != null &&
       form.budgetMax != null &&
       Number(form.budgetMin) > Number(form.budgetMax)
     ) {
-      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
-      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+      errors.budgetMin = t('recipientForm.budgetMinTooHigh');
+      errors.budgetMax = t('recipientForm.budgetMaxTooLow');
     }
 
   return !errors.profession && !errors.orderHeader && !errors.address && !errors.dateTime && !errors.explanation && !errors.budgetMin && !errors.budgetMax;
@@ -471,13 +434,13 @@ const validateBudgets = () => {
   if (!isValidating.value) return;
   // Required validation
   if (form.budgetMin == null || form.budgetMin === "") {
-    errors.budgetMin = "Alin hinta on pakollinen!";
+    errors.budgetMin = t('recipientForm.budgetMinRequired');
   } else {
     errors.budgetMin = "";
   }
 
   if (form.budgetMax == null || form.budgetMax === "") {
-    errors.budgetMax = "Ylin hinta on pakollinen!";
+    errors.budgetMax = t('recipientForm.budgetMaxRequired');
   } else {
     errors.budgetMax = "";
   }
@@ -490,8 +453,8 @@ const validateBudgets = () => {
     form.budgetMax !== "" &&
     Number(form.budgetMin) > Number(form.budgetMax)
   ) {
-    errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
-    errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
+    errors.budgetMin = t('recipientForm.budgetMinTooHigh');
+    errors.budgetMax = t('recipientForm.budgetMaxTooLow');
   }
 };
 
@@ -555,18 +518,6 @@ const lng = ref(null);
 
 const o = ref(null);
 
-// Photos variables
-
-/* const isAddPhotos = ref(false);
-const addedPhotos = ref([]);
-const draftPhotos = ref([]);
-const removedPhotoIds = ref([]);
-const fileInput = ref(null);
-const replaceInput = ref(null);
-const isDragOver = ref(false);
-let dragCounter = 0; */
-
-
 const fileInput = ref(null);
 const addedPhotos = ref([]);
 
@@ -622,16 +573,16 @@ const L = computed(() => {
     case 'en':
       return {
         firstDay: 0,
-        title: "Select date",
+        title: t("recipientForm.datePickerTitle"),
         monthsFull:  ['January','February','March','April','May','June','July','August','September','October','November','December'],
         monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         weekdaysFull:  ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
         weekdaysShort: ['Su','Mo','Tu','We','Th','Fr','Sa'],
         weekdaysNarrow: ['S','M','T','W','T','F','S'],
-        cancelBtnText: 'Cancel',
+        cancelBtnText: t("recipientForm.datePickerCancel"),
 
-        cancelLabel: 'Cansel',
-        okLabel: 'OK',
+        cancelLabel: t("recipientForm.datePickerCancel"),
+        okLabel: t("recipientForm.datePickerOk"),
         twelveHour: true
 
 
@@ -639,47 +590,62 @@ const L = computed(() => {
     case 'sv':
       return {
         firstDay: 1,
-        title: "Rootsi date",
+        title: t("recipientForm.datePickerTitle"),
         monthsFull:  ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],
         monthsShort: ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],
         weekdaysFull:  ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'],
         weekdaysShort: ['sö','må','ti','on','to','fr','lö'],
         weekdaysNarrow: ['S','M','T','O','T','F','L'],
-        cancelBtnText: 'Avbryt',
+        cancelBtnText: t("recipientForm.datePickerCancel"),
 
-        cancelLabel: 'Avbryt',
-        okLabel: 'OK',
+        cancelLabel: t("recipientForm.datePickerCancel"),
+        okLabel: t("recipientForm.datePickerOk"),
         twelveHour: false
       }
     case 'et':
       return {
         firstDay: 1,
-        title: "Vali kuupäev",
+        title: t("recipientForm.datePickerTitle"),
         monthsFull:  ['jaanuar','veebruar','märts','aprill','mai','juuni','juuli','august','september','oktoober','november','detsember'],
         monthsShort: ['jaan','veebr','märts','apr','mai','juuni','juuli','aug','sept','okt','nov','dets'],
         weekdaysFull:  ['pühapäev','esmaspäev','teisipäev','kolmapäev','neljapäev','reede','laupäev'],
         weekdaysShort: ['P','E','T','K','N','R','L'],
         weekdaysNarrow: ['P','E','T','K','N','R','L'],
-        cancelBtnText: 'Tühista',
+        cancelBtnText: t("recipientForm.datePickerCancel"),
 
-        cancelLabel: 'Tühista',
-        okLabel: 'OK',
+        cancelLabel: t("recipientForm.datePickerCancel"),
+        okLabel: t("recipientForm.datePickerOk"),
+        twelveHour: false
+      }
+    case 'ru':
+      return {
+        firstDay: 1,
+        title: t("recipientForm.datePickerTitle"),
+        monthsFull:  ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'],
+        monthsShort: ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'],
+        weekdaysFull:  ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+        weekdaysShort: ['вс','пн','вт','ср','чт','пт','сб'],
+        weekdaysNarrow: ['В', 'П', 'В', 'С', 'Ч', 'П', 'С'],
+        cancelBtnText: t("recipientForm.datePickerCancel"),
+
+        cancelLabel: t("recipientForm.datePickerCancel"),
+        okLabel: t("recipientForm.datePickerOk"),
         twelveHour: false
       }
     default:
       return {
         firstDay: 1,
-        title: "Valitse päivämäärä",
+        title: t("recipientForm.datePickerTitle"),
         monthsFull:  ['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'],
         monthsShort: ['tammi','helmi','maalis','huhti','touko','kesä','heinä','elo','syys','loka','marras','joulu'],
         weekdaysFull:  ['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'],
         weekdaysShort: ['su','ma','ti','ke','to','pe','la'],
         weekdaysNarrow: ['S','M','T','K','T','P','L'],
-        cancelBtnText: 'Peruuta',
-        clearLabel: 'Poista',
+        cancelBtnText: t("recipientForm.datePickerCancel"),
+        clearLabel: t("recipientForm.datePickerClear"),
 
-        cancelLabel: 'Peruuta',
-        okLabel: 'Ok',
+        cancelLabel: t("recipientForm.datePickerCancel"),
+        okLabel: t("recipientForm.datePickerOk"),
         twelveHour: false
       }
   }
@@ -699,7 +665,7 @@ watch(currentLang, (lang) => {
 
 
 onMounted(async() => {
-  validateMaps();
+  //validateMaps();
 
   //console.log("P --- ", professions)
 
@@ -746,8 +712,67 @@ const validateMaps = async() => {
     mapToastModel.value = true;
     mapToastState.value = 'danger';
     mapToastIcon.value = 'fas fa-check fa-lg me-2';
-    mapToastContent.value = 'Internet yhteys puuttuu!';
+    mapToastContent.value = t('recipientForm.internetMissing');
   }
+}
+
+// Validating address field: if user types an address but doesn't select from the autocomplete, lat/lng will be null. Show error in that case.
+watch([() => form.address, () => form.lat, () => form.lng], () => {
+  if (form.address && (form.lat === null || form.lng === null)) {
+    errors.address = t('recipientForm.addressAutocompleteError');
+  } else {
+    errors.address = "";
+  }
+});
+
+const validateProAddress = () => {
+
+  if (!form.address) return;
+
+  if (form.lat === null || form.lng === null) {
+    console.log("Address is not valid, lat/lng missing");
+    errors.address = "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+    return "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+  }
+
+  return;
+};
+
+const onAddressInput = (value) => {
+  form.address = value;
+
+  selectedPlace.value = null;
+  form.lat = null;
+  form.lng = null;
+
+  console.log(
+    "Address input changed:",
+    value,
+    "lat:",
+    form.lat,
+    "lng:",
+    form.lng
+  );
+
+  if (value.trim()) {
+    validateProAddress();
+    errors.address =
+      t("recipientForm.addressAutocompleteError");
+    
+  } else {
+    errors.address = "";
+  }
+};
+
+function onPlaceSelected(place) {
+  selectedPlace.value = place;
+  console.log("Place selected:", place);
+  form.address = place.address;
+  form.lat = place.lat;
+  form.lng = place.lng;
+
+  errors.address = "";
+
 }
 
 const getReadyDataParams = () => {
@@ -772,6 +797,8 @@ const getReadyDataParams = () => {
     console.log("No client data");
   }
 }
+
+// ----------------------------------------------
 
 
 const myCurrentLocation = async() => {
@@ -830,191 +857,9 @@ const clearAddress = () => {
   // date.toLocaleDateString('de-DE')     // → 26.09.2025
 }
 
-// When entering edit mode, create draft from photos existing
-/* watch(isAddPhotos, (val) => {
-  draftPhotos.value = val ? createDraftFromPhotos() : [];
-}); */
-
-
-/* const serverPhotoFormat = (p) => {
-  const upload = p.imageId && typeof p.imageId === "object" ? p.imageId : null;
-
-  return {
-    imageId: upload?._id ?? p.imageId ?? p.id ?? p._id ?? null,
-    imageUrl: upload?.imageUrl ?? p.imageUrl ?? p.url ?? p.path ?? p.location ?? null,
-    text: p.text || "",
-    order: p.order ?? 0,
-    previewUrl: null,
-    file: null,
-    slotId: crypto.randomUUID(),
-  };
-}; */
-
-
-
-
-
-
-
-
-
-
-
 watch(draftPhotos, () => {
   console.log("draft changed");
 }, { deep: true });
-
-/* const normalizeForCompare = (img) => ({
-  id: img.imageId ?? img._id ?? img.id ?? img.key ?? null,
-  url: img.imageUrl ?? img.url ?? img.path ?? img.location ?? null,
-  text: img.text ?? "",
-  order: img.order ?? 0,
-  isNew: !!img.file || (!!img.previewUrl && !img.imageUrl),
-});
-
-const signature = (arr) =>
-  Array.isArray(arr)
-    ? arr
-        .map(normalizeForCompare)
-        .map(x =>
-          [
-            x.isNew ? "NEW" : x.id ?? "",
-            x.url ?? "",
-            (x.text ?? "").trim(),
-          ].join("|")
-        )
-        .join("||")
-    : "";
-
-
-const clonePhoto = (p) => ({...p});
-
-watch(isAddPhotos, (val) => {
-  if (val) {
-    draftPhotos.value = addedPhotos.value.map(clonePhoto);
-    removedPhotoIds.value = [];
-  }
-});
-
-const isDirty = computed(() => {
-  return signature(draftPhotos.value) !== signature(addedPhotos.value);
-});
-
-
-
-const openFilePicker = () => {
-  fileInput.value?.click();
-  console.log("Clicked")
-  if (!isAddPhotos.value) isAddPhotos.value = true;
-}
-function onFilesSelected(e) {
-  const files = Array.from(e.target.files || []);
-  addFiles(files);
-  e.target.value = "";
-}
-
-function onDragEnter(e) {
-  if (!e.dataTransfer?.types.includes("Files")) return;
-  dragCounter++;
-  isDragOver.value = true;
-}
-
-function onDragLeave(e) {
-  dragCounter--;
-  if (dragCounter === 0) {
-    isDragOver.value = false;
-  }
-}
-
-function onDrop(e) {
-  dragCounter = 0;
-  isDragOver.value = false;
-
-  const files = Array.from(e.dataTransfer.files || []).filter(f =>
-    f.type.startsWith("image/")
-  );
-
-  if (files.length) {
-    addFiles(files);
-  }
-}
-
-function addFiles(files) {
-
-  for (const file of files) {
-    draftPhotos.value.push({
-      imageId: null,
-      imageUrl: null,
-      previewUrl: URL.createObjectURL(file),
-      file,
-      text: "",
-      order: draftPhotos.value.length,
-      slotId: crypto.randomUUID(),
-    });
-  }
-}
-
-
-
-const removeDraftPhoto = (idx) => {
-  const photo = draftPhotos.value?.[idx];
-  if (!photo) return;
-
-  draftPhotos.value.splice(idx, 1);
-};
-
-const cancelAddPhotos = () => {
-  draftPhotos.value.forEach(p => {
-    if (p.previewUrl?.startsWith("blob:") && !addedPhotos.value.some(a => a.previewUrl === p.previewUrl)) {
-      URL.revokeObjectURL(p.previewUrl);
-    }
-  });
-
-  draftPhotos.value = addedPhotos.value.map(clonePhoto);
-  removedPhotoIds.value = [];
-  isAddPhotos.value = false;
-};
-
-const uploadBookingPhotos = async () => {
-  const pending = addedPhotos.value.filter(p => p.file);
-
-  if (!pending.length) {
-    return { uploaded: [] };
-  }
-
-  const fd = new FormData();
-  pending.forEach(p => fd.append("files", p.file));
-
-  const res = await uploadService.uploadClientImage(fd);
-
-  console.log("UPLOAD RAW RESPONSE:", res);
-
-  const uploaded =
-    res?.data?.uploaded ??
-    res?.data?.uploads ??
-    res?.data?.files ??
-    res?.uploaded ??
-    res?.uploads ??
-    res?.files ??
-    res?.data ??
-    res;
-
-  return {
-    uploaded: Array.isArray(uploaded) ? uploaded : [uploaded].filter(Boolean),
-  };
-}; */
-
-/* const saveBookingPhotos = () => {
-  addedPhotos.value = draftPhotos.value.map(clonePhoto);
-
-  // only here commit removed ids if needed for backend
-  removedPhotoIds.value = draftPhotos.value
-    .filter(p => p._removed)
-    .map(p => p.imageId ?? p._id ?? p.id)
-    .filter(Boolean);
-
-  isAddPhotos.value = false;
-}; */
 
 const uploadBookingPhotos = async () => {
   const pending = addedPhotos.value.filter(p => p.file);
@@ -1077,10 +922,7 @@ const createClient = async() => {
       console.log("Invalid date string");
     }
 
-
-
-
-    clientFormErrorMsg.value = "Kentät pitäisi huomioida!"
+    clientFormErrorMsg.value = t('recipientForm.formFieldsRequired')
     isInitClientError.value = true;
   } else {
     //console.log("Header - " + form.orderHeader);

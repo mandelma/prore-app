@@ -23,7 +23,7 @@
           <MDBCol col="6" md="3">
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">
-                <div class="text-muted small">Aktiiviset tilaukset</div>
+                <div class="text-muted small">{{ t('recipientPage.activeOrders') }}</div>
                 <div class="fs-5 fw-semibold">{{ bookings.filter(b => b.status === 'active').length }}</div>
               </MDBCardBody>
             </MDBCard>
@@ -31,7 +31,7 @@
           <MDBCol col="6" md="3">  
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">
-                <div class="text-muted small">Vahvistetut tilaukset</div>
+                <div class="text-muted small">{{ t('recipientPage.confirmedOrders') }}</div>
                 <!-- <div class="fs-5 fw-semibold"></div> -->
                 <MDBBtn color="dark" block @click="router.push('/calendar')"><span class="fs-5 fw-semibold">{{ clientConfirmed.length }}</span></MDBBtn>
                 
@@ -42,7 +42,7 @@
           <MDBCol col="6" md="3">
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">
-                <div class="text-muted small">Arkistoidut tilaukset</div>
+                <div class="text-muted small">{{ t('recipientPage.archivedOrders') }}</div>
                 <!-- <div class="fs-5 fw-semibold"></div> -->
                 <MDBBtn v-if="clientHistory.length" color="dark" block @click="callHistory">
                   <span class="fs-5 fw-semibold">{{clientHistory.length}}</span>
@@ -55,7 +55,7 @@
           <MDBCol col="6" md="3">
             <MDBCard class="h-100">
               <MDBCardBody class="py-3">
-                <div class="text-muted small">Palveluntarjoajaat</div>
+                <div class="text-muted small">{{ t('recipientPage.serviceProviders') }}</div>
                 <div 
                   class="fs-5 fw-semibold" 
                   style="display: flex; justify-content: space-between;"
@@ -92,19 +92,26 @@
 
                 
                 <MDBCardBody style="text-align: left;">
-                  <h6>Kootut tilaukset</h6>
+                  <h6>{{ t('recipientPage.collectedOrders') }}</h6>
                   <div v-for="booking in sortedBookings" :key="booking.id" class="bookings">
 
-                    <h6  v-if="booking.isIncludeOffers" class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty hintatarjousten pyytämistä varten</h6>
-                    <h6 v-else class="fw-semibold" style="margin-top: 27px;">Tilaus on lähetetty palveluntarjoajalle <span style="color:orange;">{{ booking.ordered[0].pName }}</span></h6>
+                    <h6  v-if="booking.isIncludeOffers" class="fw-semibold" style="margin-top: 27px;">{{ t('recipientPage.sentForOffers') }}</h6>
+                    <h6 v-else class="fw-semibold" style="margin-top: 27px;">{{ t('recipientPage.sentToProvider', { provider: booking.ordered[0].pName }) }}</h6>
                     
                     <fieldset class="fs-box">
                       <legend class="fs-legend">
                         <template v-if="booking.isIncludeOffers">
-                          {{ booking.offers.length > 0 ? booking.offers.length + " " + t('offerCountNotification') : t('recipient_panel_no_offers')}}
+                          {{
+                            booking.offers.length > 0
+                              ? t('recipientPage.offersCount', {
+                                  count: booking.offers.length
+                                })
+                              : t('recipientPage.noOffersYet')
+                          }}
                         </template>
+
                         <template v-else>
-                          Odottaa yhtenottoa...
+                          {{ t('recipientPage.waitingForContact') }}
                         </template>
                       </legend>
 
@@ -113,7 +120,7 @@
                       <div class="title">{{ booking.header }}</div>
                       
                       <div v-if="!booking.isIncludeOffers && booking.photos?.length">
-                        <p class="title-booking-photos">Tilaukseen liitetyt kuvat:</p>
+                        <p class="title-booking-photos">{{ t('recipientPage.attachedPhotos') }}</p>
                         <BookingPhotos :photos="booking.photos" :editable="false"/>
                       </div>
 
@@ -123,7 +130,7 @@
                         <!-- multi buttons/badge -->
                         <div style="margin-top: 13px;">
                             <MDBBtn class="action" block color="primary" @click="handleRecipientResult(booking.id, booking)">
-                            Tilaus
+                            {{ t('recipientPage.order') }}
                           </MDBBtn>
                           
                           <MDBBadge
@@ -147,11 +154,11 @@
                             <MDBTextarea
                               white
                               v-model="clientQuitBookingReason"
-                              :label="t('recipient_panel_give_reason')"
+                              :label="t('recipientPage.reasonPlaceholder')"
                               rows="3"
                             />
                             <MDBBtn v-if="clientQuitBookingReason.length > 1" color="info" class="send-btn" @click="clientRejectMapBooking(booking)">
-                              Poista tilaus
+                              {{ t('recipientPage.deleteOrder') }}
                             </MDBBtn>
                           </div>
 
@@ -166,7 +173,7 @@
                             class="action-btn"
                             @click="canselQuitSelectedBooking"
                           >
-                            Peruuta
+                            {{ t('recipientPage.cancel') }}
                           </MDBBtn>
 
                           <div v-else style=" width: 100%; display: flex; justify-content: right;">
@@ -174,14 +181,14 @@
                               style="cursor: pointer; color: red; font-size: 14px;"
                               @click="handleQuitSelectedBooking(booking.id)"
                             >
-                              Poista tilaus
+                              {{ t('recipientPage.deleteOrder') }}
                             </p>
                           </div>
                         </div>
                       </div>
                     </fieldset>
                   </div>
-                  <div v-if="!sortedBookings.length" class="text-muted small">Koostettuja tilauksia ei ole.</div>
+                  <div v-if="!sortedBookings.length" class="text-muted small">{{ t('recipientPage.noCollectedOrders') }}</div>
                   
                 </MDBCardBody>
               </MDBCard>
@@ -191,7 +198,7 @@
             <MDBCol lg="6">
               <MDBCard class="h-100">
                 <MDBCardBody style="text-align: left;">
-                  <MDBCardTitle>Vahvistetut tilaukset</MDBCardTitle>
+                  <MDBCardTitle>{{ t('recipientPage.confirmedOrders') }}</MDBCardTitle>
                   <div v-if="clientConfirmed.length" class="vstack gap-2 " style="margin-top: 13px;">
                     <div
                       v-for="a in clientConfirmed.slice(0, 5)"
@@ -212,10 +219,10 @@
                           <MDBBtn 
                             
                             style="margin-top: 7px;"  
-                            outline="warning" ,
+                            outline="warning"
                             block 
                             @click="handleFeedback(a.offer?.name, a.offer?.sender, a.offer?.bookingID)">
-                            Anna palautetta
+                            {{ t('recipientPage.giveFeedback') }}
                             </MDBBtn>
                           <!-- <p style="font-size: 12px; color: red;">{{a.offer?.name ||""}} </p> -->
                         </div>
@@ -223,10 +230,10 @@
                       </div>
 
                       <MDBBadge v-if="a.status ==='confirmed'" :color="'success'">
-                        Vahvistettu
+                        {{ t('recipientPage.confirmed') }}
                       </MDBBadge>
                       <MDBBadge v-else :color="'warning'">
-                          Käsitelty
+                        {{ t('recipientPage.processed') }}
                       </MDBBadge>
                       
                     </div>
@@ -234,7 +241,7 @@
                   </div>
 
                   <div v-else class="text-muted small">
-                    Tilauksia ei ole vielä vahvistettu.
+                    {{ t('recipientPage.noConfirmedOrders') }}
                   </div>
                 </MDBCardBody>
               </MDBCard>
@@ -247,7 +254,7 @@
         
         
         <div style="margin-top: 23px; display: flex; justify-content: right;">
-          <MDBBtn color="primary" size="lg" @click="router.push('/client-form')">{{t('recipient_panel_new_order')}}</MDBBtn>
+          <MDBBtn color="primary" size="lg" @click="router.push('/client-form')">{{ t('recipientPage.newOrder') }}</MDBBtn>
         </div>
 
       </div>
@@ -267,11 +274,11 @@
         <MDBModalTitle><h6 style="color: orange;">{{ company }}</h6></MDBModalTitle>
       </MDBModalHeader>
       <MDBModalBody>
-        <p class="text-muted">Antaa palveluntarjoajalle palautetta saamastaan ​palvelusta.</p>
+        <p class="text-muted">{{ t('recipientPage.feedbackIntro') }}</p>
         <GiveFeedback :target="personalId" :booking_id="bookingId" @rating-done="handleRatingDone" @no-rating="handleNoRating"/>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="danger" @click="handleFeedbackModal = false"> Peruuta </MDBBtn>
+        <MDBBtn color="danger" @click="handleFeedbackModal = false">{{ t('recipientPage.cancel') }}</MDBBtn>
         <!-- <MDBBtn color="primary"> Save changes </MDBBtn> -->
       </MDBModalFooter>
     </MDBModal>
@@ -284,8 +291,8 @@
       v-model="showDeleteModal"
       :title="cTitle"
       :message="cMessage"
-      confirm-text="Poista"
-      cancel-text="Pidä se"
+      :confirm-text="t('recipientPage.delete')"
+      :cancel-text="t('recipientPage.keep')"
       :danger="true"
       @confirm="deleteMapBooking"
       @cancel="handleCancelDeleting"
@@ -337,7 +344,7 @@ defineProps({
 
 const emit = defineEmits(['open-chat']);
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const router = useRouter();
 const selectedIndex = ref(null);
 const isRecipientContent = ref(false);
@@ -421,9 +428,8 @@ onUnmounted(() => {
 const clientRejectMapBooking = async (booking) => {
   myBooking.value = booking;
   showDeleteModal.value = true;
-  cTitle.value = "Poistetaan tilaus?";
-  cMessage.value = "Oletko varma, että haluat poistaa tilauksesi? Tehtyä ei voi enää perua!";
-  
+  cTitle.value = t('recipientPage.deleteConfirmTitle');
+  cMessage.value = t('recipientPage.deleteConfirmMessage');
 }
 
 const deleteMapBooking = async () => {
@@ -439,8 +445,14 @@ const deleteMapBooking = async () => {
   try {
     await clientStore.removeMapOffer(booking);
 
-    const noteText = `${booking.user.username} peruutti tilauksen "${booking.header}". Syyksi ilmoitettu: ${reason}!`
-    await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
+    const noteText = t(
+      "recipientPage.bookingCancelledNotification",
+      {
+        client: booking.user.username,
+        booking: booking.header,
+        reason
+      }
+    );
     //onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
   } catch (err) {
     console.log("Error status:", err.response?.status);
@@ -515,18 +527,30 @@ const handleNoRating = () => {
   handleFeedbackModal.value = false;
 }
 
+const localeMap = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  et: "et-EE",
+  ru: "ru-RU"
+};
+
 function formatDateTime(iso) {
   if (!iso) return "—";
-  const d = new Date(iso);
 
-  return d.toLocaleString("fi-FI", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const date = new Date(iso);
+
+  return date.toLocaleString(
+    localeMap[locale.value] || "fi-FI",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }
+  );
 }
 
 const handleUpdateOfferState = (bookingId, offerId) => {
@@ -550,7 +574,12 @@ const handleCanselRecipientContentConfirmed = (pro) => {
   console.log("Pro - " + pro)
   // Show success toast after confirmation
   isConfirmed.value = true;
-  confirmedMessage.value = `${pro} vahvistettu`;
+  confirmedMessage.value = t(
+    "recipientPage.providerConfirmed",
+    {
+      provider: pro
+    }
+  );
 }
 
 const handleQuitSelectedBooking = (id) => {

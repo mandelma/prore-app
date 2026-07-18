@@ -180,7 +180,7 @@
                 <MDBBtn size="sm" color="light" outline @click="resetProvider" :disabled="busy || !providerDirty">
                   {{ t('providerAdmin.reset') }}
                 </MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="busy || !providerDirty">
+                <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="busy || !providerDirty || !addressValid">
                   {{ t('providerAdmin.save') }}
                 </MDBBtn>
               </div>
@@ -197,9 +197,14 @@
 
                   <address-autocomplete
                     v-model="pmForm.address"
+                    v-model:valid="addressValid"
+                    v-model:error="pmError.address"
                     :label="t('providerAdmin.enterNewAddress')"
-                    @place="onPlaceSelected" 
+                    :error="pmError.address"
+                    @typing="onAddressInput"
+                    @place="onPlaceSelected"
                   />
+                  
                 </div>
               </fieldset>
               
@@ -353,7 +358,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <p class="no-calendar" @click="isCalendar = false">Valmis</p>
+                  <p class="no-calendar" @click="isCalendar = false">{{ t('providerAdmin.done') }}</p>
                   <!-- <MDBBtn size="sm" color="light" outline @click="openSchedule">Hallita</MDBBtn> -->
                 </div>
               <calendar />
@@ -501,6 +506,8 @@ const { incomingOffers, proCalendarEvents, reference, proTimetable } = storeToRe
 const { isBookings } = storeToRefs(clientStore);
 const { providerHistory } = storeToRefs(providerArchiveStore);
 
+const addressValid = ref(false);
+
 const referenceToShow = computed(() => reference.value);
 
 const appeared = ref("Asiakas")
@@ -562,17 +569,70 @@ const validateProAddress = () => {
   return;
 };
 
+function onAddressInput(value) {
+  pmForm.address = value;
+
+  selectedPlace.value = null;
+  pmForm.lat = null;
+  pmForm.lng = null;
+
+  console.log(
+    "Address input changed:",
+    value,
+    "lat:",
+    pmForm.lat,
+    "lng:",
+    pmForm.lng
+  );
+
+  if (value.trim()) {
+    pmError.address =
+      t("providerAdmin.addressAutocompleteError");
+    
+  } else {
+    pmError.address = "";
+  }
+}
+
+function onPlaceSelected_prev(p) {
+  pmForm.address = p.address
+  pmForm.lat = p.lat
+  pmForm.lng = p.lng
+
+  // Storing it directly to draft provider
+  draftProvider.address = p.address
+  markDirty("provider")
+}
+
+function onPlaceSelected(place) {
+  selectedPlace.value = place;
+  console.log("Place selected:", place);
+  pmForm.address = place.address;
+  pmForm.lat = place.lat;
+  pmForm.lng = place.lng;
+
+  draftProvider.address = place.address;
+
+  pmError.address = "";
+
+  markDirty("provider");
+}
 
 
-watch(selectedPlace, (place) => {
+/* watch(selectedPlace, (place) => {
   if (!place) return;
 
+  if (!addressValid.value) {
+    pmError.address = "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+    console.log("Address not valid, selectedPlace is invalid ❌");
+    return;
+  }
   pmForm.address = place.address;
   pmForm.lat = place.lat;
   pmForm.lng = place.lng;
 
   pmError.address = ""
-});
+}); */
 
 // When store provider changes (loaded from DB / refreshed), copy to draft
 watch(
@@ -655,15 +715,6 @@ const activeNotesCount = computed(() =>
   ).length
 )
 
-function onPlaceSelected(p) {
-  pmForm.address = p.address
-  pmForm.lat = p.lat
-  pmForm.lng = p.lng
-
-  // if you want to store it directly to your draft provider
-  draftProvider.address = p.address
-  markDirty("provider")
-}
 
 const showFeedback = () => {
   //router.push('/feedback');
@@ -746,6 +797,7 @@ function resetProvider() {
   Object.assign(draftProvider, pro ? mapProviderToDraft(pro) : emptyProviderDraft());
   // reset address autocomplete input
   pmForm.address = draftProvider.address
+  pmError.address = ""
   pmForm.lat = null
   pmForm.lng = null
   providerDirty.value = false;
@@ -1262,7 +1314,8 @@ function sleep(ms) {
 .topbar {
   position: relative;
   height: var(--topbar-h);
-  background: rgba(73, 67, 67, 0.92);
+  /* background: rgba(73, 67, 67, 0.92); */
+  background: rgba(233, 172, 115, 0.92);
   backdrop-filter: blur(6px);
   padding: 0.5rem 0.5rem;
   margin: 0;

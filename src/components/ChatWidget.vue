@@ -7,7 +7,7 @@
         @pointerdown.stop="onLauncherPointerDown"
         @click="onLauncherClick"
         type="button"
-        aria-label="Open chat"
+        :aria-label="t('chatWidget.openChat')"
         :aria-expanded="String(isOpen)"
         
       >
@@ -27,7 +27,7 @@
         :class="{ open: isOpen }" 
         :style="chatWindowStyle"
         
-        aria-label="Chat window"
+        :aria-label="t('chatWidget.chatWindow')"
         role="dialog"
         aria-modal="false"
     >
@@ -75,7 +75,7 @@
           </ul>
 
           <div style="display: flex; justify-content: right;  margin-top: 0;">
-            <button class="chat-close" type="button" aria-label="Close chat" @click="$emit('request-close')">―</button>
+            <button class="chat-close" type="button" :aria-label="t('chatWidget.closeChat')" @click="$emit('request-close')">―</button>
           </div>
           
         </header>
@@ -91,15 +91,7 @@
               <div v-if="m.text">{{ m.text }}</div>
 
               <div v-for="a in m.attachments || []" :key="a.id || a.key">
-                <!-- <img
-                  v-if="a.isImage"
-                  :src="a.url || a.preview"
-                  class="chat-image"
-                  alt="attachment"
-                />
-                <div v-else class="file-attachment">
-                  📄 {{ a.name || "file" }}
-                </div> -->
+                
                 <img
                   v-if="a.mime?.startsWith('image/')"
                   :src="a.url || a.preview"
@@ -114,7 +106,7 @@
                   rel="noopener"
                 >
                   <div class="file-icon">
-                    <i class="fas fa-file-pdf"></i>
+                    <i :class="fileIconClass(a)"></i>
                   </div>
 
                   <div class="file-info">
@@ -135,17 +127,9 @@
                 {{ formatDateTime(m.createdAt) }}
               </span>
 
-              <!-- <span v-if="isMine(m)" class="message-status">
-                {{ getMessageStatus(m) }}
-              </span> -->
             </div>
           </div>
         </div>
-
-        
-
-
-
 
         <div v-if="files.length" class="file-preview">
             <div
@@ -158,7 +142,7 @@
                 v-if="f.isImage"
                 :src="f.preview"
                 class="img-thumb"
-                alt="preview"
+                :alt="t('chatWidget.filePreview')"
                 />
 
                 <!-- File name fallback -->
@@ -170,7 +154,7 @@
 
         <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
             <!-- Attachment button -->
-            <label  aria-label="Attach file">
+            <label  :aria-label="t('chatWidget.attachFile')">
                 <!-- 📎 -->
                 <i class="fas fa-copy" style="cursor: pointer;"></i>
                 <input
@@ -187,12 +171,12 @@
               v-model="draft"
               class="chat-textarea"
               rows="1"
-              placeholder="Kirjoita viesti…"
+              :placeholder="t('chatWidget.messagePlaceholder')"
               @input="autoResize"
             ></textarea>
 
             <!-- Send -->
-            <button style="max-height: 50px;" type="submit">Lähetä</button>
+            <button style="max-height: 50px;" type="submit">{{ t("chatWidget.send") }}</button>
         </form>
       </section>
 
@@ -200,8 +184,8 @@
         v-model="showDeleteModal"
         :title="cTitle"
         :message="cMessage"
-        confirm-text="Poista"
-        cancel-text="Pidä se"
+        :confirm-text="t('chatWidget.delete')"
+        :cancel-text="t('chatWidget.keep')"
         :danger="true"
         @confirm="handleConfirmRemoveChatUser"
         @cancel="handleCancelRemoving"
@@ -219,6 +203,7 @@
 <script setup>
   import { MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem, MDBIcon, MDBBtnClose } from "mdb-vue-ui-kit";
   import { ref, computed, nextTick, onMounted, onUpdated, onBeforeUnmount, watch } from "vue";
+  import { useI18n } from "vue-i18n";
   import { storeToRefs } from "pinia";
   import { useLoginStore } from "@/stores/login";
   import { useConversationStore } from "@/stores/conversationStore";
@@ -245,6 +230,8 @@
   const { openChat, conversations, me_id, activeConversationId, activeMessages, otherChatUsers, totalUnread } = storeToRefs(convoStore);
   const { isOnline } = presenceStore;
 
+  const { t, locale } = useI18n();
+
   // local UI
   const draft = ref("");
   const files = ref([]);
@@ -255,7 +242,17 @@
   const openWindowPos = ref(null);
 
   //const mobile = ref(window.innerWidth <= 640)
-  const mobile = computed(() => window.innerWidth <= 640);
+  //const mobile = computed(() => window.innerWidth <= 640);
+
+  const windowWidth = ref(window.innerWidth);
+
+  const updateWindowWidth = () => {
+    windowWidth.value = window.innerWidth;
+  };
+
+  const mobile = computed(
+    () => windowWidth.value <= 640
+  );
 
   const openSide = ref("right");
 
@@ -275,8 +272,8 @@
       
       return {
         id: otherId,
-        name: user?.firstName || "Unknown User",
-        username: user?.username || "Unknown username",
+        name: user?.firstName || t("chatWidget.unknownUsername"),
+        username: user?.username || t("chatWidget.unknownUsername"),
         avatar: user?.avatar,
         conversationId: cv._id,
       };
@@ -419,23 +416,66 @@
     };
   });
 
-
+  const intlLocale = computed(() => ({
+    fi: "fi-FI",
+    sv: "sv-SE",
+    et: "et-EE",
+    en: "en-GB",
+    ru: "ru-RU"
+  }[locale.value] ?? "fi-FI"));
   
-  const formatDateTime = (iso) => {
+  const formatDateTime = iso => {
     if (!iso) return "—";
-    const d = new Date(iso);
 
-    return d.toLocaleString("fi-FI", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  }
+    const date = new Date(iso);
 
+    if (Number.isNaN(date.getTime())) {
+      return "—";
+    }
 
+    return date.toLocaleString(
+      intlLocale.value,
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }
+    );
+  };
+
+  const fileIconClass = attachment => {
+    const mime = attachment?.mime || "";
+
+    if (mime === "application/pdf") {
+      return "fas fa-file-pdf";
+    }
+
+    if (
+      mime.includes("word") ||
+      mime.includes("document")
+    ) {
+      return "fas fa-file-word";
+    }
+
+    if (
+      mime.includes("excel") ||
+      mime.includes("spreadsheet")
+    ) {
+      return "fas fa-file-excel";
+    }
+
+    if (
+      mime.includes("powerpoint") ||
+      mime.includes("presentation")
+    ) {
+      return "fas fa-file-powerpoint";
+    }
+
+    return "fas fa-file";
+  };
 
   const convo_options_ = computed(() => {
     const myId = me_id.value;
@@ -463,7 +503,7 @@
         return {
           conversationId: cv._id,
           otherId,
-          name: otherUser?.firstName || otherUser?.username || "Tuntematon",
+          name: otherUser?.firstName || otherUser?.username || t("chatWidget.unknownUser"),
           username: otherUser?.username || "",
           avatar: otherUser?.avatar,
           unread: myUnread,
@@ -514,6 +554,7 @@
   // show/hide widget (use store openChat as source of truth)
   const isOpen = computed(() => openChat.value);
 
+  
 
   async function scrollToBottomWithImages() {
     await nextTick();
@@ -530,7 +571,13 @@
 
     function scroll() {
       requestAnimationFrame(() => {
-        chatBody.value.scrollTop = chatBody.value.scrollHeight;
+        const body = chatBody.value;
+
+        if (!body) {
+          return;
+        }
+
+        body.scrollTop = body.scrollHeight;
       });
     }
   }
@@ -547,9 +594,6 @@
   );
 
 
-
-
-
   function toggle() {
     openChat.value = !openChat.value;
     if (openChat.value) nextTick(() => chatInput.value?.focus());
@@ -559,11 +603,6 @@
     emit('request-close');
     //convoStore.closeChatWidget();
   }
-
-  /* function scrollToBottom() {
-    const el = chatBody.value;
-    if (el) el.scrollTop = el.scrollHeight;
-  } */
 
   const meId = computed(() => user.value?.id ?? user.value?._id ?? null);
 
@@ -595,35 +634,10 @@
     files.value.splice(index, 1);
   }
 
-  /* const chatUserName = async (id) => {
-    const participant = await userService.getUser(id);
-    return participant.firstName;
-  } */
-
-  // dropdown
-  /* function select(opt) {
-    console.log("Opt id is " + opt._id);
-    
-    openOption.value = opt.id;
-    selected.value = opt.name;
-
-    convoStore.openCreateRoom(opt.id);
-    
-    open.value = false;
-  } */
-
 
   function onClickOutside(e) {
     if (root.value && !root.value.contains(e.target)) open.value = false;
   }
-
-
-
-  /* const getMessageStatus = (m) => {
-    if (m.seenAt) return "✓✓ Seen";
-    if (m.deliveredAt) return "✓✓ Delivered";
-    return "✓ Sent";
-  } */
 
   function formatFileSize(bytes = 0) {
     if (bytes < 1024) return bytes + " B";
@@ -677,9 +691,6 @@
         files.value.forEach((f) => fd.append("files", f.file));
         fd.append("conversationId", convoId);
 
-        // Choose ONE return shape:
-        // - If service returns array directly: uploadedFiles = await uploadService.uploadChatImage(fd)
-        // - If service returns {files: [...] }: uploadedFiles = (await uploadService.uploadChatImage(fd)).files
         const res = await uploadService.uploadChatFiles(fd);
         uploadedFiles = Array.isArray(res) ? res : (res?.files || []);
       }
@@ -702,7 +713,19 @@
         mime: f.mime,
         size: f.size,
         isImage: f.isImage ?? (f.mime || "").startsWith("image/"),
-        type: "image" | "pdf" | "document"
+        /* type: "image" | "pdf" | "document" */
+
+        type:
+          f.type ||
+          (
+            (f.mime || "").startsWith("image/")
+              ? "image"
+              : f.mime === "application/pdf"
+                ? "pdf"
+                : "document"
+          )
+
+
       })),
     };
 
@@ -715,32 +738,71 @@
     
     console.log("Active messages - ", [activeMessages.value])
 
+    files.value.forEach(file => {
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    });
+
     files.value = [];
   }
 
   const removeChatMember = async (opt) => {
     conversationToRemove.value = opt;
-    cTitle.value = "Poista keskustelukumppani";
-    cMessage.value = `Haluatko varmasti poistaa ${opt.name} keskustelusta? Et enää näe tämän henkilön viestejä, etkä voi lähettää hänelle viestejä.`;
+    cTitle.value = t("chatWidget.removeParticipantTitle");
+    cMessage.value = t("chatWidget.removeParticipantMessage", { name: opt.name });
     showDeleteModal.value = true;
     console.log("Delete it--- ");
   }
 
-  const handleConfirmRemoveChatUser = async() => {
+  const handleConfirmRemoveChatUser = async () => {
     const opt = conversationToRemove.value;
-    console.log("Remove member with id", opt.otherId, "from conversation", opt.conversationId);
-    console.log("Conversation", opt);
-    await convoStore.setConversationState(opt.conversationId, opt.otherId, false);
-  }
+
+    if (!opt) {
+      return;
+    }
+
+    try {
+      await convoStore.setConversationState(
+        opt.conversationId,
+        opt.otherId,
+        false
+      );
+    } finally {
+      showDeleteModal.value = false;
+      conversationToRemove.value = null;
+    }
+  };
 
   const handleCancelRemoving = () => {
     showDeleteModal.value = false;
-    
+    conversationToRemove.value = null;
+    //cTitle.value = "";
+    //cMessage.value = "";
   }
 
+  const handleKeydown = event => {
+    if (event.key === "Escape") {
+      close();
+    }
+  };
+
   onMounted(() => {
-    document.addEventListener("click", onClickOutside);
-    document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+    //document.addEventListener("click", onClickOutside);
+    //document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+    document.addEventListener(
+      "click",
+      onClickOutside
+    );
+    document.addEventListener(
+      "keydown",
+      handleKeydown
+    );
+
+    window.addEventListener(
+      "resize",
+      updateWindowWidth
+    );
 
     convoStore.getConversations();
     //scrollToBottomSmooth();
@@ -751,6 +813,19 @@
 
   onBeforeUnmount(() => {
     document.removeEventListener("click", onClickOutside);
+    document.removeEventListener("keydown", handleKeydown);
+
+    window.removeEventListener(
+      "resize",
+      updateWindowWidth
+    );
+
+    // Removing files from memory when component is unmounted
+    files.value.forEach(file => {
+    if (file.preview) {
+      URL.revokeObjectURL(file.preview);
+    }
+  });
   });
 
   // chat widget button 56px

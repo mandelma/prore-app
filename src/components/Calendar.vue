@@ -1,7 +1,7 @@
 <template>
   <div >
-    <FullCalendar ref="calendarRef" height="auto" contentHeight="auto" aspectRatio={0.75} :options="options" />
-    
+    <!-- height="auto" contentHeight="auto" -->
+    <FullCalendar ref="calendarRef"  :options="options" />
 
   </div>
 
@@ -17,7 +17,7 @@
       :focus="false"
   >
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>Uusi merkintä</MDBModalTitle>
+      <MDBModalTitle>{{ t("calendar.newEntry") }}</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
       <div class="space-y-3">
@@ -26,27 +26,27 @@
           
           v-model:options="stateOptions" 
           
-          label="Valitse merkinnän tyyppi" 
+          :label="t('calendar.selectEntryType')" 
           style="margin-bottom: 20px;"
         />
 
         <!-- Option {{ stateOptions[1].selected }} -->
 
-        <MDBInput v-if="stateOptions[1].selected" v-model="form.title" label="Otsikko" wrapperClass="mb-4" />
+        <MDBInput v-if="stateOptions[1].selected" v-model="form.title" :label="t('calendar.title')" wrapperClass="mb-4" />
 
-        <MDBTextarea v-if="stateOptions[1].selected" v-model="form.note" label="Kuvaus... *" rows="3" wrapperClass="mb-4"/>
+        <MDBTextarea v-if="stateOptions[1].selected" v-model="form.note" :label="t('calendar.description')" rows="3" wrapperClass="mb-4"/>
 
         <div class="text-sm opacity-80">
-          <div><strong>Aloitus:</strong> {{ formatLocalDate(form.start) }}</div>
-          <div><strong>Loppu:</strong>   {{ formatLocalDate(form.end) }}</div>
+          <div><strong>{{ t('calendar.start') }}</strong> {{ formatLocalDate(form.start) }}</div>
+          <div><strong>{{ t('calendar.end') }}</strong>   {{ formatLocalDate(form.end) }}</div>
           <!-- <div><strong>Loppu:</strong>   {{ form.end?.toLocaleString() }}</div> -->
         </div>
       </div>
     </MDBModalBody>
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="danger" outline @click="showCreate=false">Poistu</MDBBtn>
+      <MDBBtn color="danger" outline @click="showCreate=false">{{ t("calendar.close") }}</MDBBtn>
       
-      <MDBBtn color="primary" @click="saveEvent">Tallentaa</MDBBtn>
+      <MDBBtn color="primary" @click="saveEvent">{{ t("calendar.save") }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -64,26 +64,26 @@
   > 
     <!-- v-if="event_state === 'vacation' || event_state === 'time'"  v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay" -->
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle> {{ event_state === 'vacation' ? 'Muokkaa muistinpanoa' : 'Muokkaa aikamerkintää' }}</MDBModalTitle>
+      <MDBModalTitle> {{ event_state === 'vacation' ? t('calendar.editNote') : t('calendar.editTimeEntry') }}</MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody>
       <div class="space-y-3">
         <!--  -->
         <div v-if="event_state === 'vacation'">
-          <MDBInput v-model="editForm.title" label="Otsikko" wrapperClass="mb-4" />
-          <MDBTextarea v-model="editForm.note" label="Note" rows="3" />
+          <MDBInput v-model="editForm.title" :label="t('calendar.title')" wrapperClass="mb-4" />
+          <MDBTextarea v-model="editForm.note" :label="t('calendar.description')" rows="3" />
         </div>
         
         
         <div v-else-if="event_state === 'time'">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           
-            <div><strong>Aloitus:</strong> {{ formatLocalDate(editForm.start) }}</div>
+            <div><strong>{{ t('calendar.start') }}</strong> {{ formatLocalDate(editForm.start) }}</div>
 
             <div class="field-wrapper">
                 <MDBDateTimepicker
                     size="lg"
-                    label="Valitse start"
+                    :label="t('calendar.start')"
                     v-model="editForm.start"
                     :valueType="'date'"
                 
@@ -103,12 +103,12 @@
                 
             </div>
 
-            <div><strong>Loppu:</strong>   {{ formatLocalDate(editForm.end) }}</div>
+            <div><strong>{{ t('calendar.end') }}</strong>   {{ formatLocalDate(editForm.end) }}</div>
 
             <div class="field-wrapper">
                 <MDBDateTimepicker
                     size="lg"
-                    label="Valitse loppu"
+                    :label="t('calendar.end')"
                     v-model="editForm.end"
                     :valueType="'date'" 
                     
@@ -140,8 +140,8 @@
       </div>
     </MDBModalBody>
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="secondary" outline @click="showEdit=false">Peruuta</MDBBtn>
-      <MDBBtn color="primary" @click="saveEventEdits">Tallentaa</MDBBtn>
+      <MDBBtn color="secondary" outline @click="showEdit=false">{{ t('calendar.cancel') }}</MDBBtn>
+      <MDBBtn color="primary" @click="saveEventEdits">{{ t('calendar.save') }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -155,32 +155,32 @@
     :focus="false"
   >
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>Muokkaa tarjousta</MDBModalTitle>
+      <MDBModalTitle>{{ t('calendar.editOffer') }}</MDBModalTitle>
     </MDBModalHeader>
 
     <MDBModalBody>
       <MDBInput
         v-model="editOfferForm.title"
-        label="Palvelu"
+        :label="t('calendar.service')"
         wrapperClass="mb-4"
       />
 
       <MDBTextarea
         v-model="editOfferForm.note"
-        label="Kuvaus"
+        :label="t('calendar.description')"
         rows="3"
         wrapperClass="mb-4"
       />
 
       <MDBInput
         v-model="editOfferForm.address"
-        label="Sijainti"
+        :label="t('calendar.location')"
         wrapperClass="mb-4"
       />
 
       <MDBInput
         v-model="editOfferForm.priceOffer"
-        label="Hinta-arvio"
+        :label="t('calendar.estimatedPrice')"
         type="number"
         wrapperClass="mb-4"
       />
@@ -188,11 +188,11 @@
 
     <MDBModalFooter class="footer-buttons">
       <MDBBtn color="secondary" outline @click="showEventEdit = false">
-        Peruuta
+        {{ t('calendar.cancel') }}
       </MDBBtn>
 
       <MDBBtn color="primary" @click="saveOfferEdit">
-        Tallenna
+        {{ t('calendar.save') }}
       </MDBBtn>
     </MDBModalFooter>
   </MDBModal>
@@ -207,19 +207,19 @@
     :focus="false"
   >
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>Muokkaa saattavillaoloaikaa</MDBModalTitle>
+      <MDBModalTitle>{{ t('calendar.editAvailability') }}</MDBModalTitle>
     </MDBModalHeader>
 
     <MDBModalBody>
       <p>Time event edit form...</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         
-        <div><strong>Aloitus:</strong> {{ formatLocalDate(editForm.start) }}</div>
+        <div><strong>{{ t('calendar.start') }}:</strong> {{ formatLocalDate(editForm.start) }}</div>
 
         <div class="field-wrapper">
             <MDBDateTimepicker
                 size="lg"
-                label="Valitse start"
+                :label="t('calendar.start')"
                 v-model="editForm.start"
                 :valueType="'date'"
             
@@ -239,12 +239,12 @@
             
         </div>
 
-        <div><strong>Loppu:</strong>   {{ formatLocalDate(editForm.end) }}</div>
+        <div><strong>{{ t('calendar.end') }}:</strong>   {{ formatLocalDate(editForm.end) }}</div>
 
         <div class="field-wrapper">
             <MDBDateTimepicker
                 size="lg"
-                label="Valitse loppu"
+                :label="t('calendar.end')"
                 v-model="editForm.end"
                 :valueType="'date'" 
                 
@@ -269,11 +269,11 @@
 
     <MDBModalFooter class="footer-buttons">
       <MDBBtn color="secondary" outline @click="showTimeEventEdit = false">
-        Peruuta
+        {{ t('calendar.cancel') }}
       </MDBBtn>
 
       <MDBBtn color="primary" @click="saveTimeEventEdit">
-        Tallenna
+        {{ t('calendar.save') }}
       </MDBBtn>
     </MDBModalFooter>
 
@@ -298,14 +298,14 @@
       
 
       <h2 class="event-title">
-        {{ selectedEvent?.allDay ? 'Koko päivän saattavilla' : 'Saattavilla:' }}
+        {{ selectedEvent?.allDay ? t('calendar.availableAllDay') : t('calendar.available') }}
       </h2>
 
       <div class="event-date">
         {{
           selectedEvent?.start && selectedEvent?.end &&
           formatLocalDate(selectedEvent.start).split(' ')[0] === formatLocalDate(selectedEvent.end).split(' ')[0]
-            ? 'klo: ' + formatLocalTime(selectedEvent.start) + ' - ' + formatLocalTime(selectedEvent.end)
+            ? t('calendar.at') + ' ' + formatLocalTime(selectedEvent.start) + ' - ' + formatLocalTime(selectedEvent.end)
             : formatLocalDate(selectedEvent.start) + ' - ' + formatLocalDate(selectedEvent.end)
         }}
 
@@ -329,9 +329,9 @@
     </MDBModalBody>
 
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn  color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
-      <MDBBtn   color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
-      <MDBBtn color="secondary" @click="showTimeEventModal = false">Poistu</MDBBtn>
+      <MDBBtn  color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
+      <MDBBtn   color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
+      <MDBBtn color="secondary" @click="showTimeEventModal = false">{{ t('calendar.close') }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -364,9 +364,9 @@
       </div>
       
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn  color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
-      <MDBBtn   color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
-      <MDBBtn color="secondary" @click="showNotesEventModal = false">Poistu</MDBBtn>
+      <MDBBtn  color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
+      <MDBBtn   color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
+      <MDBBtn color="secondary" @click="showNotesEventModal = false">{{ t('calendar.close') }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -435,8 +435,8 @@
     </MDBModalBody>
 
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="secondary" @click="openClientEventEdit">Muokkaa</MDBBtn>
-      <MDBBtn color="danger" @click="showClientEventModal = false">Poistu</MDBBtn>
+      <MDBBtn color="secondary" @click="openClientEventEdit">{{ t('calendar.edit') }}</MDBBtn>
+      <MDBBtn color="danger" @click="showClientEventModal = false">{{ t('calendar.close') }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -505,7 +505,14 @@
 
         <div class="info-row">
           <span>Hinta-arvio</span>
-          <strong>{{ selectedEvent?.budget + ' €' || 'Sovitaan erikseen' }}</strong>
+          <strong>
+            {{
+              selectedEvent?.budget != null &&
+              selectedEvent?.budget !== ""
+                ? `${selectedEvent.budget} €`
+                : t("calendar.toBeAgreedSeparately")
+            }}
+        </strong>
         </div>
 
         <div class="info-row">
@@ -520,9 +527,9 @@
       </div>
     </MDBModalBody>
     <MDBModalFooter>
-      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">Poistaa</MDBBtn>
-      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay"  color="primary" @click="openEditModalFromPreview">Muokkaa</MDBBtn>
-      <MDBBtn color="secondary" outline @click="showProEventModal=false">Peruuttaa</MDBBtn>
+      <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
+      <MDBBtn v-if="(event_state === 'vacation' || event_state === 'time') && !selectedEvent?.allDay"  color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
+      <MDBBtn color="secondary" outline @click="showProEventModal=false">{{ t('calendar.cancel') }}</MDBBtn>
       <!-- <MDBBtn color="danger" @click="deleteEvent">Delete</MDBBtn> -->
     </MDBModalFooter>
   </MDBModal>
@@ -543,10 +550,13 @@ import { formatDate } from '@fullcalendar/core'
 import Legend from '../components/Legend.vue'
 import { EVENT_TYPES } from '../components/controllers/eventTypes.js'
 
+import { getFormatted } from './helpers/formatDatepicker.js';
+
 import fiLocale from '@fullcalendar/core/locales/fi'
 import svLocale from '@fullcalendar/core/locales/sv'
 import etLocale from '@fullcalendar/core/locales/et'
 import enLocale from '@fullcalendar/core/locales/en-gb'
+import ruLocale from '@fullcalendar/core/locales/ru'
 import { getBottomRightAnchor } from './helpers/chatGeometry.js';
 
 import { storeToRefs } from 'pinia';
@@ -559,7 +569,7 @@ defineProps({
   days: Array
 })
 
-
+const { t, locale } = useI18n()
 const emit = defineEmits(['over', 'open-chat'])
 
 const auth = useLoginStore();
@@ -570,7 +580,7 @@ const { user } = storeToRefs(auth);
 const { clientConfirmed } = storeToRefs(clientStore);
 const { isUserPro, proCalendarEvents, proTimetable } = storeToRefs(proStore);
 
-const { locale } = useI18n()
+
 // const events = ref([
 //   { id: '1', title: 'Team sync', start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', meetingId: 'ABC123', location: 'Room 1' } },
 //   { id: '2', title: 'Team sync',     start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', location: 'Room 2' } },
@@ -591,8 +601,10 @@ const showEdit = ref(false)
 const showTimeEventEdit = ref(false);
 const showEventEdit = ref(false);
 
-
-const L = computed(() => {
+const  L = computed(() => {
+  return getFormatted(locale.value);
+})
+/* const L = computed(() => {
   switch (locale.value) {
     case 'en':
       return {
@@ -658,7 +670,7 @@ const L = computed(() => {
         twelveHour: false
       }
   }
-})
+}) */
 
 const event_state = ref("");
 
@@ -784,10 +796,21 @@ const filteredEvents = computed(() =>
   })
 )
 
-const stateOptions = ref([
+/* const stateOptions = ref([
   {text: "🕒 Vapaa aika", value: "time"},
   {text: "📝 Muistiinpano", value: "vacation"}
-])
+]) */
+
+const stateOptions = computed(() => [
+  {
+    text: `🕒 ${t("calendar.freeTime")}`,
+    value: "time"
+  },
+  {
+    text: `📝 ${t("calendar.note")}`,
+    value: "vacation"
+  }
+]);
 
 
 const selectedState = computed(() => {
@@ -889,34 +912,67 @@ const onEventChat = (otherId, eventId) => {
   });
 }
 
-const formatLocalDate = (value) => {
-  const d = fromLocalInput(value);
-  if (!isValidDate(d)) return '';
-  return new Intl.DateTimeFormat('fi-FI', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: 'Europe/Helsinki',
-    hour12: false,
-    hourCycle: 'h23',
-  }).format(d);
+const intlLocale = computed(() => ({
+  fi: "fi-FI",
+  sv: "sv-SE",
+  et: "et-EE",
+  en: "en-GB",
+  ru: "ru-RU"
+}[locale.value] ?? "fi-FI"));
+
+const formatLocalDate = value => {
+  const date = fromLocalInput(value);
+
+  if (!isValidDate(date)) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(
+    intlLocale.value,
+    {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "Europe/Helsinki",
+      hour12: false,
+      hourCycle: "h23"
+    }
+  ).format(date);
 };
 
-const formatLocalTime = (date) => {
-  return new Date(date).toLocaleTimeString('fi-FI', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-}
+const formatLocalTime = value => {
+  const date = new Date(value);
+
+  if (!isValidDate(date)) {
+    return "";
+  }
+
+  return date.toLocaleTimeString(
+    intlLocale.value,
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }
+  );
+};
 
 /* For time title formatting */
-const formatDateTitle = (date) => {
-  return new Intl.DateTimeFormat('fi-FI', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Helsinki',
-  }).format(new Date(date));
+const formatDateTitle = value => {
+  const date = new Date(value);
+
+  if (!isValidDate(date)) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(
+    intlLocale.value,
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Europe/Helsinki"
+    }
+  ).format(date);
 };
 
 /* ensure end exists (30 min for timed, 1 day for allDay) */
@@ -947,7 +1003,7 @@ function openCreate({ start, end, allDay }) {
 /* save new event with extendedProps */
 const saveEvent = async() => {
   const f = form.value
-  //if (!f.note?.trim()) return alert('Lisää muistinpano')
+  
   console.log("CREATED time start - " + f.start);
   console.log("CREATED time end - " + f.end)
 
@@ -964,6 +1020,7 @@ const saveEvent = async() => {
   await proStore.addAvailableTimeEvent(dEvent);
 
   console.log("Added new time event ", dEvent);
+  console.log("Is there allDay? " + dEvent.allDay);
 
   createdEvents.value = [
     ...createdEvents.value,
@@ -980,7 +1037,7 @@ const saveEvent = async() => {
         canEdit: true,
         canResize: true,
         location: f.location?.trim() || '',
-        note: f.note?.trim() || 'Muistiinpano',
+        note: f.note?.trim() || t('calendar.note'),
       },
     },
   ]
@@ -1559,7 +1616,7 @@ function openEventModalPreview(raw) {
     
 }
 
-const fcLocaleCode = computed(() => ({ fi:'fi', sv:'sv', et:'et', en:'en-gb' }[locale.value] ?? 'en-gb'))
+const fcLocaleCode = computed(() => ({ fi:'fi', sv:'sv', et:'et', ru: 'ru', en:'en-gb' }[locale.value] ?? 'fi'))
 const clickedDate = ref(null);
 
 /* function onEventClick(info) {
@@ -1826,7 +1883,7 @@ const options = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   height: window.innerWidth < 640 ? 600 : 800,
   
-  aspectRatio: 0.75,
+  //aspectRatio: 0.75,
   initialView: 'dayGridMonth',
   nowIndicator: true,
   datesSet() { refreshTypeBars() },
@@ -1902,15 +1959,17 @@ const options = computed(() => ({
     const end = ev.end;
 
     const formatTime = (d) =>
-      d ? d.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' }) : '';
+      d ? d.toLocaleTimeString(intlLocale.value, { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
 
     const timeStr = ev.allDay
-      ? 'Koko päivän'
-      : `${formatTime(start)}${end ? ' - ' + formatTime(end) : ''}`;
+    ? t("calendar.allDay")
+    : `${formatTime(start)}${
+        end ? ` - ${formatTime(end)}` : ""
+      }`;
 
     const timeStrOnlyStart = ev.allDay
-    ? 'Koko päivän'
-    : `${formatTime(start)} Sopimus`
+    ? t("calendar.allDay")
+    : `${formatTime(start)} ${t("calendar.agreement")}`;
 
     const isMobile = window.innerWidth < 640;
     let title = arg.event.title || '';
@@ -1919,12 +1978,12 @@ const options = computed(() => ({
       title = title.slice(0, 7) + '...';
     }
 
-    const t = arg.event.extendedProps?.type;
+    const eventType = arg.event.extendedProps?.type;
 
-    if (['client', 'pro'].includes(t)) {
+    if (['client', 'pro'].includes(eventType)) {
       return { html: `<div class="event-time-only">${timeStrOnlyStart}</div>`};
     }
-    if (['time'].includes(t)) {
+    if (['time'].includes(eventType)) {
       return { html: `<div class="event-time-only">${timeStr}</div>`}
     }
 
@@ -1962,14 +2021,16 @@ const options = computed(() => ({
   },
 
 
-  locales: [fiLocale, svLocale, etLocale, enLocale],
+  locales: [fiLocale, svLocale, etLocale, enLocale, ruLocale],
   locale: fcLocaleCode.value,
+
+  
 
   eventClassNames(arg) {
     const t = arg.event.extendedProps?.type
     return t && EVENT_TYPES[t]?.class ? [EVENT_TYPES[t].class] : []
   },
-
+  
   displayEventTime: true,
 
   

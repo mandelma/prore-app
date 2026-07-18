@@ -18,7 +18,7 @@
             <MDBDateTimepicker
               v-if="!props.date"
               size="lg"
-              label="Valitse tehtävän päivämäärä ja aika"
+              :label="t('requestForm.dateTimeLabel')"
               v-model="dateTime"
               :toggleButton="false"
               inputToggle
@@ -38,10 +38,12 @@
 
             <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
             <div >
-            <p v-if="props.date || dateTime">{{ props.date }}</p>
-            
+            <!-- <p v-if="props.date || dateTime">{{ props.date }}</p> -->
+            <p v-if="props.date || dateTime">
+              {{ formattedDateTime }}
+            </p>
           
-            <p v-else style="color: red;">Tehtävän päivämäärä ja kellonaika on pakollinen</p>
+            <p v-else style="color: red;">{{ t('requestForm.dateTimeRequired') }}</p>
           </div>
 
        
@@ -52,7 +54,7 @@
                 size="lg"
                 id="request-address-input"
                 v-model="form.address"
-                label="Anna osoite *"
+                :label="t('requestForm.addressLabel')"
                 placeholder=""
                 wrapperClass="form-outline flex-grow-3"
                 :inputClass="'ps-0'"
@@ -79,11 +81,11 @@
 
           <div class="field-wrapper">
             <MDBInput
-                label="Syötä tilauksen avainsana *"
+                :label="t('requestForm.requestHeaderLabel')"
                 v-model="form.requestHeader"
                 size="lg"
-                invalidFeedback="Ole hyvä ja kirjoita avainsana."
-                validFeedback="Ok!"
+                :invalidFeedback="t('requestForm.requestHeaderInvalid')"
+                :validFeedback="t('requestForm.validOk')"
                 required
 
             />
@@ -93,11 +95,11 @@
           <div style="margin-top: 17px;" class="field-wrapper">
               <MDBTextarea
                   maxlength="70"
-                  label="Kuvaus tilauksen sisällöstä *"
+                  :label="t('requestForm.requestContentLabel')"
                   rows="3"
                   v-model="form.requestContent"
-                  invalidFeedback="Ole hyvä ja kirjoita tehtävän kuvaus."
-                  validFeedback="Ok!"
+                  :invalidFeedback="t('requestForm.requestContentInvalid')"
+                  :validFeedback="t('requestForm.validOk')"
                   required
               />
               <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span>
@@ -111,8 +113,8 @@
           <!-- About pictures -->
            <div v-if="!isAddPhotos">
               <div>
-                <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">Lisää halutessasi kuvia tehtävästä</MDBBtn>
-                <MDBBtn v-else color="light" @click="isAddPhotos = true">Muokkaa kuvia</MDBBtn>
+                <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">{{ t('requestForm.addOptionalPhotos') }}</MDBBtn>
+                <MDBBtn v-else color="light" @click="isAddPhotos = true">{{ t('requestForm.editPhotos') }}</MDBBtn>
               </div>
               
               
@@ -126,7 +128,7 @@
               <!-- v-else -->
               <div v-if="!addedPhotos?.length" class="empty-state">
                 
-                <p v-if="!addedPhotos.length" class="empty-state__text">Kuvien lisääminen auttaa palveluntarjoajia arvioinnissa.</p>
+                <p v-if="!addedPhotos.length" class="empty-state__text">{{ t('requestForm.photosHelp') }}</p>
               </div>
 
 
@@ -140,8 +142,8 @@
 
                 <div class="photos">
                   <div class="photos__header">
-                    <h5 class="section-title">Kuvat</h5>
-                    <MDBBtn color="primary" @click="openFilePicker">Lisää kuvia</MDBBtn>
+                    <h5 class="section-title">{{ t('requestForm.photos') }}</h5>
+                    <MDBBtn color="primary" @click="openFilePicker">{{ t('requestForm.addPhotos') }}</MDBBtn>
                     
                     <input
                       ref="fileInput"
@@ -170,8 +172,8 @@
                     @drop.prevent="onDrop"
                     :class="{ 'dropzone--active': isDragOver }"
                   >
-                    <p class="dropzone__title">Vedä ja pudota kuvia tähän</p>
-                    <p class="dropzone__text">tai paina “Lisää kuvia”</p>
+                    <p class="dropzone__title">{{ t('requestForm.dropPhotos') }}</p>
+                    <p class="dropzone__text">{{ t('requestForm.orClickAddPhotos') }}</p>
                   </div>
 
                   <BookingPhotos
@@ -186,11 +188,11 @@
 
                 <div class="actions">
                   <button class="btn btn-danger" type="button" @click="cancelAddPhotos">
-                    Peruuta
+                    {{ t('requestForm.cancel') }}
                   </button>
 
                   <button class="btn btn-success" type="submit" :disabled="!isDirty">
-                    Tallenna
+                    {{ t('requestForm.save') }}
                   </button>
                 </div>
 
@@ -198,7 +200,7 @@
             </form>
           <!-- Send booking if date is entered -->
           <div style="display: flex; justify-content: right; margin-top: 17px;">
-            <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">LÄHETÄÄ TILAUS</MDBBtn>
+            <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">{{ t('requestForm.sendOrder') }}</MDBBtn>
           </div>
           
         </form>
@@ -208,23 +210,34 @@
 <script setup>
   import { ref, onMounted, onUnmounted, onBeforeUnmount, computed, nextTick, reactive, watch } from 'vue'
   import {MDBContainer, MDBTextarea, MDBInput, MDBBtn, MDBIcon, MDBDateTimepicker, MDBSpinner} from 'mdb-vue-ui-kit';
+  import { useI18n } from 'vue-i18n';
   import { storeToRefs } from 'pinia';
   import { useConversationStore } from '@/stores/conversationStore';
   import { useMapStore } from '@/stores/mapStore';
   import { loadGoogleMaps } from '../controllers/loadGoogleMap';
   import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
+  import { getFormatted } from '../helpers/formatDatepicker.js';
   import BookingPhotos from './BookingPhotos.vue';
   import uploadService from '@/service/awsUploads.js';
 
-  import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';;
+  import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';
 
   defineOptions({
       name: 'request-form'
   })
   const props = defineProps({
-      target: {type: null},
-      date: String,
-      isOpen: Boolean
+    target: {
+      type: Object,
+      default: null
+    },
+    date: {
+    type: String,
+    default: ""
+    },
+    isOpen: {
+      type: Boolean,
+      default: false
+    }
   })
   const emit = defineEmits(['sendRequest', 'open-chat']);
 
@@ -255,6 +268,7 @@
   //Needed i18
   //const reInitKey = computed(() => `dt-${locale.value}`)
 
+  const { t, locale } = useI18n();
   const geocoder = ref(null)
   const lat = ref(null);
   const lng = ref(null);
@@ -282,21 +296,42 @@
   const errors = reactive({});
   const isValidating = ref(false);
 
-  const validateForm = () => {
-    errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
-    errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kentä!";
-    errors.requestContent = form.requestContent ? "" : "Tilauksen lyhyt kuvaus on pakollinen!";
-   /*  errors.budgetMin = form.budgetMin != null ? "" : "Alin hinta on pakollinen!";
-    errors.budgetMax = form.budgetMax != null ? "" : "Ylin hinta on pakollinen!"; */
+  // Date formatting for datepicker
+  const L = computed(() => {
+    return getFormatted(locale.value)
+  })
 
-    /* if (
-      form.budgetMin != null &&
-      form.budgetMax != null &&
-      Number(form.budgetMin) > Number(form.budgetMax)
-    ) {
-      errors.budgetMin = "Alin hinta ei voi olla suurempi kuin ylin hinta!";
-      errors.budgetMax = "Ylin hinta ei voi olla pienempi kuin alin hinta!";
-    } */
+  const localeMap = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  et: "et-EE",
+  ru: "ru-RU"
+};
+
+const formattedDateTime = computed(() => {
+  const value = props.date || dateTime.value;
+  const date = fromLocalInput(value);
+
+  if (!date) return value || "";
+
+  return date.toLocaleString(
+    localeMap[locale.value] || "fi-FI",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }
+  );
+});
+
+  const validateForm = () => {
+    errors.address = form.address ? "" : t('requestForm.addressRequired');
+    errors.requestHeader = form.requestHeader ? "" : t('requestForm.requestHeaderRequired');
+    errors.requestContent = form.requestContent ? "" : t('requestForm.requestContentRequired');
 
     return Object.values(errors).every(error => !error);
 
@@ -305,38 +340,40 @@
 
   const validateHeader = () => {
     if (!isValidating.value) return;
-    errors.requestHeader = form.requestHeader ? "" : "Avainsana on pakollinen kenttä!";
+    errors.requestHeader = form.requestHeader ? "" : t('requestForm.requestHeaderRequired');
   };
 
   watch(() => form.requestHeader, validateHeader);
 
   const validateContent = () => {
     if (!isValidating.value) return;
-    errors.requestContent = form.requestContent ? "" : "Tilauksen kuvaus on pakollinen kenttä!";
+    errors.requestContent = form.requestContent ? "" : t('requestForm.requestContentRequired');
   };
 
   watch(() => form.requestContent, validateContent);
 
   const validateAddress = () => {
     if (!isValidating.value) return;
-    errors.address = form.address ? "" : "Osoite on pakollinen kenttä";
+    errors.address = form.address ? "" : t('requestForm.addressRequired');
   };
 
   watch(() => form.address, validateAddress);
 
-  //watch(() => form.requestHeader, () => (errors.requestHeader = ""));
-
-  //watch(() => form.requestContent, () => (errors.requestContent = ""));
-
-  
-
-  watch(props.date, (date) => {
+  /* watch(props.date, (date) => {
     if (date) {
       dateTime.value = date
     }
-  })
+  }) */
 
-
+  watch(
+  () => props.date,
+    date => {
+      if (date) {
+        dateTime.value = date;
+      }
+    },
+    { immediate: true }
+  );
 
   watch(() => props.isOpen, async (open) => {
     if (open) {
