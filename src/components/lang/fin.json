@@ -275,10 +275,6 @@
     "days_ago": "{count} päivää sitten"
   },
 
-  "feedback": {
-    "no_written_reviews": "Ei vielä annettuja kirjallisia arvosteluja!"
-  },
-
   "photoGallery": {
     "references": "Referenssit",
     "add": "Lisää",
@@ -558,6 +554,7 @@
     "confirmedOrders": "Vahvistetut tilaukset",
     "archivedOrders": "Arkistoidut tilaukset",
     "serviceProviders": "Palveluntarjoajat",
+    "view": "Näytä",
     "collectedOrders": "Kootut tilaukset",
     "sentForOffers": "Tilaus on lähetetty hintatarjousten pyytämistä varten",
     "sentToProvider": "Tilaus on lähetetty palveluntarjoajalle {provider}",
@@ -676,6 +673,119 @@
     "unknownUsername": "Tuntematon käyttäjänimi",
     "noActiveConversation": "Keskustelua ei ole valittu.",
     "uploadFailed": "Tiedoston lataaminen epäonnistui."
+  },
+
+  "editProfile": {
+    "close": "Sulje profiilin muokkaus",
+    "firstName": "Etunimi",
+    "lastName": "Sukunimi",
+    "username": "Käyttäjätunnus",
+    "newAddress": "Anna uusi osoite",
+    "newEmail": "Anna uusi sähköpostiosoite",
+    "save": "Tallenna tiedot",
+    "selectAddressFromList": "Valitse osoite ehdotuslistalta.",
+    "invalidEmail": "Sähköpostiosoite on virheellinen."
+  },
+
+  "payment": {
+    "payAmount": "Maksa {amount}",
+    "payByCard": "Maksa kortilla",
+    "mastercardAlt": "Mastercard-maksu"
+  },
+
+  "payPlan": {
+    "title": "Valitse sopiva käyttöaika",
+    "description": "Valitse tarpeisiisi sopiva paketti ja jatka turvalliseen maksamiseen.",
+    "close": "Poistu",
+    "recommended": "Suosituin",
+    "oneTimePayment": "Kertamaksu",
+    "selectPlan": "Valitse paketti",
+    
+    "day": "Päivä",
+    "week": "Viikko",
+    "month": "Kuukausi",
+    "sixMonths": "Kuusi kuukautta",
+    "year": "Vuosi",
+    "oneDay": "1 päivä",
+    "sevenDays": "7 päivää",
+    "oneMonth": "1 kuukausi",
+    "sixMonthDuration": "6 kuukautta",
+    "twelveMonthDuration": "12 kuukautta"
+  },
+
+  "profile": {
+    "close": "Sulje profiili",
+    "avatar": "Profiilikuva",
+    "avatarAlt": "Käyttäjän profiilikuva",
+    "avatarDescription": "Lisää, vaihda tai poista profiilikuvasi.",
+    "addAvatar": "Lisää profiilikuva",
+    "editAvatar": "Vaihda profiilikuva",
+    "removeAvatar": "Poista profiilikuva",
+    "name": "Nimi",
+    "username": "Käyttäjätunnus",
+    "address": "Osoite",
+    "email": "Sähköposti",
+    "editDetails": "Muokkaa tietojasi",
+    "emailAlreadyInUse": "Sähköpostiosoite on jo käytössä.",
+    "emailAndAddressUpdated": "Sähköpostiosoite ja osoite päivitettiin onnistuneesti.",
+    "emailUpdated": "Sähköpostiosoite päivitettiin onnistuneesti.",
+    "addressUpdated": "Osoite päivitettiin onnistuneesti.",
+    "avatarUploadFailed": "Profiilikuvan lataaminen epäonnistui.",
+    "avatarUpdateFailed": "Profiilikuvan vaihtaminen epäonnistui.",
+    "avatarDeleteFailed": "Profiilikuvan poistaminen epäonnistui.",
+    "invalidImageType": "Valitse JPEG-, PNG-, WebP- tai GIF-kuva.",
+    "imageTooLarge": "Kuvan koko saa olla enintään 1 Mt."
+  },
+
+  "timekeeping": {
+    "minutes_ago": "{count} minuuttia sitten",
+    "hours_ago": "{count} tuntia sitten",
+    "days_ago": "{count} päivää sitten"
+  },
+
+  "notifications": {
+    "title": "Ilmoitukset",
+    "description": "Täältä löydät tiliäsi ja palvelupyyntöjäsi koskevat ilmoitukset.",
+    "dismiss": "Selvä",
+    "removing": "Poistetaan...",
+    "emptyTitle": "Ei uusia ilmoituksia",
+    "emptyDescription": "Uudet ilmoitukset näkyvät täällä."
+  },
+
+  "app": {
+    "profile": "Profiili",
+    "notifications": "Ilmoitukset",
+    "calendar": "Kalenteri",
+    "rules": "Säännöt",
+    "manual": "Käyttöohje",
+    "orders": "Tilaukset",
+    "logout": "Kirjaudu ulos",
+    "login": "Kirjaudu sisään",
+    "openUserMenu": "Avaa käyttäjävalikko",
+    "profileAvatarAlt": "Käyttäjän profiilikuva",
+    "feedbackTitle": "Lähetä palautetta",
+    "feedbackLabel": "Palaute",
+    "feedbackPlaceholder": "Kerro meille, mitä mieltä olet palvelusta...",
+    "feedbackRequired": "Kirjoita viesti ennen lähettämistä.",
+    "sendFeedback": "Lähetä palaute",
+    "sending": "Lähetetään...",
+    "cancel": "Peruuta",
+    "close": "Sulje",
+    "giveFeedback": "Anna palautetta sovelluksesta",
+    "feedbackSent": "Viestisi on lähetetty. Kiitos palautteestasi!",
+    "feedbackSendFailed": "Viestin lähettäminen epäonnistui. Yritä uudelleen.",
+    "orderConfirmed": "Olet vahvistanut tilauksen."
+  },
+
+  "feedback": {
+    "reviews": "Arvostelut",
+    "customer_reviews": "Asiakasarvostelut",
+    "anonymous": "Anonyymi",
+    "close": "Sulje",
+    "loading": "Ladataan arvosteluja",
+    "no_written_reviews": "Ei kirjallisia arvosteluja",
+    "no_written_reviews_description": "Palveluntarjoajalle ei ole vielä jätetty kirjallisia arvosteluja."
   }
+
 }
 

@@ -258,10 +258,6 @@
     "days_ago": "{count} dagar sedan"
   },
 
-  "feedback": {
-    "no_written_reviews": "Inga skriftliga recensioner ännu!"
-  },
-
   "photoGallery": {
     "references": "Referenser",
     "add": "Lägg till",
@@ -546,6 +542,7 @@
     "confirmedOrders": "Bekräftade beställningar",
     "archivedOrders": "Arkiverade beställningar",
     "serviceProviders": "Tjänsteleverantörer",
+    "view": "Visa",
     "collectedOrders": "Sammanställda beställningar",
     "sentForOffers": "Beställningen skickades för att begära prisofferter",
     "sentToProvider": "Beställningen skickades till {provider}",
@@ -664,6 +661,117 @@
     "unknownUsername": "Okänt användarnamn",
     "noActiveConversation": "Ingen konversation har valts.",
     "uploadFailed": "Det gick inte att ladda upp filen."
+  },
+
+  "editProfile": {
+    "close": "Stäng profilredigeringen",
+    "firstName": "Förnamn",
+    "lastName": "Efternamn",
+    "username": "Användarnamn",
+    "newAddress": "Ange en ny adress",
+    "newEmail": "Ange en ny e-postadress",
+    "save": "Spara ändringar",
+    "selectAddressFromList": "Välj en adress från förslagslistan.",
+    "invalidEmail": "E-postadressen är ogiltig."
+  },
+
+  "payment": {
+    "payAmount": "Betala {amount}",
+    "payByCard": "Betala med kort",
+    "mastercardAlt": "Mastercard-betalning"
+  },
+
+  "payPlan": {
+    "title": "Välj en plan",
+    "description": "Välj det paket som passar dina behov och fortsätt till säker betalning.",
+    "close": "Stäng",
+    "recommended": "Mest populär",
+    "oneTimePayment": "Engångsbetalning",
+    "selectPlan": "Välj paket",
+    "day": "Dag",
+    "week": "Vecka",
+    "month": "Månad",
+    "sixMonths": "Sex månader",
+    "year": "År",
+    "oneDay": "1 dag",
+    "sevenDays": "7 dagar",
+    "oneMonth": "1 månad",
+    "sixMonthDuration": "6 månader",
+    "twelveMonthDuration": "12 månader"
+  },
+
+  "profile": {
+    "close": "Stäng profilen",
+    "avatar": "Profilbild",
+    "avatarAlt": "Användarens profilbild",
+    "avatarDescription": "Lägg till, byt eller ta bort din profilbild.",
+    "addAvatar": "Lägg till profilbild",
+    "editAvatar": "Byt profilbild",
+    "removeAvatar": "Ta bort profilbild",
+    "name": "Namn",
+    "username": "Användarnamn",
+    "address": "Adress",
+    "email": "E-post",
+    "editDetails": "Redigera dina uppgifter",
+    "emailAlreadyInUse": "E-postadressen används redan.",
+    "emailAndAddressUpdated": "E-postadressen och adressen uppdaterades.",
+    "emailUpdated": "E-postadressen uppdaterades.",
+    "addressUpdated": "Adressen uppdaterades.",
+    "avatarUploadFailed": "Det gick inte att ladda upp profilbilden.",
+    "avatarUpdateFailed": "Det gick inte att byta profilbilden.",
+    "avatarDeleteFailed": "Det gick inte att ta bort profilbilden.",
+    "invalidImageType": "Välj en JPEG-, PNG-, WebP- eller GIF-bild.",
+    "imageTooLarge": "Bilden får vara högst 1 MB."
+  },
+
+  "timekeeping": {
+    "minutes_ago": "{count} minuter sedan",
+    "hours_ago": "{count} timmar sedan",
+    "days_ago": "{count} dagar sedan"
+  },
+
+  "notifications": {
+    "title": "Aviseringar",
+    "description": "Här hittar du aviseringar om ditt konto och dina tjänsteförfrågningar.",
+    "dismiss": "Okej",
+    "removing": "Tar bort...",
+    "emptyTitle": "Inga nya aviseringar",
+    "emptyDescription": "Nya aviseringar visas här."
+  },
+
+  "app": {
+    "profile": "Profil",
+    "notifications": "Aviseringar",
+    "calendar": "Kalender",
+    "rules": "Regler",
+    "manual": "Bruksanvisning",
+    "orders": "Beställningar",
+    "logout": "Logga ut",
+    "login": "Logga in",
+    "openUserMenu": "Öppna användarmenyn",
+    "profileAvatarAlt": "Användarens profilbild",
+    "feedbackTitle": "Skicka respons",
+    "feedbackLabel": "Respons",
+    "feedbackPlaceholder": "Berätta vad du tycker om tjänsten...",
+    "feedbackRequired": "Skriv ett meddelande innan du skickar.",
+    "sendFeedback": "Skicka respons",
+    "sending": "Skickar...",
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "giveFeedback": "Ge respons om appen",
+    "feedbackSent": "Ditt meddelande har skickats. Tack för din respons!",
+    "feedbackSendFailed": "Meddelandet kunde inte skickas. Försök igen.",
+    "orderConfirmed": "Du har bekräftat beställningen."
+  },
+
+  "feedback": {
+    "reviews": "Omdömen",
+    "customer_reviews": "Kundomdömen",
+    "anonymous": "Anonym",
+    "close": "Stäng",
+    "loading": "Laddar omdömen",
+    "no_written_reviews": "Inga skriftliga omdömen",
+    "no_written_reviews_description": "Det finns ännu inga skriftliga omdömen om denna tjänsteleverantör."
   }
 
 }

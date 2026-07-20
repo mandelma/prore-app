@@ -2,6 +2,7 @@
     <MDBBtnClose
       white
       style="float: right; cursor: pointer; padding: 13px;"
+      :aria-label="t('editProfile.close')"
       @click="closeEditProfile"
   />
   <MDBContainer>
@@ -10,7 +11,7 @@
         <tbody>
         <tr>
           <td>
-            Etunimi:
+            {{ t("editProfile.firstName") }}:
           </td>
           <td>
             {{ profile.firstName }}
@@ -18,7 +19,7 @@
         </tr>
         <tr>
           <td>
-            Sukunimi:
+            {{ t("editProfile.lastName") }}:
           </td>
           <td>
             {{ profile.lastName }}
@@ -26,7 +27,7 @@
         </tr>
         <tr>
           <td>
-            Käyttäjätunnus:
+            {{ t("editProfile.username") }}:
           </td>
           <td>
             @{{ profile.username }}
@@ -35,14 +36,23 @@
         <tr v-show="isUserPro && provider">
           <td colspan="2">
             <p style="color:cornflowerblue;">{{ provider?.address }}</p>
-            <MDBInput
+            <!-- <MDBInput
                 size="md"
                 id="new-address"
                 placeholder=""
                 label="Anna uusi osoitteesi..."
                 v-model="pForm.address"
             />
-            <span v-if="pErrors.address" class="field-footer">{{ pErrors.address }}</span>
+            <span v-if="pErrors.address" class="field-footer">{{ pErrors.address }}</span> -->
+            <address-autocomplete
+              v-model="pForm.address"
+              v-model:valid="addressValid"
+              v-model:error="pErrors.address"
+              :label="t('editProfile.newAddress')"
+              :error="pErrors.address"
+              @typing="onAddressInput"
+              @place="onPlaceSelected"
+            />
           </td>
         </tr>
         <tr>
@@ -51,21 +61,20 @@
             <MDBInput
                 type="text"
                 size="md"
-                label="Anna uusi sähköpostisi"
+                :label="t('editProfile.newEmail')"
                 v-model="pForm.email"
             />
-            <span v-if="pErrors.email" class="field-footer">{{ pErrors.email }}</span>
+            <span v-if="pErrors.email" class="field-footer text-danger">{{ pErrors.email }}</span>
           </td>
         </tr>
         <tr>
           <td colspan="2">
-            <MDBBtn block size="md" color="success" :disabled="!pForm.email && !pForm.address" @click="saveProfileData">Tallenna tiedot</MDBBtn>
+            <MDBBtn block size="md" color="success" :disabled="isSaveDisabled" @click="saveProfileData">{{ t("editProfile.save") }}</MDBBtn>
           </td>
         </tr>
         </tbody>
       </MDBTable>
     </div>
-
   </MDBContainer>
 </template>
 <script setup>
@@ -76,19 +85,23 @@
         MDBBtnClose,
         MDBTable
     } from 'mdb-vue-ui-kit';
-    import { ref, onMounted, watch, reactive } from 'vue'
+    import { ref, onMounted, computed, watch, reactive } from 'vue'
     import { storeToRefs } from 'pinia';
-    import { loadGoogleMaps } from "./controllers/loadGoogleMap";
+    import { useI18n } from 'vue-i18n';
+    
     import { useLoginStore } from "@/stores/login";
     import { useProStore } from "@/stores/providerStore";
     import { useUserStore } from '@/stores/userStore';
+    import AddressAutocomplete from './AddressAutocomplete.vue';
 
     defineOptions({
         name: 'edit-profile'
     })
 
     const emit = defineEmits(['close-edit-profile', 'save:profile']);
-
+    const { t } = useI18n();
+    const addressValid = ref(false);
+    const selectedAddress = ref(null);
     const selectedPlace = ref(null);
 
     const pForm = reactive({
@@ -100,20 +113,39 @@
 
     const pErrors = reactive({});
 
+    const isSaveDisabled = computed(() => {
+      const email = pForm.email?.trim() ?? "";
+      const address = pForm.address?.trim() ?? "";
+
+      const allFieldsEmpty = !email && !address;
+      const emailIsInvalid = Boolean(email) && !isValidEmail(email);
+      const addressIsInvalid = Boolean(address) && !addressValid.value;
+
+      return allFieldsEmpty || emailIsInvalid || addressIsInvalid;
+    });
+        
+
     const validateAddress = () => {
+      const address = pForm.address?.trim();
 
-      if (!pForm.address) return;
-
-      if (pForm.lat === null || pForm.lng === null) {
-        return "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+      if (!address) {
+        return "";
       }
 
-      return;
+      if (
+        !addressValid.value ||
+        pForm.lat == null ||
+        pForm.lng == null
+      ) {
+        return t("editProfile.selectAddressFromList");
+      }
+
+      return "";
     };
 
     
 
-    watch(selectedPlace, (place) => {
+    /* watch(selectedPlace, (place) => {
       if (!place) return;
 
       pForm.address = place.address;
@@ -121,17 +153,33 @@
       pForm.lng = place.lng;
 
       pErrors.address = ""
-    });
+    }); */
 
-    watch(() => pForm.email, (val) => {
+    /* watch(() => pForm.email, (val) => {
       if (!val) {
         pErrors.email = "";
       } else if (!isValidEmail(val)) {
-        pErrors.email = "Sähköpostin osoite on virheellinen!";
+        pErrors.email = t("editProfile.invalidEmail");
       } else {
         pErrors.email = "";
       }
-    });
+    }); */
+
+    watch(
+      () => pForm.email,
+      value => {
+        const email = value?.trim() ?? "";
+
+        if (!email) {
+          pErrors.email = "";
+          return;
+        }
+
+        pErrors.email = isValidEmail(email)
+          ? ""
+          : t("editProfile.invalidEmail");
+      }
+    );
 
     
 
@@ -146,98 +194,73 @@
     const mapError = ref(false);
 
     onMounted(() => {
-        initGoogleMap();
+        
     })
 
     const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    
+    const onAddressInput = value => {
+      pForm.address = value;
+      pForm.lat = null;
+      pForm.lng = null;
+
+      selectedPlace.value = null;
+      addressValid.value = false;
+
+      pErrors.address = value.trim()
+        ? t("editProfile.selectAddressFromList")
+        : "";
+    };
+
+    const onPlaceSelected = place => {
+      if (!place) {
+        return;
+      }
+
+      selectedPlace.value = place;
+      pForm.address = place.address;
+      pForm.lat = place.lat;
+      pForm.lng = place.lng;
+
+      addressValid.value = true;
+      pErrors.address = "";
+    };
 
     const validateProfile = () => {
-
       pErrors.address = validateAddress();
 
-      //if (!pForm.email) {
-        
-        //pErrors.email = "Sähköposti on pakollinen!";
-      //} 
-      if (!pForm.email) pErrors.email = "";
-      if (!isValidEmail(pForm.email) && pForm.email) {
-        pErrors.email = "Sähköpostin osoite on virheellinen!";
-      } else {
-        pErrors.email = "";
-      }
+      const email = pForm.email?.trim() ?? "";
+
+      pErrors.email =
+        email && !isValidEmail(email)
+          ? t("editProfile.invalidEmail")
+          : "";
 
       return !pErrors.address && !pErrors.email;
     };
 
-    const initGoogleMap = async() => {
-      mapError.value = false;
-      try {
-        await loadGoogleMaps();
-        console.log("Map is inited in profile! ✅");
-        const center = { lat: 50.064192, lng: -130.605469 };
-        // Create a bounding box with sides ~10km away from the center point
-        const defaultBounds = {
-          north: center.lat + 0.1,
-          south: center.lat - 0.1,
-          east: center.lng + 0.1,
-          west: center.lng - 0.1,
-        };
-
-        const input = document.getElementById("new-address");
-
-        const options = {
-          bounds: defaultBounds,
-          componentRestrictions: { country: "fi" },
-          fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-          strictBounds: false,
-          //types: ["establishment"],
-        };
-        const autocomplete = new google.maps.places.Autocomplete(input, options);
-        // const autocomplete = client.places.autocomplete(input, options);
-
-        autocomplete.addListener("place_changed", () => {
-          let place = autocomplete.getPlace()
-          pForm.lat = place.geometry.location.lat()
-          pForm.lng = place.geometry.location.lng()
-
-          if (!place.geometry) {
-            selectedPlace.value = null;
-            return;
-          }
-
-          selectedPlace.value = {
-            address: place.formatted_address,
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng()
-          };
-
-          //pForm.address = place.formatted_address
-          console.log(place)
-        })
-      } catch (err) {
-        console.error('Google Maps failed to load ❌', err);
-        mapError.value = true;
-        /* mapToastModel.value = true;
-        mapToastState.value = 'danger';
-        mapToastIcon.value = 'fas fa-check fa-lg me-2';
-        mapToastContent = 'Internet yhteys puuttuu!'; */
-      }
-    }
-
     const saveProfileData = () => {
-        if (!validateProfile()) {
-            console.log("--ERROR--")
-        } else {
-            console.log("OK");
-            const newProfileData = {
-                address: pForm.address,
-                email: pForm.email
-            }
-            emit('save:profile', newProfileData);
-        }
-    }
+      if (!validateProfile()) {
+        return;
+      }
+
+      const newProfileData = {};
+
+      const email = pForm.email?.trim();
+      const address = pForm.address?.trim();
+
+      if (email) {
+        newProfileData.email = email;
+      }
+
+      if (address) {
+        newProfileData.address = address;
+        newProfileData.lat = pForm.lat;
+        newProfileData.lng = pForm.lng;
+      }
+
+      emit("save:profile", newProfileData);
+    };
 
     const closeEditProfile = () => {
         emit('close-edit-profile')

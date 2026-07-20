@@ -219,10 +219,6 @@
         "days_ago": "{count} дней назад"
     },
 
-    "feedback": {
-        "no_written_reviews": "Письменных отзывов пока нет!"
-    },
-
     "photoGallery": {
         "references": "Референсы",
         "add": "Добавить",
@@ -507,6 +503,7 @@
         "confirmedOrders": "Подтверждённые заказы",
         "archivedOrders": "Архивные заказы",
         "serviceProviders": "Исполнители",
+        "view": "Показать",
         "collectedOrders": "Сводные заказы",
         "sentForOffers": "Заказ отправлен для получения ценовых предложений",
         "sentToProvider": "Заказ отправлен исполнителю {provider}",
@@ -625,5 +622,116 @@
         "unknownUsername": "Неизвестное имя пользователя",
         "noActiveConversation": "Беседа не выбрана.",
         "uploadFailed": "Не удалось загрузить файл."
+    },
+
+    "editProfile": {
+        "close": "Закрыть редактирование профиля",
+        "firstName": "Имя",
+        "lastName": "Фамилия",
+        "username": "Имя пользователя",
+        "newAddress": "Введите новый адрес",
+        "newEmail": "Введите новый адрес электронной почты",
+        "save": "Сохранить изменения",
+        "selectAddressFromList": "Выберите адрес из списка предложений.",
+        "invalidEmail": "Адрес электронной почты указан неверно."
+    },
+
+    "payment": {
+        "payAmount": "Оплатить {amount}",
+        "payByCard": "Оплатить картой",
+        "mastercardAlt": "Оплата Mastercard"
+    },
+
+    "payPlan": {
+        "title": "Выберите тариф",
+        "description": "Выберите подходящий пакет и перейдите к безопасной оплате.",
+        "close": "Выйти",
+        "recommended": "Популярный",
+        "oneTimePayment": "Разовый платёж",
+        "selectPlan": "Выбрать пакет",
+        "day": "День",
+        "week": "Неделя",
+        "month": "Месяц",
+        "sixMonths": "Шесть месяцев",
+        "year": "Год",
+        "oneDay": "1 день",
+        "sevenDays": "7 дней",
+        "oneMonth": "1 месяц",
+        "sixMonthDuration": "6 месяцев",
+        "twelveMonthDuration": "12 месяцев"
+    },
+
+    "profile": {
+        "close": "Закрыть профиль",
+        "avatar": "Фотография профиля",
+        "avatarAlt": "Фотография профиля пользователя",
+        "avatarDescription": "Добавьте, измените или удалите фотографию профиля.",
+        "addAvatar": "Добавить фотографию",
+        "editAvatar": "Изменить фотографию",
+        "removeAvatar": "Удалить фотографию",
+        "name": "Имя",
+        "username": "Имя пользователя",
+        "address": "Адрес",
+        "email": "Электронная почта",
+        "editDetails": "Изменить данные",
+        "emailAlreadyInUse": "Этот адрес электронной почты уже используется.",
+        "emailAndAddressUpdated": "Адрес электронной почты и адрес успешно обновлены.",
+        "emailUpdated": "Адрес электронной почты успешно обновлён.",
+        "addressUpdated": "Адрес успешно обновлён.",
+        "avatarUploadFailed": "Не удалось загрузить фотографию профиля.",
+        "avatarUpdateFailed": "Не удалось изменить фотографию профиля.",
+        "avatarDeleteFailed": "Не удалось удалить фотографию профиля.",
+        "invalidImageType": "Выберите изображение JPEG, PNG, WebP или GIF.",
+        "imageTooLarge": "Размер изображения не должен превышать 1 МБ."
+    },
+
+    "timekeeping": {
+        "minutes_ago": "{count} минут назад",
+        "hours_ago": "{count} часов назад",
+        "days_ago": "{count} дней назад"
+    },
+
+    "notifications": {
+        "title": "Уведомления",
+        "description": "Здесь находятся уведомления, связанные с вашей учётной записью и запросами на услуги.",
+        "dismiss": "Понятно",
+        "removing": "Удаление...",
+        "emptyTitle": "Новых уведомлений нет",
+        "emptyDescription": "Новые уведомления появятся здесь."
+    },
+
+    "app": {
+        "profile": "Профиль",
+        "notifications": "Уведомления",
+        "calendar": "Календарь",
+        "rules": "Правила",
+        "manual": "Руководство",
+        "orders": "Заказы",
+        "logout": "Выйти",
+        "login": "Войти",
+        "openUserMenu": "Открыть меню пользователя",
+        "profileAvatarAlt": "Фотография профиля пользователя",
+        "feedbackTitle": "Отправить отзыв",
+        "feedbackLabel": "Отзыв",
+        "feedbackPlaceholder": "Расскажите, что вы думаете о сервисе...",
+        "feedbackRequired": "Введите сообщение перед отправкой.",
+        "sendFeedback": "Отправить отзыв",
+        "sending": "Отправка...",
+        "cancel": "Отмена",
+        "close": "Закрыть",
+        "giveFeedback": "Оставить отзыв о приложении",
+        "feedbackSent": "Ваше сообщение отправлено. Спасибо за отзыв!",
+        "feedbackSendFailed": "Не удалось отправить сообщение. Попробуйте ещё раз.",
+        "orderConfirmed": "Вы подтвердили заказ."
+    },
+
+    "feedback": {
+        "reviews": "Отзывы",
+        "customer_reviews": "Отзывы клиентов",
+        "anonymous": "Аноним",
+        "close": "Закрыть",
+        "loading": "Загрузка отзывов",
+        "no_written_reviews": "Письменных отзывов пока нет",
+        "no_written_reviews_description": "Для этого исполнителя пока не оставлено ни одного письменного отзыва."
     }
 }

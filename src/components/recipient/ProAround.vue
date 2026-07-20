@@ -6,7 +6,7 @@
       
       <div v-show="isMainPanel" class="client-map-panel">
         <div class="panel-header">
-          <button class="panel-refresh" @click="refreshMapState">{{ tr("proAround.refresh") }}</button>
+          <button class="panel-refresh" @click="refreshMapState">{{ t("proAround.refresh") }}</button>
 
           <div class="panel-actions">
             <MDBIcon size="lg" class="panel-icon" @click="isMainPanel = false">
@@ -22,7 +22,7 @@
             <MDBInput
               size="sm"
               v-model="address"
-              :label="tr('proAround.addressLabel')"
+              :label="t('proAround.addressLabel')"
               id="client-input"
               wrapperClass="form-outline flex-grow-3"
               :inputClass="'ps-0'"
@@ -45,7 +45,7 @@
             optionLabel="label"
             optionGroupLabel="label"
             optionGroupChildren="items"
-            :placeholder="tr('proAround.professionalPlaceholder')"
+            :placeholder="t('proAround.professionalPlaceholder')"
             showClear
             :class="['modern-select', { 'field-error': isNoPro }]"
           >
@@ -62,16 +62,16 @@
             </template>
           </Select>
 
-          <p v-if="panelProError" class="error-text">{{ tr("proAround.professionRequired") }}</p>
+          <p v-if="panelProError" class="error-text">{{ t("proAround.professionRequired") }}</p>
         </div>
 
         <div :class="{ hideDistSelectPanel: !isDistSelection }">
-          <p class="section-label">{{ tr("proAround.selectDateOrNow") }}</p>
+          <p class="section-label">{{ t("proAround.selectDateOrNow") }}</p>
 
           <div class="field-wrapper">
             <MDBDateTimepicker
               size="md"
-              :label="tr('proAround.dateTimeLabel')"
+              :label="t('proAround.dateTimeLabel')"
               v-model="dt"
               :toggleButton="false"
               inputToggle
@@ -83,7 +83,7 @@
           </div>
 
           <MDBCheckbox
-            :label="tr('proAround.now')"
+            :label="t('proAround.now')"
             name="selection"
             v-model="isDateNow"
             value="true"
@@ -97,21 +97,21 @@
           size="md"
           v-model:selected="selectedRange"
           :options="rangeOptions"
-          :label="tr('proAround.searchArea')"
+          :label="t('proAround.searchArea')"
           id="distance"
           class="modern-mdb-select"
         />
 
-        <p v-if="panelRangeError" class="error-text">{{ tr("proAround.distanceRequired") }}</p>
+        <p v-if="panelRangeError" class="error-text">{{ t("proAround.distanceRequired") }}</p>
 
         <div class="panel-footer">
           <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="empty-text">
-            {{ tr("proAround.noProfessionals") }}
+            {{ t("proAround.noProfessionals") }}
           </p>
           <span v-else></span>
 
           <MDBBtn color="primary" size="sm" class="search-btn" @click="onGetProviders">
-            {{ tr("proAround.search") }}
+            {{ t("proAround.search") }}
           </MDBBtn>
         </div>
       </div>
@@ -123,7 +123,7 @@
         style="position: absolute; opacity: 0.8; top: 60px; left: 10px; z-index: 2;"
         @click="isMainPanel = true"
       >
-        {{ tr("proAround.selection") }}
+        {{ t("proAround.selection") }}
       </MDBBtn>
       
     </div>
@@ -139,7 +139,7 @@
             toast="success"
             icon="fas fa-check fa-lg me-2"
         >
-          <template #title>{{ tr("proAround.requestSent") }}</template>
+          <template #title>{{ t("proAround.requestSent") }}</template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
           <template #small></template>
           <p>{{ rs_success_msg }}</p>
@@ -191,14 +191,14 @@
 
     <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
       <div class="location-error-box">
-        {{ tr("proAround.locationFetchFailed") }}
+        {{ t("proAround.locationFetchFailed") }}
       </div>
     </div>
 
     <div v-show="!!startPos" id="map"></div>
 
     <div v-if="!!startPos && isLocating" class="locating-badge">
-      {{ tr("proAround.updatingLocation") }}
+      {{ t("proAround.updatingLocation") }}
     </div>
   </div>
 </template>
@@ -240,7 +240,7 @@ defineOptions({
 })
 
 const emit = defineEmits([ 'open-chat' ]);
-const { tr } = useI18n();
+const { t } = useI18n();
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
@@ -619,7 +619,7 @@ const showUserMarker = (lat, lng) => {
     userMarker = new google.maps.Marker({
       position: { lat, lng },
       map,
-      title: tr("proAround.yourLocation"),
+      title: t("proAround.yourLocation"),
       icon: circleMarker('darkgrey')
     });
   } else {
@@ -811,14 +811,6 @@ const otherUserLocations = async (providers, profession, dist) => {
     const infowindow = new google.maps.InfoWindow({
       pixelOffset: new google.maps.Size(0, -10)
     });
-
-    /* let starsApp = null;
-    let referenceApp = null;
-    let currentProvider = null;
-    let currentProviderIndex = null;
-    let currentMatching = false;
-    let isOpenReferences = false;
-    let currentPos = null; */
 
     let starsApp = null;
     let referenceApp = null;
@@ -1021,7 +1013,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                 .map(f => `
                   <div class="feedback-item">
                     <div class="feedback-meta">
-                      <span class="feedback-sender">${escapeHtml(f.sender || tr("proAround.unknown"))}</span>
+                      <span class="feedback-sender">${escapeHtml(f.sender || t("proAround.unknown"))}</span>
                       <span class="feedback-date">${new Date(f.date).toLocaleString("fi-FI")}</span>
                     </div>
                     <div class="feedback-text">${escapeHtml(f.text)}</div>
@@ -1030,7 +1022,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                 .join("");
             
               const orderButton = provider.id !== providerId.value && otherChatUsers.value[provider?.user?.id]
-                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">${tr("proAround.order")}</button>`
+                ? `<button class="order-btn" onclick="myGlobalFunction(${p})">${t("proAround.order")}</button>`
                 : `<div class="order-btn-placeholder"></div>`;
 
               const chatButton = provider.id !== providerId.value
@@ -1041,7 +1033,7 @@ const otherUserLocations = async (providers, profession, dist) => {
 
               const referenceBtn = `
                 <div class="reference-btn" onclick="myReferenceFunction(${p})">
-                  ${isOpenReferences ? tr("proAround.closeWorkSamples") : tr("proAround.openWorkSamples")}
+                  ${isOpenReferences ? t("proAround.closeWorkSamples") : t("proAround.openWorkSamples")}
                 </div>
               `;
               infowindow.setContent(`
@@ -1051,7 +1043,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                   <div class="header">
                     <div class="stars" id="stars-mount"></div>
                     <div class="raters-count text-semibold small">
-                      / ${providers[p].proAround.raters}
+                      / ${providers[p].ratersCount}
                     </div>
                   </div>
                   <table class="info-table" role="presentation">
@@ -1061,7 +1053,7 @@ const otherUserLocations = async (providers, profession, dist) => {
                         ${
                           feedbackHtml
                             ? `
-                              <button class="bottom-btn" onclick="toggleFeedback()"> ${tr("proAround.feedback")} </button>
+                              <button class="bottom-btn" onclick="toggleFeedback()"> ${t("proAround.feedback")} </button>
                               
                             `
                             : ""
@@ -1070,32 +1062,32 @@ const otherUserLocations = async (providers, profession, dist) => {
                     </tr>
                   </table>
                   <div id="feedback-section" class="feedback-section" style="display:none;">
-                    <div class="feedback-title">${tr("proAround.feedbackCloseHint")}</div>
+                    <div class="feedback-title">${t("proAround.feedbackCloseHint")}</div>
                     <div class="feedback-list">
                       ${feedbackHtml}
                     </div>
                   </div>
                   <table class="info-table" role="presentation">
                     <tr>
-                      <th>${tr("proAround.availability")}</th>
-                      <td>${currentMatching || providers[p].status === 'Saatavilla' ? tr("proAround.available") : tr("proAround.negotiable")}</td>
+                      <th>${t("proAround.availability")}</th>
+                      <td>${currentMatching || providers[p].status === 'Saatavilla' ? t("proAround.available") : t("proAround.negotiable")}</td>
                     </tr>
                     <tr>
-                      <th>${tr("proAround.profession")}</th>
+                      <th>${t("proAround.profession")}</th>
                       <td>${providers[p].profession.join(', ')}</td>
                     </tr>
                     <tr>
-                      <th>${tr("proAround.information")}</th>
-                      <td><span class="info-link">${tr("proAround.website")}</span></td>
+                      <th>${t("proAround.information")}</th>
+                      <td><span class="info-link">${t("proAround.website")}</span></td>
                     </tr>
                     <tr>
                       <th>${providers[p].priceByHour 
-                        ? tr('proAround.hourlyRate') : tr('proAround.contractPrice')}</th>
+                        ? t('proAround.hourlyRate') : t('proAround.contractPrice')}</th>
                       <td>
-                        ${providers[p].priceByHour ? tr("proAround.currencyEur", {
+                        ${providers[p].priceByHour ? t("proAround.currencyEur", {
                           amount: providers[p].priceByHour
                         }) 
-                        : tr("proAround.negotiable")}
+                        : t("proAround.negotiable")}
                       </td>
                     </tr>
                     <tr>

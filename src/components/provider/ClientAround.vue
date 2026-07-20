@@ -703,20 +703,26 @@ const otherUserLocations = (recipients, profession, dist) => {
   console.log("Users count: " + recipients.length);
   console.log("Current distance " + dist)
 
-  let count = 0;
-  if (recipients.filter(client => client.status === 'active').length > 0) {
+  //let count = 0;
+  /* if (recipients.filter(client => client.status === 'active').length > 0) {
     let recipientCount = [];
     for (let pos = 0; pos < recipients.filter(client => client.status === 'active').length; pos++) {
+      console.log("Client professions - ", recipients[pos].professional)
+      console.log("ZZZZZZZZZ " + profession + " -- " + recipients[pos].header)
 
+      if (recipients[pos].professional[0] === profession) {
+        console.log("YES ")
+      }
       recipients[pos].professional.forEach(prof => {
         if (prof === profession) {
           console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude));
-          
+          console.log("---------")
           if (!recipientCount.includes(recipients[pos].user))
             recipientCount.push(recipients[pos].user);
 
           if (distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude) <= dist) {
             count ++;
+            console.log("XXXXXX")
             addClientMarker(recipients[pos], 'green', 'green');
             
           }
@@ -733,7 +739,42 @@ const otherUserLocations = (recipients, profession, dist) => {
       console.log("There are not any recipient")
     }
     selectedClientsCount.value = count;
+  } */
+
+  const activeRecipients = recipients.filter(
+    recipient => recipient.status === "active"
+  );
+
+  let count = 0;
+  const recipientCount = [];
+
+  for (const recipient of activeRecipients) {
+    const matchesProfession =
+      recipient.professional?.includes(profession);
+
+    if (!matchesProfession) {
+      continue;
+    }
+
+    const distance = distanceBtw(
+      myLat.value,
+      myLng.value,
+      recipient.latitude,
+      recipient.longitude
+    );
+
+    if (!recipientCount.includes(recipient.user)) {
+      recipientCount.push(recipient.user);
+    }
+
+    if (distance <= dist) {
+      count++;
+      addClientMarker(recipient, "green", "green");
+    }
   }
+
+  isClients.value = count > 0;
+  selectedClientsCount.value = count;
 
 }
 

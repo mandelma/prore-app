@@ -109,20 +109,7 @@ function onUserInput(event) {
   emit("typing", value);
 }
 
-const myCurrentLocation__ = async () => {
-  if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by this browser.");
-    return;
-  }
-  
-  navigator.geolocation.getCurrentPosition(position => {
-    const { latitude, longitude } = position.coords;
-    latLocal.value = latitude
-    lngLocal.value = longitude
-    showClientLocationData (latitude, longitude)
-  });
-  
-}
+
 
 const myCurrentLocation = () => {
   if (!navigator.geolocation) {
@@ -142,30 +129,6 @@ const myCurrentLocation = () => {
     }
   );
 };
-
-
-const showClientLocationData__ = (lat, long) => {
-  axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat +
-      "," + long
-      + "&key=" + import.meta.env.VITE_APP_MAP_KEY)
-      .then(response => {
-        if (response.data.error_message) {
-          //this.error = response.data.error_message;
-
-          console.log(response.data.error_message)
-        } else {
-          //form.address = response.data.results[1].formatted_address;
-          
-          console.log("Address now " + response.data.results[1].formatted_address);
-          localValue.value = response.data.results[1].formatted_address;
-        }
-
-      })
-      .catch(error => {
-        //this.error = error.message
-        console.log(error.message)
-      })
-}
 
 const showClientLocationData = async (lat, lng) => {
   try {
@@ -255,7 +218,7 @@ const initMap = async () => {
     const options = {
       bounds: defaultBounds,
       componentRestrictions: {
-        country: "fi"
+        country: ["fi", "se"]
       },
       fields: [
         "address_components",

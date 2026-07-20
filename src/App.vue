@@ -31,7 +31,11 @@
           <!--User-->
           <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
-              <MDBDropdownToggle tag="a" class="nav-link" @click="userDropdown = !userDropdown">
+              <MDBDropdownToggle 
+                tag="a" class="nav-link" 
+                :aria-label="t('app.openUserMenu')"
+                @click="userDropdown = !userDropdown"
+              >
                 <template v-if="profileLoaded">
                   <MDBIcon v-if="!profile?.avatar?.isImage || avatarError" icon="user" class="icon" />
                 
@@ -40,7 +44,7 @@
                     :src="profile.avatar.imageUrl"
                     class="rounded-circle"
                     height="22"
-                    alt=""
+                    :alt="t('app.profileAvatarAlt')"
                     loading="lazy"
                     @error="avatarError = true"
                   />
@@ -50,33 +54,72 @@
               </MDBDropdownToggle>
               <MDBDropdownMenu class="dropdown-menu" >
 
-                <MDBDropdownItem :tag="RouterLink" to="/profile" class="dd-item">
-                  Profile
+                <MDBDropdownItem
+                  :tag="RouterLink"
+                  to="/profile"
+                  class="dd-item"
+                >
+                  {{ t("app.profile") }}
                 </MDBDropdownItem>
 
-                <MDBDropdownItem v-if="notifications.length" :tag="RouterLink" to="/notifications" class="dd-item" @click="handleShowNotifications">
-                  Viestit
-                  <MDBBadge v-if="newNotesCount > 0" color="danger" class="ms-2">{{ newNotesCount }}</MDBBadge>
+                <MDBDropdownItem
+                  v-if="notifications.length"
+                  :tag="RouterLink"
+                  to="/notifications"
+                  class="dd-item"
+                  @click="handleShowNotifications"
+                >
+                  {{ t("app.notifications") }}
+
+                  <MDBBadge
+                    v-if="newNotesCount > 0"
+                    color="danger"
+                    class="ms-2"
+                  >
+                    {{ newNotesCount }}
+                  </MDBBadge>
                 </MDBDropdownItem>
 
-                <MDBDropdownItem :tag="RouterLink" to="/calendar" class="dd-item">
-                  Kalenteri
+                <MDBDropdownItem
+                  :tag="RouterLink"
+                  to="/calendar"
+                  class="dd-item"
+                >
+                  {{ t("app.calendar") }}
                 </MDBDropdownItem>
 
-                <MDBDropdownItem :tag="RouterLink" to="/rules" class="dd-item">
-                  Säännöt
+                <MDBDropdownItem
+                  :tag="RouterLink"
+                  to="/rules"
+                  class="dd-item"
+                >
+                  {{ t("app.rules") }}
                 </MDBDropdownItem>
 
-                <MDBDropdownItem :tag="RouterLink" to="/manual" class="dd-item">
-                  Manual
+                <MDBDropdownItem
+                  :tag="RouterLink"
+                  to="/manual"
+                  class="dd-item"
+                >
+                  {{ t("app.manual") }}
                 </MDBDropdownItem>
 
-                <MDBDropdownItem v-if="client.isBookings || clientArchiveStore.clientHistory.length" :tag="RouterLink" to="/client-panel" class="dd-item">
-                  Tilaukset
+                <MDBDropdownItem
+                  v-if="client.isBookings || clientArchiveStore.clientHistory.length"
+                  :tag="RouterLink"
+                  to="/client-panel"
+                  class="dd-item"
+                >
+                  {{ t("app.orders") }}
                 </MDBDropdownItem>
 
-                <MDBDropdownItem :tag="RouterLink" to="/" @click="logOut" class="dd-item">
-                  Kirjaudu ulos
+                <MDBDropdownItem
+                  :tag="RouterLink"
+                  to="/"
+                  class="dd-item"
+                  @click="logOut"
+                >
+                  {{ t("app.logout") }}
                 </MDBDropdownItem>
 
               </MDBDropdownMenu>
@@ -84,7 +127,7 @@
           </MDBNavbarItem>
 
           <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
-            {{t('login')}}
+            {{t('app.login')}}
           </MDBNavbarItem>
         </MDBNavbarNav>
       </div>
@@ -92,32 +135,80 @@
 
     <MDBModal
       id="contactModal"
+      v-model="contactModal"
       side="bottom"
       position="bottom-left"
-      
       tabindex="-1"
       labelledby="contactModalLabel"
-      v-model="contactModal"
     >
       <MDBModalHeader class="modal-header-custom">
-        <MDBModalTitle id="contactModalLabel"> Uusi viesti </MDBModalTitle>
+        <MDBModalTitle id="contactModalLabel">
+          {{ t("app.feedbackTitle") }}
+        </MDBModalTitle>
       </MDBModalHeader>
+
       <MDBModalBody>
-        <form class="form-card">
+        <form
+          class="form-card"
+          @submit.prevent="sendClientMessage"
+        >
           <div class="mb-3">
-            <h6 class="col-form-label" style="color: orange;">PROKEIKKATORI</h6>
-            
+            <h6 class="brand-label">
+              PROKEIKKATORI
+            </h6>
           </div>
+
           <div class="mb-3">
-            <label for="message-text" class="col-form-label" style="color: #ddd;">Palautetta</label>
-            <textarea class="form-control" id="message-text" placeholder="Kerro meille mitä mieltä olet palvelusta..." v-model="contactMessage"></textarea>
-            <p v-if="messageFieldError" class="text-danger">Viesti on pakollinen</p>
+            <label
+              for="message-text"
+              class="col-form-label"
+            >
+              {{ t("app.feedbackLabel") }}
+            </label>
+
+            <textarea
+              id="message-text"
+              v-model="contactMessage"
+              class="form-control feedback-textarea"
+              :placeholder="t('app.feedbackPlaceholder')"
+              :aria-invalid="messageFieldError"
+              :aria-describedby="
+                messageFieldError
+                  ? 'message-error'
+                  : undefined
+              "
+            />
+
+            <p
+              v-if="messageFieldError"
+              id="message-error"
+              class="text-danger mt-2"
+            >
+              {{ t("app.feedbackRequired") }}
+            </p>
           </div>
         </form>
       </MDBModalBody>
+
       <MDBModalFooter class="footer-buttons">
-        <MDBBtn color="secondary" @click="contactModal = false"> poistu </MDBBtn>
-        <MDBBtn color="primary" @click="sendClientMessage"> Lähetä viesti </MDBBtn>
+        <MDBBtn
+          color="secondary"
+          @click="closeContactModal"
+        >
+          {{ t("app.cancel") }}
+        </MDBBtn>
+
+        <MDBBtn
+          color="primary"
+          :disabled="isSendingContactMessage"
+          @click="sendClientMessage"
+        >
+          {{
+            isSendingContactMessage
+              ? t("app.sending")
+              : t("app.sendFeedback")
+          }}
+        </MDBBtn>
       </MDBModalFooter>
     </MDBModal>
 
@@ -130,7 +221,7 @@
       toast="success"
       icon="fas fa-check fa-lg me-2"
     >
-      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" :aria-label="t('app.close')" @click="hideError"></button>
       <template #title> PROKEIKKATORI </template>
       <!-- <template #small> 11 mins ago </template> -->
       {{ confirmedOrderMessage }}
@@ -145,7 +236,7 @@
       toast="success"
       icon="fas fa-check fa-lg me-2"
     >
-      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
+      <button type="button" style="visibility: hidden;" class="btn-close ms-auto" :aria-label="t('app.close')" @click="hideError"></button>
       <template #title> PROKEIKKATORI </template>
       <!-- <template #small> 11 mins ago </template> -->
       {{ contactSentMessage }}
@@ -160,7 +251,7 @@
             :is="Component"
             :days="weekdays"
             :bookings="bookings"
-            @createBookingMultiple="handleCreateBookingMultiple"
+            @create-booking-multiple="handleCreateBookingMultiple"
             @over="handleOver"
 
             @open-chat="handleOpenChat"
@@ -171,8 +262,8 @@
 
             :provider="provider"
 
-            :offersIn="incomingOffers ?? []"
-            :isPro="isUserPro ?? false"
+            :offers-in="incomingOffers ?? []"
+            :is-pro="isUserPro ?? false"
             :credit="provider?.proTime ?? 0"
           />
         </div>
@@ -192,8 +283,8 @@
     <!-- && conversations.length -->
       <chat-widget 
         v-if="login.isAuthenticated && conversations.length"
-        :didDrag="didDrag"
-        :launcherPos="widgetAnchor"
+        :did-drag="didDrag"
+        :launcher-pos="widgetAnchor"
         :is-open-mode="conversationStore.openChat"
         @start-drag="startDrag"
         @request-open="openChatFromLauncher"
@@ -201,11 +292,6 @@
       />
     </div>
     
-    
-    
-    <!--  Processed {{ processedActions }}
-    <MDBBtn color="info" @click="doAction">Action</MDBBtn>
-    -->
     <MDBFooter
 
         bg="none"
@@ -217,7 +303,13 @@
         <!-- Section: CTA -->
        <section v-if="login.isAuthenticated" class="">
         <p class="d-flex justify-content-left align-items-center">
-          <MDBBtn outline="light" rounded @click="contactModal = true"> Palauttetta sovelluksesta</MDBBtn>
+          <MDBBtn
+            outline="light"
+            rounded
+            @click="contactModal = true"
+          >
+            {{ t("app.giveFeedback") }}
+          </MDBBtn>
         </p>
        </section>
         <!-- Section: CTA -->
@@ -231,7 +323,7 @@
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
       >
-        © 2026 Copyright
+        © {{ currentYear }} PROKEIKKATORI
       </div>
       <!-- Copyright -->
     </MDBFooter>
@@ -242,9 +334,9 @@
 <script setup>
 import {
   MDBBtn,
-  MDBDateTimepicker,
+  //MDBDateTimepicker,
   MDBNavbar,
-  MDBNavbarToggler,
+  //MDBNavbarToggler,
   MDBNavbarBrand,
   MDBNavbarItem,
   MDBNavbarNav,
@@ -254,8 +346,8 @@ import {
   MDBDropdownToggle,
   MDBIcon,
   MDBBadge,
-  MDBInput,
-  MDBCollapse,
+  //MDBInput,
+  //MDBCollapse,
   MDBToast,
   MDBModal,
   MDBModalHeader,
@@ -266,12 +358,13 @@ import {
   MDBContainer
 } from 'mdb-vue-ui-kit';
 
-import { ref, watch, onMounted, onBeforeMount,  computed, onUnmounted, nextTick } from "vue";
+import { ref, watch, onMounted, computed, onUnmounted, nextTick } from "vue";
 import { storeToRefs } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
-import language from './components/LanguageContents.vue'
-import userService from './service/users.js';
-import loginService from './service/login.js';
+//import language from './components/LanguageContents.vue'
+//import userService from './service/users.js';
+//import loginService from './service/login.js';
+import LanguageContents from "@/components/LanguageContents.vue";
 import ChatWidget from './components/ChatWidget.vue';
 import contactService from './service/contact.js';
 import { useLoginStore } from "@/stores/login.js";
@@ -285,8 +378,7 @@ import { useProArchiveStore } from './stores/pArchiveStore';
 import { useMapStore } from './stores/mapStore';
 
 
-import {useI18n} from "vue-i18n/dist/vue-i18n";
-import LanguageContents from "@/components/LanguageContents.vue";
+import { useI18n } from 'vue-i18n';
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
 import recipientService from './service/recipients.js';
 import providerService from './service/providers.js';
@@ -307,7 +399,7 @@ const login = useLoginStore();
 import { useRoute, useRouter } from "vue-router";
 //import ProHistory from '../server/models/provider_history';
 const { t } = useI18n();
-
+const currentYear = new Date().getFullYear();
 const userStore = useUserStore();
 const client = useClientStore();
 const handleProvider = useProStore();
@@ -356,6 +448,8 @@ let activePointerId = null;
 
 let isListening = false;
 
+const isSendingContactMessage = ref(false);
+
 
 const preOpenPos = ref(null);
 const wasNormalizedForOpen = ref(false);
@@ -394,9 +488,6 @@ function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
 
   const winW = Math.min(360, viewportW - sideMargin * 2);
   const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
-  /* const winH = isMobile
-  ? viewportH - topMargin - bottomMargin
-  : Math.min(520, viewportH - topMargin - bottomMargin); */
 
   const leftOffset = side === "left"
     ? -winW - gap + buttonW
@@ -529,51 +620,6 @@ const sendUserAction = (type = 'generic-update') => {
   processedActions.value.add(action.id);
   socket.emit("user-action", action);
 }
-const applyUserAction = (userId) => {
-  console.log("Apply action!!");
-  //this.handleUpdate(userId);
-}
-
-const snapAnchorToOpenWindow = () => {
-  if (!conversationStore.openChat) return;
-
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-  const side = currentOpenSide.value || "right";
-
-  const g = getChatWindowGeometry({
-    x: pos.value.x,
-    y: pos.value.y,
-    viewportW,
-    viewportH,
-    side
-  });
-
-  // Clamp the WINDOW rectangle first
-  let windowLeft = g.absLeft;
-  let windowTop = g.absTop;
-
-  if (windowLeft < g.sideMargin) {
-    windowLeft = g.sideMargin;
-  }
-  if (windowLeft + g.winW > viewportW - g.sideMargin) {
-    windowLeft = viewportW - g.sideMargin - g.winW;
-  }
-
-  if (windowTop < g.topMargin) {
-    windowTop = g.topMargin;
-  }
-  if (windowTop + g.winH > viewportH - g.bottomMargin) {
-    windowTop = viewportH - g.bottomMargin - g.winH;
-  }
-
-  // Rebuild launcher/wrapper anchor from window position
-  const snappedX = windowLeft - g.leftOffset;
-  const snappedY = windowTop - g.topOffset;
-
-  pos.value.x = snappedX;
-  pos.value.y = snappedY;
-};
 
 const stopDrag = (e) => {
   if (activePointerId !== null && e.pointerId !== activePointerId) return;
@@ -591,90 +637,6 @@ const stopDrag = (e) => {
   }, 80);
 };
 
-
-const normalizeWidgetPositionForOpen = (side = "right") => {
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-
-  const g = getChatWindowGeometry({
-    x: pos.value.x,
-    y: pos.value.y,
-    viewportW,
-    viewportH,
-    side
-  });
-
-  let nextX = pos.value.x;
-  let nextY = pos.value.y;
-
-  // ---- Horizontal normalization ----
-  // If window opens to the left, shift wrapper left immediately
-  // so the drag area is already aligned with the open window.
-  if (side === "left") {
-    nextX = Math.min(
-      nextX,
-      viewportW - g.sideMargin - g.winW
-    );
-  } else {
-    nextX = Math.max(
-      nextX,
-      g.sideMargin
-    );
-  }
-
-  // Recompute using tentative X
-  let gx = getChatWindowGeometry({
-    x: nextX,
-    y: nextY,
-    viewportW,
-    viewportH,
-    side
-  });
-
-  if (gx.absLeft < gx.sideMargin) {
-    nextX += gx.sideMargin - gx.absLeft;
-  }
-  if (gx.absRight > viewportW - gx.sideMargin) {
-    nextX -= gx.absRight - (viewportW - gx.sideMargin);
-  }
-
-  // ---- Vertical normalization ----
-  let gy = getChatWindowGeometry({
-    x: nextX,
-    y: nextY,
-    viewportW,
-    viewportH,
-    side
-  });
-
-  if (gy.absTop < gy.topMargin) {
-    nextY += gy.topMargin - gy.absTop;
-  }
-  if (gy.absBottom > viewportH - gy.bottomMargin) {
-    nextY -= gy.absBottom - (viewportH - gy.bottomMargin);
-  }
-
-  pos.value.x = nextX;
-  pos.value.y = nextY;
-};
-
-const doAction = () => {
-  console.log("Action");
-  sendUserAction();
-}
-const openChatFromLauncher__ = async ({ side } = {}) => {
-  normalizeWidgetPositionForOpen(side || "right");
-  await nextTick();
-  conversationStore.openChatWidget();
-};
-
-/* const openChatFromLauncher = async ({ side } = {}) => {
-  currentOpenSide.value = side || "right";
-  normalizeWidgetPositionForOpen(currentOpenSide.value);
-  await nextTick();
-  conversationStore.openChatWidget();
-}; */
-
 const openChatAtAnchor = async ({ x, y, side = "left" }) => {
   currentOpenSide.value = side;
 
@@ -686,12 +648,6 @@ const openChatAtAnchor = async ({ x, y, side = "left" }) => {
   await nextTick();
   conversationStore.openChatWidget();
 };
-
-/* const handleOpenChat__ = async ({ otherId, bookingId, mode, anchor }) => {
-  await conversationStore.openCreateRoom(otherId, bookingId, mode);
-
-  await openChatAtAnchor(anchor);
-}; */
 
 const handleOpenChat = async ({ otherId, bookingId, mode, anchor }) => {
   console.log("App received open-chat", otherId, bookingId, mode, anchor);
@@ -747,63 +703,6 @@ const openChatFromLauncher = async ({ side } = {}) => {
   await nextTick();
   conversationStore.openChatWidget();
 };
-
-/* const restoreLauncherPositionAfterClose = () => {
-  if (wasNormalizedForOpen.value && preOpenPos.value) {
-    pos.value = { ...preOpenPos.value };
-  }
-
-  wasNormalizedForOpen.value = false;
-  preOpenPos.value = null;
-}; */
-
-const openChatFromLauncher_old = async () => {
-  normalizeWidgetPositionForOpen();
-
-  await nextTick(); // let child receive new launcherPos first
-
-  conversationStore.openChatWidget();
-};
-
-
-const openChatAtAnchor__ = async ({
-  x = window.innerWidth - 380,
-  y = 90,
-  side = "left",
-} = {}) => {
-  currentOpenSide.value = side;
-
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
-
-  const g = getChatWindowGeometry({
-    x,
-    y,
-    viewportW,
-    viewportH,
-    side,
-  });
-
-  let windowLeft = x;
-  let windowTop = y;
-
-  windowLeft = Math.max(g.sideMargin, Math.min(windowLeft, viewportW - g.sideMargin - g.winW));
-  windowTop = Math.max(g.topMargin, Math.min(windowTop, viewportH - g.bottomMargin - g.winH));
-
-  openWindowPos.value = {
-    x: windowLeft,
-    y: windowTop,
-  };
-
-  await nextTick();
-  conversationStore.openChatWidget();
-};
-
-/* const closeChatWindow = async() => {
-  restoreLauncherPositionAfterClose();
-  await nextTick();
-  conversationStore.closeChatWidget();
-} */
 
 const restoreLauncherPositionAfterClose = () => {
   if (preOpenPos.value) {
@@ -899,7 +798,7 @@ watch(
     } */
 
 
-    await identifyUserDevice();
+    identifyUserDevice();
 
     clientHistoryService.setToken(login.token)
     proHistoryService.setProSideToken(login.token)
@@ -932,13 +831,11 @@ watch(
 
     profileLoaded.value = true;
 
-    if (login.isAuthenticated) {
+    /* if (login.isAuthenticated) {
       conversationStore.initSocket();
       await conversationStore.getConversations();
-    }
+    } */
 
-    // If joinServer requires auth, do it here (not in onMounted)
-    // joinServer();
   },
   { immediate: true } // so it runs right after hydrate sets user
 );
@@ -981,22 +878,33 @@ onMounted (async () => {
 
 onUnmounted(() => {
   stopDrag();
+  stopListening();
 })
-
-const goProfile = () => {
-  console.log("goProfile");
-  router.push("/profilex");
-};
 
 const joinServer = () => {
 
   listen();
 }
+
+// Socket for handle user multy device state
+const handleUserActionSocket = async action => {
+  if (!deviceID.value) return;
+  if (action.origin === deviceID.value) return;
+  if (processedActions.value.has(action.id)) return;
+
+  processedActions.value.add(action.id);
+  await refreshUserData(action.userId);
+};
+
+const handleConversationRefresh = async () => {
+  await conversationStore.getConversations();
+};
+
 const listen = async() => {
   if (isListening) return;
   isListening = true;
 
-  socket.on("user-action", async (action) => {
+  /* socket.on("user-action", async (action) => {
    console.log("Action origin before - ", action)
    if (!deviceID.value) return;
    if (action.origin === deviceID.value) return;
@@ -1006,11 +914,25 @@ const listen = async() => {
 
    processedActions.value.add(action.id);
    await refreshUserData(action.userId);
-  })
+  }) */
 
-  socket.on("conversation:list:refresh", async () => {
+  socket.on(
+    "user-action",
+    handleUserActionSocket
+  );
+
+  /* socket.on("conversation:list:refresh", async () => {
     await conversationStore.getConversations();
-  })
+  }) */
+
+  socket.on(
+    "conversation:list:refresh",
+    handleConversationRefresh
+  );
+
+
+
+
   socket.on('create booking mtp', async(id, bookingId, proIdArr) => {
     console.log("GOT THE BOOKING " + bookingId + ": ");
     console.log("Booking id + " + bookingId)
@@ -1119,6 +1041,8 @@ const listen = async() => {
     }
   })
 
+  
+
   /* socket.on('handle-pro-confirm-client', (providerId) => {
     console.log("Provider id ---- ", providerId);
     
@@ -1142,116 +1066,123 @@ const listen = async() => {
   }) */
 }
 
-/* const handleCreatePro = (pro) => {
-  handleProvider.createPro(pro);
-} */
+const stopListening = () => {
+  socket.off(
+    "user-action",
+    handleUserActionSocket
+  );
+
+  socket.off(
+    "conversation:list:refresh",
+    handleConversationRefresh
+  );
+
+  isListening = false;
+};
 
 const hConfirmOrderToast = () => {
   console.log("CONFIRM TOAST");
   isOrderConfirmed.value = true;
-  confirmedOrderMessage.value = "Olet vahvistanut tilauksen!"
+  confirmedOrderMessage.value = t("app.orderConfirmed");
 }
 
 // Client created booking and finding matching providers to send this booking to
-const handleCreateBookingMultiple = async (booking) => {
-  // Same user all devices update
+const handleCreateBookingMultiple = async booking => {
   sendUserAction();
-  console.log("Booking zone - " + booking.zone);
-  booking.ordered = [];
-  //const createBookingStatus = await recipientService.updateRecipient(booking.id, {status: "notSeen"});
-  let origin = [booking.latitude, booking.longitude];
-  let destination = [];
-  const providersForBooking = await providerService.getProvidersMatchingByProfession(
-      {result: booking.professional}
-  )
+
+  console.log("Booking zone:", booking.zone);
+  console.log("Profession:", booking.professional);
+
+  const origin = [
+    booking.latitude,
+    booking.longitude
+  ];
+
+  console.log("ORIGIN ", origin)
+
+  const providersForBooking =
+    await providerService.getProvidersMatchingByProfession({
+      result: booking.professional
+    });
 
   client.createBooking(booking);
 
-  console.log("Professional. " + booking.professional)
+  const proIdArr = [];
+  const orderedBookings = [];
 
-  let proIdArr = [];
+  for (const providerItem of providersForBooking) {
+    const providerUserId = providerItem.user?.id;
 
-  let orderedBookings = [];
-
-  for (let i = 0; i < providersForBooking.length; i++) {
-    if (providersForBooking[i].user.id !== userID.value) {
-      console.log("")
+    // Ära saada kasutaja enda teenusepakkujale.
+    if (providerUserId === userID.value) {
+      continue;
     }
 
-    destination = [providersForBooking[i].latitude, providersForBooking[i].longitude];
-    console.log("Pro id " + providersForBooking[i].id);
-    //if (providersForBooking[i].user.id !== userInID.value) {
-      if (booking.zone === 0) {
+    let isWithinZone = booking.zone === 0;
 
-        if (providersForBooking[i].user.id !== userID.value) {
-          console.log("PRP ID: " + providersForBooking[i].user.id);
+    if (!isWithinZone) {
+      const destination = [
+        providerItem.latitude,
+        providerItem.longitude
+      ];
 
-          orderedBookings = [
-            ...orderedBookings,
-            providersForBooking[i]
-          ]
+      const distanceData = await onMap.findDistance(
+        origin,
+        destination
+      );
 
-          if (providersForBooking[i].user.id !== userID.value) {
-            proIdArr = [
-              ...proIdArr,
-              providersForBooking[i].user.id
-            ]
-          }
+      const distance = Number.parseFloat(
+        distanceData.distance
+      );
 
-          await recipientService.addProviderData(booking.id, providersForBooking[i].id);
-          await providerService.addProviderBooking(providersForBooking[i].id, booking.id);
-        }
-      } else {
-        onMap.findDistance(origin, destination)
-            .then(async (data) => {
-              console.log("Data distance: " + data.distance)
-              console.log("Data duration: " + data.duration)
-              console.log("Data distance type - " + typeof data.distance);
+      if (!Number.isFinite(distance)) {
+        console.warn(
+          "Invalid provider distance:",
+          distanceData.distance
+        );
 
-              if (parseInt(data.distance) < booking.zone) {
-                booking.ordered = [
-                  ...booking.ordered,
-                  providersForBooking[i]
-                ]
-                if (providersForBooking[i].user.id !== userID.value) {
-                  console.log("PRP ID: " + providersForBooking[i].user.id)
-                  proIdArr = [
-                    ...proIdArr,
-                    providersForBooking[i].user.id
-                  ]
-
-                }
-                await recipientService.addProviderData(booking.id, providersForBooking[i].id);
-                await providerService.addProviderBooking(providersForBooking[i].id, booking.id);
-
-              }
-            })
+        continue;
       }
-    //}
 
+      isWithinZone = distance < Number(booking.zone);
+    }
 
+    if (!isWithinZone) {
+      continue;
+    }
 
+    orderedBookings.push(providerItem);
+    proIdArr.push(providerUserId);
+
+    await recipientService.addProviderData(
+      booking.id,
+      providerItem.id
+    );
+
+    await providerService.addProviderBooking(
+      providerItem.id,
+      booking.id
+    );
   }
-  
-  console.log("proIdArr length is " + proIdArr.length)
-
-  if (proIdArr.length > 0) {
-    socket.emit('create booking multiple - pro', proIdArr, booking.id);
-  }
-
-
-
 
   booking.ordered = orderedBookings;
 
+  console.log(
+    "Matching provider count:",
+    proIdArr.length
+  );
 
-  await router.push('/client-panel');
+  if (proIdArr.length > 0) {
+    socket.emit(
+      "create booking multiple - pro",
+      proIdArr,
+      booking.id
+    );
+  }
 
-}
+  await router.push("/client-panel");
+};
 
-const handleOver = (greeting) => {
-  test.value = greeting;
-}
 const logOut = () => {
   login.onLogOut()
   //router.push('/');
@@ -1278,72 +1209,178 @@ watch(() => contactMessage.value, () => {
   }
 });
 
-const sendClientMessage = async () => {
-  console.log("Send message to pro");
-  const name = "Testi asiakas";
-  const email = "majaana@live.com";
-  const message = "Hei, olen kiinnostunut palvelustasi. Voimmeko keskustella lisää?";
 
-  if (contactMessage.value.trim() === "") {
+
+const closeContactModal = () => {
+  contactModal.value = false;
+  contactMessage.value = "";
+  messageFieldError.value = false;
+};
+
+const sendClientMessage = async () => {
+  const message = contactMessage.value.trim();
+
+  if (!message) {
     messageFieldError.value = true;
     return;
-  } else {
-    messageFieldError.value = false;
-    const realEmail = profile.value?.email || email;
-    const realName = profile.value ? `${profile.value.firstName} ${profile.value.lastName}` : name;
-    console.log("Sending message with name: " + realName + ", email: " + realEmail + ", message: " + contactMessage.value);
-    contactMessage.value = "";
-    messageFieldError.value = false;
-    
-
-    contactSentMessage.value = "Viestisi on lähetetty! Kiitos palautteestasi.";
-    isContactMsgSent.value = true;
-
-    contactModal.value = false;
-    
-    //const mailResponse = await contactService.sendEmail(name, email, message);
-    //console.log("Email response: " + JSON.stringify(mailResponse));
   }
-  
-}
+
+  isSendingContactMessage.value = true;
+  messageFieldError.value = false;
+
+  try {
+    const email = profile.value?.email ?? "";
+    const name = [
+      profile.value?.firstName,
+      profile.value?.lastName
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    await contactService.sendEmail(
+      name,
+      email,
+      message
+    );
+
+    contactSentMessage.value =
+      t("app.feedbackSent");
+
+    isContactMsgSent.value = true;
+    closeContactModal();
+  } catch (error) {
+    contactSentMessage.value =
+      t("app.feedbackSendFailed");
+
+    isContactMsgSent.value = true;
+  } finally {
+    isSendingContactMessage.value = false;
+  }
+};
 
 </script>
 
 <style>
 html, body { height: 100%; }
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: #0f172a;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-top: 58px;
+}
+
 .page-wrap {
+  width: 100%;
+  flex: 1;
+}
+
+.icon-active {
+  color: #dce7ef;
+  font-size: 1.625rem;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.icon-active:hover {
+  color: #67e8f9;
+  transform: translateY(-1px);
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.dropdown-menu {
+  min-width: 210px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.dd-item {
+  border-radius: 8px;
+}
+
+.brand-label {
+  color: #fb923c;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.feedback-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-copyright {
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #7f8a9a;
+  text-align: center;
+}
+
+.widget-drag {
+  position: fixed;
+  z-index: 1050;
+  touch-action: none;
+}
+/* .page-wrap {
   padding-top: 30px;
-  
-  /* remove this unless you really want it on ALL pages */
-  /* text-align: center; */
 }
 .app-content {
-  padding-top: 33px; /* navbar height */
-}
+  padding-top: 33px;
+} */
 .dd-item {
   color: #ddd !important;
   cursor: pointer;
 }
 
 /* Chat widget drag */
-.widget-drag {
+/* .widget-drag {
   position: fixed;
   z-index: 9999;
-}
+} */
 
 
 
-.drag-handle {
+/* .drag-handle {
   cursor: grab;
   touch-action: none;
   user-select: none;
   padding: 8px 12px;
   background: #ddd;
-}
+} */
 
 /* Contact modal footer buttons */
-.footer-buttons {
+/* .footer-buttons {
   display: flex;
-  gap: 12px; /* horizontal space between buttons */
-}
+  gap: 12px;
+} */
 </style>

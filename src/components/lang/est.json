@@ -258,9 +258,6 @@
     "days_ago": "{count} päeva tagasi"
   },
 
-  "feedback": {
-    "no_written_reviews": "Kirjalikke arvustusi pole veel!"
-  },
 
   "photoGallery": {
     "references": "Referentsid",
@@ -546,6 +543,7 @@
     "confirmedOrders": "Kinnitatud tellimused",
     "archivedOrders": "Arhiveeritud tellimused",
     "serviceProviders": "Teenusepakkujad",
+    "view": "Vaata",
     "collectedOrders": "Koondatud tellimused",
     "sentForOffers": "Tellimus saadeti hinnapakkumiste küsimiseks",
     "sentToProvider": "Tellimus saadeti teenusepakkujale {provider}",
@@ -664,5 +662,115 @@
     "unknownUsername": "Tundmatu kasutajanimi",
     "noActiveConversation": "Vestlust pole valitud.",
     "uploadFailed": "Faili üleslaadimine ebaõnnestus."
+  },
+
+  "editProfile": {
+    "close": "Sulge profiili muutmine",
+    "firstName": "Eesnimi",
+    "lastName": "Perekonnanimi",
+    "username": "Kasutajanimi",
+    "newAddress": "Sisesta uus aadress",
+    "newEmail": "Sisesta uus e-posti aadress",
+    "save": "Salvesta muudatused",
+    "selectAddressFromList": "Vali aadress soovituste loendist.",
+    "invalidEmail": "E-posti aadress ei ole korrektne."
+  },
+
+  "payment": {
+    "payAmount": "Maksa {amount}",
+    "payByCard": "Maksa kaardiga",
+    "mastercardAlt": "Mastercardi makse"
+  },
+
+  "payPlan": {
+    "title": "Vali sobiv kasutusaeg",
+    "description": "Vali oma vajadustele sobiv pakett ja jätka turvalise maksmisega.",
+    "close": "Välju",
+    "recommended": "Soovituim",
+    "oneTimePayment": "Ühekordne makse",
+    "selectPlan": "Vali pakett",
+    "day": "Päev",
+    "week": "Nädal",
+    "month": "Kuu",
+    "sixMonths": "Kuus kuud",
+    "year": "Aasta",
+    "oneDay": "1 päev",
+    "sevenDays": "7 päeva",
+    "oneMonth": "1 kuu",
+    "sixMonthDuration": "6 kuud",
+    "twelveMonthDuration": "12 kuud"
+  },
+
+  "profile": {
+    "close": "Sulge profiil",
+    "avatar": "Profiilipilt",
+    "avatarAlt": "Kasutaja profiilipilt",
+    "avatarDescription": "Lisa, muuda või eemalda oma profiilipilt.",
+    "addAvatar": "Lisa profiilipilt",
+    "editAvatar": "Muuda profiilipilti",
+    "removeAvatar": "Eemalda profiilipilt",
+    "name": "Nimi",
+    "username": "Kasutajanimi",
+    "address": "Aadress",
+    "email": "E-post",
+    "editDetails": "Muuda oma andmeid",
+    "emailAlreadyInUse": "See e-posti aadress on juba kasutusel.",
+    "emailAndAddressUpdated": "E-posti aadress ja aadress uuendati edukalt.",
+    "emailUpdated": "E-posti aadress uuendati edukalt.",
+    "addressUpdated": "Aadress uuendati edukalt.",
+    "avatarUploadFailed": "Profiilipildi üleslaadimine ebaõnnestus.",
+    "avatarUpdateFailed": "Profiilipildi muutmine ebaõnnestus.",
+    "avatarDeleteFailed": "Profiilipildi eemaldamine ebaõnnestus.",
+    "invalidImageType": "Vali JPEG-, PNG-, WebP- või GIF-pilt.",
+    "imageTooLarge": "Pildi suurus võib olla kuni 1 MB."
+  },
+  "timekeeping": {
+    "minutes_ago": "{count} minutit tagasi",
+    "hours_ago": "{count} tundi tagasi",
+    "days_ago": "{count} päeva tagasi"
+  },
+
+  "notifications": {
+    "title": "Teavitused",
+    "description": "Siit leiad oma konto ja teenusepäringutega seotud teavitused.",
+    "dismiss": "Selge",
+    "removing": "Eemaldan...",
+    "emptyTitle": "Uusi teavitusi ei ole",
+    "emptyDescription": "Uued teavitused ilmuvad siia."
+  },
+
+  "app": {
+    "profile": "Profiil",
+    "notifications": "Teavitused",
+    "calendar": "Kalender",
+    "rules": "Reeglid",
+    "manual": "Kasutusjuhend",
+    "orders": "Tellimused",
+    "logout": "Logi välja",
+    "login": "Logi sisse",
+    "openUserMenu": "Ava kasutajamenüü",
+    "profileAvatarAlt": "Kasutaja profiilipilt",
+    "feedbackTitle": "Saada tagasisidet",
+    "feedbackLabel": "Tagasiside",
+    "feedbackPlaceholder": "Räägi meile, mida sa teenusest arvad...",
+    "feedbackRequired": "Kirjuta enne saatmist sõnum.",
+    "sendFeedback": "Saada tagasiside",
+    "sending": "Saadan...",
+    "cancel": "Tühista",
+    "close": "Sulge",
+    "giveFeedback": "Anna rakenduse kohta tagasisidet",
+    "feedbackSent": "Sinu sõnum saadeti. Täname tagasiside eest!",
+    "feedbackSendFailed": "Sõnumi saatmine ebaõnnestus. Proovi uuesti.",
+    "orderConfirmed": "Oled tellimuse kinnitanud."
+  },
+
+  "feedback": {
+    "reviews": "Arvustused",
+    "customer_reviews": "Klientide arvustused",
+    "anonymous": "Anonüümne",
+    "close": "Sulge",
+    "loading": "Arvustuste laadimine",
+    "no_written_reviews": "Kirjalikud arvustused puuduvad",
+    "no_written_reviews_description": "Sellele teenusepakkujale ei ole veel ühtegi kirjalikku arvustust jäetud."
   }
 }

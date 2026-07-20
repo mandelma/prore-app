@@ -389,6 +389,8 @@ const form = reactive({
   profession: "",
   orderHeader: "",
   address: "",
+  lat: null,
+  lng: null,
   dateTime: "",
   explanation: "",
   budgetMin: null,
@@ -770,6 +772,9 @@ function onPlaceSelected(place) {
   form.address = place.address;
   form.lat = place.lat;
   form.lng = place.lng;
+
+  lat.value = place.lat;
+  lng.value = place.lng;
 
   errors.address = "";
 

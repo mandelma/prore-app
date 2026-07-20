@@ -1,122 +1,241 @@
+
 <template>
-   
-  <!-- Left: Order -->
-  <div class="client__panel">
-    <header class="panel__header">
-      <div>
-        <h4 class="panel__title">{{ t('bookingContent.sections.booking') }}</h4>
-        <!-- <p class="panel__subtitle">Tarkista tiedot ja muokkaa tarvittaessa</p> -->
+  <section class="booking-panel">
+    <header class="booking-panel__header">
+      <div class="booking-panel__heading">
+        <span class="booking-panel__eyebrow">
+          {{ t("bookingContent.sections.booking") }}
+        </span>
+
+        <h2 class="booking-panel__title">
+          {{ booking.professional || t("bookingContent.sections.booking") }}
+        </h2>
       </div>
 
-      
+      <div
+        v-if="booking.date"
+        class="booking-panel__date"
+      >
+        <span class="booking-panel__date-icon" aria-hidden="true">
+          ◷
+        </span>
+
+        <span>{{ booking.date }}</span>
+      </div>
     </header>
 
-    <!-- SUMMARY (read mode) -->
-    <div v-if="!isEditing" class="panel__body">
-      <div class="info-grid">
-        <div class="info-block">
-          <div class="info-label">{{ t('bookingContent.fields.description') }}</div>
-          <div class="info-value info-value--multiline">
-            {{ booking.description || '—' }}
+    <!-- Read mode -->
+    <div
+      v-if="!isEditing"
+      class="booking-panel__body"
+    >
+      <section class="details-section">
+        <div class="section-heading">
+          <h3 class="section-heading__title">
+            {{ t("bookingContent.fields.description") }}
+          </h3>
+        </div>
+
+        <div class="description-card">
+          <p
+            v-if="booking.description"
+            class="description-card__text"
+          >
+            {{ booking.description }}
+          </p>
+
+          <p
+            v-else
+            class="description-card__empty"
+          >
+            —
+          </p>
+        </div>
+
+        <dl class="booking-meta">
+          <div class="booking-meta__item">
+            <dt class="booking-meta__label">
+              {{ t("bookingContent.fields.date") }}
+            </dt>
+
+            <dd class="booking-meta__value">
+              {{ booking.date || "—" }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="section-divider" />
+
+      <section class="photos-section">
+        <div class="section-heading section-heading--row">
+          <div>
+            <h3 class="section-heading__title">
+              {{ t("bookingContent.sections.photos") }}
+            </h3>
+
+            <p
+              v-if="booking.photos?.length"
+              class="section-heading__subtitle"
+            >
+              {{ booking.photos.length }}
+            </p>
           </div>
         </div>
 
-        <div class="info-block">
-          <div class="info-label">{{ t('bookingContent.fields.date') }}</div>
-          <div class="info-value">
-            {{ booking.date }}
-          </div>
-        </div>
+        <div
+  v-if="booking.photos?.length"
+  class="photos-grid"
+>
+  <figure
+    v-for="(photo, idx) in booking.photos"
+    :key="photo.id || idx"
+    class="photo-card"
+  >
+    <div class="photo-card__media">
+      <div
+        v-if="loadingImages[idx]"
+        class="photo-loader"
+        role="status"
+      >
+        <span class="photo-loader__spinner" />
       </div>
 
-      <div class="divider"></div>
-
-      <div class="photos">
-        <div class="photos__header">
-          <h5 class="section-title">{{ t('bookingContent.sections.photos') }}</h5>
-          
-        </div>
-
-        <div v-if="booking.photos?.length" class="photos-grid">
-          <div class="photo-media">
-            <figure
-              v-for="(photo, idx) in booking.photos"
-              :key="photo.id || idx"
-              class="photo-card"
-            >
-              <div v-if="loadingImages[idx]" class="spinner"></div>
-              <img 
-                class="photo-img" 
-                :src="photo.imageId.imageUrl || photo.imageUrl || photo.imageId.previewUrl" :alt="photo.alt || t('bookingContent.alt.booking_photo')" 
-                @load="loadingImages[idx] = false"
-                @error="loadingImages[idx] = false"
-              />
-              <div v-if="photo.text !== ''" class="photo-overlay">
-                  
-                <p>{{ photo.text }}</p>
-              </div>
-            </figure>
-          </div>
-          
-        </div>
-
-        <div v-else class="empty-state">      
-          <p class="text-muted">{{ t('bookingContent.empty.no_photos') }}</p>        
-        </div>
-      </div> 
+      <img
+        class="photo-card__image"
+        :src="
+          photo.imageId?.imageUrl ||
+          photo.imageUrl ||
+          photo.imageId?.previewUrl
+        "
+        :alt="
+          photo.alt ||
+          t('bookingContent.alt.booking_photo')
+        "
+        loading="lazy"
+        @load="loadingImages[idx] = false"
+        @error="loadingImages[idx] = false"
+      />
     </div>
 
-    <!-- EDIT MODE -->
-    <form v-else class="panel__body" @submit.prevent="saveBookingEdits">
-      <div class="form-card">
-        <div class="field">
-          <label class="label" for="desc">{{ t('bookingContent.fields.description') }}</label>
-          <textarea
-            id="desc"
-            v-model.trim="draft.description"
-            class="input input--textarea"
-            rows="5"
-            :placeholder="t('bookingContent.placeholders.description')"
-          ></textarea>
-          <div class="help">
-            {{ (draft.description?.length || 0) }}/20
+    <figcaption
+      v-if="photo.text"
+      class="photo-card__caption"
+    >
+      {{ photo.text }}
+    </figcaption>
+  </figure>
+</div>
+
+        <div
+          v-else
+          class="empty-state"
+        >
+          <div
+            class="empty-state__icon"
+            aria-hidden="true"
+          >
+            ▧
           </div>
+
+          <p class="empty-state__text">
+            {{ t("bookingContent.empty.no_photos") }}
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Edit mode -->
+    <form
+      v-else
+      class="booking-panel__body"
+      @submit.prevent="saveBookingEdits"
+    >
+      <div class="edit-form">
+        <div class="form-field">
+          <div class="form-field__header">
+            <label
+              class="form-field__label"
+              for="booking-description"
+            >
+              {{ t("bookingContent.fields.description") }}
+            </label>
+
+            <span class="form-field__counter">
+              {{ draft.description?.length || 0 }}/20
+            </span>
+          </div>
+
+          <textarea
+            id="booking-description"
+            v-model.trim="draft.description"
+            class="form-control-custom form-control-custom--textarea"
+            rows="5"
+            maxlength="20"
+            :placeholder="
+              t('bookingContent.placeholders.description')
+            "
+          />
+
+          <p class="form-field__help">
+            {{ t("bookingContent.placeholders.description") }}
+          </p>
         </div>
 
-        <div class="field">
-          <label class="label" for="date">{{ t('bookingContent.fields.date') }}</label>
-          <div class="field-row">
-            
-            <MDBDateTimepicker
-              size="lg"
-              :label="t('bookingContent.labels.select_date_time')"
-              v-model="draft.date"
-              :toggleButton="false"
-              inputToggle
+        <div class="form-field">
+          <label class="form-field__label">
+            {{ t("bookingContent.fields.date") }}
+          </label>
 
-              :datepicker="{
-                ...L
-              }"
+          <div class="date-picker-wrap">
+            <MDBDateTimepicker
+              v-model="draft.date"
+              size="lg"
+              :label="
+                t('bookingContent.labels.select_date_time')
+              "
+              :toggle-button="false"
+              input-toggle
+              :datepicker="{ ...L }"
               :timepicker="{
                 ...L,
                 hoursFormat: 24
               }"
-
               :key="reInitKey"
-              disablePast
+              disable-past
             />
-            
           </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="section-divider" />
 
-        <div class="photos">
-          <div class="photos__header">
-            <h5 class="section-title">{{ t('bookingContent.sections.photos') }}</h5>
-            <button class="btn btn--primary btn--sm" type="button" @click="openFilePicker">
-              {{ t('bookingContent.buttons.add_photos') }}
+        <section class="photos-section">
+          <div class="section-heading section-heading--row">
+            <div>
+              <h3 class="section-heading__title">
+                {{ t("bookingContent.sections.photos") }}
+              </h3>
+
+              <p class="section-heading__subtitle">
+                {{ draft.photos?.length || 0 }}
+              </p>
+            </div>
+
+            <button
+              class="action-button action-button--primary"
+              type="button"
+              @click="openFilePicker"
+            >
+              <span
+                class="action-button__icon"
+                aria-hidden="true"
+              >
+                +
+              </span>
+
+              {{ t("bookingContent.buttons.add_photos") }}
             </button>
+
             <input
               ref="fileInput"
               class="sr-only"
@@ -127,66 +246,137 @@
             />
 
             <input
-                ref="replaceInput"
-                class="sr-only"
-                type="file"
-                accept="image/*"
-                @change="onReplaceSelected"
+              ref="replaceInput"
+              class="sr-only"
+              type="file"
+              accept="image/*"
+              @change="onReplaceSelected"
             />
           </div>
 
-          <!-- (Optional) dropzone -->
           <div
             class="dropzone"
+            :class="{
+              'dropzone--active': isDragOver
+            }"
             @dragenter.prevent="onDragEnter"
             @dragover.prevent
             @dragleave="onDragLeave"
             @drop.prevent="onDrop"
-            :class="{ 'dropzone--active': isDragOver }"
           >
-            <p class="dropzone__title">{{ t('bookingContent.dropzone.title') }}</p>
-            <p class="dropzone__text">{{ t('bookingContent.dropzone.text') }}</p>
+            <div
+              class="dropzone__icon"
+              aria-hidden="true"
+            >
+              ⇧
+            </div>
+
+            <div class="dropzone__content">
+              <p class="dropzone__title">
+                {{ t("bookingContent.dropzone.title") }}
+              </p>
+
+              <p class="dropzone__text">
+                {{ t("bookingContent.dropzone.text") }}
+              </p>
+            </div>
           </div>
 
-          <div v-if="draft.photos?.length" class="photos-grid">
+          <div
+            v-if="draft.photos?.length"
+            class="photos-grid"
+          >
             <figure
               v-for="(photo, idx) in draft.photos"
               :key="photo.id || idx"
-              class="photo-card"
+              class="photo-card photo-card--editable"
             >
-              <img class="photo-img" :src="photo.imageUrl || photo.previewUrl" :alt="photo.alt || t('bookingContent.alt.booking_photo')" />
-              <figcaption class="photo-actions">
-                <button class="icon-btn" type="button" @click="replacePhoto(idx)" :aria-label="t('bookingContent.buttons.replace')">
-                  ♻️
-                </button>
-                <button
-                  class="icon-btn icon-btn--danger"
-                  type="button"
-                  @click="removeDraftPhoto(idx)"
-                  :aria-label="t('bookingContent.buttons.delete')"
-                >
-                  🗑️
-                </button>
-              </figcaption>
+              <div class="photo-card__media">
+                <img
+                  class="photo-card__image"
+                  :src="
+                    photo.imageUrl ||
+                    photo.previewUrl ||
+                    photo.imageId?.imageUrl
+                  "
+                  :alt="
+                    photo.alt ||
+                    t('bookingContent.alt.booking_photo')
+                  "
+                />
+
+                <figcaption class="photo-card__actions">
+                  <button
+                    class="photo-action"
+                    type="button"
+                    :aria-label="
+                      t('bookingContent.buttons.replace')
+                    "
+                    :title="
+                      t('bookingContent.buttons.replace')
+                    "
+                    @click="replacePhoto(idx)"
+                  >
+                    <span aria-hidden="true">↻</span>
+                  </button>
+
+                  <button
+                    class="photo-action photo-action--danger"
+                    type="button"
+                    :aria-label="
+                      t('bookingContent.buttons.delete')
+                    "
+                    :title="
+                      t('bookingContent.buttons.delete')
+                    "
+                    @click="removeDraftPhoto(idx)"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </figcaption>
+              </div>
             </figure>
           </div>
-        </div>
 
-        <div class="actions">
-          <button class="btn btn-danger" type="button" @click="cancelEdits">
-           {{ t('bookingContent.buttons.cancel') }}
+          <div
+            v-else
+            class="empty-state empty-state--compact"
+          >
+            <div
+              class="empty-state__icon"
+              aria-hidden="true"
+            >
+              ▧
+            </div>
+
+            <p class="empty-state__text">
+              {{ t("bookingContent.empty.no_photos") }}
+            </p>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <button
+            class="action-button action-button--secondary"
+            type="button"
+            @click="cancelEdits"
+          >
+            {{ t("bookingContent.buttons.cancel") }}
           </button>
 
-          <button class="btn btn-success" type="submit" :disabled="!isDirty">
-            {{ t('bookingContent.buttons.save_changes') }}
+          <button
+            class="action-button action-button--success"
+            type="submit"
+            :disabled="!isDirty"
+          >
+            {{ t("bookingContent.buttons.save_changes") }}
           </button>
-        </div>
-
+        </footer>
       </div>
     </form>
-  </div>
-  
+  </section>
 </template>
+
 <script setup>
 import { MDBDateTimepicker } from 'mdb-vue-ui-kit';
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
@@ -791,345 +981,612 @@ onBeforeUnmount(() => {
   window.removeEventListener("drop", preventGlobalFileDrop);
 });
 
-/**
- * Optional stub for your API call
- */
-// async function saveBookingToApi(updated) {
-//   // await api.patch(`/bookings/${updated.id}`, updated)
-// }
 </script>
 <style scoped>
-/* .layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-} */
-.client__panel {
-  background-color: #252c3a;
-  border: 1px solid rgba(0,0,0,.08);
-  padding: 7px;
-  border-radius: 14px;
-}
-.panel {
-  background: #252c3a;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 14px;
+.booking-panel {
+  --panel-bg: #1e2635;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-hover: rgba(255, 255, 255, 0.065);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text-primary: #f4f7fb;
+  --text-secondary: #aeb8c8;
+  --text-muted: #7f8a9c;
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.12);
+  --success: #34d399;
+  --danger: #fb7185;
+
+  width: 100%;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      transparent 35%
+    ),
+    var(--panel-bg);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  color: var(--text-primary);
 }
 
-/* .panel--order {
-  position: sticky;
-  top: 12px;
-
-  max-height: calc(100vh - 24px);
+.booking-panel__header {
   display: flex;
-  flex-direction: column;
-}
- */
-.panel__header {
-  display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-
-  gap: 12px;
-  padding: 14px 0px 10px;
-  border-bottom: 1px solid rgba(0,0,0,.06);
+  gap: 24px;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.018);
 }
 
-.panel__title {
+.booking-panel__heading {
+  min-width: 0;
+}
+
+.booking-panel__eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.booking-panel__title {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.2;
+  color: var(--text-primary);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
-.panel__subtitle {
-  margin: 6px 0 0;
-  font-size: 13px;
-  opacity: 0.7;
+.booking-panel__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
-.panel__body{
-  overflow-y: auto;
+.booking-panel__date-icon {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.booking-panel__body {
+  padding: 24px;
   overflow-x: hidden;
+  overflow-y: auto;
   text-align: left;
-  min-height: 0;
-  padding-bottom: calc(28px + env(safe-area-inset-bottom));
-  scroll-padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(255, 255, 255, 0.18)
+    transparent;
 }
 
-.panel__body::-webkit-scrollbar {
+.booking-panel__body::-webkit-scrollbar {
   width: 6px;
 }
-.panel__body::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,.2);
-  border-radius: 6px;
+
+.booking-panel__body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+.booking-panel__body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
 }
 
-.info-block {
-  display: grid;
-  gap: 6px;
+.details-section,
+.photos-section {
+  min-width: 0;
 }
 
-.info-label {
-  font-size: 12px;
-  opacity: 0.65;
+.section-heading {
+  margin-bottom: 14px;
 }
 
-.info-value {
-  font-size: 14px;
+.section-heading--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-heading__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
   line-height: 1.4;
 }
 
-.info-value--multiline {
+.section-heading__subtitle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  margin: 5px 0 0;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.description-card {
+  min-height: 76px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.description-card__text,
+.description-card__empty {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-.divider {
-  height: 1px;
-  background: rgba(0,0,0,.06);
-  margin: 14px 0;
+.description-card__text {
+  color: var(--text-secondary);
 }
 
-.section-title {
-  margin: 0;
-  font-size: 14px;
+.description-card__empty {
+  color: var(--text-muted);
 }
 
-/* Buttons */
-.btn {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.btn--sm {
-  padding: 8px 10px;
-  border-radius: 10px;
-}
-
-.btn--primary {
-  background: #111827;
-  color: white;
-}
-
-.btn--ghost {
-  background: transparent;
-  color: #525e79;
-  border: 1px solid rgba(0,0,0,.14);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Form */
-.form {
+.booking-meta {
   display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
+  margin: 14px 0 0;
 }
 
-.field {
+.booking-meta__item {
   display: grid;
-  gap: 6px;
-}
-
-.label {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-.input {
-  width: 100%;
+  gap: 5px;
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,.14);
-  padding: 10px 12px;
-  font-size: 14px;
-  outline: none;
+  background: rgba(255, 255, 255, 0.025);
 }
 
-.input:focus {
-  border-color: rgba(17,24,39,.55);
-  box-shadow: 0 0 0 3px rgba(17,24,39,.08);
+.booking-meta__label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.input--textarea {
-  resize: vertical;
+.booking-meta__value {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
-.help {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-
-/* Photos */
-.photos__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+.section-divider {
+  height: 1px;
+  margin: 24px 0;
+  background: var(--border);
 }
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns:
+    repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
 }
 
 .photo-card {
+  min-width: 0;
   margin: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,.10);
-  background: rgba(0,0,0,.02);
 }
 
+.photo-card__media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #111827;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
 
-
-
-.photo-img {
+.photo-card__image {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   object-fit: cover;
+  transition:
+    transform 0.3s ease,
+    opacity 0.2s ease;
 }
 
-
-.photo-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px;
-  background: #fff;
+.photo-card:hover .photo-card__image {
+  transform: scale(1.025);
 }
 
-.icon-btn {
-  border: 1px solid rgba(0,0,0,.12);
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-}
-
-.icon-btn--danger {
-  border-color: rgba(220, 38, 38, .35);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #ddd;
-  border-top-color: #333;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: auto;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.photo-media {
-  position: relative;
-}
-
-.photo-overlay {
+.photo-card__caption {
   position: absolute;
-  left: 0;
   right: 0;
   bottom: 0;
-
-  background: rgba(0, 0, 0, 0.5);
-  /* background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8),
-    rgba(0, 0, 0, 0.2),
-    transparent
-  ); */
-  padding: 6px;
-  border-radius: 0 0 8px 8px;
-  font-size: 13px;
-}
-
-.photo-overlay p {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;   /* max 3 lines */
-  -webkit-box-orient: vertical;
-  overflow: hidden  ;
-  
-}
-
-/* Empty state */
-.empty-state {
-  border: 1px dashed rgba(0,0,0,.18);
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(0,0,0,.015);
-}
-
-.empty-state__title {
+  left: 0;
   margin: 0;
-  font-size: 13px;
+  padding: 26px 12px 10px;
+  background:
+    linear-gradient(
+      to top,
+      rgba(6, 10, 18, 0.92),
+      transparent
+    );
+  color: #f8fafc;
+  font-size: 0.77rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
-.empty-state__text {
-  margin: 6px 0 0;
-  font-size: 12px;
-  opacity: 0.7;
+.photo-card__caption {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.photo-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.photo-loader__spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: photo-spin 0.75s linear infinite;
+}
+
+.photo-card__actions {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: flex;
+  gap: 7px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.photo-card--editable:hover .photo-card__actions,
+.photo-card--editable:focus-within
+  .photo-card__actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.photo-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  color: #f8fafc;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.photo-action:hover {
+  border-color: var(--accent);
+  background: rgba(14, 116, 144, 0.92);
+  transform: translateY(-1px);
+}
+
+.photo-action--danger:hover {
+  border-color: var(--danger);
+  background: rgba(190, 24, 93, 0.92);
+}
+
+.photo-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.edit-form {
+  display: grid;
+  gap: 22px;
+}
+
+.form-field {
+  display: grid;
+  gap: 9px;
+}
+
+.form-field__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.form-field__label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.form-field__counter {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.form-field__help {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.form-control-custom {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  outline: none;
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.form-control-custom::placeholder {
+  color: var(--text-muted);
+}
+
+.form-control-custom:focus {
+  border-color: rgba(56, 189, 248, 0.75);
+  background: rgba(15, 23, 42, 0.78);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-control-custom--textarea {
+  min-height: 124px;
+  padding: 12px 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.date-picker-wrap {
+  overflow: hidden;
+  border-radius: 12px;
 }
 
 .dropzone {
-  border: 1px dashed rgba(255,255,255,.25);
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 13px;
-  transition: transform .08s ease, border-color .08s ease, background .08s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 112px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px dashed rgba(148, 163, 184, 0.38);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dropzone:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(56, 189, 248, 0.04);
 }
 
 .dropzone--active {
-  border-color: rgba(59,130,246,.9);
-  border-radius: 12px;
-  margin: 0 5px 13px 5px;
-  background: rgba(59,130,246,.08);
-  transform: scale(1.01);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+  transform: scale(1.005);
 }
 
+.dropzone__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.dropzone__content {
+  min-width: 0;
+}
 
 .dropzone__title {
   margin: 0;
-  font-size: 13px;
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
 .dropzone__text {
-  margin: 6px 0 0;
-  font-size: 12px;
-  opacity: 0.7;
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
-/* Accessibility helper */
+.empty-state {
+  display: flex;
+  min-height: 130px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.018);
+  text-align: center;
+}
+
+.empty-state--compact {
+  min-height: 100px;
+}
+
+.empty-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 1.15rem;
+}
+
+.empty-state__text {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.action-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.action-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.action-button__icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.action-button--primary {
+  border-color: rgba(56, 189, 248, 0.28);
+  background: var(--accent-soft);
+  color: #7dd3fc;
+}
+
+.action-button--primary:hover:not(:disabled) {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.18);
+}
+
+.action-button--secondary {
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.action-button--secondary:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.26);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.action-button--success {
+  border-color: rgba(52, 211, 153, 0.28);
+  background: rgba(52, 211, 153, 0.14);
+  color: #6ee7b7;
+}
+
+.action-button--success:hover:not(:disabled) {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.21);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1137,60 +1594,89 @@ onBeforeUnmount(() => {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
 
-.actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 13px;
+@keyframes photo-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Responsive */
-/* @media (max-width: 980px) {
-  .layout {
+@media (hover: none) {
+  .photo-card__actions {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .booking-panel {
+    border-radius: 14px;
+  }
+
+  .booking-panel__header {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .booking-panel__date {
+    display: none;
+  }
+
+  .booking-panel__body {
+    padding: 18px;
+  }
+
+  .photos-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .section-heading--row {
+    align-items: flex-start;
+  }
+
+  .dropzone {
+    justify-content: flex-start;
+    min-height: 96px;
+  }
+}
+
+@media (max-width: 460px) {
+  .booking-panel__header,
+  .booking-panel__body {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .photos-grid {
     grid-template-columns: 1fr;
   }
 
-  .panel--order{
-    position: static;
-    top: auto;
-    max-height: none;
-    display: block;
+  .section-heading--row {
+    flex-wrap: wrap;
   }
 
-  .panel__body{
-    overflow: visible;   
-    max-height: none;
-    padding-bottom: 14px;
-  }
-  .photos-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .section-heading--row .action-button {
+    width: 100%;
   }
 
-  
-} */
-
-@media (max-width: 980px){
-  .panel--order{
-    position: static;
-    max-height: none;
-    display: block;
+  .form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
-  .panel__body{
-    overflow: visible;
-    padding-bottom: 14px;
+  .form-actions .action-button {
+    width: 100%;
+  }
+
+  .dropzone {
+    flex-direction: column;
+    text-align: center;
   }
 }
-
-@media (max-width: 980px){
-  .photos-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 600px){
-  .photos-grid{ grid-template-columns: 1fr; }
-}
-
 </style>

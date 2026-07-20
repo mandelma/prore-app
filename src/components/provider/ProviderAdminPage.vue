@@ -3,133 +3,266 @@
     <p>{{ t('providerAdmin.loading') }}</p>
   </MDBContainer>
   <MDBContainer v-else fluid class="py-3 provider-admin">
-    <!-- Top header (sticky on mobile) -->
-
-    <div class="header-stack mb-3">
-      <div class="topbar d-flex align-items-center justify-content-between gap-2">
-        <div class="min-w-0">
-          <div class="d-flex align-items-center gap-2 min-w-0">
-            <h5 class="mb-0 text-wrap text-start">{{ provider.pName || t('providerAdmin.providerFallback') }}</h5>
-            
-          </div>
-          
-          <small class="text-muted d-block text-start">
-            <!-- Need to add provider database updatedAt field -->
-            {{ t('providerAdmin.updatedAt', { date: formatDateTime(provider.updatedAt) }) }}
-          </small>
-        </div>
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-          <MDBBadge v-if="provider.status" :color="provider.status === 'Saatavilla' ? 'success' : 'warning'">
-            {{ provider.status === 'Saatavilla' ? t('providerAdmin.available') : t('providerAdmin.byAgreement') }}
-          </MDBBadge>
-        </div>
-      </div>
-      <!-- Client action on map -->
-       
-      <div class="ticker">
-        <div class="ticker__row" :key="tickerKey">
-          <!-- <span>Your text row goes here — maybe include separators • • •</span> -->
-           <span>{{ clientReport }}</span>
-        </div>
-        
-         <div class="ticker-btn" >
-          
-         </div>
-        
-        
-      </div>
-    </div>
-
-    <!-- Quick stats -->
-    <MDBRow class="g-2 mb-3 page-content">
-      <MDBCol col="6" md="3">
-        <MDBCard class="h-100">
-          <MDBCardBody class="py-3">
-            <div class="text-muted small">{{ t('providerAdmin.mapManagement') }}</div>
-            <!-- <div class="fs-5 fw-semibold">{{ clients.length }}</div> --> 
-            <MDBBtn v-if="provider.status === 'Sovittaessa'" outline="success" size="md" block @click="handleAvailability">{{ t('providerAdmin.available') }}</MDBBtn>
-            <MDBBtn v-else outline="warning" size="md" block @click="handleAvailability">{{ t('providerAdmin.byAgreement') }}</MDBBtn>
-            
-          </MDBCardBody>
-        </MDBCard>
-      </MDBCol>
-      <MDBCol col="6" md="3">
-        <MDBCard class="h-100">
-          <MDBCardBody class="py-3">
-            <div class="text-muted small">{{ t('providerAdmin.confirmedOrders') }}</div>
-            <MDBBtn color="dark" size="md" block :disabled="!confirmedClients.length" @click="router.push('/calendar')">
-              <span class="fs-5 fw-semibold">{{ confirmedClients.length }}</span>
-            </MDBBtn>
-            <!-- <div class="fs-5 fw-semibold">{{ confirmedClients.length }}</div> -->
-          </MDBCardBody>
-        </MDBCard>
-      </MDBCol>
-      <MDBCol col="6" md="3">
-        <MDBCard class="h-100">
-          <MDBCardBody class="py-3">
-            <div class="text-muted small">{{ t('providerAdmin.archivedOrders') }}</div>
-            <MDBBtn  color="dark" size="md" block :disabled="!providerHistory.length" @click="router.push('/p-archive')">
-              <span class="fs-5 fw-semibold" style="color: #ddd;">{{ providerHistory.length }}</span>
-            </MDBBtn>
-            
-      
-          </MDBCardBody>
-        </MDBCard>
-      </MDBCol>
-      <MDBCol col="6" md="3">
-        <MDBCard 
-          class="page-card hero-card "
-          :style="{ '--watermark': `url(${logo})` }"
-        >
-          <MDBCardBody class="py-3 hero-content " >
-           
-             <div class="hero" :style="{ '--watermark': `url(${logo})` }">
-
-              <div
-                class="fs-5 hero-content"
-                v-if="credit <= 0"
-              >
-                <div style="font-size: 12px;">{{ t('providerAdmin.usageTimeEnded') }}</div>
-                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">{{ t('providerAdmin.loadTime') }}</p>
-              </div>
-              <!-- credit <= 3 && -->
-              <div v-else-if="
-                credit > 0">
-                <p class="small">{{ t('providerAdmin.creditDays', { count: credit }) }}</p>
-                <p style="color: orangered; font-size: 12px; text-decoration: underline; cursor: pointer;" @click="router.push('/pay-plan')">{{ t('providerAdmin.loadMoreTime') }}</p>
-              </div>
-              <div v-else>
-                
-                <div>
-                  <p class="small">{{ t('providerAdmin.creditDays', { count: credit }) }}</p>
-                </div>
-              </div>
-            </div>
-          </MDBCardBody>
-        </MDBCard>
-      </MDBCol>
-    </MDBRow>   
     
-    <div style="display: flex; gap: 7px; margin-bottom: 17px;">
-      <div style="flex: 1;">
-        <p class="text-muted small btn-desc">{{ t('providerAdmin.taskImages') }}</p>
-        <MDBBtn color="dark" block size="lg" @click="openReferences"><MDBIcon size="lg"><i class="far fa-images"></i></MDBIcon></MDBBtn>
-      </div>
-      <div style="flex: 1;">
-        <p class="text-muted small btn-desc" >{{ t('providerAdmin.feedback') }}</p>
-        <MDBBtn color="dark" block size="lg"  @click="showFeedback"><i className="fas fa-star text-warning"></i> {{ provider?.rating }} / {{ provider?.ratersCount }}</MDBBtn>
-        
-      </div>
+    <!-- Ülemine päis -->
+    <div class="header-stack">
+      <header class="provider-topbar">
+        <div class="provider-identity">
+          <div class="provider-avatar" aria-hidden="true">
+            {{
+              (provider.pName ||
+                t("providerAdmin.providerFallback"))
+                .charAt(0)
+                .toUpperCase()
+            }}
+          </div>
 
-      <div style="flex: 1;">
-        <!-- <img class="proMap" :src="pro_map" alt="from_map" /> -->
-        <p class="text-muted small btn-desc">{{ t('providerAdmin.clientsOnMap') }}</p>
-        <MDBBtn color="dark" block size="lg"  @click="seeClients">
-          <!-- <span class="map-client-text">Asiakkaat</span> &nbsp;&nbsp; -->
-          <MDBIcon size="lg"><i class="fas fa-users" ></i></MDBIcon></MDBBtn>
+          <div class="provider-identity__content">
+            <h1 class="provider-name">
+              {{
+                provider.pName ||
+                t("providerAdmin.providerFallback")
+              }}
+            </h1>
+
+            <small class="provider-updated">
+              {{
+                t("providerAdmin.updatedAt", {
+                  date: formatDateTime(provider.updatedAt)
+                })
+              }}
+            </small>
+          </div>
+        </div>
+
+        <span
+          v-if="provider.status"
+          class="availability-pill"
+          :class="{
+            'availability-pill--available':
+              provider.status === 'Saatavilla',
+            'availability-pill--agreement':
+              provider.status !== 'Saatavilla'
+          }"
+        >
+          <span class="availability-pill__dot" />
+
+          {{
+            provider.status === "Saatavilla"
+              ? t("providerAdmin.available")
+              : t("providerAdmin.byAgreement")
+          }}
+        </span>
+      </header>
+
+      <div
+        v-if="clientReport"
+        class="ticker"
+      >
+        <div
+          :key="tickerKey"
+          class="ticker__row"
+        >
+          <span class="ticker__icon">●</span>
+          <span>{{ clientReport }}</span>
+        </div>
       </div>
-      
     </div>
+
+    <!-- Statistika -->
+    <section class="provider-stats page-content">
+      <article class="provider-stat-card">
+        <div class="provider-stat-card__header">
+          <div class="provider-stat-card__icon provider-stat-card__icon--availability">
+            <MDBIcon icon="toggle-on" />
+          </div>
+
+          <span class="provider-stat-card__label">
+            {{ t("providerAdmin.mapManagement") }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="provider-stat-card__action"
+          :class="{
+            'provider-stat-card__action--success':
+              provider.status === 'Sovittaessa',
+            'provider-stat-card__action--warning':
+              provider.status !== 'Sovittaessa'
+          }"
+          @click="handleAvailability"
+        >
+          {{
+            provider.status === "Sovittaessa"
+              ? t("providerAdmin.available")
+              : t("providerAdmin.byAgreement")
+          }}
+        </button>
+      </article>
+
+      <button
+        type="button"
+        class="provider-stat-card provider-stat-card--interactive"
+        :disabled="!confirmedClients.length"
+        @click="router.push('/calendar')"
+      >
+        <div class="provider-stat-card__header">
+          <div class="provider-stat-card__icon provider-stat-card__icon--confirmed">
+            <MDBIcon icon="calendar-check" />
+          </div>
+
+          <span class="provider-stat-card__label">
+            {{ t("providerAdmin.confirmedOrders") }}
+          </span>
+        </div>
+
+        <strong class="provider-stat-card__value">
+          {{ confirmedClients.length }}
+        </strong>
+      </button>
+
+      <button
+        type="button"
+        class="provider-stat-card provider-stat-card--interactive"
+        :disabled="!providerHistory.length"
+        @click="router.push('/p-archive')"
+      >
+        <div class="provider-stat-card__header">
+          <div class="provider-stat-card__icon provider-stat-card__icon--archive">
+            <MDBIcon icon="box-archive" />
+          </div>
+
+          <span class="provider-stat-card__label">
+            {{ t("providerAdmin.archivedOrders") }}
+          </span>
+        </div>
+
+        <strong class="provider-stat-card__value">
+          {{ providerHistory.length }}
+        </strong>
+      </button>
+
+      <article
+        class="provider-stat-card provider-stat-card--credit"
+        :style="{ '--watermark': `url(${logo})` }"
+      >
+        <div class="provider-stat-card__header">
+          <div class="provider-stat-card__icon provider-stat-card__icon--credit">
+            <MDBIcon icon="clock" />
+          </div>
+
+          <span class="provider-stat-card__label">
+            {{ t("providerAdmin.credit") }}
+          </span>
+        </div>
+
+        <template v-if="credit <= 0">
+          <strong class="provider-stat-card__credit provider-stat-card__credit--expired">
+            {{ t("providerAdmin.usageTimeEnded") }}
+          </strong>
+
+          <button
+            type="button"
+            class="provider-stat-card__link"
+            @click="router.push('/pay-plan')"
+          >
+            {{ t("providerAdmin.loadTime") }}
+          </button>
+        </template>
+
+        <template v-else>
+          <strong class="provider-stat-card__value">
+            {{ credit }}
+          </strong>
+
+          <span class="provider-stat-card__unit">
+            {{ t("providerAdmin.creditDays", { count: credit }) }}
+          </span>
+
+          <button
+            type="button"
+            class="provider-stat-card__link"
+            @click="router.push('/pay-plan')"
+          >
+            {{ t("providerAdmin.loadMoreTime") }}
+          </button>
+        </template>
+      </article>
+    </section>
+
+    <!-- Kiirtegevused -->
+    <section class="quick-actions">
+      <button
+        type="button"
+        class="quick-action"
+        @click="openReferences"
+      >
+        <span class="quick-action__icon">
+          <MDBIcon icon="images" />
+        </span>
+
+        <span class="quick-action__content">
+          <strong>
+            {{ t("providerAdmin.taskImages") }}
+          </strong>
+        </span>
+
+        <MDBIcon
+          icon="chevron-right"
+          class="quick-action__arrow"
+        />
+      </button>
+
+      <button
+        type="button"
+        class="quick-action"
+        @click="showFeedback"
+      >
+        <span class="quick-action__icon quick-action__icon--rating">
+          <MDBIcon icon="star" />
+        </span>
+
+        <span class="quick-action__content">
+          <strong>
+            {{ t("providerAdmin.feedback") }}
+          </strong>
+
+          <small>
+            {{ provider?.rating || 0 }}
+            / 5 ·
+            {{ provider?.ratersCount || 0 }}
+          </small>
+        </span>
+
+        <MDBIcon
+          icon="chevron-right"
+          class="quick-action__arrow"
+        />
+      </button>
+
+      <button
+        type="button"
+        class="quick-action"
+        @click="seeClients"
+      >
+        <span class="quick-action__icon quick-action__icon--clients">
+          <MDBIcon icon="users" />
+        </span>
+
+        <span class="quick-action__content">
+          <strong>
+            {{ t("providerAdmin.clientsOnMap") }}
+          </strong>
+        </span>
+
+        <MDBIcon
+          icon="chevron-right"
+          class="quick-action__arrow"
+        />
+      </button>
+    </section>
+
       
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
@@ -1249,118 +1382,585 @@ function sleep(ms) {
 
 <style scoped>
 .provider-admin {
-  text-align: center;
-  max-width: 1200px;
+  --admin-surface: #182231;
+  --admin-surface-soft: rgba(255, 255, 255, 0.035);
+  --admin-surface-hover: rgba(255, 255, 255, 0.06);
+  --admin-border: rgba(255, 255, 255, 0.09);
+  --admin-border-strong: rgba(255, 255, 255, 0.15);
+  --admin-text: #f1f5f9;
+  --admin-text-secondary: #a9b5c6;
+  --admin-text-muted: #748196;
+  --admin-accent: #38bdf8;
+  --admin-accent-soft: rgba(56, 189, 248, 0.12);
+  --admin-success: #34d399;
+  --admin-success-soft: rgba(52, 211, 153, 0.12);
+  --admin-warning: #fbbf24;
+  --admin-warning-soft: rgba(251, 191, 36, 0.12);
+  --admin-danger: #fb7185;
+  --admin-danger-soft: rgba(251, 113, 133, 0.12);
+  --admin-purple: #a78bfa;
+  --admin-radius: 16px;
+  --admin-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-bottom: 45px;
+  color: var(--admin-text);
+  text-align: left;
 }
 
-.page-card.hero-card {
-  position: relative;
-  overflow: hidden;
-}
+/* Fixed header */
 
-:deep(.page-card.hero-card::before) {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background-image: var(--watermark);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 180px;
-
-  opacity: 0.3;
-  z-index: 0;
-}
-
-:deep(.page-card.hero-card::after) {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  border-top: 3px solid #59b898;
-  border-left: 3px solid #59b898;
-
-  border-right: 3px solid #c48c58;
-  border-bottom: 3px solid #c48c58;
-
-  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
-  pointer-events: none;
-  z-index: 1;
-}
-
-:deep(.page-card.hero-card .hero-content) {
- 
-  position: relative;
-  z-index: 1;
-}
-
-
-:root {
-  --stack-top: 63px;
-  --topbar-h: 60px;
-  --ticker-h: 36px;
-}
-
-/* pinned container */
 .header-stack {
   position: fixed;
   top: 60px;
   left: 0;
-  width: 100%;
   z-index: 1000;
+  width: 100%;
+  border-bottom: 1px solid var(--admin-border);
+  background: rgba(18, 27, 40, 0.92);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
 }
 
-/* topbar inside pinned container */
-.topbar {
-  position: relative;
-  height: var(--topbar-h);
-  /* background: rgba(73, 67, 67, 0.92); */
-  background: rgba(233, 172, 115, 0.92);
-  backdrop-filter: blur(6px);
-  padding: 0.5rem 0.5rem;
+.provider-topbar {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 10px 18px;
+}
+
+.provider-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.provider-avatar {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  background: var(--admin-accent-soft);
+  color: #7dd3fc;
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.provider-identity__content {
+  min-width: 0;
+}
+
+.provider-name {
+  overflow: hidden;
   margin: 0;
+  color: var(--admin-text);
+  font-size: 1rem;
+  font-weight: 720;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ticker under it */
+.provider-updated {
+  display: block;
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--admin-text-muted);
+  font-size: 0.67rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.availability-pill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.availability-pill--available {
+  border-color: rgba(52, 211, 153, 0.24);
+  background: var(--admin-success-soft);
+  color: #6ee7b7;
+}
+
+.availability-pill--agreement {
+  border-color: rgba(251, 191, 36, 0.24);
+  background: var(--admin-warning-soft);
+  color: #fcd34d;
+}
+
+.availability-pill__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+}
+
+/* Ticker */
+
 .ticker {
-  position: relative;
-  height: var(--ticker-h);
-  overflow: hidden;
   display: flex;
+  height: 31px;
   align-items: center;
-
   overflow: hidden;
-
-  background: rgba(36, 31, 31, 0.92);
-  backdrop-filter: blur(6px);
-}
-
-.ticker-btn{
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;                
-  display: flex;
-  align-items: center;
-}
-
-.page-content {
-  padding-top: 73px;
+  border-top: 1px solid var(--admin-border);
+  background: rgba(8, 14, 24, 0.72);
 }
 
 .ticker__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding-left: 18px;
+  color: var(--admin-text-secondary);
+  font-size: 0.7rem;
   white-space: nowrap;
   will-change: transform, opacity;
-  animation: slide 12s linear forwards;
+  animation: provider-ticker 12s linear forwards;
 }
 
-@keyframes slide {
-  0%   { transform: translateX(-100%);  }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateX(120vw); opacity: 0; visibility: hidden; }
+.ticker__icon {
+  color: var(--admin-success);
+  font-size: 0.5rem;
 }
+
+@keyframes provider-ticker {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(105vw);
+    opacity: 0;
+  }
+}
+
+.page-content {
+  padding-top: 108px;
+}
+
+/* Statistics */
+
+.provider-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.provider-stat-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  overflow: hidden;
+  padding: 15px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      transparent 48%
+    ),
+    var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  color: inherit;
+  text-align: left;
+}
+
+button.provider-stat-card {
+  width: 100%;
+  font: inherit;
+}
+
+.provider-stat-card--interactive {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.provider-stat-card--interactive:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.3);
+  background-color: #202c3d;
+}
+
+.provider-stat-card--interactive:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.provider-stat-card--interactive:focus-visible,
+.provider-stat-card__action:focus-visible,
+.provider-stat-card__link:focus-visible,
+.quick-action:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+.provider-stat-card__header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.provider-stat-card__icon {
+  display: inline-flex;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 35px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.provider-stat-card__icon--availability {
+  background: var(--admin-success-soft);
+  color: #6ee7b7;
+}
+
+.provider-stat-card__icon--confirmed {
+  background: var(--admin-accent-soft);
+  color: #7dd3fc;
+}
+
+.provider-stat-card__icon--archive {
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b5fd;
+}
+
+.provider-stat-card__icon--credit {
+  background: var(--admin-warning-soft);
+  color: #fcd34d;
+}
+
+.provider-stat-card__label {
+  color: var(--admin-text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.provider-stat-card__value {
+  color: var(--admin-text);
+  font-size: 1.55rem;
+  font-weight: 760;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.provider-stat-card__unit {
+  color: var(--admin-text-muted);
+  font-size: 0.67rem;
+}
+
+.provider-stat-card__action {
+  width: 100%;
+  min-height: 37px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.provider-stat-card__action--success {
+  border-color: rgba(52, 211, 153, 0.28);
+  background: var(--admin-success-soft);
+  color: #6ee7b7;
+}
+
+.provider-stat-card__action--warning {
+  border-color: rgba(251, 191, 36, 0.28);
+  background: var(--admin-warning-soft);
+  color: #fcd34d;
+}
+
+.provider-stat-card--credit::before {
+  position: absolute;
+  inset: 0;
+  background-image: var(--watermark);
+  background-position: right -15px bottom -20px;
+  background-repeat: no-repeat;
+  background-size: 105px;
+  content: "";
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.provider-stat-card--credit > * {
+  position: relative;
+  z-index: 1;
+}
+
+.provider-stat-card__credit {
+  color: var(--admin-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.provider-stat-card__credit--expired {
+  color: #fda4af;
+}
+
+.provider-stat-card__link {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--admin-accent);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Quick actions */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.quick-action {
+  display: flex;
+  min-width: 0;
+  min-height: 68px;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: var(--admin-surface);
+  box-shadow: 0 9px 24px rgba(0, 0, 0, 0.12);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.26);
+  background: #202c3d;
+}
+
+.quick-action__icon {
+  display: inline-flex;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--admin-accent-soft);
+  color: #7dd3fc;
+}
+
+.quick-action__icon--rating {
+  background: var(--admin-warning-soft);
+  color: #fcd34d;
+}
+
+.quick-action__icon--clients {
+  background: var(--admin-success-soft);
+  color: #6ee7b7;
+}
+
+.quick-action__content {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
+.quick-action__content strong {
+  overflow: hidden;
+  color: var(--admin-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-action__content small {
+  color: var(--admin-text-muted);
+  font-size: 0.66rem;
+}
+
+.quick-action__arrow {
+  color: var(--admin-text-muted);
+  font-size: 0.66rem;
+}
+
+/* MDB cards */
+
+.provider-admin :deep(.card) {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.02),
+      transparent 45%
+    ),
+    var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  color: var(--admin-text);
+}
+
+.provider-admin :deep(.card-body) {
+  padding: 18px;
+}
+
+.provider-admin :deep(.card-title),
+.provider-admin :deep(h5),
+.provider-admin :deep(h6) {
+  color: var(--admin-text);
+}
+
+/* Provider information */
+
+.info-panel {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-text-secondary) !important;
+  font-size: 0.79rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.info-panel:last-child {
+  border-bottom: 0;
+}
+
+.no-edit-panel,
+.no-calendar {
+  margin: 0;
+  color: #fda4af;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.no-edit-panel:hover,
+.no-calendar:hover {
+  color: var(--admin-danger);
+}
+
+/* Fieldsets */
+
+.fs-box {
+  min-inline-size: 0;
+  padding: 14px;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: 13px;
+  background: var(--admin-surface-soft);
+}
+
+.fs-legend {
+  float: none;
+  width: auto;
+  margin: 0 0 0 9px;
+  padding: 0 8px;
+  color: var(--admin-text-secondary);
+  font-size: 0.69rem;
+  font-weight: 650;
+}
+
+.edit-profession-panel {
+  padding: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 11px;
+  background: var(--admin-warning-soft);
+}
+
+/* Selects and inputs */
+
+.provider-admin :deep(.form-select) {
+  border-color: #334155;
+  border-radius: 11px;
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+.provider-admin :deep(.form-select:focus) {
+  border-color: var(--admin-accent);
+  background-color: #0f172a;
+  box-shadow: 0 0 0 0.18rem rgba(56, 189, 248, 0.18);
+  color: #e5e7eb;
+}
+
+.provider-admin :deep(.form-select option) {
+  background-color: #020617;
+  color: #cbd5e1;
+}
+
+.provider-admin :deep(.form-control) {
+  border-color: #334155;
+  background-color: rgba(15, 23, 42, 0.8);
+  color: var(--admin-text);
+}
+
+.provider-admin :deep(.form-control:focus) {
+  border-color: var(--admin-accent);
+  background-color: #0f172a;
+  box-shadow: 0 0 0 0.18rem rgba(56, 189, 248, 0.18);
+  color: var(--admin-text);
+}
+
+.search-wrap :deep(.form-outline) {
+  min-width: 180px;
+}
+
+/* Orders */
 
 .mobile-orders {
   width: 100%;
@@ -1369,61 +1969,58 @@ function sleep(ms) {
 }
 
 .order-section {
+  overflow: hidden;
   width: 100%;
-  border: 1px solid #c5b79d; 
-  padding: 13px 0 13px 0; 
-  margin-bottom: 13px; 
-  
-  border-radius: 7px;
+  margin-bottom: 14px;
+  padding: 14px 0;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
 }
 
-.proMap {
-  width: 17px;
-  cursor: pointer;
+.orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+  margin-bottom: 13px;
 }
 
-.no-edit-panel {
-  
-  color: red;
-  cursor: pointer;
-}
-
-.no-calendar {
-  color: red;
-  cursor: pointer;
+.orders-search {
+  width: 230px;
 }
 
 .min-w-0 {
   min-width: 0;
 }
 
-.search-wrap :deep(.form-outline) {
-  min-width: 180px;
+/* Calendar summary */
+
+.provider-admin :deep(.table-sm) {
+  margin: 0;
+  color: var(--admin-text-secondary);
 }
 
-@media (max-width: 500px) {
-  .map-client-text {
-    display: none;
-  }
-  .btn-desc {
-    font-size: 9px;
-  }
+.provider-admin :deep(.table-sm th),
+.provider-admin :deep(.table-sm td) {
+  padding: 4px 7px;
+  border: 0;
+  font-size: 0.72rem;
 }
 
-/* Stack the two "extras" columns earlier than lg */
-@media (max-width: 1250px) { /* choose your pixel */
-  .extras-row > .extras-col {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
+.provider-admin :deep(.table-sm th) {
+  color: var(--admin-text-muted);
+  font-weight: 600;
 }
 
 /* Toast */
+
 .toast-wrap {
   position: fixed;
-  left: 12px;
   right: 12px;
   bottom: 12px;
+  left: 12px;
   z-index: 1050;
   display: flex;
   justify-content: center;
@@ -1431,130 +2028,224 @@ function sleep(ms) {
 
 .toast-card {
   width: min(520px, 100%);
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 13px !important;
+  background: #f8fafc !important;
+  color: #172033;
 }
+
+/* Miscellaneous */
 
 .client-card {
-  border-radius: 14px;
+  border-radius: var(--admin-radius);
 }
 
-
-.info-panel {
-  border-bottom: 1px solid #2A3444;
-  padding: 12px 0;
-}
-
-.fs-box {
-  border: 1px solid #888;
-  border-radius: 6px;
-  padding: 1rem;
-  min-inline-size: 0; /* important for flex layouts */
-}
-
-.fs-legend {
-  padding: 0 8px;
-  font-size: 0.8rem;
-  margin-left: 100px;
-  color: #ccc;
-
-  /* 🔑 reset fixes */
-  float: unset;
-  width: auto;
-}
-
-.edit-profession-panel {
-  border: 1px solid orange;
-  padding: 7px;
-}
-
-:deep(.form-select) {
-  background-color: #0f172a; /* dark slate */
-  color: #e5e7eb;           /* light text */
-  border-color: #334155;
-  border-radius: 12px;
-}
-
-:deep(.form-select:focus) {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25);
-  background-color: #0f172a;
-  color: #e5e7eb;
-}
-
-
-
-:deep(.form-select option) {
-  background-color: #020617;
-  color: #78859e;
+.proMap {
+  width: 17px;
+  cursor: pointer;
 }
 
 .pac-container {
   z-index: 99999 !important;
 }
 
-.btn__icon{ font-size: 0.8rem; filter: drop-shadow(0 0 6px rgba(73,210,255,.55));  }
-
-/* Client actions*/
-/* .ticker {
-  position: fixed;          
-  top: 100px;                
-  left: 0;
-  width: 100%;
-  height: 60px;
-  overflow: hidden;
-
-  display: flex;
-  align-items: center;
-
-  z-index: 9999;            
+.btn__icon {
+  font-size: 0.8rem;
+  filter: drop-shadow(
+    0 0 6px rgba(73, 210, 255, 0.45)
+  );
 }
 
-.ticker__row {
-  white-space: nowrap;
-  will-change: transform;
-  animation: slide 12s linear forwards;
+/* Responsive */
+
+@media (max-width: 1250px) {
+  .extras-row > .extras-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
 }
 
-@keyframes slide {
-  from { transform: translateX(-100%); } 
-  to   { transform: translateX(120vw); } 
-} */
-
-/* .img-box {
-  background: #2a3441;
-  padding: 20px;
-
-  border: 3px solid;
-
-  border-top-color: #59b898;
-  border-left-color: #59b898;
-
-  border-right-color: #c48c58;
-  border-bottom-color: #c48c58;
-
-  box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
-} */
-
-
- .orders-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.orders-search {
-  width: 220px;
+@media (max-width: 900px) {
+  .provider-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 767px) {
+  .header-stack {
+    top: 56px;
+  }
+
+  .provider-topbar {
+    min-height: 57px;
+    padding: 8px 11px;
+  }
+
+  .provider-avatar {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 9px;
+    font-size: 0.8rem;
+  }
+
+  .provider-name {
+    max-width: 47vw;
+    font-size: 0.84rem;
+  }
+
+  .provider-updated {
+    max-width: 47vw;
+    font-size: 0.59rem;
+  }
+
+  .availability-pill {
+    gap: 5px;
+    padding: 5px 8px;
+    font-size: 0.61rem;
+  }
+
+  .ticker {
+    height: 27px;
+  }
+
+  .ticker__row {
+    padding-left: 11px;
+    font-size: 0.62rem;
+  }
+
+  .page-content {
+    padding-top: 94px;
+  }
+
+  .provider-stats {
+    gap: 8px;
+  }
+
+  .provider-stat-card {
+    min-height: 94px;
+    gap: 8px;
+    padding: 11px;
+    border-radius: 13px;
+  }
+
+  .provider-stat-card__icon {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+  }
+
+  .provider-stat-card__label {
+    font-size: 0.61rem;
+  }
+
+  .provider-stat-card__value {
+    font-size: 1.2rem;
+  }
+
+  .provider-stat-card__action {
+    min-height: 32px;
+    padding: 6px 7px;
+    font-size: 0.62rem;
+  }
+
+  .quick-actions {
+    gap: 8px;
+  }
+
+  .quick-action {
+    min-height: 60px;
+    gap: 8px;
+    padding: 9px;
+    border-radius: 12px;
+  }
+
+  .quick-action__icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 9px;
+    font-size: 0.77rem;
+  }
+
+  .quick-action__content strong {
+    font-size: 0.65rem;
+  }
+
+  .quick-action__content small {
+    font-size: 0.57rem;
+  }
+
+  .quick-action__arrow {
+    display: none;
+  }
+
   .orders-header {
-    flex-direction: column;
     align-items: stretch;
+    flex-direction: column;
   }
 
   .orders-search {
     width: 100%;
+  }
+
+  .provider-admin :deep(.card-body) {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .provider-admin {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .provider-stat-card--credit {
+    background-size: auto;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-action {
+    min-height: 55px;
+  }
+
+  .map-client-text {
+    display: none;
+  }
+
+  .btn-desc {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .provider-name,
+  .provider-updated {
+    max-width: 40vw;
+  }
+
+  .availability-pill {
+    padding: 5px 6px;
+  }
+
+  .availability-pill__dot {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker__row {
+    animation: none;
+  }
+
+  .quick-action,
+  .provider-stat-card--interactive {
+    transition: none;
   }
 }
 </style>

@@ -245,9 +245,7 @@
     "days_ago": "{count} days ago"
   },
 
-  "feedback": {
-    "no_written_reviews": "No written reviews yet!"
-  },
+  
 
   "photoGallery": {
     "references": "References",
@@ -533,6 +531,7 @@
     "confirmedOrders": "Confirmed orders",
     "archivedOrders": "Archived orders",
     "serviceProviders": "Service providers",
+    "view": "View",
     "collectedOrders": "Collected orders",
     "sentForOffers": "The order was sent to request price offers",
     "sentToProvider": "The order was sent to {provider}",
@@ -651,6 +650,117 @@
     "unknownUsername": "Unknown username",
     "noActiveConversation": "No conversation selected.",
     "uploadFailed": "File upload failed."
+  },
+
+  "editProfile": {
+    "close": "Close profile editing",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "username": "Username",
+    "newAddress": "Enter a new address",
+    "newEmail": "Enter a new email address",
+    "save": "Save changes",
+    "selectAddressFromList": "Select an address from the suggestion list.",
+    "invalidEmail": "The email address is invalid."
+  },
+
+  "payment": {
+    "payAmount": "Pay {amount}",
+    "payByCard": "Pay by card",
+    "mastercardAlt": "Mastercard payment"
+  },
+
+  "payPlan": {
+    "title": "Choose a plan",
+    "description": "Select the plan that suits your needs and continue to secure payment.",
+    "close": "Exit",
+    "recommended": "Most popular",
+    "oneTimePayment": "One-time payment",
+    "selectPlan": "Choose plan",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "sixMonths": "Six months",
+    "year": "Year",
+    "oneDay": "1 day",
+    "sevenDays": "7 days",
+    "oneMonth": "1 month",
+    "sixMonthDuration": "6 months",
+    "twelveMonthDuration": "12 months"
+  },
+
+  "profile": {
+    "close": "Close profile",
+    "avatar": "Profile picture",
+    "avatarAlt": "User profile picture",
+    "avatarDescription": "Add, change or remove your profile picture.",
+    "addAvatar": "Add profile picture",
+    "editAvatar": "Change profile picture",
+    "removeAvatar": "Remove profile picture",
+    "name": "Name",
+    "username": "Username",
+    "address": "Address",
+    "email": "Email",
+    "editDetails": "Edit your details",
+    "emailAlreadyInUse": "This email address is already in use.",
+    "emailAndAddressUpdated": "Your email address and address were updated successfully.",
+    "emailUpdated": "Your email address was updated successfully.",
+    "addressUpdated": "Your address was updated successfully.",
+    "avatarUploadFailed": "Failed to upload the profile picture.",
+    "avatarUpdateFailed": "Failed to change the profile picture.",
+    "avatarDeleteFailed": "Failed to remove the profile picture.",
+    "invalidImageType": "Select a JPEG, PNG, WebP or GIF image.",
+    "imageTooLarge": "The image may be no larger than 1 MB."
+  },
+
+  "timekeeping": {
+    "minutes_ago": "{count} minutes ago",
+    "hours_ago": "{count} hours ago",
+    "days_ago": "{count} days ago"
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "description": "View notifications related to your account and service requests.",
+    "dismiss": "Dismiss",
+    "removing": "Removing...",
+    "emptyTitle": "No new notifications",
+    "emptyDescription": "New notifications will appear here."
+  },
+
+  "app": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "calendar": "Calendar",
+    "rules": "Rules",
+    "manual": "User guide",
+    "orders": "Orders",
+    "logout": "Log out",
+    "login": "Log in",
+    "openUserMenu": "Open user menu",
+    "profileAvatarAlt": "User profile picture",
+    "feedbackTitle": "Send feedback",
+    "feedbackLabel": "Feedback",
+    "feedbackPlaceholder": "Tell us what you think about the service...",
+    "feedbackRequired": "Enter a message before sending.",
+    "sendFeedback": "Send feedback",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "giveFeedback": "Give feedback about the app",
+    "feedbackSent": "Your message was sent. Thank you for your feedback!",
+    "feedbackSendFailed": "The message could not be sent. Please try again.",
+    "orderConfirmed": "You have confirmed the order."
+  },
+
+  "feedback": {
+    "reviews": "Reviews",
+    "customer_reviews": "Customer Reviews",
+    "anonymous": "Anonymous",
+    "close": "Close",
+    "loading": "Loading reviews",
+    "no_written_reviews": "No written reviews",
+    "no_written_reviews_description": "No written reviews have been left for this service provider yet."
   },
 
   "recipient_result_need_a_pro": "I need a pro",
