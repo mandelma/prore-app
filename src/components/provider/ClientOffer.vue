@@ -59,7 +59,7 @@
             {{client.description}}
           </td>
         </tr>
-        <tr v-if="client.isIncludeOffers">
+        <tr v-if="client.isBudjet">
           <td>
             {{ t('clientOffer.budget') }}
           </td>

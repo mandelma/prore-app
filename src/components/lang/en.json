@@ -233,6 +233,8 @@
 
   "clientOfferList": {
     "credit_expired": "Your credit has expired. You can no longer perform actions!",
+    "newQuoteRequest": "New order",
+    "requireAction": "Action required",
     "add_credit": "Add Credit",
     "offer_sent": "Offer Sent",
     "make_offer": "Make Offer",
@@ -353,10 +355,12 @@
       "date": "Date"
     },
     "labels": {
-      "select_date_time": "Select booking date and time"
+      "select_date_time": "Select booking date and time",
+      "photo_caption": "Photo description"
     },
     "placeholders": {
-      "description": "Briefly describe what you need..."
+      "description": "Briefly describe what you need...",
+      "photo_caption": "Add a description for the photo (optional)..."
     },
     "empty": {
       "no_photos": "No photos have been added to this booking."
@@ -532,6 +536,8 @@
     "archivedOrders": "Archived orders",
     "serviceProviders": "Service providers",
     "view": "View",
+    "executionTime": "Scheduled time",
+    "created": "Created",
     "collectedOrders": "Collected orders",
     "sentForOffers": "The order was sent to request price offers",
     "sentToProvider": "The order was sent to {provider}",

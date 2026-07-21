@@ -31,7 +31,9 @@
             <span class="left-item">
               {{timeAgo(booking.started)}}
             </span>
-            <span v-if="!parentOpen" class="text-muted"><MDBBadge class="translate-middle p-1"  pill notification>{{ booking.status }}</MDBBadge></span>
+            <span v-if="!parentOpen" class="text-muted">
+              <MDBBadge class="translate-middle p-1"  pill notification><span class="text-danger">{{ t('clientOfferList.newQuoteRequest') }}</span></MDBBadge>
+            </span>
             
               <span v-if="parentOpen && booking.id === bookingID" class="right-item">
               <MDBBtnClose  white @click="parentOpen=!parentOpen"/>
@@ -91,7 +93,7 @@
               <span class="left-item">
                 {{timeAgo(booking.started)}}
               </span>
-              <span v-if="!parentOpen" class="text-muted"><MDBBadge class="translate-middle p-1"  pill notification>{{ booking.status }}</MDBBadge></span>
+              <span v-if="!parentOpen" class="text-muted"><MDBBadge class="translate-middle p-1"  pill notification>{{ t('clientOfferList.requireAction') }}</MDBBadge></span>
               <span v-if="parentOpen && booking.id === bookingID" class="right-item">
                 <MDBBtnClose style="color: red;" white @click="parentOpen=!parentOpen"/>
               </span>

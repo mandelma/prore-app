@@ -246,6 +246,8 @@
 
   "clientOfferList": {
     "credit_expired": "Din kredit har gått ut. Du kan inte längre utföra åtgärder!",
+    "newQuoteRequest": "Ny beställning",
+    "requireAction": "Kräver åtgärd",
     "add_credit": "Lägg till kredit",
     "offer_sent": "Offert skickad",
     "make_offer": "Ge offert",
@@ -364,10 +366,12 @@
       "date": "Datum"
     },
     "labels": {
-      "select_date_time": "Välj datum och tid för uppdraget"
+      "select_date_time": "Välj datum och tid för uppdraget",
+      "photo_caption": "Bildbeskrivning"
     },
     "placeholders": {
-      "description": "Beskriv kort vad du behöver..."
+      "description": "Beskriv kort vad du behöver...",
+      "photo_caption": "Lägg till en beskrivning av bilden (valfritt)..."
     },
     "empty": {
       "no_photos": "Inga bilder har lagts till för denna bokning ännu."
@@ -543,6 +547,8 @@
     "archivedOrders": "Arkiverade beställningar",
     "serviceProviders": "Tjänsteleverantörer",
     "view": "Visa",
+    "executionTime": "Tid för uppdraget",
+    "created": "Skapad",
     "collectedOrders": "Sammanställda beställningar",
     "sentForOffers": "Beställningen skickades för att begära prisofferter",
     "sentToProvider": "Beställningen skickades till {provider}",

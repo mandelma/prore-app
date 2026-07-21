@@ -89,7 +89,7 @@ module.exports = (io) => {
                 zone: body.zone,
                 professional: body.professional,
                 isIncludeOffers: body.isIncludeOffers,
-
+                isBudget: body.isBudget,
                 budget: body.budget,
 
                 date: body.dateStr,

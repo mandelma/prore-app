@@ -77,6 +77,10 @@ const recipientSchema = new Schema({
         type: String,
         required: true
     },
+    isBudget: {
+        type: Boolean,
+        default: false
+    },
     budget: {
         min: {
             type: Number,

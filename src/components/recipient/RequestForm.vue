@@ -43,7 +43,7 @@
               {{ formattedDateTime }}
             </p>
           
-            <p v-else style="color: red;">{{ t('requestForm.dateTimeRequired') }}</p>
+            <p v-else class="text-danger">{{ t('requestForm.dateTimeRequired') }}</p>
           </div>
 
        
@@ -244,7 +244,7 @@
 
   const fileInput = ref(null);
   const addedPhotos = ref([]);
-
+  
   const {
     draftPhotos,
     isAddPhotos,

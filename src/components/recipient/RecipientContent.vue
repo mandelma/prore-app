@@ -3,7 +3,7 @@
     <div class="page">
       <header class="page-header">
         
-        <h6 class="page-title">{{ booking.header}} → {{booking.professional[0]}}</h6>
+        <h6 class="page-title">{{ booking.header}}</h6>
         <div class="page-actions">
           <MDBBtnClose white @click="handleQuitContent" />
         </div>
@@ -14,8 +14,20 @@
     <MDBRow>
       <MDBCol lg="8">
         <booking-content :booking="booking"/>
-        <div style="color: red; cursor: pointer; display: flex; justify-content: right;" @click="removePublicBooking">
-          {{ tr('cancelOrder') }}
+        <div style="cursor: pointer; display: flex; justify-content: right;">
+          <button
+                  
+            type="button"
+            class="delete-link"
+            @click="
+              removePublicBooking()
+            "
+          >
+            <MDBIcon icon="trash-alt" />
+
+            {{ tr("cancelOrder") }}
+          </button>
+          <!-- {{ tr('cancelOrder') }} -->
         </div>
       </MDBCol>
       <MDBCol>
@@ -27,7 +39,7 @@
             </div>
             
             <div
-              v-for="offer in booking.offers"
+              v-for="offer in offers"
               :key="offer.id"
               class="offer-item"
               :class="{ 'is-new': offer.isNewOffer }"
@@ -148,6 +160,7 @@ import {
   MDBCol, 
   MDBBtnClose, 
   MDBBtn, 
+  MDBIcon,
   MDBTable, 
   MDBBadge, 
   MDBSelect, 
@@ -228,6 +241,10 @@ const dealMessage = computed(() => {
       selectedProvider.value?.name ||
       ""
   });
+})
+
+const offers = computed(() => {
+  return props.booking.offers
 })
 
 //const offerContent = clientStore.getOfferById(offerId);
@@ -336,7 +353,7 @@ const removePublicBooking = async () => {
   console.log("BOOKING ID " + props.booking.id);
 
   showDeleteModal.value = true;
-  cTitle.value = tr('deleteOrderTitle');
+  cTitle.value = tr('deleteTitle');
   cMessage.value = tr('deleteMessage');
   
 }
@@ -422,6 +439,23 @@ const handleCancelRemoving = () => {
   
   position: relative;
   z-index: 0;
+}
+
+.delete-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: #fda4af;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.delete-link:hover {
+  color: #fb7185;
 }
 
 

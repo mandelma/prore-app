@@ -246,6 +246,8 @@
 
   "clientOfferList": {
     "credit_expired": "Krediit on aegunud, sa ei saa enam tegevusi teha!",
+    "newQuoteRequest": "Uus tellimus",
+    "requireAction": "Vajab tegevust",
     "add_credit": "Lisa krediiti",
     "offer_sent": "Pakkumine saadetud",
     "make_offer": "Tee pakkumine",
@@ -365,10 +367,12 @@
       "date": "Kuupäev"
     },
     "labels": {
-      "select_date_time": "Vali töö kuupäev ja kellaaeg"
+      "select_date_time": "Vali töö kuupäev ja kellaaeg",
+      "photo_caption": "Foto kirjeldus"
     },
     "placeholders": {
-      "description": "Kirjelda lühidalt, mida vajad..."
+      "description": "Kirjelda lühidalt, mida vajad...",
+      "photo_caption": "Soovi korral lisa foto kirjeldus..."
     },
     "empty": {
       "no_photos": "Selle tellimusega pole pilte seotud."
@@ -544,6 +548,8 @@
     "archivedOrders": "Arhiveeritud tellimused",
     "serviceProviders": "Teenusepakkujad",
     "view": "Vaata",
+    "executionTime": "Töö teostamise aeg",
+    "created": "Loodud",
     "collectedOrders": "Koondatud tellimused",
     "sentForOffers": "Tellimus saadeti hinnapakkumiste küsimiseks",
     "sentToProvider": "Tellimus saadeti teenusepakkujale {provider}",

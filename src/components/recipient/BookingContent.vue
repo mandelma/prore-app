@@ -8,7 +8,7 @@
         </span>
 
         <h2 class="booking-panel__title">
-          {{ booking.professional || t("bookingContent.sections.booking") }}
+          {{ booking.professional[0] || t("bookingContent.sections.booking") }}
         </h2>
       </div>
 
@@ -20,7 +20,7 @@
           ◷
         </span>
 
-        <span>{{ booking.date }}</span>
+        <span>{{ formatDateTime(booking.created) }}</span>
       </div>
     </header>
 
@@ -59,7 +59,7 @@
             </dt>
 
             <dd class="booking-meta__value">
-              {{ booking.date || "—" }}
+              {{ formatDateTime(booking.created) || "—" }}
             </dd>
           </div>
         </dl>
@@ -281,14 +281,13 @@
               </p>
             </div>
           </div>
-
           <div
             v-if="draft.photos?.length"
             class="photos-grid"
           >
             <figure
               v-for="(photo, idx) in draft.photos"
-              :key="photo.id || idx"
+              :key="photo.id || photo.slotId || idx"
               class="photo-card photo-card--editable"
             >
               <div class="photo-card__media">
@@ -297,24 +296,22 @@
                   :src="
                     photo.imageUrl ||
                     photo.previewUrl ||
-                    photo.imageId?.imageUrl
+                    photo.imageId?.imageUrl ||
+                    photo.imageId?.previewUrl
                   "
                   :alt="
                     photo.alt ||
+                    photo.text ||
                     t('bookingContent.alt.booking_photo')
                   "
                 />
 
-                <figcaption class="photo-card__actions">
+                <div class="photo-card__actions">
                   <button
                     class="photo-action"
                     type="button"
-                    :aria-label="
-                      t('bookingContent.buttons.replace')
-                    "
-                    :title="
-                      t('bookingContent.buttons.replace')
-                    "
+                    :aria-label="t('bookingContent.buttons.replace')"
+                    :title="t('bookingContent.buttons.replace')"
                     @click="replacePhoto(idx)"
                   >
                     <span aria-hidden="true">↻</span>
@@ -323,18 +320,38 @@
                   <button
                     class="photo-action photo-action--danger"
                     type="button"
-                    :aria-label="
-                      t('bookingContent.buttons.delete')
-                    "
-                    :title="
-                      t('bookingContent.buttons.delete')
-                    "
+                    :aria-label="t('bookingContent.buttons.delete')"
+                    :title="t('bookingContent.buttons.delete')"
                     @click="removeDraftPhoto(idx)"
                   >
                     <span aria-hidden="true">×</span>
                   </button>
-                </figcaption>
+                </div>
               </div>
+
+              <figcaption class="photo-card__caption photo-card__caption--editable">
+                <label
+                  class="sr-only"
+                  :for="`photo-caption-${idx}`"
+                >
+                  {{ t("bookingContent.labels.photo_caption") }}
+                </label>
+
+                <textarea
+                  :id="`photo-caption-${idx}`"
+                  v-model.trim="photo.text"
+                  class="photo-card__textarea"
+                  rows="3"
+                  maxlength="200"
+                  :placeholder="
+                    t('bookingContent.placeholders.photo_caption')
+                  "
+                />
+
+                <span class="photo-card__caption-counter">
+                  {{ photo.text?.length || 0 }}/200
+                </span>
+              </figcaption>
             </figure>
           </div>
 
@@ -353,6 +370,7 @@
               {{ t("bookingContent.empty.no_photos") }}
             </p>
           </div>
+
         </section>
 
         <footer class="form-actions">
@@ -400,7 +418,7 @@ const emit = defineEmits(["update:booking", "save"]);
 // Optional: you can emit updated booking to parent instead of mutating props directly.
 
 // UI state
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const isEditing = ref(false);
 const draft = ref(null);
 const fileInput = ref(null);
@@ -434,6 +452,32 @@ watch(
 // --- Helpers ---
 function clonePhotos(photos) {
   return (photos || []).map((p) => ({ ...p }));
+}
+
+const localeMap = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  et: "et-EE",
+  ru: "ru-RU"
+};
+
+function formatDateTime(iso) {
+  if (!iso) return "—";
+
+  const date = new Date(iso);
+
+  return date.toLocaleString(
+    localeMap[locale.value] || "fi-FI",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }
+  );
 }
 
 function preventGlobalFileDrop(e) {

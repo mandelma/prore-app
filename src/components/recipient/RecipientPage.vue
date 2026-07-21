@@ -167,7 +167,7 @@
             class="order-card"
           >
             <header class="order-card__header">
-              <div class="order-card__heading">
+              <!-- <div class="order-card__heading">
                 <span
                   class="order-card__type"
                   :class="{
@@ -192,6 +192,40 @@
                 <time class="order-card__time">
                   {{ formatDateTime(booking.created) }}
                 </time>
+              </div> -->
+
+              <div class="order-card__heading">
+                <span
+                  class="order-card__type"
+                  :class="{
+                    'order-card__type--direct': !booking.isIncludeOffers
+                  }"
+                >
+                  <template v-if="booking.isIncludeOffers">
+                    {{ t("recipientPage.sentForOffers") }}
+                  </template>
+
+                  <template v-else>
+                    {{
+                      t("recipientPage.sentToProvider", {
+                        provider: booking.ordered?.[0]?.pName || "—"
+                      })
+                    }}
+                  </template>
+                </span>
+
+                <div class="order-card__times">
+                  <div class="order-card__execution">
+                    <i class="far fa-calendar-alt" />
+                    {{ t("recipientPage.executionTime") }}:
+                    <strong>{{ formatDateTime(booking.created) }}</strong>
+                  </div>
+
+                  <div class="order-card__created">
+                    {{ t("recipientPage.created") }}:
+                    {{ formatDateTime(booking.started) }}
+                  </div>
+                </div>
               </div>
 
               <div class="order-card__status">
@@ -1089,6 +1123,32 @@ button.stat-card {
   font-size: 0.7rem;
 }
 
+.order-card__times {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.order-card__execution {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--mdb-primary);
+}
+
+.order-card__execution strong {
+  color: inherit;
+}
+
+.order-card__created {
+  font-size: 0.75rem;
+  color: #7b8794;
+}
+
 .order-card__status {
   flex: 0 0 auto;
   max-width: 45%;
@@ -1194,6 +1254,7 @@ button.stat-card {
   font-size: 0.75rem;
   font-weight: 650;
   cursor: pointer;
+  font: inherit;
 }
 
 .delete-link:hover {

@@ -73,7 +73,15 @@
     <section class="provider-stats page-content">
       <article class="provider-stat-card">
         <div class="provider-stat-card__header">
-          <div class="provider-stat-card__icon provider-stat-card__icon--availability">
+          <!-- <div class="provider-stat-card__icon provider-stat-card__icon--availability">
+            <MDBIcon icon="toggle-on" />
+          </div> -->
+          <div class="provider-stat-card__icon" :class="{
+            'provider-stat-card__icon--availability':
+            provider.status === 'Saatavilla',
+            'provider-start-card__icon--warning':
+            provider.status !== 'Saatavilla'
+          }">
             <MDBIcon icon="toggle-on" />
           </div>
 
@@ -1654,6 +1662,11 @@ button.provider-stat-card {
 .provider-stat-card__icon--availability {
   background: var(--admin-success-soft);
   color: #6ee7b7;
+}
+
+.provider-start-card__icon--warning {
+  background: var(--admin-warning-soft);
+  color: #fcd34d;
 }
 
 .provider-stat-card__icon--confirmed {

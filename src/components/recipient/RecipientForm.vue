@@ -187,8 +187,14 @@
           </div>
 
           <!-- Budjetti ja muut yksityiskohdat voit kertoa myöhemmin chatissä palveluntarjoajien kanssa. Budjetti auttaa palveluntarjoajia arvioinnissa. -->
-          {{ t('recipientForm.budget') }}
-          <div style="margin-top: 17px;" class="field-wrapper">
+          <!-- {{ t('recipientForm.budget') }} -->
+          Budget value - {{ isBudget }}
+          <MDBCheckbox 
+            :label="t('recipientForm.budget')"
+            v-model="isBudget"
+            value="true"
+          />
+          <div v-if="isBudget" style="margin-top: 17px;" class="field-wrapper">
             <div class="budget-field">
               <MDBInput
                 :label="t('recipientForm.budgetMin')"
@@ -396,6 +402,7 @@ const form = reactive({
   budgetMin: null,
   budgetMax: null
 });
+const isBudget = ref(false);
 const errors = reactive({});
 const isValidating = ref(false);
 
@@ -409,8 +416,8 @@ const validateForm = () => {
 
   errors.dateTime = form.dateTime ? "" : t('recipientForm.dateRequired');
   errors.explanation = form.explanation ? "" : t('recipientForm.descriptionRequired');
-  errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
-  errors.budgetMax = form.budgetMax != null ? "" : t('recipientForm.budgetMaxRequired');
+  //errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
+  //errors.budgetMax = form.budgetMax != null ? "" : t('recipientForm.budgetMaxRequired');
 
   if (form.address && (form.lat === null || form.lng === null) ) {
       errors.address = t('recipientForm.addressAutocompleteError');
@@ -994,6 +1001,7 @@ const createClient = async() => {
       professional: form.profession.label,
       isIncludeOffers: true,
       description: form.explanation,
+      isBudget: isBudget.value,
       budget: {
         min: form.budgetMin,
         max: form.budgetMax

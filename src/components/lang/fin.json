@@ -263,6 +263,8 @@
 
   "clientOfferList": {
     "credit_expired": "Luotto on vanhentunut, et voi enää toimia!",
+    "newQuoteRequest": "Uusi tilaus",
+    "requireAction": "Vaatii toimenpiteitä",
     "add_credit": "Lisää luottoa",
     "offer_sent": "Tarjous lähetetty",
     "make_offer": "Tee tarjous",
@@ -381,10 +383,12 @@
       "date": "Päivämäärä"
     },
     "labels": {
-      "select_date_time": "Valitse tehtävän päivämäärä ja aika"
+      "select_date_time": "Valitse tehtävän päivämäärä ja aika",
+      "photo_caption": "Kuvan kuvaus"
     },
     "placeholders": {
-      "description": "Kerro lyhyesti, mitä tarvitset..."
+      "description": "Kerro lyhyesti, mitä tarvitset...",
+      "photo_caption": "Lisää halutessasi kuvan kuvaus..."
     },
     "empty": {
       "no_photos": "Tilaukseen ei ole lisätty kuvia."
@@ -555,6 +559,8 @@
     "archivedOrders": "Arkistoidut tilaukset",
     "serviceProviders": "Palveluntarjoajat",
     "view": "Näytä",
+    "executionTime": "Työn ajankohta",
+    "created": "Luotu",
     "collectedOrders": "Kootut tilaukset",
     "sentForOffers": "Tilaus on lähetetty hintatarjousten pyytämistä varten",
     "sentToProvider": "Tilaus on lähetetty palveluntarjoajalle {provider}",
