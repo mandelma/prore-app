@@ -265,6 +265,7 @@
     "credit_expired": "Luotto on vanhentunut, et voi enää toimia!",
     "newQuoteRequest": "Uusi tilaus",
     "requireAction": "Vaatii toimenpiteitä",
+    "processed": "Käsitelty",
     "add_credit": "Lisää luottoa",
     "offer_sent": "Tarjous lähetetty",
     "make_offer": "Tee tarjous",
@@ -585,7 +586,13 @@
     "deleteConfirmMessage": "Oletko varma, että haluat poistaa tilauksesi? Toimintoa ei voi perua.",
     "providerConfirmed": "{provider} on vahvistettu.",
     "bookingCancelledNotification": "{client} peruutti tilauksen “{booking}”. Ilmoitettu syy: {reason}.",
-    "updatedSuccessfully": "Tiedot on päivitetty onnistuneesti!"
+    "updatedSuccessfully": "Tiedot on päivitetty onnistuneesti!",
+    "orderInfo": "Tilauksen tiedot",
+    "description": "Kuvaus",
+    "address": "Osoite",
+    "profession": "Palvelu",
+    "orderPhotos": "Tilauksen kuvat",
+    "orderPhotoAlt": "Tilauksen kuva"
   },
 
   "requestForm": {

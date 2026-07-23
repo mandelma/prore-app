@@ -623,7 +623,7 @@ const formattedDateTime = computed(() => {
         };
       })
       .filter(p => p.imageId || p.previewUrl);
-
+      console.log("Request dt value = " + dateTime.value);
       emit('sendRequest', {
         date: dateTime.value,
         address: form.address,

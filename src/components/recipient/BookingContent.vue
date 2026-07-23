@@ -8,7 +8,7 @@
         </span>
 
         <h2 class="booking-panel__title">
-          {{ booking.professional[0] || t("bookingContent.sections.booking") }}
+          {{ booking.header || t("bookingContent.sections.booking") }}
         </h2>
       </div>
 
@@ -29,7 +29,7 @@
       v-if="!isEditing"
       class="booking-panel__body"
     >
-      <section class="details-section">
+      <!-- <section class="details-section">
         <div class="section-heading">
           <h3 class="section-heading__title">
             {{ t("bookingContent.fields.description") }}
@@ -63,7 +63,85 @@
             </dd>
           </div>
         </dl>
-      </section>
+      </section> -->
+
+      <div class="direct-booking-info__panel">
+        <div class="direct-booking-info__header">
+          <div>
+            <span class="direct-booking-info__eyebrow">
+              {{ t("recipientPage.orderInfo") }}
+            </span>
+          </div>
+
+          <MDBIcon
+            icon="clipboard-list"
+            class="direct-booking-info__header-icon"
+          />
+        </div>
+
+        <dl class="direct-booking-info__details">
+          <div
+            v-if="booking.description"
+            class="direct-booking-info__row direct-booking-info__row--description"
+          >
+            <dt>
+              {{ t("recipientPage.description") }}
+            </dt>
+
+            <dd>
+              {{ booking.description }}
+            </dd>
+          </div>
+
+          <div
+            v-if="booking.created"
+            class="direct-booking-info__row"
+          >
+            <dt>
+              <MDBIcon icon="calendar-alt" />
+
+              {{ t("recipientPage.executionTime") }}
+            </dt>
+
+            <dd>
+              {{ formatDateTime(booking.created, locale) }}
+            </dd>
+          </div>
+
+          <div
+            v-if="booking.address"
+            class="direct-booking-info__row"
+          >
+            <dt>
+              <MDBIcon icon="map-marker-alt" />
+
+              {{ t("recipientPage.address") }}
+            </dt>
+
+            <dd>
+              {{ booking.address }}
+            </dd>
+          </div>
+
+          <div
+            v-if="booking.professional"
+            class="direct-booking-info__row"
+          >
+            <dt>
+              <MDBIcon icon="briefcase" />
+
+              {{ t("recipientPage.profession") }}
+            </dt>
+
+            <dd>
+              {{ booking.professional.join() }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+
+
 
       <div class="section-divider" />
 
@@ -83,49 +161,49 @@
           </div>
         </div>
 
-        <div
-  v-if="booking.photos?.length"
-  class="photos-grid"
->
-  <figure
-    v-for="(photo, idx) in booking.photos"
-    :key="photo.id || idx"
-    class="photo-card"
-  >
-    <div class="photo-card__media">
-      <div
-        v-if="loadingImages[idx]"
-        class="photo-loader"
-        role="status"
-      >
-        <span class="photo-loader__spinner" />
-      </div>
+        
+        <div v-if="booking.photos?.length"
+          class="photos-grid"
+        >
+          <figure
+            v-for="(photo, idx) in booking.photos"
+            :key="photo.id || idx"
+            class="photo-card"
+          >
+            <div class="photo-card__media">
+              <div
+                v-if="loadingImages[idx]"
+                class="photo-loader"
+                role="status"
+              >
+                <span class="photo-loader__spinner" />
+              </div>
 
-      <img
-        class="photo-card__image"
-        :src="
-          photo.imageId?.imageUrl ||
-          photo.imageUrl ||
-          photo.imageId?.previewUrl
-        "
-        :alt="
-          photo.alt ||
-          t('bookingContent.alt.booking_photo')
-        "
-        loading="lazy"
-        @load="loadingImages[idx] = false"
-        @error="loadingImages[idx] = false"
-      />
-    </div>
+              <img
+                class="photo-card__image"
+                :src="
+                  photo.imageId?.imageUrl ||
+                  photo.imageUrl ||
+                  photo.imageId?.previewUrl
+                "
+                :alt="
+                  photo.alt ||
+                  t('bookingContent.alt.booking_photo')
+                "
+                loading="lazy"
+                @load="loadingImages[idx] = false"
+                @error="loadingImages[idx] = false"
+              />
+            </div>
 
-    <figcaption
-      v-if="photo.text"
-      class="photo-card__caption"
-    >
-      {{ photo.text }}
-    </figcaption>
-  </figure>
-</div>
+            <figcaption
+              v-if="photo.text"
+              class="photo-card__caption"
+            >
+              {{ photo.text }}
+            </figcaption>
+          </figure>
+        </div>
 
         <div
           v-else
@@ -396,7 +474,7 @@
 </template>
 
 <script setup>
-import { MDBDateTimepicker } from 'mdb-vue-ui-kit';
+import { MDBDateTimepicker, MDBIcon } from 'mdb-vue-ui-kit';
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from 'vue-i18n';
 import { useClientStore } from '@/stores/recipientStore';
@@ -1172,6 +1250,105 @@ onBeforeUnmount(() => {
   font-size: 0.72rem;
   font-weight: 700;
 }
+
+/* Booking info panel */
+
+
+.direct-booking-info__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.direct-booking-info__eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.58);
+}
+.direct-booking-info__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #fff;
+}
+
+.direct-booking-info__header-icon {
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  color: #7fcdb3;
+}
+
+.direct-booking-info__details {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.direct-booking-info__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.direct-booking-info__row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.direct-booking-info__row dt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.direct-booking-info__row dd {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.direct-booking-info__row--description {
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+@media (max-width: 650px) {
+  .order-card__actions--direct {
+    grid-template-columns: 1fr;
+  }
+
+  .direct-booking-info__row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .direct-booking-controls .delete-link {
+    margin-left: 0;
+  }
+}
+
+
+
+
+
+
 
 .description-card {
   min-height: 76px;

@@ -48,7 +48,7 @@
             {{ t('clientOffer.date') }}
           </td>
           <td>
-            {{client.date}}
+            {{formatDateTime(client.created, locale)}}
           </td>
         </tr>
         <tr>
@@ -59,7 +59,7 @@
             {{client.description}}
           </td>
         </tr>
-        <tr v-if="client.isBudjet">
+        <tr v-if="client.isBudget">
           <td>
             {{ t('clientOffer.budget') }}
           </td>
@@ -359,6 +359,8 @@ import ConfirmDealModal from '../helpers/ConfirmDealModal.vue';
 
 import { useI18n } from 'vue-i18n';
 
+import { formatDateTime } from '../helpers/datei18n.js';
+
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
 import { useConversationStore } from '@/stores/conversationStore.js';
@@ -386,7 +388,7 @@ const _props = defineProps({
 const emit = defineEmits(['toast', 'just-test', 'handle-user-action', "open-chat"])
 
 const { client, open } = toRefs(_props)
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const sender = useLoginStore();
 const notificationStore = useNotificationStore();
 const conversationStore = useConversationStore();

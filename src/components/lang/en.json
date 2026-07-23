@@ -235,6 +235,7 @@
     "credit_expired": "Your credit has expired. You can no longer perform actions!",
     "newQuoteRequest": "New order",
     "requireAction": "Action required",
+    "processed": "Processed",
     "add_credit": "Add Credit",
     "offer_sent": "Offer Sent",
     "make_offer": "Make Offer",
@@ -562,7 +563,13 @@
     "deleteConfirmMessage": "Are you sure you want to delete the order? This action cannot be undone.",
     "providerConfirmed": "{provider} has been confirmed.",
     "bookingCancelledNotification": "{client} cancelled the order “{booking}”. Reason given: {reason}.",
-    "updatedSuccessfully": "The information was updated successfully!"
+    "updatedSuccessfully": "The information was updated successfully!",
+    "orderInfo": "Order details",
+    "description": "Description",
+    "address": "Address",
+    "profession": "Service",
+    "orderPhotos": "Order photos",
+    "orderPhotoAlt": "Order photo"
   },
 
   "requestForm": {

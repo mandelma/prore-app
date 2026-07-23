@@ -167,32 +167,6 @@
             class="order-card"
           >
             <header class="order-card__header">
-              <!-- <div class="order-card__heading">
-                <span
-                  class="order-card__type"
-                  :class="{
-                    'order-card__type--direct':
-                      !booking.isIncludeOffers
-                  }"
-                >
-                  <template v-if="booking.isIncludeOffers">
-                    {{ t("recipientPage.sentForOffers") }}
-                  </template>
-
-                  <template v-else>
-                    {{
-                      t("recipientPage.sentToProvider", {
-                        provider:
-                          booking.ordered?.[0]?.pName || "—"
-                      })
-                    }}
-                  </template>
-                </span>
-
-                <time class="order-card__time">
-                  {{ formatDateTime(booking.created) }}
-                </time>
-              </div> -->
 
               <div class="order-card__heading">
                 <span
@@ -215,7 +189,7 @@
                 </span>
 
                 <div class="order-card__times">
-                  <div class="order-card__execution">
+                  <div v-if="booking.isIncludeOffers" class="order-card__execution">
                     <i class="far fa-calendar-alt" />
                     {{ t("recipientPage.executionTime") }}:
                     <strong>{{ formatDateTime(booking.created) }}</strong>
@@ -303,8 +277,11 @@
                 </button>
               </div>
 
-              <!-- Direct booking -->
-              <div v-else class="order-card__actions">
+              
+              <!-- <div v-else class="order-card__actions">
+                <div class="direct-booking-info">
+                  123
+                </div>
                 <div
                   v-if="
                     selBookingId === booking.id &&
@@ -357,7 +334,186 @@
 
                   {{ t("recipientPage.deleteOrder") }}
                 </button>
+              </div> -->
+
+              <!-- Direct booking -->
+              <div v-else class="order-card__actions order-card__actions--direct">
+                <div class="direct-booking-info">
+                  <div class="direct-booking-info__panel">
+                    <div class="direct-booking-info__header">
+                      <div>
+                        <span class="direct-booking-info__eyebrow">
+                          {{ t("recipientPage.orderInfo") }}
+                        </span>
+
+                        <!-- <h4 class="direct-booking-info__title">
+                          {{
+                            booking.header ||
+                            booking.professional ||
+                            t("recipientPage.order")
+                          }}
+                        </h4> -->
+                      </div>
+
+                      <MDBIcon
+                        icon="clipboard-list"
+                        class="direct-booking-info__header-icon"
+                      />
+                    </div>
+
+                    <dl class="direct-booking-info__details">
+                      <div
+                        v-if="booking.description"
+                        class="direct-booking-info__row direct-booking-info__row--description"
+                      >
+                        <dt>
+                          {{ t("recipientPage.description") }}
+                        </dt>
+
+                        <dd>
+                          {{ booking.description }}
+                        </dd>
+                      </div>
+
+                      <div
+                        v-if="booking.created"
+                        class="direct-booking-info__row"
+                      >
+                        <dt>
+                          <MDBIcon icon="calendar-alt" />
+
+                          {{ t("recipientPage.executionTime") }}
+                        </dt>
+
+                        <dd>
+                          {{ formatDateTime(booking.created, locale) }}
+                        </dd>
+                      </div>
+
+                      <div
+                        v-if="booking.address"
+                        class="direct-booking-info__row"
+                      >
+                        <dt>
+                          <MDBIcon icon="map-marker-alt" />
+
+                          {{ t("recipientPage.address") }}
+                        </dt>
+
+                        <dd>
+                          {{ booking.address }}
+                        </dd>
+                      </div>
+
+                      <div
+                        v-if="booking.professional"
+                        class="direct-booking-info__row"
+                      >
+                        <dt>
+                          <MDBIcon icon="briefcase" />
+
+                          {{ t("recipientPage.profession") }}
+                        </dt>
+
+                        <dd>
+                          {{ booking.professional.join() }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+
+
+                  
+
+                  <div
+                    v-if="booking.photos?.length"
+                    class="direct-booking-info__photos"
+                  >
+                    <h5 class="direct-booking-info__photos-title">
+                      {{ t("recipientPage.orderPhotos") }}
+                    </h5>
+
+                    <div class="direct-booking-info__photos-grid">
+                      <figure
+                        v-for="(photo, index) in booking.photos"
+                        :key="photo.id || photo._id || index"
+                        class="direct-booking-info__photo"
+                      >
+                        <img
+                          :src="
+                            photo.imageUrl ||
+                            photo.previewUrl ||
+                            photo.imageId?.imageUrl ||
+                            photo.imageId?.previewUrl
+                          "
+                          :alt="
+                            photo.alt ||
+                            t('recipientPage.orderPhotoAlt')
+                          "
+                          loading="lazy"
+                        />
+
+                        <figcaption
+                          v-if="photo.text?.trim()"
+                          class="direct-booking-info__caption"
+                        >
+                          {{ photo.text }}
+                        </figcaption>
+                      </figure>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="direct-booking-controls">
+                  <div
+                    v-if="
+                      selBookingId === booking.id &&
+                      isQuitBooking
+                    "
+                    class="quit-box"
+                  >
+                    <MDBTextarea
+                      v-model="clientQuitBookingReason"
+                      white
+                      :label="t('recipientPage.reasonPlaceholder')"
+                      rows="3"
+                    />
+
+                    <div class="quit-box__actions">
+                      <button
+                        type="button"
+                        class="text-action"
+                        @click="canselQuitSelectedBooking"
+                      >
+                        {{ t("recipientPage.cancel") }}
+                      </button>
+
+                      <button
+                        v-if="clientQuitBookingReason.length > 1"
+                        type="button"
+                        class="danger-action"
+                        @click="clientRejectMapBooking(booking)"
+                      >
+                        {{ t("recipientPage.deleteOrder") }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    v-else
+                    type="button"
+                    class="delete-link"
+                    @click="handleQuitSelectedBooking(booking.id)"
+                  >
+                    <MDBIcon icon="trash-alt" />
+
+                    {{ t("recipientPage.deleteOrder") }}
+                  </button>
+                </div>
               </div>
+
+
+
             </div>
           </article>
         </div>
@@ -550,6 +706,7 @@ import { useI18n } from 'vue-i18n';
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import world from '@/assets/map.gif'
 import RecipientContent from "../recipient/RecipientContent.vue";
+import { formatDateTime } from '../helpers/datei18n.js';
 import ConfirmModal from '../helpers/ConfirmModal.vue';
 import { useClientStore } from '@/stores/recipientStore';
 import { useRouter } from 'vue-router'
@@ -755,7 +912,7 @@ const handleNoRating = () => {
   handleFeedbackModal.value = false;
 }
 
-const localeMap = {
+/* const localeMap = {
   fi: "fi-FI",
   en: "en-GB",
   sv: "sv-SE",
@@ -779,7 +936,7 @@ function formatDateTime(iso) {
       hour12: false
     }
   );
-}
+} */
 
 const handleUpdateOfferState = (bookingId, offerId) => {
   console.log("Booking id is " +bookingId);
@@ -1126,7 +1283,7 @@ button.stat-card {
 .order-card__times {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.15rem;
 }
 
@@ -1137,7 +1294,7 @@ button.stat-card {
 
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--mdb-primary);
+  color: var(--text-secondary);
 }
 
 .order-card__execution strong {
@@ -1147,6 +1304,10 @@ button.stat-card {
 .order-card__created {
   font-size: 0.75rem;
   color: #7b8794;
+
+  /* font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58); */
 }
 
 .order-card__status {
@@ -1246,7 +1407,8 @@ button.stat-card {
 .delete-link {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  /* gap: 7px; */
+  gap: .4rem;
   padding: 6px 4px;
   border: 0;
   background: transparent;
@@ -1260,6 +1422,8 @@ button.stat-card {
 .delete-link:hover {
   color: var(--danger);
 }
+
+
 
 .quit-box {
   display: grid;
@@ -1297,6 +1461,187 @@ button.stat-card {
   border: 1px solid rgba(251, 113, 133, 0.32);
   background: rgba(251, 113, 133, 0.13);
   color: #fda4af;
+}
+
+/* direct booking panel */
+.order-card__actions--direct {
+  display: grid;
+  /* grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); */
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.direct-booking-info {
+  min-width: 0;
+}
+
+.direct-booking-info__panel {
+  padding: 1.15rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.9rem;
+}
+
+.direct-booking-info__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.direct-booking-info__eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.direct-booking-info__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #fff;
+}
+
+.direct-booking-info__header-icon {
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  color: #7fcdb3;
+}
+
+.direct-booking-info__details {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.direct-booking-info__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.direct-booking-info__row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.direct-booking-info__row dt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.direct-booking-info__row dd {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.direct-booking-info__row--description {
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+.direct-booking-info__photos {
+  margin-top: 1rem;
+}
+
+.direct-booking-info__photos-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.direct-booking-info__photos-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(130px, 1fr)
+  );
+  gap: 0.75rem;
+}
+
+.direct-booking-info__photo {
+  margin: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+}
+
+.direct-booking-info__photo img {
+  display: block;
+  width: 100%;
+  height: 125px;
+  object-fit: cover;
+}
+
+.direct-booking-info__caption {
+  padding: 0.55rem 0.65rem;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.direct-booking-controls {
+  /* min-width: 0; */
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.direct-booking-controls .quit-box {
+  width: 100%;
+}
+
+.direct-booking-controls .delete-link {
+  /* margin-left: auto; */
+  display: flex;
+  justify-content: right;
+}
+
+@media (max-width: 1250px) {
+  .order-card__actions--direct {
+    grid-template-columns: 1fr;
+  }
+
+  .direct-booking-info__row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .direct-booking-controls .delete-link {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .direct-booking-info__photos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .direct-booking-info__photo img {
+    height: 105px;
+  }
 }
 
 /* Confirmed orders */

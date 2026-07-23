@@ -248,6 +248,7 @@
     "credit_expired": "Krediit on aegunud, sa ei saa enam tegevusi teha!",
     "newQuoteRequest": "Uus tellimus",
     "requireAction": "Vajab tegevust",
+    "processed": "Käsitletud",
     "add_credit": "Lisa krediiti",
     "offer_sent": "Pakkumine saadetud",
     "make_offer": "Tee pakkumine",
@@ -574,7 +575,13 @@
     "deleteConfirmMessage": "Kas oled kindel, et soovid tellimuse kustutada? Seda toimingut ei saa tagasi võtta.",
     "providerConfirmed": "{provider} on kinnitatud.",
     "bookingCancelledNotification": "{client} tühistas tellimuse „{booking}“. Põhjuseks märgiti: {reason}.",
-    "updatedSuccessfully": "Andmed uuendati edukalt!"
+    "updatedSuccessfully": "Andmed uuendati edukalt!",
+    "orderInfo": "Tellimuse info",
+    "description": "Kirjeldus",
+    "address": "Aadress",
+    "profession": "Teenus",
+    "orderPhotos": "Tellimuse pildid",
+    "orderPhotoAlt": "Tellimuse pilt"
   },
 
   "requestForm": {

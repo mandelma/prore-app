@@ -1225,14 +1225,19 @@ const handleSendRequest = async (_form) => {
       console.log("Invalid date string");
   }
 
+  console.log("dt value - " + dt.value);
+  console.log("_form.date - " + _form.date)
+  
+
   const mainDate = dt.value ? dt.value : _form.date;
+
+  console.log("mainDate - " + mainDate)
 
   const request = {
     author_id: userId,
     created: dateObj,
-    date: mainDate,
+    dateStr: mainDate,
     created_ms: ms,
-    dateStr: dt.value,
     header: _form.header,
     agreement: false,
     address: _form.address,

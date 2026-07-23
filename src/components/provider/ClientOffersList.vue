@@ -87,19 +87,29 @@
             </MDBCollapse>
             
           </div>
-          
+          <!-- Income order is seen -->
           <div v-else class="booking-row-seen">
             <div class="line">
               <span class="left-item">
                 {{timeAgo(booking.started)}}
               </span>
-              <span v-if="!parentOpen" class="text-muted"><MDBBadge class="translate-middle p-1"  pill notification>{{ t('clientOfferList.requireAction') }}</MDBBadge></span>
+              <!-- v-if="!parentOpen" -->
+              <span class="text-muted">
+                <MDBBadge class="translate-middle p-1"  pill notification>
+                  {{ 
+                    booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId)
+                    ?
+                    t('clientOfferList.processed')
+                    :
+                    t('clientOfferList.requireAction') 
+                  }}
+
+                </MDBBadge>
+              </span>
               <span v-if="parentOpen && booking.id === bookingID" class="right-item">
                 <MDBBtnClose style="color: red;" white @click="parentOpen=!parentOpen"/>
               </span>
               </div>
-              
-              <!-- ---{{ booking.offers }} -->
               
               <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
                 
@@ -218,6 +228,8 @@ const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
 
 const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : []);
+
+const isOfferDone = 0;
 
 const collapseEl = ref(null)
 const collapseRoot = ref(null)

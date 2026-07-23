@@ -248,6 +248,7 @@
     "credit_expired": "Din kredit har gått ut. Du kan inte längre utföra åtgärder!",
     "newQuoteRequest": "Ny beställning",
     "requireAction": "Kräver åtgärd",
+    "processed": "Behandlad",
     "add_credit": "Lägg till kredit",
     "offer_sent": "Offert skickad",
     "make_offer": "Ge offert",
@@ -573,7 +574,13 @@
     "deleteConfirmMessage": "Är du säker på att du vill ta bort beställningen? Åtgärden kan inte ångras.",
     "providerConfirmed": "{provider} har bekräftats.",
     "bookingCancelledNotification": "{client} avbröt beställningen “{booking}”. Angiven orsak: {reason}.",
-    "updatedSuccessfully": "Informationen uppdaterades!"
+    "updatedSuccessfully": "Informationen uppdaterades!",
+    "orderInfo": "Orderinformation",
+    "description": "Beskrivning",
+    "address": "Adress",
+    "profession": "Tjänst",
+    "orderPhotos": "Bilder för uppdraget",
+    "orderPhotoAlt": "Bild för uppdraget"
   },
 
   "requestForm": {

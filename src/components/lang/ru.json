@@ -209,6 +209,7 @@
         "credit_expired": "Ваш кредит истёк, вы больше не можете выполнять действия!",
         "newQuoteRequest": "Новый заказ",
         "requireAction": "Требует действия",
+        "processed": "Обработано",
         "add_credit": "Пополнить кредит",
         "offer_sent": "Предложение отправлено",
         "make_offer": "Сделать предложение",
@@ -534,7 +535,13 @@
         "deleteConfirmMessage": "Вы уверены, что хотите удалить заказ? Это действие нельзя отменить.",
         "providerConfirmed": "{provider} подтверждён.",
         "bookingCancelledNotification": "{client} отменил заказ «{booking}». Указанная причина: {reason}.",
-        "updatedSuccessfully": "Информация успешно обновлена!"
+        "updatedSuccessfully": "Информация успешно обновлена!",
+        "orderInfo": "Информация о заказе",
+        "description": "Описание",
+        "address": "Адрес",
+        "profession": "Услуга",
+        "orderPhotos": "Фотографии заказа",
+        "orderPhotoAlt": "Фотография заказа"
     },
 
     "requestForm": {
