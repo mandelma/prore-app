@@ -249,6 +249,7 @@
     "deal_confirm_button": "Hienoa!",
     "deal_cancel_button": "Peruuta",
     "keep_button": "Pidä se",
+    "offerExceedsBudget": "Tarjous ei voi ylittää asiakkaan enimmäisbudjettia.",
     "notifications": {
       "order_removed": "{name} tilaus on poistettu!",
       "offer_sent": "{name} tilaus. Hintatarjous on lähetetty onnistuneesti!",

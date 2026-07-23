@@ -219,6 +219,7 @@
     "deal_confirm_button": "Great!",
     "deal_cancel_button": "Cancel",
     "keep_button": "Keep it",
+    "offerExceedsBudget": "The offer cannot exceed the customer's maximum budget.",
     "notifications": {
       "order_removed": "{name}'s order has been removed!",
       "offer_sent": "Price offer for {name}'s order has been sent successfully!",

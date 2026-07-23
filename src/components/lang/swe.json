@@ -232,6 +232,7 @@
     "deal_confirm_button": "Toppen!",
     "deal_cancel_button": "Avbryt",
     "keep_button": "Behåll",
+    "offerExceedsBudget": "Offerten får inte överstiga kundens maximala budget.",
     "notifications": {
       "order_removed": "{name}s uppdrag har tagits bort!",
       "offer_sent": "Prisförslaget för {name}s uppdrag har skickats!",

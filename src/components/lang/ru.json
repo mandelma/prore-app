@@ -193,6 +193,7 @@
         "deal_confirm_button": "Отлично!",
         "deal_cancel_button": "Отмена",
         "keep_button": "Оставить",
+        "offerExceedsBudget": "Предложение не может превышать максимальный бюджет клиента.",
         "notifications": {
             "order_removed": "Заказ клиента {name} удалён!",
             "offer_sent": "Ценовое предложение по заказу {name} успешно отправлено!",

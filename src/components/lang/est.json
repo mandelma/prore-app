@@ -232,6 +232,7 @@
     "deal_confirm_button": "Suurepärane!",
     "deal_cancel_button": "Tühista",
     "keep_button": "Jäta alles",
+    "offerExceedsBudget": "Pakkumine ei saa olla suurem kui kliendi maksimaalne eelarve.",
     "notifications": {
       "order_removed": "{name} tellimus on eemaldatud!",
       "offer_sent": "{name} tellimusele saadeti hinnapakkumine edukalt!",

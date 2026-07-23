@@ -177,8 +177,28 @@
                   </div>
 
                   <form class="form-card">
-                    <MDBInput type="text" :label="t('clientOffer.offer_price')" @input="filterInput" :value="offerValueFiltered" v-model="offerPrice" wrapperClass="mb-4" />
-                    <div style="text-align: left; margin-bottom: 10px;">
+                    <div class="offer-field">
+                      <MDBInput 
+                        style="margin-bottom: 5px;"
+                        type="text" 
+                        :label="t('clientOffer.offer_price')" 
+                        @input="filterInput" 
+                        :value="offerValueFiltered" 
+                        v-model="offerPrice" 
+                        
+                      />
+                      <span v-if="offerPriceWarning" class="text-danger">{{ t('clientOffer.offerExceedsBudget') }}</span>
+                    </div>
+                    
+                    
+                    <!-- <MDBInput
+                      v-model="filteredOfferPrice"
+                      type="text"
+                      inputmode="decimal"
+                      :label="t('clientOffer.offer_price')"
+                      wrapperClass="mb-4"
+                    /> -->
+                    <div style="text-align: left; margin-bottom: 17px;">
                       <MDBRadio
                           :label="t('clientOffer.offer_at_client')"
                           name="area"
@@ -234,7 +254,7 @@
  
         </div>
       </div>
-      <!--:::With offers::-->
+      <!--::With offers::-->
       <div v-else class="offer-actions" >
         <!--    <MDBBtn outline="success" block size="lg" @click="isQuitClientBooking = true">Varmista tilaus</MDBBtn>-->
 
@@ -430,7 +450,7 @@ const final = ref(null);
 const loadingImages= ref({});
 
 const profession = computed(() => _props.client?.professional?.[0]?.profession || '');
-
+const offerPriceWarning = ref(false);
 const showDeleteModal = ref(false);
 const cTitle = ref("");
 const cMessage = ref("");
@@ -534,6 +554,61 @@ const onCoToast = (icon, content, color) => {
   toastModel.value = true;
 }
 
+// for priceoffer validation with number input
+/* watch(offerPrice, (value) => {
+  if (value > 100) offerPrice.value = 100;
+  if (value < 0) offerPrice.value = 0;
+}); */
+
+const MAX_PRICE = 100;
+
+const filteredOfferPrice = computed({
+  get() {
+    return offerPrice.value;
+  },
+
+  set(value) {
+    let filtered = String(value ?? "")
+      .replace(",", ".")
+      .replace(/[^0-9.]/g, "");
+
+    // Lubab ainult ühe punkti
+    const dotIndex = filtered.indexOf(".");
+
+    if (dotIndex !== -1) {
+      filtered =
+        filtered.slice(0, dotIndex + 1) +
+        filtered.slice(dotIndex + 1).replace(/\./g, "");
+    }
+
+    // ".5" → "0.5"
+    if (filtered.startsWith(".")) {
+      filtered = `0${filtered}`;
+    }
+
+    // Maksimaalselt kaks komakohta
+    const [integerPart, decimalPart] = filtered.split(".");
+
+    if (decimalPart !== undefined) {
+      filtered = `${integerPart}.${decimalPart.slice(0, 2)}`;
+    }
+
+    const numericValue = Number(filtered);
+
+    if (
+      filtered !== "" &&
+      Number.isFinite(numericValue) &&
+      numericValue > MAX_PRICE
+    ) {
+      filtered = String(MAX_PRICE);
+    }
+
+    offerPrice.value = filtered;
+  }
+});
+
+
+// For priceoffer with text input
 const filterInput = ref((event) => {
   // Filter out non-digit characters
   const raw = event.target.value;
@@ -551,6 +626,20 @@ const filterInput = ref((event) => {
   if (filtered.startsWith('.')) {
     filtered = '0' + filtered;
   }
+
+  
+
+  if (client.value.isBudget) {
+    const maxPrice = client.value.isBudget ? client.value.budget.max : null;
+    if (filtered > maxPrice) {
+      filtered = maxPrice;
+      offerPriceWarning.value = true;
+      setTimeout(() => {
+        offerPriceWarning.value = false;
+      }, 1000)
+    } 
+  }
+  
 
   // Update input field directly
   event.target.value = filtered;
@@ -1007,6 +1096,10 @@ box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
   width: 100%;
   /* margin-bottom: 20px; */
   padding-bottom: 24px;
+}
+
+.offer-field {
+  margin-bottom: 13px;
 }
 
 @media (max-width: 767px) {
