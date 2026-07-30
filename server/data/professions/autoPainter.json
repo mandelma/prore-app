@@ -1,0 +1,306 @@
+{
+    "code": "auto_painter",
+    "categoryCode": "vehicle_services",
+    "name": {
+        "fi": "Automaalari",
+        "en": "Automotive painter",
+        "sv": "Billackerare",
+        "et": "Automaaler",
+        "ru": "Автомаляр"
+    },
+    "description": {
+        "fi": "Ajoneuvojen maalaus-, pintakäsittely- ja maalivauriokorjaukset.",
+        "en": "Vehicle painting, surface finishing and paint damage repairs.",
+        "sv": "Lackering, ytbehandling och reparation av lackskador på fordon.",
+        "et": "Sõidukite värvimine, pinnatöötlus ja värvikahjustuste parandamine.",
+        "ru": "Покраска транспортных средств, обработка поверхностей и ремонт повреждений лакокрасочного покрытия."
+    },
+    "icon": "fa-solid fa-spray-can-sparkles",
+    "enabled": true,
+    "sortOrder": 10,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "vehicle"
+    ],
+    "customFields": [
+        {
+            "key": "paintArea",
+            "type": "multiselect",
+            "required": true,
+            "order": 100,
+            "label": {
+                "fi": "Maalattava osa",
+                "en": "Area to be painted",
+                "sv": "Del som ska lackeras",
+                "et": "Värvitav osa",
+                "ru": "Окрашиваемая часть"
+            },
+            "placeholder": {
+                "fi": "Valitse maalattavat osat",
+                "en": "Select the areas to be painted",
+                "sv": "Välj delar som ska lackeras",
+                "et": "Vali värvitavad osad",
+                "ru": "Выберите окрашиваемые части"
+            },
+            "options": [
+                {
+                    "value": "front_bumper",
+                    "label": {
+                        "fi": "Etupuskuri",
+                        "en": "Front bumper",
+                        "sv": "Främre stötfångare",
+                        "et": "Esistange",
+                        "ru": "Передний бампер"
+                    }
+                },
+                {
+                    "value": "rear_bumper",
+                    "label": {
+                        "fi": "Takapuskuri",
+                        "en": "Rear bumper",
+                        "sv": "Bakre stötfångare",
+                        "et": "Tagastange",
+                        "ru": "Задний бампер"
+                    }
+                },
+                {
+                    "value": "door",
+                    "label": {
+                        "fi": "Ovi",
+                        "en": "Door",
+                        "sv": "Dörr",
+                        "et": "Uks",
+                        "ru": "Дверь"
+                    }
+                },
+                {
+                    "value": "hood",
+                    "label": {
+                        "fi": "Konepelti",
+                        "en": "Hood",
+                        "sv": "Motorhuv",
+                        "et": "Kapott",
+                        "ru": "Капот"
+                    }
+                },
+                {
+                    "value": "roof",
+                    "label": {
+                        "fi": "Katto",
+                        "en": "Roof",
+                        "sv": "Tak",
+                        "et": "Katus",
+                        "ru": "Крыша"
+                    }
+                },
+                {
+                    "value": "fender",
+                    "label": {
+                        "fi": "Lokasuoja",
+                        "en": "Fender",
+                        "sv": "Skärm",
+                        "et": "Poritiib",
+                        "ru": "Крыло"
+                    }
+                },
+                {
+                    "value": "whole_vehicle",
+                    "label": {
+                        "fi": "Koko ajoneuvo",
+                        "en": "Whole vehicle",
+                        "sv": "Hela fordonet",
+                        "et": "Kogu sõiduk",
+                        "ru": "Всё транспортное средство"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu osa",
+                        "en": "Other area",
+                        "sv": "Annan del",
+                        "et": "Muu osa",
+                        "ru": "Другая часть"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "damageType",
+            "type": "multiselect",
+            "required": false,
+            "order": 110,
+            "label": {
+                "fi": "Vaurion tyyppi",
+                "en": "Type of damage",
+                "sv": "Typ av skada",
+                "et": "Kahjustuse tüüp",
+                "ru": "Тип повреждения"
+            },
+            "options": [
+                {
+                    "value": "scratch",
+                    "label": {
+                        "fi": "Naarmu",
+                        "en": "Scratch",
+                        "sv": "Repa",
+                        "et": "Kriimustus",
+                        "ru": "Царапина"
+                    }
+                },
+                {
+                    "value": "dent",
+                    "label": {
+                        "fi": "Lommo",
+                        "en": "Dent",
+                        "sv": "Buckla",
+                        "et": "Mõlk",
+                        "ru": "Вмятина"
+                    }
+                },
+                {
+                    "value": "paint_peeling",
+                    "label": {
+                        "fi": "Maalin irtoaminen",
+                        "en": "Peeling paint",
+                        "sv": "Flagande färg",
+                        "et": "Värvi koorumine",
+                        "ru": "Отслоение краски"
+                    }
+                },
+                {
+                    "value": "rust",
+                    "label": {
+                        "fi": "Ruoste",
+                        "en": "Rust",
+                        "sv": "Rost",
+                        "et": "Rooste",
+                        "ru": "Ржавчина"
+                    }
+                },
+                {
+                    "value": "collision_damage",
+                    "label": {
+                        "fi": "Törmäysvaurio",
+                        "en": "Collision damage",
+                        "sv": "Krockskada",
+                        "et": "Avariikahjustus",
+                        "ru": "Повреждение после столкновения"
+                    }
+                },
+                {
+                    "value": "color_change",
+                    "label": {
+                        "fi": "Värin vaihto",
+                        "en": "Color change",
+                        "sv": "Färgbyte",
+                        "et": "Värvivahetus",
+                        "ru": "Смена цвета"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "paintCodeKnown",
+            "type": "boolean",
+            "required": false,
+            "order": 120,
+            "label": {
+                "fi": "Onko ajoneuvon värikoodi tiedossa?",
+                "en": "Is the vehicle paint code known?",
+                "sv": "Är fordonets färgkod känd?",
+                "et": "Kas sõiduki värvikood on teada?",
+                "ru": "Известен ли код краски?"
+            }
+        },
+        {
+            "key": "paintCode",
+            "type": "text",
+            "required": false,
+            "order": 130,
+            "label": {
+                "fi": "Värikoodi",
+                "en": "Paint code",
+                "sv": "Färgkod",
+                "et": "Värvikood",
+                "ru": "Код краски"
+            },
+            "placeholder": {
+                "fi": "Syötä värikoodi, jos tiedossa",
+                "en": "Enter the paint code if known",
+                "sv": "Ange färgkoden om den är känd",
+                "et": "Sisesta värvikood, kui see on teada",
+                "ru": "Введите код краски, если он известен"
+            },
+            "validation": {
+                "maxLength": 30
+            }
+        },
+        {
+            "key": "hasRust",
+            "type": "boolean",
+            "required": false,
+            "order": 140,
+            "label": {
+                "fi": "Onko maalattavassa kohdassa ruostetta?",
+                "en": "Is there rust in the area to be painted?",
+                "sv": "Finns det rost på området som ska lackeras?",
+                "et": "Kas värvitaval alal esineb roostet?",
+                "ru": "Есть ли ржавчина на окрашиваемом участке?"
+            }
+        },
+        {
+            "key": "partRemoved",
+            "type": "boolean",
+            "required": false,
+            "order": 150,
+            "label": {
+                "fi": "Onko maalattava osa irrotettu ajoneuvosta?",
+                "en": "Has the part been removed from the vehicle?",
+                "sv": "Har delen tagits bort från fordonet?",
+                "et": "Kas värvitav detail on sõidukilt eemaldatud?",
+                "ru": "Снята ли окрашиваемая деталь?"
+            }
+        },
+        {
+            "key": "needsBodyRepair",
+            "type": "boolean",
+            "required": false,
+            "order": 160,
+            "label": {
+                "fi": "Tarvitaanko myös korikorjausta?",
+                "en": "Is body repair also required?",
+                "sv": "Behövs även karosserireparation?",
+                "et": "Kas on vaja ka keretöid?",
+                "ru": "Требуется ли также кузовной ремонт?"
+            }
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 170,
+            "label": {
+                "fi": "Lisätiedot maalauksesta",
+                "en": "Additional painting details",
+                "sv": "Ytterligare information om lackeringen",
+                "et": "Lisainfo värvimistöö kohta",
+                "ru": "Дополнительная информация о покраске"
+            },
+            "placeholder": {
+                "fi": "Kuvaile vaurion kokoa ja maalipinnan kuntoa.",
+                "en": "Describe the size of the damage and the condition of the paint.",
+                "sv": "Beskriv skadans storlek och lackytans skick.",
+                "et": "Kirjelda kahjustuse suurust ja värvipinna seisukorda.",
+                "ru": "Опишите размер повреждения и состояние покрытия."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

@@ -1,6 +1,43 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+const translationSchema = require('./schemas/translationSchema');
+
+const selectedOptionSchema = new mongoose.Schema(
+    {
+        value: String,
+
+        label: translationSchema
+    },
+    { _id: false }
+);
+
+const bookingCustomFieldSchema = new mongoose.Schema(
+    {
+        key: {
+            type: String,
+            required: true
+        },
+
+        type: {
+            type: String,
+            required: true
+        },
+
+        label: translationSchema,
+
+        placeholder: translationSchema,
+
+        value: mongoose.Schema.Types.Mixed,
+
+        selectedOptions: {
+            type: [selectedOptionSchema],
+            default: []
+        }
+    },
+    { _id: false }
+);
+
 const recipientSchema = new Schema({
     author_id: {
         type: String,
@@ -31,12 +68,23 @@ const recipientSchema = new Schema({
     longitude: {
         type: Number
     },
+    professionCode: {
+        type: String,
+        required: true
+    },
     professional: [
         {
             type: String,
             required:true
         }
     ],
+    customFieldValues: {
+        type: Object
+    },
+    customFields: {
+        type: [bookingCustomFieldSchema],
+        default: []
+    },
     onTime: [
         {
             year: {
@@ -124,8 +172,11 @@ const recipientSchema = new Schema({
             ref: "offer"
         }
     ],
-    offer: {
+    confirmedOffer: {
         type: Object
+    },
+    confirmedAt: {
+        type: Date
     },
     zone: {
         type: Number

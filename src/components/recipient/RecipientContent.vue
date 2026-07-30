@@ -78,15 +78,15 @@
       scrollable
     >
       <MDBModalHeader class="modal-header-custom">
-        <MDBModalTitle >{{ selectedProvider.name }}</MDBModalTitle>
+        <MDBModalTitle >{{ activeOffer.name }}</MDBModalTitle>
       </MDBModalHeader>
       <MDBModalBody>
 
         <div class="modal-pro-first">
-          <MDBIcon v-if="!selectedProvider?.provider?.user?.avatar?.isImage"  icon="user" class="icon" />
+          <MDBIcon v-if="!activeOffer?.provider?.user?.avatar?.isImage"  icon="user" class="icon" />
           <img
           v-else
-            :src="selectedProvider?.provider?.user?.avatar?.imageUrl"
+            :src="activeOffer?.provider?.user?.avatar?.imageUrl"
             class="rounded-circle"
             height="53"
             alt=""
@@ -94,11 +94,11 @@
           />
 
           <div>
-            <stars :rating="selectedProvider?.provider?.rating" />
+            <stars :rating="activeOffer?.provider?.rating" />
             <p class="text-muted small" style="text-align: center;">
               {{
                 tr("raters", {
-                  count: selectedProvider?.provider?.ratersCount || 0
+                  count: activeOffer?.provider?.ratersCount || 0
                 })
               }}
             </p>
@@ -209,7 +209,8 @@ const clientStore = useClientStore();
 const booking_offers = ref([])
 const offerId = ref("");
 const isOfferContent = ref(false);
-const selectedProvider = ref(null);
+const activeOffer = ref(null);
+const activeProvider = ref(null);
 const loadOffers = load_offers;
 
 // No active filter by default
@@ -237,23 +238,26 @@ const showDealConfirm = ref(false);
 const dealMessage = computed(() => {
   return tr("dealMessage", {
     provider:
-      selectedProvider.value?.provider?.pName ||
-      selectedProvider.value?.name ||
+      activeOffer.value?.provider?.pName ||
+      activeOffer.value?.name ||
       ""
   });
 })
 
 const offers = computed(() => {
-  return props.booking.offers
+  return [...props.booking.offers || []]
+    .sort((a, b) => Number(a.price) - Number(b.price))
+    .slice(0, 10);
 })
 
 //const offerContent = clientStore.getOfferById(offerId);
 
-const getProviderInfo = async (proID, offer) => {
-  console.log("Provider info", proID);
+const getProviderInfo = async (pro, offer) => {
+  console.log("Provider info", pro);
   console.log("booking id - " + offer.bookingID);
 
-  selectedProvider.value = offer;
+  activeOffer.value = offer;
+  activeProvider.value = pro;
 
   openProModal.value = true;
 
@@ -276,14 +280,168 @@ const orderProvider = async() => {
 }
 
 const confirmProvider = async () => {
-  console.log("Provider order confirmed");
+  console.log("-- Confirming provider --");
+
+  const _offer = activeOffer.value;
 
   console.log("Offer id " + offerId.value)
   const offerContent = clientStore.getOfferById(offerId.value);
-  console.log("Ordering the provider to the booking - " + selectedProvider.value.bookingID);
-  console.log("OfferContent booking id ", offerContent.bookingID)
+  const clientBooking = clientStore.getBookingById(offerContent.bookingID);
+  
 
-  const receiver = selectedProvider.value.sender;
+  console.log("Ordering the provider to the booking - " + activeOffer.value.bookingID);
+  console.log("OfferContent booking id ", offerContent.bookingID);
+
+  const offer = {
+    bookingID: _offer.bookingID,
+    sender: _offer.sender,
+    isNewOffer: _offer.isNewOffer,
+    name: _offer.name,
+    placeOrGo: _offer.placeOrGo,
+    cAddress: clientBooking.address,
+    pAddress: activeProvider.value.address,
+    area: _offer.area,
+    distance: _offer.distance,
+    duration: _offer.duration,
+    price: _offer.price,
+    description: _offer.description,
+    place: _offer.place,
+    provider: activeProvider.value.id
+  };
+
+
+
+
+  try {
+    const confirmation =
+      await clientService.confirmOffer(_offer.bookingID, {
+        offer,
+        confirmed_provider_user_id: _offer.sender
+      });
+
+    if (!confirmation?.success) {
+      return;
+    }
+
+    console.log("Confirmation - ", confirmation)
+
+    const booking = bookings.value.find(b => b.id === activeOffer.value.bookingID);
+    if (!booking) {
+      console.error("No booking found for bookingID:", activeOffer.value.bookingID, bookings.value);
+      return;
+    }
+
+    emit("handle-user-action");
+
+    onToast("fas fa-check fa-lg me-2", "Tellimus kinnitatud!", "success");
+
+    emit("toast", {
+      state: "success",
+      message: t(
+        "clientOffer.notifications.order_confirmed"
+      ),
+      icon: "fas fa-check fa-lg me-2",
+      color: "success"
+    });
+
+    const proContent = tr("providerNotification", {
+      client: user.value.firstName,
+      booking: booking.header
+    });
+    const clientContent = tr("clientNotification");
+
+    console.log("OFFERCONTENT*** ", offerContent);
+
+    const receiver = activeOffer.value.sender;
+    const myId = user.value.id;
+    const bookingId = activeOffer.value.bookingID;
+    const header = tr("dealCreatedTitle");;
+
+
+    
+
+
+
+    const notification = {
+      bookingId: bookingId,
+      isNewMsg: true,
+      isLink: true,
+      title: header,
+      content: proContent,
+      reason: '',
+      sender: user.value.firstName,
+    }
+
+    await clientStore.confirmOffer(offer);
+    
+    await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
+    emit('canselRecipientContentConfirmed', activeOffer.value.name);
+
+    
+
+    //openProModal.value = false;
+
+    //showDealConfirm.value = false;
+
+    /* await proStore.onClientBooking(
+      client.value.id,
+      offer,
+      myself,
+      client.value.author_id,
+      providerId.value,
+      notes
+    ); */
+
+    /* socket.emit(
+      "pro-confirm-client",
+      receiver,
+      providerId.value
+    ); */
+  } catch (error) {
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+
+    if (
+      status === 409 &&
+      code === "BOOKING_ALREADY_CONFIRMED"
+    ) {
+      /* emit("toast", {
+        state: "warning",
+        message: t(
+          "clientOffer.notifications.already_confirmed"
+        ),
+        icon: "fas fa-exclamation-triangle fa-lg me-2",
+        color: "warning"
+      }); */
+
+      //emit("handle-user-action");
+      return;
+    }
+
+    console.error("API error in child:", error);
+
+    onToast("fas fa-times fa-lg me-2", "Tilause kinnitamine ei õnnestunud!", "danger");
+
+    /* emit("toast", {
+      state: "danger",
+      message: t(
+        "clientOffer.notifications.confirmation_failed"
+      ),
+      icon: "fas fa-times fa-lg me-2",
+      color: "danger"
+    }); */
+  } finally {
+    //loading.value = false;
+    openProModal.value = false;
+
+    showDealConfirm.value = false;
+  }
+
+
+
+
+
+  /* const receiver = selectedProvider.value.sender;
   const myId = user.value.id;
   const bookingId = selectedProvider.value.bookingID;
   const header = tr("dealCreatedTitle");;
@@ -293,22 +451,24 @@ const confirmProvider = async () => {
   if (!booking) {
     console.error("No booking found for bookingID:", selectedProvider.value.bookingID, bookings.value);
     return;
-  }
+  } */
 
-  //const proContent = `${user.value.firstName} on vahvistanut tilauksen - "${bookings.value.find(b => b.id === selectedProvider.value.bookingID).header}". Tarkemmat tiedot kalenterissa!`;
-  const proContent = tr("providerNotification", {
+  /* const proContent = tr("providerNotification", {
     client: user.value.firstName,
     booking: booking.header
   });
   const clientContent = tr("clientNotification");
 
-  const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
-  console.log("Confirmed --- ", confirmed)
-  const includeOffer = await clientService.addConfirmedOffer(offerContent.bookingID, offerContent);
+  console.log("OFFERCONTENT*** ", offerContent); */
 
-  if (!includeOffer) return;
+  //const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
+  //console.log("Confirmed --- ", confirmed)
 
-  const notification = {
+  //const includeOffer = await clientService.confirmOffer(offerContent.bookingID, offer);
+
+  //if (!includeOffer) return;
+
+  /* const notification = {
       bookingId: bookingId,
       isNewMsg: true,
       isLink: true,
@@ -318,16 +478,16 @@ const confirmProvider = async () => {
       sender: user.value.firstName,
   }
 
-  await clientStore.confirmOffer(offerContent);
+  await clientStore.confirmOffer(offer);
   
   await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
   emit('canselRecipientContentConfirmed', selectedProvider.value.name);
 
-  //onToast("fas fa-check fa-lg me-2", `${selectedProvider.value.pName} on tilattu onnistuneesti!`, "success");
+  
 
   openProModal.value = false;
 
-  showDealConfirm.value = false;
+  showDealConfirm.value = false; */
 }
 
 const cancelProvider = () => {
@@ -343,7 +503,7 @@ const handleQuitOfferContentConfirmed = (pro) => {
   console.log("Quitting content! " + pro)
   //isOfferContent.value = false;
   openProModal.value = false;
-  selectedProvider.value = false;
+  //selectedProvider.value = false;
   
   emit('canselRecipientContentConfirmed', pro);
 }

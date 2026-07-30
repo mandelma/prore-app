@@ -186,7 +186,7 @@
           </p>
         </div>
       </div>
-      <offer-content :offerId="null" :bookingId="dealID" />
+      <offer-content :offerId="null" :bookingId="dealID" @open-chat="$emit('open-chat', $event)"/>
     </MDBModalBody>
     <MDBModalFooter>
       <div style="display: flex; justify-content: right;">
@@ -368,6 +368,7 @@ const filteredBookingHistory = computed(() => {
 });
 
 function openDetails(b) {
+  console.log("Opened booking value ", b);
   selectedBooking.value = b
   showDetails.value = true
 }
@@ -377,22 +378,19 @@ function closeDetails() {
   selectedBooking.value = null
 }
 
-function bookAgain(b) {
+const bookAgain =  async (b) => {
   if (!b) return
   // Adjust route to your app
-  console.log("--------- " + b?.deal?.provider?.profession[0])
+  const id = b?.deal?.provider;
+  console.log("BBB ID ", id);
+  const pro = await providerService.getProvByProvId(id);
 
-  selectedProvider.value = b?.deal?.provider;
-  /* const clientObject = {
-    professional: b?.deal?.provider?.profession[0],
-    title: "Uusi tilaus"
-  }
-  router.push({
-    name: 'recipient-form',
-    query: {
-      content: JSON.stringify(clientObject)
-    }
-  }) */
+  if (!pro) return;
+
+  console.log("PRO - ", pro);
+
+  selectedProvider.value = pro;  // b?.deal?.provider;
+  
   orderProviderModal.value = true;
 }
 
@@ -419,29 +417,23 @@ const handleCancelRemoving = () => {
 
 const goToProvider = async (deal) => {
   if (!deal) return
-  //console.log("Booking offer - ", deal);
 
-  const provider = deal?.provider;
+  const providerId = deal?.provider;
   try {
-    console.log("Provider id got - " + provider?.id)
-    const providerUp = await providerService.getProvByProvId(provider.id);
+    console.log("Provider id got - " + providerId)
+    const providerUp = await providerService.getProvByProvId(providerId);
     console.log("PPP ", providerUp)
     if (providerUp) selectedProvider.value = providerUp;
 
-    //console.log("S provider rates count - " + selectedProvider.value.ratersCount)
   } catch (err) {
     console.log("Error happens when loading provider's data!" + err.message)
   }
-  //selectedProvider.value = provider;
+
   if (!selectedProvider.value) return;
 
   console.log("Provider - ", selectedProvider.value);
   dealID.value = deal.bookingID;
   console.log("Deal id - " + deal.id);
-  /* const provider = await providerService.getProvByProvId(providerId);
-  if (!provider) return;
-  console.log("Got provider - ", provider)
-  selectedProvider.value = provider; */
 
   providerProfileModal.value = true;
   

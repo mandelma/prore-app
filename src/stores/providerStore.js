@@ -17,18 +17,8 @@ export const useProStore = defineStore("pro", () => {
     const provider = ref(null);
     const providers = ref([]);
     const providerId = ref(null);
-    //const isIncomingOffers = ref(null);
-
 
     const incomingOffers = ref([]);
-
-
-    //const isNewIncomingOffers = ref();
-    //const newOffersAmount = ref(0);
-
-
-    //const incomingOffersCount = ref(incomingOffers.value.length)
-
 
     const proCalendarEvents = ref([]);
     const proTimetable = ref([]);
@@ -63,42 +53,6 @@ export const useProStore = defineStore("pro", () => {
     const addVisitorForBooking = (bId, offer) => {
         const index = incomingOffers.value.findIndex(inx => inx.id === bId);
         incomingOffers.value[index].visitors.push(offer.visitor);
-    }
-    const getProState_old = async(id) => {
-        isProStateLoading.value = true;
-        proError.value = null;
-        try {
-            const proObj = await providerService.getProvider(id);
-            const pro = proObj ? proObj : null;
-            if (pro) {
-                providerId.value = pro.id;
-                const incoming_offers_list = pro.proposal ? pro.proposal : [];
-                provider.value = pro;
-                proCredit.value = ((pro.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((pro.proTime - new Date().getTime()) / 86400000).toFixed();
-
-                proCalendarEvents.value = incoming_offers_list.filter(e => e.status === 'confirmed');
-
-                const offersToDisplay = incoming_offers_list.filter(ol => ol.status === 'active');
-
-                incomingOffers.value = offersToDisplay.sort((a, b) => b.created_ms - a.created_ms);
-
-
-                proTimetable.value = provider.value.timetable;
-                
-                
-            }
-                
-
-            return pro;
-        } catch (error) {
-            proError.value = error.message;
-            provider.value = {};
-            //incomingOffersCount.value = null;
-            incomingOffers.value = [];
-            throw error;
-        } finally {
-            isProStateLoading.value = false;
-        }
     }
 
     const getAllProviders = async() => {
@@ -210,42 +164,73 @@ export const useProStore = defineStore("pro", () => {
         incomingOffers.value = incomingOffers.value.sort((a, b) => b.created_ms - a.created_ms);;
         // keep the counter in sync
 
-        //incomingOffersCount.value = incomingOffers.value.length
+        
     }
-    const addProviderOffer = async(id, addressee, newContent) => {
-        if (loading.value) return;
+    
+    const addProviderOffer = async (
+        id,
+        newContent
+    ) => {
+        if (loading.value) {
+            throw new Error("Offer request is already in progress.");
+        }
+
         loading.value = true;
+        addOfferError.value = "";
+
         try {
-            const createdOffer = await offerService.addOffer(newContent);
-            if (createdOffer) {
-                const offerDbClient = await clientService.createOffer(id, createdOffer.id);
-                newContent.id = createdOffer.id;
-                const index = incomingOffers.value.findIndex(iov => iov.id === id);
-                const updatedOffer = incomingOffers.value[index];
+            const response =
+                await offerService.addOffer(newContent);
 
-                // adding local provider to offer
-                if (provider.value)
-                    createdOffer.provider = provider.value
-
-                //updatedOffer.offers.push(newContent);
-                updatedOffer.offers.push(createdOffer);
-
-                const updatedOffers = incomingOffers.value.map(item => item.id === id ? updatedOffer : item);
-                incomingOffers.value = updatedOffers.sort((a, b) => b.created_ms - a.created_ms);
-
-                //socket.emit('client get offer', addressee, id, newContent);
-                socket.emit('client get offer', addressee, id, createdOffer);
-            } else {
-                
+            if (!response?.success || !response?.offer) {
+                throw new Error("Invalid offer response.");
             }
-        } catch (e) {
-            console.log("Error to add offer - " + e.message);
-            addOfferError.value = "Occured internet problem, try again!";
+
+            const createdOffer = response.offer;
+
+            if (provider.value) {
+                createdOffer.provider = provider.value;
+            }
+
+            const index = incomingOffers.value.findIndex(
+                booking => booking.id === id
+            );
+
+            if (index !== -1) {
+                const updatedBooking = {
+                    ...incomingOffers.value[index],
+                    offers: [
+                        ...(incomingOffers.value[index].offers || []),
+                        createdOffer
+                    ]
+                };
+
+                incomingOffers.value = incomingOffers.value
+                    .map(booking =>
+                        booking.id === id ? updatedBooking : booking
+                    )
+                    .sort(
+                        (a, b) =>
+                            Number(b.created_ms || 0) -
+                            Number(a.created_ms || 0)
+                    );
+            }
+
+            return response;
+        } catch (error) {
+            console.error("Error adding offer:", error);
+
+            addOfferError.value =
+                error.response?.data?.message ||
+                "An internet error occurred. Please try again.";
+
+            // Väga oluline: komponent peab vea kätte saama
+            throw error;
         } finally {
             loading.value = false;
         }
-         
-    }
+    };
+
     const removeBookingMapOffer = async (id) => {
         await removeLocalBooking(id);
     }
@@ -318,6 +303,7 @@ export const useProStore = defineStore("pro", () => {
     }
     // Confirmed by client multi offer
     const handleConfirmed = (bookingId) => {
+        console.log("Prostore --confirmed--")
         const confirmedOffer = incomingOffers.value.find(i => i.id === bookingId);
         const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
         incomingOffers.value = pendingOffers;

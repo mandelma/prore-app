@@ -98,17 +98,17 @@ export const useClientStore = defineStore('client', () => {
 
             //removeExpiredBookings(orders || []);
 
-            let list = removeExpiredBookings(orders || []);
+            //let list = removeExpiredBookings(orders || []);
 
-            //let list = orders ? orders : [];
+            let list = orders ? orders : [];
 
             console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
 
-            //list = list.map(b => isValid(b.created_ms) ? {...b, valid: false} : {...b, valid: true});
+            
 
             console.log("LIST ", list)
 
-            //list = list.filter(booking => !isValid(booking.created_ms));
+            
 
             console.log("Expired bookings removed:", removeExpiredBookings(list));
 
@@ -174,8 +174,9 @@ export const useClientStore = defineStore('client', () => {
 
     const confirmOffer = async (offer) => {
         console.log("R STORE ", offer)
-        const changedStatus = bookings.value.map(order => order.id === offer.bookingID ? {...order, status: 'confirmed'} : order);
+        const changedStatus = bookings.value.map(order => order.id === offer.bookingID ? {...order, status: 'confirmed', confirmedOffer: offer} : order);
         bookings.value = changedStatus;
+        
 
         console.log("__ Client store socket receiver " + offer.sender)
 
@@ -202,7 +203,7 @@ export const useClientStore = defineStore('client', () => {
         //if (bookings.value.length < 1) router.push('/');
     }
 
-    // Client removing map booking
+    // Client removing map booking and expired bookings as well
     const removeMapOffer = async (booking) => {
         const removed = await clientService.removeBooking(booking.id);
 
@@ -212,8 +213,20 @@ export const useClientStore = defineStore('client', () => {
             bookings.value = bookings.value.filter(item => item.id !== booking.id);
         }
 
-        //bookings.value = bookings.value.filter(item => item.id !== booking.id);
-        //socket.emit("client remove map booking", booking.id);
+        if (bookings.value.length < 1) router.push('/');
+
+    }
+
+    // Remove expired booking
+    const removeExpiredBooking = async (id) => {
+        const removed = await clientService.removeBooking(id);
+
+        console.log("_____ ", removed);
+
+        if (removed.ok && removed.deleted) {
+            bookings.value = bookings.value.filter(item => item.id !== id);
+        }
+
         if (bookings.value.length < 1) router.push('/');
 
     }
@@ -262,15 +275,9 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const localRemovePublicBooking = async (id) => {
-        //const disabled = bookings.find(b => b.id === id);
 
         console.log("Nothing need to act in clint side");
 
-        //bookings.value = bookings.value.map(item => item.id === id ? {disabled: true} : {disabled: false});
-        //deleted.disabled = true;
-
-
-        //bookings.value = bookings.value.filter(item => item.id !== id);
     }
 
     // Client sending request to the provider via map
@@ -412,6 +419,7 @@ export const useClientStore = defineStore('client', () => {
         onRequest,
         handleConfirmedOffer,
         removeMapOffer,
+        removeExpiredBooking,
         onRemovePublicBooking,
         localRemovePublicBooking,
         updateClientMain,

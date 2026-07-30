@@ -64,8 +64,18 @@ module.exports = (io) => {
 
     // Add recipient
     recipientRouter.post('/:id', async (req, res, next) => {
+        const body = req.body;
+        console.log(
+            "body.customFields:",
+            JSON.stringify(body.customFields, null, 2)
+        );
+
+        console.log(
+            "body.customFieldValues:",
+            JSON.stringify(body.customFieldValues, null, 2)
+        );
         try {
-            const body = req.body;
+            
             const date = new Date(body.created)              // current date
             const formatted = date.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -87,7 +97,12 @@ module.exports = (io) => {
                 longitude: body.longitude,
                 chat_provider_user_ids: [],
                 zone: body.zone,
+                professionCode: body.professionCode,
                 professional: body.professional,
+                customFieldValues: body.customFieldValues,
+
+                customFields: body.customFields,
+
                 isIncludeOffers: body.isIncludeOffers,
                 isBudget: body.isBudget,
                 budget: body.budget,
@@ -270,14 +285,11 @@ module.exports = (io) => {
     })
 
     // Add confirmed offer
-    recipientRouter.post('/:bookingId/confirmed', async (req, res) => {
+    recipientRouter.post('/:bookingId/confirm-provider-offer', async (req, res) => {
         const { bookingId } = req.params;
         const body = req.body;
+        console.log("Offer body - ", body);
         try {
-            /* const booking = await Recipient.findById(bookingId);
-            booking.offer = body;
-            await booking.save();
-            res.send(booking); */
             const confirmed = await Recipient.findByIdAndUpdate(
                 bookingId,
                 body,
@@ -294,6 +306,55 @@ module.exports = (io) => {
             return res.status(500).json({ error: e.message });
         }
     })
+
+    // Uuendatud provider jaoks
+    recipientRouter.post("/:bookingId/confirm-client-offer", async (req, res) => {
+        try {
+            const { bookingId } = req.params;
+            const {
+                offer,
+                confirmed_provider_user_id
+            } = req.body;
+
+            const confirmedRecipient = await Recipient.findOneAndUpdate(
+                {
+                    _id: bookingId,
+                    status: "active"
+                },
+                {
+                    $set: {
+                        status: "confirmed",
+                        confirmed_provider_user_id,
+                        confirmedOffer: offer,
+                        confirmedAt: new Date()
+                    }
+                },
+                {
+                    new: true,
+                    runValidators: true
+                }
+            );
+
+            if (!confirmedRecipient) {
+                return res.status(409).json({
+                    code: "BOOKING_ALREADY_CONFIRMED",
+                    message: "The booking has already been confirmed by another provider."
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                booking: confirmedRecipient
+            });
+        } catch (error) {
+            console.error("Confirm client offer failed:", error);
+
+            res.status(500).json({
+                code: "CONFIRMATION_FAILED",
+                message: "Booking confirmation failed."
+            });
+        }
+    });
 
     // Add provider id to recipient
     recipientRouter.put('/:id', async (req, res) => {

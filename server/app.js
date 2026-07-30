@@ -91,6 +91,8 @@ app.use('/api/notifications', require('./routers/notifications'));
 app.use('/api/mail', require('./routers/contact'));
 //app.use('/api/messages', require('./routers/messages'));
 
+app.use('/api/profession', require('./routers/professions'));
+
 app.use('/api/client_history', require('./routers/client_history'));
 app.use('/api/pro_history', require('./routers/provider_history'));
 app.use('/api/login', require('./routers/login'));

@@ -16,7 +16,7 @@
           {{t('clientOffer.maps_error_message')}}
       </MDBToast>
     </div>
-    
+
     <div v-if="!client.professional && !road">
       <MDBSpinner color="info" />
     </div>
@@ -59,6 +59,53 @@
             {{client.description}}
           </td>
         </tr>
+
+
+        <tr v-if="client.customFields.length">
+          <td>
+            {{ t('clientOffer.additional_details') }}
+          </td>
+
+          <td>
+            <MDBBtn
+              type="button"
+              outline
+              color="info"
+              size="sm"
+              @click="showCustomFields = !showCustomFields"
+            >
+              {{
+                showCustomFields
+                  ? t('clientOffer.hide_details')
+                  : t('clientOffer.show_details')
+              }}
+            </MDBBtn>
+          </td>
+        </tr>
+
+        <tr v-if="showCustomFields && client.customFields.length">
+          <td colspan="2">
+            <div class="custom-fields-panel">
+              <div
+                v-for="field in displayCustomFields"
+                :key="field.key"
+                class="custom-field-row"
+              >
+                <span class="custom-field-label">
+                  {{ getLocalizedValue(field.label) }}
+                </span>
+
+                <span class="custom-field-value">
+                  {{ getCustomFieldDisplayValue(field) }}
+                </span>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+
+
+
         <tr v-if="client.isBudget">
           <td>
             {{ t('clientOffer.budget') }}
@@ -146,6 +193,7 @@
 
         
       </div>
+      
       <div v-if="client.isIncludeOffers" class="offer-actions" >
         <div v-if="!client.offers.some(offer => offer.bookingID === client.id && offer.provider.id === providerId)">
           <MDBBtn
@@ -405,7 +453,7 @@ const _props = defineProps({
 })
 
 
-const emit = defineEmits(['toast', 'just-test', 'handle-user-action', "open-chat"])
+const emit = defineEmits(['toast', 'just-test', 'parent-open', 'handle-user-action', "open-chat"])
 
 const { client, open } = toRefs(_props)
 const { t, locale } = useI18n();
@@ -432,7 +480,7 @@ const { providerId, provider } = storeToRefs(proStore);
 const { openChat } = storeToRefs(conversationStore);
 
 const offerPrice = ref(null);
-const offerPlace = ref('');
+const offerPlace = ref('here');
 const offerAbout = ref('');
 const reason = ref('');
 const isQuitClientBooking = ref(false);
@@ -455,6 +503,7 @@ const showDeleteModal = ref(false);
 const cTitle = ref("");
 const cMessage = ref("");
 
+const showCustomFields = ref(false);
 const showDealConfirm = ref(false);
 
 const dealMessage = computed(() =>
@@ -492,6 +541,125 @@ function handleImageLoaded(idx) {
   onResize();
 
 }
+
+const bookingDetails = () => {
+  console.log("Get booking details")
+}
+
+const displayCustomFields = computed(() => {
+  if (!Array.isArray(_props.client?.customFields)) {
+    return [];
+  }
+
+  return _props.client.customFields.filter(field => {
+    const value = field.value;
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return value !== null &&
+      value !== undefined &&
+      value !== '';
+  });
+});
+
+// Booking custom fields data display
+const getCustomFieldDisplayValue__ = field => {
+  const value = field.value;
+
+  console.log("FIELD value - ", value);
+
+  if (field.type === 'boolean' || field.type === 'checkbox') {
+    return value
+      ? t('clientOffer.common.yes')
+      : t('clientOffer.common.no');
+  }
+
+  if (field.type === 'select') {
+    const selectedOption = field.optionsSnapshot?.find(
+      option => option.value === value
+    );
+
+    return selectedOption
+      ? getLocalizedValue(selectedOption.label)
+      : value;
+  }
+
+  if (field.type === 'multiselect') {
+    if (!Array.isArray(value)) {
+      return '';
+    }
+
+    return value
+      .map(selectedValue => {
+        const option = field.optionsSnapshot?.find(
+          item => item.value === selectedValue
+        );
+
+        return option
+          ? getLocalizedValue(option.label)
+          : selectedValue;
+      })
+      .join(', ');
+  }
+
+  if (Array.isArray(value)) {
+    return value.join(', ');
+  }
+  console.log("FIELD final value  - ", value);
+  return String(value);
+};
+
+const getCustomFieldDisplayValue = field => {
+  const value = field?.value;
+
+  const selectedOptions = Array.isArray(field?.selectedOptions)
+    ? field.selectedOptions
+    : [];
+
+  switch (field?.type) {
+    case 'boolean':
+    case 'checkbox':
+      return value
+        ? t('clientOffer.common.yes')
+        : t('clientOffer.common.no');
+
+    case 'select':
+    case 'multiselect':
+      if (selectedOptions.length) {
+        return selectedOptions
+          .map(option => getLocalizedValue(option.label))
+          .filter(Boolean)
+          .join(', ');
+      }
+
+      return Array.isArray(value)
+        ? value.join(', ')
+        : String(value ?? '');
+
+    default:
+      if (Array.isArray(value)) {
+        return value.join(', ');
+      }
+
+      return String(value ?? '');
+  }
+};
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
 
 
 const validateMaps = async() => {
@@ -688,9 +856,29 @@ function fakeApiCall() {
   return new Promise((resolve) => setTimeout(resolve, 2000));
 }
 
+const clearPriceofferFields = () => {
+  offerAbout.value = "";
+  offerPlace.value = "";
+  offerPrice.value = null;
+}
+
 const createOffer = async () => {
-  
-  console.log("Creating offer! " + offerPrice.value);
+  if (loading.value) return;
+
+  const price = Number(offerPrice.value);
+
+  if (!Number.isFinite(price) || price <= 0) {
+    emit("toast", {
+      state: "warning",
+      message: t(
+        "clientOffer.notifications.invalid_offer_price"
+      ),
+      icon: "fas fa-exclamation-triangle fa-lg me-2",
+      color: "warning"
+    });
+
+    return;
+  }
 
   loading.value = true;
 
@@ -701,38 +889,106 @@ const createOffer = async () => {
     name: provider.value.pName,
     placeOrGo: offerPlace.value,
     area: client.value.zone,
+    cAddress: client.value.address,
+    pAddress: provider.value.address,
     distance: roadDistance?.value,
     duration: roadDuration?.value,
-    price: offerPrice.value,
+    price,
     description: offerAbout.value,
     place: offerPlace.value,
     provider: providerId.value
-  }    
-  console.log("Client in top: " + {client}.value);
+  };
+
   const addressee = client.value.author_id;
-  console.log("Addressee - " + addressee);
+
   try {
-    await proStore.addProviderOffer(client.value.id, addressee, offer);
-    emit('toast', {
+    const result = await proStore.addProviderOffer(
+      client.value.id,
+      offer
+    );
+
+    if (!result?.success) {
+      throw new Error("Offer creation failed.");
+    }
+
+    emit("toast", {
       state: "success",
-      message: t('clientOffer.notifications.offer_sent', {
-        name: client.value?.user?.firstName
-      }),
+      message: t(
+        "clientOffer.notifications.offer_sent",
+        {
+          name: client.value?.user?.firstName || ""
+        }
+      ),
       icon: "fas fa-check fa-lg me-2",
       color: "success"
+    });
 
-    })
+    emit('parent-open');
+    emit("handle-user-action");
 
-    emit('handle-user-action');
+    socket.emit(
+      "client get offer",
+      addressee,
+      client.value.id,
+      result.offer
+    );
   } catch (error) {
-    console.log("CL error " + error.message);
+    console.error("Offer creation failed:", error);
+
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+
+    if (
+      status === 409 &&
+      code === "MAX_OFFERS_REACHED"
+    ) {
+      emit("toast", {
+        state: "warning",
+        message: t(
+          "clientOffer.notifications.offer_limit_reached"
+        ),
+        icon: "fas fa-exclamation-triangle fa-lg me-2",
+        color: "warning"
+      });
+      
+      await proStore.removeLocalBooking(client.value.id);
+      //emit("handle-user-action");
+      return;
+    }
+
+    if (
+      status === 409 &&
+      code === "BOOKING_NOT_ACTIVE"
+    ) {
+      emit("toast", {
+        state: "warning",
+        message: t(
+          "clientOffer.notifications.booking_not_active"
+        ),
+        icon: "fas fa-exclamation-triangle fa-lg me-2",
+        color: "warning"
+      });
+
+      clearPriceofferFields();
+
+      emit("handle-user-action");
+      return;
+    }
+
+    emit("toast", {
+      state: "danger",
+      message: t(
+        "clientOffer.notifications.offer_failed"
+      ),
+      icon: "fas fa-times fa-lg me-2",
+      color: "danger"
+    });
+    clearPriceofferFields();
   } finally {
     loading.value = false;
   }
-  
-  //socket.emit('client get offer', addressee, client.value.id, offer);
+};
 
-}
 // On single offer from map
 const quitMapOffer = async () => {
   isQuitClientBooking.value = true;
@@ -749,15 +1005,11 @@ const confirmClientBooking = async () => {
 }
 
 const confirmDeal = async () => {
-
-  console.log("client user id: " + client.value.author_id);
-  console.log("Client user name?? " + client.value.user.firstName);
-
   loading.value = true;
-
+  const bookingId = client.value.id;
   const receiver = client.value.author_id;
   const myself = user.value.id;
-  const bookingId = client.value.id;
+  
   const header = t('clientOffer.notifications.deal_created_title');
   const clientContent = t('clientOffer.notifications.deal_created_client', {
     provider: provider.value.pName,
@@ -780,8 +1032,6 @@ const confirmDeal = async () => {
     description: offerAbout.value,
     place: offerPlace.value,
     budget: client.value.budget,
-    //provider: providerId.value
-    //provider:   provider.value
   }    
 
   const notificationForClient = {
@@ -809,42 +1059,77 @@ const confirmDeal = async () => {
     pNote: notificationForPro
 
   }
-
-  console.log('Button clicked in child')
-
   try {
-    console.log('1 updateRecipientStatus start');
-    const confirmation = await clientService.updateRecipientStatus(bookingId, { status: 'confirmed' });
-     console.log('2 updateRecipientStatus done');
-    const addConfirmation = await clientService.addConfirmedOffer(bookingId, {offer: offer, confirmed_provider_user_id: myself});
-     console.log('3 addConfirmedOffer done');
-    if (!confirmation || !addConfirmation) return;
-    //emit('just-test');
-    emit('handle-user-action');
-    emit('toast', {
+    const confirmation =
+      await clientService.confirmOffer(bookingId, {
+        offer,
+        confirmed_provider_user_id: myself
+      });
+
+    if (!confirmation?.success) {
+      return;
+    }
+
+    emit("handle-user-action");
+
+    emit("toast", {
       state: "success",
-      message: t('clientOffer.notifications.order_confirmed'),
+      message: t(
+        "clientOffer.notifications.order_confirmed"
+      ),
       icon: "fas fa-check fa-lg me-2",
       color: "success"
+    });
 
-    })
-    console.log('4 onClientBooking start');
+    await proStore.onClientBooking(
+      client.value.id,
+      offer,
+      myself,
+      client.value.author_id,
+      providerId.value,
+      notes
+    );
 
-    await proStore.onClientBooking(client.value.id, offer, myself, client.value.author_id, providerId.value, notes);
-    console.log('5 onClientBooking done');
-    socket.emit('pro-confirm-client', receiver, providerId.value);
+    socket.emit(
+      "pro-confirm-client",
+      receiver,
+      providerId.value
+    );
+  } catch (error) {
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
 
-    console.log('Child about to emit confirmed-order-toast (TEMP ALWAYS)')
+    if (
+      status === 409 &&
+      code === "BOOKING_ALREADY_CONFIRMED"
+    ) {
+      emit("toast", {
+        state: "warning",
+        message: t(
+          "clientOffer.notifications.already_confirmed"
+        ),
+        icon: "fas fa-exclamation-triangle fa-lg me-2",
+        color: "warning"
+      });
 
-    console.log('API results:', { confirmation, addConfirmation })
-    //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on varmistettu onnistuneesti!`, "success");
-    
-  } catch (e) {
-    console.error('API error in child:', e)
+      emit("handle-user-action");
+      return;
+    }
+
+    console.error("API error in child:", error);
+
+    emit("toast", {
+      state: "danger",
+      message: t(
+        "clientOffer.notifications.confirmation_failed"
+      ),
+      icon: "fas fa-times fa-lg me-2",
+      color: "danger"
+    });
   } finally {
     loading.value = false;
   }
-};
+}
 
 const cancelDeal = () => {
   showDealConfirm.value = false;
@@ -983,6 +1268,44 @@ const handleCancelRemoving = () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+/* Booking custom fields */
+.custom-fields-panel {
+  margin-top: 6px;
+  padding: 14px;
+  border: 1px solid #3e4654;
+  border-radius: 7px;
+  background: #202633;
+}
+
+.custom-field-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 40%) 1fr;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.custom-field-row:last-child {
+  border-bottom: none;
+}
+
+.custom-field-label {
+  color: #aeb7c5;
+  font-weight: 600;
+}
+
+.custom-field-value {
+  color: #f1f3f5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 576px) {
+  .custom-field-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 }
 
 .photos-grid {
@@ -1127,6 +1450,11 @@ box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
   .close-btn-wrap {
     justify-content: flex-end; /* mobile = center */
   }
+}
+
+.spinner-overlay,
+.on-overlay {
+  pointer-events: none;
 }
 
 </style>

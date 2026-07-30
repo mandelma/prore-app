@@ -62,7 +62,7 @@
           </span>
 
           <strong class="stat-card__value">
-            {{ clientConfirmed.length }}
+            {{ clientConfirmed.filter(item => item.status === "confirmed").length }}
           </strong>
         </div>
 
@@ -543,12 +543,12 @@
           </div>
 
           <button
-            v-if="clientConfirmed.length"
+            v-if="clientConfirmed.length && clientConfirmed.some(item => item.status === 'confirmed')"
             type="button"
             class="section-header__link"
             @click="router.push('/calendar')"
           >
-            {{ t("recipientPage.calendar") }}
+            {{ t("recipientPage.openCalendar") }}
 
             <MDBIcon icon="arrow-right" />
           </button>
@@ -578,9 +578,9 @@
                 class="feedback-action"
                 @click="
                   handleFeedback(
-                    item.offer?.name,
-                    item.offer?.sender,
-                    item.offer?.bookingID
+                    item.confirmedOffer?.name,
+                    item.confirmedOffer?.sender,
+                    item.confirmedOffer?.bookingID
                   )
                 "
               >
@@ -649,9 +649,9 @@
       </MDBModalHeader>
 
       <MDBModalBody>
-        <p class="text-muted">
+        <!-- <p class="text-muted">
           {{ t("recipientPage.feedbackIntro") }}
-        </p>
+        </p> -->
 
         <GiveFeedback
           :target="personalId"
@@ -787,14 +787,32 @@ watch(loading, (val) => {
   document.documentElement.style.overflow = val ? 'hidden' : '';
 });
 
-const confirmedBookingsExpiration = () => {
+// Acting if confirmed booking is overtime / done
+const handleDone = async (bookingId, target) => {
+  isDone.value = true;
+  selectedBookingId.value = bookingId;
+  await clientStore.handleEditStatus(bookingId, 'done');
+
+  socket.emit("booking-done", bookingId, target);
+
+  console.log("DONE")
+}
+
+const confirmedBookingsExpiration = async () => {
   const now = new Date();
+  sortedBookings.value.forEach( async (sb) => {
+    console.log("Sorted bookings header - " + sb.header);
+    console.log("B id - " + sb.id);
+    if (sb.created_ms < now) {
+      await clientStore.removeExpiredBooking(sb.id);
+    }
+  })
   clientConfirmed.value.forEach(async cca => {
     console.log("Header - ", cca.header)
     if (cca.created_ms < now && cca.status !== 'done') {
-      console.log("Need to act with " + cca?.offer?.bookingID + " - " + cca?.offer?.sender);
-      const booking_id = cca?.offer?.bookingID;
-      const target = cca?.offer?.sender; 
+      console.log("Need to act with " + cca?.confirmedOffer?.bookingID + " - " + cca?.confirmedOffer?.sender);
+      const booking_id = cca?.confirmedOffer?.bookingID;
+      const target = cca?.confirmedOffer?.sender; 
       await handleDone(booking_id, target);
     }
   })
@@ -881,18 +899,6 @@ const sortedBookings = computed(() => {
 const toastTest = () => {
   onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
 }
-
-// Acting if confirmed booking is overtime
-const handleDone = async (bookingId, target) => {
-  isDone.value = true;
-  selectedBookingId.value = bookingId;
-  await clientStore.handleEditStatus(bookingId, 'done');
-
-  socket.emit("booking-done", bookingId, target);
-
-  console.log("DONE")
-}
-
 
 const handleRecipientResult = (id, booking) => {
   console.log("Booking id - " + id); 
@@ -984,7 +990,6 @@ const handleFeedback = (name, pId, bId) => {
   console.log("Provider personal id - " + pId);
 
   company.value = name;
-  //proId.value = id;
   personalId.value = pId;
   bookingId.value = bId;
   handleFeedbackModal.value = true;

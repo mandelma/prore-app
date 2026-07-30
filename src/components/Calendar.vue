@@ -272,7 +272,7 @@
         {{ t('calendar.cancel') }}
       </MDBBtn>
 
-      <MDBBtn color="primary" @click="saveTimeEventEdit">
+      <MDBBtn color="primary" @click="saveEventEdits">
         {{ t('calendar.save') }}
       </MDBBtn>
     </MDBModalFooter>
@@ -310,22 +310,6 @@
         }}
 
       </div>
-
-      <!-- <div class="event-date">
-        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
-      </div>
-
-      <div class="event-date">
-        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.end) : '—' }}
-      </div> -->
-
-      <!-- <p class="event-subtitle">
-        {{ selectedEvent?.note || '—' }}
-      </p> -->
-
-      <!-- <div class="event-note">
-        {{ selectedEvent?.location }}
-      </div>   -->
     </MDBModalBody>
 
     <MDBModalFooter class="footer-buttons">
@@ -382,13 +366,13 @@
     scrollable
   >
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle><h5 style="color: #48769c;">Sopimus palvelun vastaanottajana</h5></MDBModalTitle>
+      <MDBModalTitle><h5 style="color: #48769c;">{{ t('calendar.agreementAsRecipient') }}</h5></MDBModalTitle>
     </MDBModalHeader>
 
     <MDBModalBody class="event-modal-body">
 
       <h2 class="event-title">
-         Palveluntarjoaja tarjoaa palvelua.
+         {{ t('calendar.providerOffersService') }}
       </h2>
 
       <div class="event-date">
@@ -396,35 +380,35 @@
       </div>
 
       <p class="event-subtitle">
-        Tarjous on varattu tälle ajankohdalle. Tarkista tarjouksen tiedot alta.
+        {{ t('calendar.offerReservedForTime') }}
       </p>
 
       <div class="event-card">
-        <h4>Tarjouksen tiedot</h4>
+        <h4>{{ t('calendar.offerDetails') }}</h4>
 
         <div class="info-row">
-          <span>Palvelu</span>
+          <span>{{ t('calendar.service') }}</span>
           <strong>{{ selectedEvent?.title || '—' }}</strong>
         </div>
 
         <div class="info-row">
-          <span>Kuvaus</span>
+          <span>{{ t('calendar.description') }}</span>
           <strong v-html="selectedEvent?.note || '—'"></strong>
         </div>
         <!-- v-if="selectedEvent?.location" -->
         <div class="info-row" >
-          <span>Sijainti</span>
+          <span>{{ t('calendar.location') }}</span>
           <strong>{{ selectedEvent?.address }}</strong>
         </div>
         <!-- selectedEvent?.priceOffer + " €" || 'Sovitaan erikseen' -->
         <div class="info-row">
-          <span>Hinta-arvio</span>
+          <span>{{ t('calendar.estimatedPrice') }}</span>
           <strong >{{ selectedEvent?.budget }} €</strong>
         </div>
 
         <div class="info-row">
-          <span>Tila</span>
-          <strong class="status-waiting">Sovittu</strong>
+          <span>{{ t('calendar.status') }}</span>
+          <strong class="status-waiting">{{ t('calendar.agreed') }}</strong>
         </div>
       </div>
 
@@ -435,8 +419,8 @@
     </MDBModalBody>
 
     <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="secondary" @click="openClientEventEdit">{{ t('calendar.edit') }}</MDBBtn>
-      <MDBBtn color="danger" @click="showClientEventModal = false">{{ t('calendar.close') }}</MDBBtn>
+      <!-- <MDBBtn color="secondary" @click="openClientEventEdit">{{ t('calendar.edit') }}</MDBBtn> -->
+      <MDBBtn color="secondary" @click="showClientEventModal = false">{{ t('calendar.cancel') }}</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -452,29 +436,14 @@
       :focus="false"
       scrollable
   >
-  
-    <!-- formatEventDate(new Date(selectedEvent.start)) -->
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle><h5 style="color: #097a5e;">Sopimus palveluntarjoajana</h5></MDBModalTitle>
+      <MDBModalTitle><h5 style="color: #097a5e;">{{ t('calendar.agreementAsProvider') }}</h5></MDBModalTitle>
     </MDBModalHeader>
-    <!-- <MDBModalBody>
-      <div v-if="selectedEvent.allDay">
-        <h3>Koko päivän</h3>
-        <div v-if="selectedEvent.note" v-html="selectedEvent.note"></div>
-      </div>
-
-      <div v-else>
-        <p><strong></strong> {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}</p>
-        <p v-if="event_state === 'time'"><strong></strong> {{ selectedEvent?.end ? formatLocalDate(selectedEvent.end) : '—' }}</p>
-        
-        <div v-if="selectedEvent.note" v-html="selectedEvent.note"></div>
-        <p v-if="selectedEvent.location">{{ selectedEvent.location }}</p>
-      </div>
-
-    </MDBModalBody> -->
     <MDBModalBody class="event-modal-body">
       <h2 class="event-title">
-        {{ selectedEvent?.client || 'Asiakas'}} odottaa palvelutarjousta
+        {{ 
+          t('calendar.clientWaitingForOffer', {client: selectedEvent?.client})
+        }}
       </h2>
 
       <div class="event-date">
@@ -482,42 +451,43 @@
       </div>
 
       <p class="event-subtitle">
-        Tilaus on varattu tälle ajankohdalle. Tarkista tilauksen tiedot alta.
+        {{ t('calendar.orderReservedForTime') }}
       </p>
 
       <div class="event-card">
-        <h4>Tilauksen tiedot</h4>
+        <h4>{{ t('calendar.orderDetails') }}</h4>
 
         <div class="info-row">
-          <span>Palvelu</span>
+          <span>{{ t('calendar.service') }}</span>
           <strong>{{ selectedEvent?.title || '—' }}</strong>
         </div>
 
         <div class="info-row">
-          <span>Kuvaus</span>
+          <span>{{ t('calendar.description') }}</span>
           <strong v-html="selectedEvent?.note || '—'"></strong>
         </div>
 
         <div class="info-row" v-if="selectedEvent?.location">
-          <span>Sijainti</span>
+          <span>{{ t('calendar.location') }}</span>
           <strong>{{ selectedEvent.address }}</strong>
         </div>
 
         <div class="info-row">
-          <span>Hinta-arvio</span>
+          <span>{{ t('calendar.estimatedPrice') }}</span>
           <strong>
-            {{
+            {{ selectedEvent?.budget }} €
+            <!-- {{
               selectedEvent?.budget != null &&
               selectedEvent?.budget !== ""
                 ? `${selectedEvent.budget} €`
                 : t("calendar.toBeAgreedSeparately")
-            }}
+            }} -->
         </strong>
         </div>
 
         <div class="info-row">
-          <span>Tila</span>
-          <strong class="status-waiting">Sovittu</strong>
+          <span>{{ t('calendar.status') }}</span>
+          <strong class="status-waiting">{{ t('calendar.agreed') }}</strong>
         </div>
       </div>
 
@@ -604,73 +574,6 @@ const showEventEdit = ref(false);
 const  L = computed(() => {
   return getFormatted(locale.value);
 })
-/* const L = computed(() => {
-  switch (locale.value) {
-    case 'en':
-      return {
-        firstDay: 0,
-        title: "Select date",
-        monthsFull:  ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-        weekdaysFull:  ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-        weekdaysShort: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-        weekdaysNarrow: ['S','M','T','W','T','F','S'],
-        cancelBtnText: 'Cancel',
-
-        cancelLabel: 'Cansel',
-        okLabel: 'OK',
-        twelveHour: true
-
-
-      }
-    case 'sv':
-      return {
-        firstDay: 1,
-        title: "Rootsi date",
-        monthsFull:  ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],
-        monthsShort: ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],
-        weekdaysFull:  ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'],
-        weekdaysShort: ['sö','må','ti','on','to','fr','lö'],
-        weekdaysNarrow: ['S','M','T','O','T','F','L'],
-        cancelBtnText: 'Avbryt',
-
-        cancelLabel: 'Avbryt',
-        okLabel: 'OK',
-        twelveHour: false
-      }
-    case 'et':
-      return {
-        firstDay: 1,
-        title: "Vali kuupäev",
-        monthsFull:  ['jaanuar','veebruar','märts','aprill','mai','juuni','juuli','august','september','oktoober','november','detsember'],
-        monthsShort: ['jaan','veebr','märts','apr','mai','juuni','juuli','aug','sept','okt','nov','dets'],
-        weekdaysFull:  ['pühapäev','esmaspäev','teisipäev','kolmapäev','neljapäev','reede','laupäev'],
-        weekdaysShort: ['P','E','T','K','N','R','L'],
-        weekdaysNarrow: ['P','E','T','K','N','R','L'],
-        cancelBtnText: 'Tühista',
-
-        cancelLabel: 'Tühista',
-        okLabel: 'OK',
-        twelveHour: false
-      }
-    default:
-      return {
-        firstDay: 1,
-        title: "Valitse päivämäärä",
-        monthsFull:  ['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'],
-        monthsShort: ['tammi','helmi','maalis','huhti','touko','kesä','heinä','elo','syys','loka','marras','joulu'],
-        weekdaysFull:  ['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'],
-        weekdaysShort: ['su','ma','ti','ke','to','pe','la'],
-        weekdaysNarrow: ['S','M','T','K','T','P','L'],
-        cancelBtnText: 'Peruuta',
-        clearLabel: 'Poista',
-
-        cancelLabel: 'Peruuta',
-        okLabel: 'Ok',
-        twelveHour: false
-      }
-  }
-}) */
 
 const event_state = ref("");
 
@@ -688,7 +591,7 @@ const toDate = (v) => {
     return new Date(v.seconds * 1000);
   return null;
 };
-
+/* cc?.confirmedOffer?.placeOrGo !== '' ? (cc?.confirmedOffer?.placeOrGo === 'go' ? cc.confirmedOffer.name + " tulossa" : cc.confirmedOffer.name + " odottaa!") : 'Sovitaan erikseen', */
 const events = computed(() => [
   ...clientConfirmed.value.map(cc => ({
     id: cc.id,
@@ -698,31 +601,36 @@ const events = computed(() => [
 
     startEditable: false,
     durationEditable: false,
-    address: cc?.isIncludeOffers ? (cc?.offers?.placeOrGo === 'go' ? cc?.address : cc?.offers?.provider?.address) : 'Sovitaan erikseen',
+    /* address: cc?.isIncludeOffers ? (cc?.confirmedOffer?.placeOrGo === 'go' ? cc?.address : cc?.confirmedOffer?.provider?.address) : 'Sovitaan erikseen', */
     extendedProps: {
       /* type: "offer", */
       otherId: cc?.confirmed_provider_user_id,
       type: "client",
       canEdit: false,
       canResize: false,
-      address:  cc?.offer?.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Sovitaan erikseen',
-      priceOffer: cc?.offer?.price,
+      address: cc?.isIncludeOffers && cc?.confirmedOffer?.placeOrGo !== '' ? (cc?.confirmedOffer?.placeOrGo === 'go' ? cc?.confirmedOffer.cAddress : cc?.confirmedOffer?.pAddress) : 'Sovitaan erikseen',
+      priceOffer: cc?.confirmedOffer?.price,
       /* budget: cc.isIncludeOffers ? cc?.offer?.price : cc?.budget.min + " - " + cc?.budget.max, */
-      budget: cc.isIncludeOffers ? cc?.offer?.price : 'Sovitaan erikseen',
-      location: cc?.offer.placeOrGo !== '' ? (cc?.offer?.placeOrGo === 'go' ? cc.offer.name + " tulossa" : cc.offer.name + " odottaa!") : 'Palvelun sijainti sopimuksen mukaan',
+      budget: cc.isIncludeOffers ? cc?.confirmedOffer?.price : 'Sovitaan erikseen',
+      location: 
+        cc?.confirmedOffer.placeOrGo !== '' 
+        ? 
+        (
+          cc?.confirmedOffer?.placeOrGo === 'go' 
+          ?  
+          t('calendar.providerComing', {provider: cc.confirmedOffer.name})
+          : 
+          
+          t('calendar.providerWaiting', {provider: cc.confirmedOffer.name})
+        ) 
+        : 'Palvelun sijainti sopimuksen mukaan',
       note: cc.description || ' - '
-      /* `
-        <h3>Tilaus:</h3>
-        <ul>
-          <li><strong>Tehtävä:</strong> ${cc.header}</li>
-          <li><strong>Tehtävän kuvaus:</strong> ${cc.description || '–'}</li>
-        </ul>
-      ` */
     } 
   })),
   // Confirmed offer in calendar
   ...proCalendarEvents.value.map(pce => {
-    const offer = pce.offers?.find(o => o.sender === user.value.id)
+    const offer = pce?.offers?.find(o => o.sender === user.value.id)
+    const confirmedOffer = pce?.confirmedOffer;
     const place = offer?.placeOrGo || "";
     const dist = offer?.distance;
     const duration = offer?.duration;
@@ -743,28 +651,27 @@ const events = computed(() => [
         otherId: pce?.author_id,
         client: pce?.user?.firstName,
         note: pce.description,
-        address: `${pce?.isIncludeOffers ? (place === 'go' ? pce.address : pce?.offers?.provider?.address) : 'Sovitaan erikseen'}`,
+        address: 
+          `${pce?.isIncludeOffers && place !== '' 
+          ? 
+          (
+            place === 'go' ? offer?.cAddress : offer?.pAddress
+          ) 
+          : t('calendar.toBeAgreedSeparately')}`,
         priceOffer: pce?.offer?.price,
-        /* budget: pce?.isIncludeOffers ? pce?.offer?.price : pce?.budget.min + " - " + pce?.budget.max, */
-        budget: pce.isIncludeOffers ? pce?.offer?.price : 'Sovitaan erikseen',
-        /* place === 'go' ? `
-          <p>Tilauksen tiedot:</p>
-          <ul>
-            <li><strong>Osoite - </strong> ${pce.address}</li>
-            <li><strong>Etäisyys - </strong> ${dist} km</li>
-            <li><strong>Matkan aikaa noin </strong> ${duration}</li>
-            <li><strong>Hinta - </strong> ${price} Eur</li>
-          </ul>
-        `
-        :
-        `
-          <p>Tilauksen tiedot:</p>
-          <ul>
-            <li><strong/>Kuvaus: </strong> ${pce.description}</li>
-            <li><strong>Hinta: </strong> ${price}</li>
-          </ul>
-        ` */
-        location: pce?.isIncludeOffers ?(place === 'go' ? "Meno asiakkaan luokse" : "Asiakas tulossa!") : 'Palvelun sijainti sopimuksen mukaan'
+        budget: 
+          pce.isIncludeOffers 
+          ? 
+          price 
+          : t('calendar.toBeAgreedSeparately'),
+        
+        location: 
+          pce?.isIncludeOffers && place !== '' 
+          ?
+          (
+            place === 'go' ? t('calendar.travelToClient') : t('calendar.clientComing')
+          ) 
+          : t('calendar.serviceLocationByAgreement')
       }
     }
   }),

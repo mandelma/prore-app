@@ -376,6 +376,7 @@ import { useConversationStore } from './stores/conversationStore';
 import { useClientArchiveStore } from './stores/cArchiveStore';
 import { useProArchiveStore } from './stores/pArchiveStore';
 import { useMapStore } from './stores/mapStore';
+import { useProfessionStore } from './stores/professionStore.js';
 
 
 import { useI18n } from 'vue-i18n';
@@ -408,6 +409,7 @@ const conversationStore = useConversationStore();
 const clientArchiveStore = useClientArchiveStore();
 const proArchiveStore = useProArchiveStore();
 const mapStore = useMapStore();
+const professionStore = useProfessionStore();
 
 const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
@@ -742,6 +744,7 @@ const refreshUserData = async (userId) => {
     userStore.fetchMe(),
     client.orderList(userId),
     handleProvider.getProState(userId),
+    professionStore.initProfessions(),
     notificationStore.handleNotifications(userId),
     clientArchiveStore.initClientArchive(),
     proArchiveStore.initProviderArchive(),
@@ -952,7 +955,7 @@ const listen = async() => {
   })
   socket.on('pro-handle-confirmed', async({sender, orderId, offerId}) => {
     console.log("PRO GOT IT - " + orderId);
-    await handleProvider.handleConfirmed(orderId);
+    handleProvider.handleConfirmed(orderId);
   })
   socket.on('handle client request', async ({bookingId}) => {
     console.log("Requested booking id is " + bookingId);
@@ -1009,7 +1012,8 @@ const listen = async() => {
 
   socket.on('local-handle-client-confirmed-deal', (bookingId, notification) => {
     // --Tegemisel--
-    console.log("Notification name - " + notification.author);
+    console.log("Notification name - ", notification);
+    notificationStore.setLocalNote(notification);
   })
 
   // Conversations

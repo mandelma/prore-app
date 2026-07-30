@@ -58,6 +58,7 @@ router.get('/:id/by-provider-id', async (req, res) => {
     //const provider = await Provider.findById(req.params.id)
     res.send(provider);
 })
+
 // Get providers matching by client decired profession
 router.post('/profession',async (req, res) => {
     //const result = req.params.profession;

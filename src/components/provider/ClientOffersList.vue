@@ -26,13 +26,14 @@
         <div v-for="(booking, index) in _props.clients " :key="index" >
 
           <!-- style="color: red; background-color: green;" -->
-          <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new"  :class="[{ activePanel: booking.id === bookingID }]">
+           <!-- :class="[{ activePanel: booking.id === bookingID }]" -->
+          <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" >
             <div class="line">
             <span class="left-item">
               {{timeAgo(booking.started)}}
             </span>
             <span v-if="!parentOpen" class="text-muted">
-              <MDBBadge class="translate-middle p-1"  pill notification><span class="text-danger">{{ t('clientOfferList.newQuoteRequest') }}</span></MDBBadge>
+              <MDBBadge class="translate-middle p-1"  pill notification><span class="new-order">{{ t('clientOfferList.newQuoteRequest') }}</span></MDBBadge>
             </span>
             
               <span v-if="parentOpen && booking.id === bookingID" class="right-item">
@@ -43,12 +44,10 @@
               <span class="new_notification" @click="openBookingOffer(booking, index)">
                 <b>{{booking.user.firstName.length < HEADER_LENGTH ?booking.user.firstName : booking.user.firstName.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
-                <!-- {{booking.header.length < HEADER_LENGTH ? booking.header : booking.header.substr(0, HEADER_LENGTH) + "..."}} -->
-
-                <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
+                <span style="display: flex; justify-content: right; color: #ddd; cursor: pointer">
 
                 {{booking.isIncludeOffers ? ( booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId)
-                    ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.confirm_order')}}
+                    ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.reviewOrder')}}
                 </span>
                 
               </span>
@@ -88,14 +87,35 @@
             
           </div>
           <!-- Income order is seen -->
-          <div v-else class="booking-row-seen">
+          <div 
+            v-else 
+            class="booking-row-seen"
+            :class="
+            booking.offers.some(
+              offer => offer.bookingID === booking.id && offer.provider.id === providerId
+            )
+              ? 'booking-row-done'
+              : 'booking-row-seen'
+          "
+          >
             <div class="line">
               <span class="left-item">
                 {{timeAgo(booking.started)}}
               </span>
               <!-- v-if="!parentOpen" -->
               <span class="text-muted">
-                <MDBBadge class="translate-middle p-1"  pill notification>
+                <MDBBadge 
+                  class="translate-middle p-1 booking-status-seen"  
+                  :class="
+                    booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId
+
+                    )
+                      ? 'booking-status-done'
+                      : 'booking-status-seen'
+
+                  "
+                  pill notification
+                  >
                   {{ 
                     booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId)
                     ?
@@ -113,14 +133,14 @@
               
               <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
                 
-                <span class="seen_notification" @click="openBookingOffer(booking, index)">
+                <span  @click="openBookingOffer(booking, index)">
                   
                   <b>{{booking.user.firstName.length < HEADER_LENGTH ? booking.user.firstName : booking.user.firstName.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
                   <!-- {{booking.header.length < HEADER_LENGTH ? booking.header : booking.header.substr(0, HEADER_LENGTH) + "..."}} -->
                   
-                  <span style="display: flex; justify-content: right; color: deepskyblue; cursor: pointer">
-                    {{booking.isIncludeOffers ? (booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId) ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.confirm_order')}}
+                  <span style="display: flex; justify-content: right; color: #ddd; cursor: pointer">
+                    {{booking.isIncludeOffers ? (booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId) ? t('clientOfferList.offer_sent') : t('clientOfferList.make_offer'))  : t('clientOfferList.reviewOrder')}}
                   </span>
 
                 </span>
@@ -148,7 +168,7 @@
                     :is-disabled="booking?.disabled"
                     
                     :client="client"
-                    
+                    @parent-open="handleParentOpen"
                     @handle-user-action="$emit('handle-user-action', $event)"
                     @open-chat="$emit('open-chat', $event)"
                     @toast="toastForward"
@@ -270,6 +290,11 @@ function unlockParent () {
     const again = collapseRootEl.value
     if (again) again.style.height = ''
   })
+}
+
+const handleParentOpen = () => {
+  console.log("Parent-open handled.");
+  parentOpen.value = false;
 }
 
 /** Exposing to child via inject */
@@ -395,44 +420,166 @@ const timeAgo = (iso) => {
 </script>
 
 <style scoped>
-.booking-row-new {
+/* .booking-row-new {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
-  
   background: rgb(34, 22, 22);
-  /*box-shadow: 0.3em 0.3em 1em rgba(104,101,101,0.6);*/
   border-radius: 7px;
   box-shadow: 0.3em 0.3em 1em rgba(244, 163, 110, 0.35);
   padding: 10px;
   margin-bottom: 27px;
   font-size: 14px;
+} */
+ .booking-row-new{
+    background:#2b313d;
+
+    border-left:4px solid #ffc24a;
+
+    border-radius:8px;
+
+    box-shadow:
+        0 0 18px rgba(255,194,74,.18);
+
+    padding: 10px;
+    margin-bottom: 27px;
+    font-size: 14px;
+
+    transition:.2s;
 }
-.booking-row-seen {
+
+.booking-row-new:hover{
+    background:#313847;
+
+    box-shadow:
+        0 0 24px rgba(255,194,74,.30);
+}
+
+.new-order{
+    color:#ffc24a;
+    font-weight:700;
+}
+
+.new_notification {
+  /* font-size: 1rem; */
+  font-weight: bold;
+  color: orange;
+
+}
+
+/* .booking-row-seen {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
   border-radius: 7px;
-
   background: rgb(34, 41, 56);
-  /*box-shadow: 0.3em 0.3em 1em rgba(104,101,101,0.6);*/
   box-shadow: 0.3em 0.3em 1em rgb(138, 138, 138);
   padding: 10px;
   margin-bottom: 27px;
   font-size: 14px;
+} */
+
+.booking-row-seen {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  background: #2a3343;
+
+  border-radius: 8px;
+  border-left: 4px solid #5aa8ff;
+
+  box-shadow:
+      0 0 10px rgba(90,168,255,.10),
+      inset 0 1px 0 rgba(255,255,255,.03);
+
+  padding: 10px;
+  margin-bottom: 27px;
+  font-size: 14px;
+
+  transition: .2s;
 }
 
-.new_notification {
-  font-size: 1rem;
-  font-weight: bold;
-  color: orange;
-
+.booking-row-seen:hover{
+    background:#313b4d;
+    box-shadow:0 0 16px rgba(90,168,255,.18);
 }
-.seen_notification {
+
+.booking-status-seen {
+    color: #5aa8ff;
+    font-weight: 600;
+}
+
+/* .booking-row-done {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  background: #293742;
+
+  border-radius: 8px;
+  border-left: 4px solid #42d392;
+
+  box-shadow:
+      0 0 10px rgba(66, 211, 146, .12),
+      inset 0 1px 0 rgba(255,255,255,.03);
+
+  padding: 10px;
+  margin-bottom: 27px;
+  font-size: 14px;
+
+  transition: .2s ease;
+}
+ */
+/* .booking-row-done:hover {
+  background: #31404d;
+
+  box-shadow:
+      0 0 16px rgba(66, 211, 146, .22);
+} */
+
+
+/* .seen_notification {
   font-size: 1rem;
   color: #ddd;
+} */
+
+.booking-row-done {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  background: #293742;
+
+  border-radius: 8px;
+  border-left: 4px solid #42d392;
+
+  box-shadow:
+      0 0 10px rgba(66, 211, 146, .12),
+      inset 0 1px 0 rgba(255,255,255,.03);
+
+  padding: 10px;
+  margin-bottom: 27px;
+  font-size: 14px;
+
+  transition: .2s ease;
+}
+
+.booking-row-done:hover {
+  background: #31404d;
+
+  box-shadow:
+      0 0 16px rgba(66, 211, 146, .22);
+}
+
+.booking-status-done {
+    color: #42d392;
+    font-weight: 600;
 }
 
 .client-collapse {
@@ -441,10 +588,10 @@ const timeAgo = (iso) => {
   overflow-x: hidden;
 }
 
-.activePanel {
+/* .activePanel {
   background: #283041;
 
-}
+} */
 
 .line {
   display: flex;
@@ -473,7 +620,7 @@ span.strong-tilt-move-shake {
 /* Helps avoid margin-collapsing visual glitches inside height-animated blocks */
 .card.card-body { display: flow-root; }
 .booking-row-new,
-.booking-row-seen {
+.booking-row-seen  {
   width: 100%;
   border-radius: 14px;
   padding: 12px;
@@ -488,21 +635,21 @@ span.strong-tilt-move-shake {
   gap: 8px;
 }
 
-.new_notification,
+/* .new_notification,
 .seen_notification {
   display: block;
   width: 100%;
   margin-top: 8px;
   cursor: pointer;
   word-break: break-word;
-}
+} */
 
-.new_notification span,
+/* .new_notification span,
 .seen_notification span {
   justify-content: flex-start !important;
   text-align: left;
   margin-top: 6px;
-}
+} */
 
 .client-collapse {
   width: 100%;

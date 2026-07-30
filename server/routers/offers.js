@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 const Offer = require('../models/offers');
 const Recipient = require('../models/recipients');
 const Provider = require("../models/providers");
@@ -9,35 +10,160 @@ router.get('/:id', async(req, res) => {
     res.send(offers);
 })
 
-router.post('/', async(req, res) => {
-    const body = req.body;
+// Final
+router.post("/", async (req, res) => {
+    const session = await mongoose.startSession();
+
     try {
-        const newOffer = new Offer({
-            bookingID: body.bookingID,
-            sender: body.sender,
-            room: body.room,
-            isNewOffer: true,
-            name: body.name,
-            area: body.area,
-            placeOrGo: body.placeOrGo,
-            distance: body.distance,
-            duration: body.duration,
-            price: body.price,
-            description: body.description,
-            place: body.place,
-            provider: body.provider
+        const { offer } = req.body;
+
+        console.log("OFFER - ", offer);
+
+        console.log("REQ BODY:", req.body);
+        console.log("OFFER:", req.body?.offer);
+
+        if (!offer?.bookingID) {
+            return res.status(400).json({
+                success: false,
+                code: "BOOKING_ID_REQUIRED",
+                message: "Booking ID is required."
+            });
+        }
+
+        if (!offer?.sender || !offer?.provider) {
+            return res.status(400).json({
+                success: false,
+                code: "PROVIDER_REQUIRED",
+                message: "Provider information is required."
+            });
+        }
+
+        const price = Number(offer.price);
+
+        if (!Number.isFinite(price) || price <= 0) {
+            return res.status(400).json({
+                success: false,
+                code: "INVALID_OFFER_PRICE",
+                message: "The offer price is invalid."
+            });
+        }
+
+        let savedOffer;
+        let updatedBooking;
+
+        await session.withTransaction(async () => {
+            const createdOffers = await Offer.create(
+                [
+                    {
+                        bookingID: offer.bookingID,
+                        sender: offer.sender,
+                        isNewOffer: true,
+                        name: offer.name,
+                        area: offer.area,
+                        cAddress: offer.cAddress,
+                        pAddress: offer.pAddress,
+                        placeOrGo: offer.placeOrGo,
+                        distance: offer.distance,
+                        duration: offer.duration,
+                        price,
+                        description: offer.description,
+                        place: offer.place,
+                        provider: offer.provider
+                    }
+                ],
+                { session }
+            );
+
+            savedOffer = createdOffers[0];
+
+            updatedBooking = await Recipient.findOneAndUpdate(
+                {
+                    _id: offer.bookingID,
+                    status: "active",
+
+                    // Maksimaalselt 10 pakkumist
+                    "offers.0": { $exists: false }
+                },
+                {
+                    $push: {
+                        offers: savedOffer._id
+                    }
+                },
+                {
+                    new: true,
+                    session,
+                    runValidators: true
+                }
+            );
+
+            if (!updatedBooking) {
+                const booking = await Recipient.findById(
+                    offer.bookingID
+                )
+                    .select("status offers")
+                    .session(session);
+
+                if (!booking) {
+                    const error = new Error("Booking not found.");
+                    error.code = "BOOKING_NOT_FOUND";
+                    error.status = 404;
+                    throw error;
+                }
+
+                if (booking.status !== "active") {
+                    const error = new Error(
+                        "The booking is no longer active."
+                    );
+                    error.code = "BOOKING_NOT_ACTIVE";
+                    error.status = 409;
+                    throw error;
+                }
+
+                const error = new Error(
+                    "The maximum number of offers has been reached."
+                );
+                error.code = "MAX_OFFERS_REACHED";
+                error.status = 409;
+                throw error;
+            }
         });
-        // const booking = await Recipient.findById(body.bookingID);
-        // booking.offers = booking.offers.concat(body.offerID);
-        const offer = await newOffer.save();
-        //await booking.save();
 
-        res.json(offer);
+        return res.status(201).json({
+            success: true,
+            offer: savedOffer,
+            bookingId: updatedBooking._id
+        });
     } catch (error) {
-        res.status(500).send({error: "ERROR HERE!"})
-    }
+        console.error("Offer sending failed:", error);
 
-})
+        if (error.code === "BOOKING_NOT_FOUND") {
+            return res.status(404).json({
+                success: false,
+                code: error.code,
+                message: error.message
+            });
+        }
+
+        if (
+            error.code === "MAX_OFFERS_REACHED" ||
+            error.code === "BOOKING_NOT_ACTIVE"
+        ) {
+            return res.status(409).json({
+                success: false,
+                code: error.code,
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            code: "OFFER_CREATION_FAILED",
+            message: "Offer sending failed."
+        });
+    } finally {
+        await session.endSession();
+    }
+});
 
 // Update offer status
 router.put('/:id', async (req, res) => {

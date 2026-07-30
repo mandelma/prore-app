@@ -9,11 +9,13 @@ const offerSchema = new Schema({
     isNewOffer: {type: Boolean},
     name: {type: String},
     area: {type: Number},
-    placeOrGo: {type: String},
+    cAddress: {type: String},
+    pAddress: {type: String},
+    placeOrGo: {type: String, default: ''},
     distance: {type: String},
     duration: {type: String},
     price: {type: Number},
-    place: {type: String},
+    place: {type: String, default: ''},
     description: {type: String},
 
     provider: {

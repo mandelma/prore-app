@@ -8,8 +8,10 @@
     @input="onUserInput"
   /> -->
   <div div :class="{hideInput: !localValue && isDisplayAddress}" style="width: 100%;" class="field-wrapper ">
+    
     <div  class="input-group">
-      <MDBInput
+      <div class="booking-input-wrapper">
+        <MDBInput
           size="md"
           id="el"
 
@@ -20,15 +22,25 @@
           :inputClass="'ps-0'"
           aria-describedby="button-addon2"
           @input="onUserInput"
-      />
+        />
+        <span class="booking-required-corner">*</span>
+      </div>
+      
       <MDBBtn type="button" style="border:1px solid #ddd">
         <MDBIcon size="2x" @click="localValue ? clearAddress() : showAddress()">
           <i :class="localValue ? 'fas fa-times' : 'fas fa-search-location'"></i>
         </MDBIcon>
       </MDBBtn>
+      
+    
+    
     </div>
-
-    <small v-if="error" class="text-danger">
+    
+    <small
+      v-if="error"
+      class="field__error"
+    >
+      <i class="fa-solid fa-circle-exclamation" />
       {{ error }}
     </small>
   </div>
@@ -294,5 +306,36 @@ const initMap = async () => {
 }
 .hideInput {
   display: none;
+}
+
+.input-group {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.booking-input-wrapper {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.booking-input-wrapper :deep(.form-outline) {
+  width: 100%;
+  height: 100%;
+}
+
+.booking-required-corner {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  z-index: 20;
+
+  color: #ff5d6c;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
 }
 </style>

@@ -104,6 +104,12 @@ export const useNotificationStore = defineStore('notifications', () => {
         }
 
     }
+
+    const setLocalNote = (note) => {
+        notifications.value.push(note);
+    }
+
+
     const removeNotification = async(noteId) => {
         await noteService.removeSelectedMessage(noteId);
         const upsertedList = notifications.value.filter(note => note.id !== noteId);
@@ -118,6 +124,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         localConfirmDealNotification,
         localStateAddNotification,
         upsertNotificationStatus,
+        setLocalNote,
         removeNotification,
         clientPublicBookingDelNotification,
         clientConfirmDealNotification,

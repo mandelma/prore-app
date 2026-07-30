@@ -150,10 +150,10 @@
           {{ providerHistory.length }}
         </strong>
       </button>
-
+      <!-- :style="{ '--watermark': `url(${logo})` }" -->
       <article
         class="provider-stat-card provider-stat-card--credit"
-        :style="{ '--watermark': `url(${logo})` }"
+        
       >
         <div class="provider-stat-card__header">
           <div class="provider-stat-card__icon provider-stat-card__icon--credit">
@@ -161,11 +161,11 @@
           </div>
 
           <span class="provider-stat-card__label">
-            {{ t("providerAdmin.credit") }}
+            {{ t("providerAdmin.activeTime") }}
           </span>
         </div>
 
-        <template v-if="credit <= 0">
+        <template v-if="credit <= 0" >
           <strong class="provider-stat-card__credit provider-stat-card__credit--expired">
             {{ t("providerAdmin.usageTimeEnded") }}
           </strong>

@@ -1,0 +1,235 @@
+{
+    "code": "vehicle",
+    "name": {
+        "fi": "Ajoneuvon tiedot",
+        "en": "Vehicle details",
+        "sv": "Fordonsuppgifter",
+        "et": "Sõiduki andmed",
+        "ru": "Данные транспортного средства"
+    },
+    "customFields": [
+        {
+            "key": "vehicleType",
+            "type": "select",
+            "required": true,
+            "order": 10,
+            "label": {
+                "fi": "Ajoneuvon tyyppi",
+                "en": "Vehicle type",
+                "sv": "Fordonstyp",
+                "et": "Sõiduki tüüp",
+                "ru": "Тип транспортного средства"
+            },
+            "placeholder": {
+                "fi": "Valitse ajoneuvon tyyppi",
+                "en": "Select vehicle type",
+                "sv": "Välj fordonstyp",
+                "et": "Vali sõiduki tüüp",
+                "ru": "Выберите тип транспортного средства"
+            },
+            "options": [
+                {
+                    "value": "passenger_car",
+                    "label": {
+                        "fi": "Henkilöauto",
+                        "en": "Passenger car",
+                        "sv": "Personbil",
+                        "et": "Sõiduauto",
+                        "ru": "Легковой автомобиль"
+                    }
+                },
+                {
+                    "value": "van",
+                    "label": {
+                        "fi": "Pakettiauto",
+                        "en": "Van",
+                        "sv": "Skåpbil",
+                        "et": "Kaubik",
+                        "ru": "Фургон"
+                    }
+                },
+                {
+                    "value": "motorcycle",
+                    "label": {
+                        "fi": "Moottoripyörä",
+                        "en": "Motorcycle",
+                        "sv": "Motorcykel",
+                        "et": "Mootorratas",
+                        "ru": "Мотоцикл"
+                    }
+                },
+                {
+                    "value": "truck",
+                    "label": {
+                        "fi": "Kuorma-auto",
+                        "en": "Truck",
+                        "sv": "Lastbil",
+                        "et": "Veoauto",
+                        "ru": "Грузовой автомобиль"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu",
+                        "en": "Other",
+                        "sv": "Annat",
+                        "et": "Muu",
+                        "ru": "Другое"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "vehicleMake",
+            "type": "text",
+            "required": true,
+            "order": 20,
+            "label": {
+                "fi": "Ajoneuvon merkki",
+                "en": "Vehicle make",
+                "sv": "Fordonsmärke",
+                "et": "Sõiduki mark",
+                "ru": "Марка транспортного средства"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi Volvo",
+                "en": "For example, Volvo",
+                "sv": "Till exempel Volvo",
+                "et": "Näiteks Volvo",
+                "ru": "Например, Volvo"
+            },
+            "validation": {
+                "minLength": 1,
+                "maxLength": 60
+            }
+        },
+        {
+            "key": "vehicleModel",
+            "type": "text",
+            "required": true,
+            "order": 30,
+            "label": {
+                "fi": "Ajoneuvon malli",
+                "en": "Vehicle model",
+                "sv": "Fordonsmodell",
+                "et": "Sõiduki mudel",
+                "ru": "Модель транспортного средства"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi XC60",
+                "en": "For example, XC60",
+                "sv": "Till exempel XC60",
+                "et": "Näiteks XC60",
+                "ru": "Например, XC60"
+            },
+            "validation": {
+                "minLength": 1,
+                "maxLength": 60
+            }
+        },
+        {
+            "key": "vehicleYear",
+            "type": "number",
+            "required": false,
+            "order": 40,
+            "label": {
+                "fi": "Valmistusvuosi",
+                "en": "Year of manufacture",
+                "sv": "Tillverkningsår",
+                "et": "Tootmisaasta",
+                "ru": "Год выпуска"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 2018",
+                "en": "For example, 2018",
+                "sv": "Till exempel 2018",
+                "et": "Näiteks 2018",
+                "ru": "Например, 2018"
+            },
+            "validation": {
+                "min": 1900,
+                "max": 2100
+            }
+        },
+        {
+            "key": "registrationNumber",
+            "type": "text",
+            "required": false,
+            "order": 50,
+            "label": {
+                "fi": "Rekisteritunnus",
+                "en": "Registration number",
+                "sv": "Registreringsnummer",
+                "et": "Registratsiooninumber",
+                "ru": "Регистрационный номер"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi ABC-123",
+                "en": "For example, ABC-123",
+                "sv": "Till exempel ABC-123",
+                "et": "Näiteks 123 ABC",
+                "ru": "Например, ABC-123"
+            },
+            "validation": {
+                "maxLength": 20
+            }
+        },
+        {
+            "key": "vin",
+            "type": "text",
+            "required": false,
+            "order": 60,
+            "label": {
+                "fi": "Valmistenumero (VIN)",
+                "en": "Vehicle identification number (VIN)",
+                "sv": "Chassinummer (VIN)",
+                "et": "Tehasetähis (VIN)",
+                "ru": "Идентификационный номер (VIN)"
+            },
+            "placeholder": {
+                "fi": "17-merkkinen valmistenumero",
+                "en": "17-character vehicle identification number",
+                "sv": "17-teckens chassinummer",
+                "et": "17-kohaline tehasetähis",
+                "ru": "17-значный идентификационный номер"
+            },
+            "validation": {
+                "minLength": 17,
+                "maxLength": 17,
+                "regex": "^[A-HJ-NPR-Z0-9]{17}$"
+            },
+            "helpText": {
+                "fi": "VIN-numero on vapaaehtoinen. Älä syötä sitä, ellet halua jakaa sitä palveluntarjoajalle.",
+                "en": "The VIN is optional. Do not enter it unless you want to share it with the service provider.",
+                "sv": "VIN-numret är valfritt. Ange det bara om du vill dela det med tjänsteleverantören.",
+                "et": "VIN-kood on vabatahtlik. Sisesta see ainult siis, kui soovid seda teenusepakkujaga jagada.",
+                "ru": "VIN указывать необязательно. Вводите его только в том случае, если хотите сообщить его исполнителю."
+            }
+        },
+        {
+            "key": "mileage",
+            "type": "number",
+            "required": false,
+            "order": 70,
+            "label": {
+                "fi": "Mittarilukema",
+                "en": "Mileage",
+                "sv": "Mätarställning",
+                "et": "Läbisõit",
+                "ru": "Пробег"
+            },
+            "placeholder": {
+                "fi": "Kilometreinä",
+                "en": "In kilometres",
+                "sv": "I kilometer",
+                "et": "Kilomeetrites",
+                "ru": "В километрах"
+            },
+            "validation": {
+                "min": 0,
+                "max": 10000000
+            }
+        }
+    ]
+}

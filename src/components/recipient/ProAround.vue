@@ -216,6 +216,7 @@ import proList from '@/components/controllers/professions'
 //import { Loader } from "@googlemaps/js-api-loader"; // official way
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
+import { getFormatted } from '../helpers/formatDatepicker.js';
 import {loadGoogleMaps} from "@/components/controllers/loadGoogleMap.js";
 import providerService from '@/service/providers'
 import match from '@/components/controllers/compare_dt'
@@ -240,7 +241,7 @@ defineOptions({
 })
 
 const emit = defineEmits([ 'open-chat' ]);
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
@@ -319,6 +320,11 @@ const rangeOptions = ref([
   {text: '200 km', value: 200},
   {text: '300 km', value: 300},
 ])
+
+// Date formatting for datepicker
+  const L = computed(() => {
+    return getFormatted(locale.value)
+  })
 
 const isMapReady = ref(false);
 const geocoder = ref(null)

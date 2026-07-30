@@ -5,7 +5,7 @@ import axios from 'axios';
 const baseUrl = "/api/offer";
 
 const addOffer = async (offer) => {
-    const new_offer = await axios.post(baseUrl, offer);
+    const new_offer = await axios.post(baseUrl, {offer});
     return new_offer.data;
 }
 
