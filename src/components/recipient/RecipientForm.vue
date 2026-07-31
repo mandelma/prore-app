@@ -24,11 +24,6 @@
           {{clientFormErrorMsg}}
         </MDBToast>
       </div>
-      <div style="display: flex; justify-content: flex-end;">
-          
-          <MDBBtnClose white @click="router.go(-1)"/>
-        </div>
-      
       <form
         class="booking-form"
         novalidate
@@ -46,6 +41,13 @@
               <h3>{{ t("recipientForm.serviceSectionTitle") }}</h3>
               <p>{{ t("recipientForm.serviceSectionHelp") }}</p>
             </div>
+
+            <div style="width: 100%; display: flex; justify-content: flex-end;">
+          
+              <MDBBtnClose white @click="router.go(-1)"/>
+            </div>
+
+
           </div>
 
           <div class="booking-grid booking-grid--profession">
