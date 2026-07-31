@@ -1637,7 +1637,7 @@ const createClient = async() => {
 }
 .booking-section__close {
   position: absolute;
-  top: 8px;
+  top: 0;
   right: 8px;
 }
 
