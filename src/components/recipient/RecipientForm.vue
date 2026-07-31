@@ -33,6 +33,11 @@
         <!-- 1. Teenus -->
         <section class="booking-section">
           <div class="booking-section__header">
+            <MDBBtnClose
+              class="booking-section__close"
+              white
+              @click="router.go(-1)"
+            />
             <div class="booking-section__icon">
               <i class="fa-solid fa-briefcase" />
             </div>
@@ -41,12 +46,6 @@
               <h3>{{ t("recipientForm.serviceSectionTitle") }}</h3>
               <p>{{ t("recipientForm.serviceSectionHelp") }}</p>
             </div>
-
-            <div style="width: 100%; display: flex; justify-content: flex-end;">
-          
-              <MDBBtnClose white @click="router.go(-1)"/>
-            </div>
-
 
           </div>
 
@@ -1583,6 +1582,8 @@ const createClient = async() => {
 
 <style scoped>
 
+
+
 .booking-form {
   display: flex;
   flex-direction: column;
@@ -1628,6 +1629,19 @@ const createClient = async() => {
 }
 
 .booking-section__header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 13px;
+  gap: 16px;
+}
+.booking-section__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* .booking-section__header {
   display: flex;
   align-items: center;
   gap: 13px;
@@ -1635,7 +1649,7 @@ const createClient = async() => {
   margin-bottom: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-
+ */
 .booking-section__header--compact {
   justify-content: space-between;
   padding-bottom: 0;
