@@ -1,0 +1,570 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "floor_installer",
+    "name": {
+        "fi": "Lattia-asentaja",
+        "en": "Floor installer",
+        "sv": "Golvinstallatör",
+        "et": "Põrandapaigaldaja",
+        "ru": "Мастер по укладке полов"
+    },
+    "description": {
+        "fi": "Parketin, laminaatin, vinyylin ja muiden lattiapäällysteiden asennus, korjaus ja alustan valmistelu.",
+        "en": "Installation and repair of parquet, laminate, vinyl and other floor coverings, including subfloor preparation.",
+        "sv": "Installation och reparation av parkett, laminat, vinyl och andra golvbeläggningar samt förberedelse av undergolv.",
+        "et": "Parketi, laminaadi, vinüüli ja muude põrandakatete paigaldus, remont ning aluspõranda ettevalmistus.",
+        "ru": "Укладка и ремонт паркета, ламината, винила и других напольных покрытий, включая подготовку основания."
+    },
+    "icon": "fa-solid fa-ruler-combined",
+    "sortOrder": 50,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava lattiatyö",
+                "en": "Required flooring service",
+                "sv": "Önskat golvarbete",
+                "et": "Vajalik põrandatöö",
+                "ru": "Необходимые работы с полом"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "new_floor_installation",
+                    "label": {
+                        "fi": "Uuden lattian asennus",
+                        "en": "New floor installation",
+                        "sv": "Installation av nytt golv",
+                        "et": "Uue põranda paigaldus",
+                        "ru": "Укладка нового пола"
+                    }
+                },
+                {
+                    "value": "old_floor_removal",
+                    "label": {
+                        "fi": "Vanhan lattian purku",
+                        "en": "Removal of old flooring",
+                        "sv": "Rivning av gammalt golv",
+                        "et": "Vana põranda eemaldamine",
+                        "ru": "Демонтаж старого пола"
+                    }
+                },
+                {
+                    "value": "subfloor_levelling",
+                    "label": {
+                        "fi": "Alustan tasoitus",
+                        "en": "Subfloor levelling",
+                        "sv": "Avjämning av undergolv",
+                        "et": "Aluspõranda tasandamine",
+                        "ru": "Выравнивание основания"
+                    }
+                },
+                {
+                    "value": "floor_repair",
+                    "label": {
+                        "fi": "Lattian korjaus",
+                        "en": "Floor repair",
+                        "sv": "Reparation av golv",
+                        "et": "Põranda remont",
+                        "ru": "Ремонт пола"
+                    }
+                },
+                {
+                    "value": "sanding_and_finishing",
+                    "label": {
+                        "fi": "Parketin hionta ja käsittely",
+                        "en": "Parquet sanding and finishing",
+                        "sv": "Slipning och behandling av parkett",
+                        "et": "Parketi lihvimine ja viimistlus",
+                        "ru": "Шлифовка и отделка паркета"
+                    }
+                },
+                {
+                    "value": "skirting_boards",
+                    "label": {
+                        "fi": "Jalkalistojen asennus",
+                        "en": "Skirting board installation",
+                        "sv": "Montering av golvlister",
+                        "et": "Põrandaliistude paigaldus",
+                        "ru": "Установка плинтусов"
+                    }
+                },
+                {
+                    "value": "thresholds",
+                    "label": {
+                        "fi": "Kynnysten asennus",
+                        "en": "Threshold installation",
+                        "sv": "Montering av trösklar",
+                        "et": "Lävepakkude paigaldus",
+                        "ru": "Установка порогов"
+                    }
+                },
+                {
+                    "value": "floor_heating_covering",
+                    "label": {
+                        "fi": "Lattialämmityksen päälle asennus",
+                        "en": "Installation over underfloor heating",
+                        "sv": "Läggning över golvvärme",
+                        "et": "Paigaldus põrandakütte peale",
+                        "ru": "Укладка поверх тёплого пола"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu lattiatyö",
+                        "en": "Other flooring work",
+                        "sv": "Annat golvarbete",
+                        "et": "Muu põrandatöö",
+                        "ru": "Другие работы с полом"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "floorMaterial",
+            "type": "select",
+            "required": true,
+            "order": 210,
+            "label": {
+                "fi": "Lattiamateriaali",
+                "en": "Flooring material",
+                "sv": "Golvmaterial",
+                "et": "Põrandamaterjal",
+                "ru": "Материал напольного покрытия"
+            },
+            "placeholder": {
+                "fi": "Valitse lattiamateriaali",
+                "en": "Select flooring material",
+                "sv": "Välj golvmaterial",
+                "et": "Vali põrandamaterjal",
+                "ru": "Выберите материал покрытия"
+            },
+            "options": [
+                {
+                    "value": "laminate",
+                    "label": {
+                        "fi": "Laminaatti",
+                        "en": "Laminate",
+                        "sv": "Laminat",
+                        "et": "Laminaat",
+                        "ru": "Ламинат"
+                    }
+                },
+                {
+                    "value": "parquet",
+                    "label": {
+                        "fi": "Parketti",
+                        "en": "Parquet",
+                        "sv": "Parkett",
+                        "et": "Parkett",
+                        "ru": "Паркет"
+                    }
+                },
+                {
+                    "value": "vinyl_plank",
+                    "label": {
+                        "fi": "Vinyylilankku",
+                        "en": "Vinyl plank",
+                        "sv": "Vinylplank",
+                        "et": "Vinüülparkett",
+                        "ru": "Виниловая планка"
+                    }
+                },
+                {
+                    "value": "sheet_vinyl",
+                    "label": {
+                        "fi": "Muovimatto",
+                        "en": "Sheet vinyl",
+                        "sv": "Plastmatta",
+                        "et": "Rullvinüül",
+                        "ru": "Рулонный винил"
+                    }
+                },
+                {
+                    "value": "wood_floor",
+                    "label": {
+                        "fi": "Massiivipuulattia",
+                        "en": "Solid wood floor",
+                        "sv": "Massivt trägolv",
+                        "et": "Täispuitpõrand",
+                        "ru": "Массивная деревянная доска"
+                    }
+                },
+                {
+                    "value": "carpet",
+                    "label": {
+                        "fi": "Kokolattiamatto",
+                        "en": "Carpet",
+                        "sv": "Heltäckningsmatta",
+                        "et": "Vaipkate",
+                        "ru": "Ковровое покрытие"
+                    }
+                },
+                {
+                    "value": "cork",
+                    "label": {
+                        "fi": "Korkkilattia",
+                        "en": "Cork flooring",
+                        "sv": "Korkgolv",
+                        "et": "Korkpõrand",
+                        "ru": "Пробковый пол"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Materiaalia ei ole vielä valittu",
+                        "en": "Material not selected yet",
+                        "sv": "Materialet är inte valt ännu",
+                        "et": "Materjali ei ole veel valitud",
+                        "ru": "Материал ещё не выбран"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu materiaali",
+                        "en": "Other material",
+                        "sv": "Annat material",
+                        "et": "Muu materjal",
+                        "ru": "Другой материал"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "subfloorType",
+            "type": "select",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Alustan tyyppi",
+                "en": "Subfloor type",
+                "sv": "Typ av undergolv",
+                "et": "Aluspõranda tüüp",
+                "ru": "Тип основания"
+            },
+            "placeholder": {
+                "fi": "Valitse alustan tyyppi",
+                "en": "Select subfloor type",
+                "sv": "Välj typ av undergolv",
+                "et": "Vali aluspõranda tüüp",
+                "ru": "Выберите тип основания"
+            },
+            "options": [
+                {
+                    "value": "concrete",
+                    "label": {
+                        "fi": "Betoni",
+                        "en": "Concrete",
+                        "sv": "Betong",
+                        "et": "Betoon",
+                        "ru": "Бетон"
+                    }
+                },
+                {
+                    "value": "wood",
+                    "label": {
+                        "fi": "Puu tai levyrakenne",
+                        "en": "Wood or board",
+                        "sv": "Trä eller skivmaterial",
+                        "et": "Puit või plaatmaterjal",
+                        "ru": "Дерево или плита"
+                    }
+                },
+                {
+                    "value": "existing_flooring",
+                    "label": {
+                        "fi": "Vanha lattiapäällyste",
+                        "en": "Existing floor covering",
+                        "sv": "Befintlig golvbeläggning",
+                        "et": "Olemasolev põrandakate",
+                        "ru": "Существующее напольное покрытие"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "subfloorCondition",
+            "type": "select",
+            "required": true,
+            "order": 230,
+            "label": {
+                "fi": "Alustan kunto",
+                "en": "Subfloor condition",
+                "sv": "Undergolvets skick",
+                "et": "Aluspõranda seisukord",
+                "ru": "Состояние основания"
+            },
+            "placeholder": {
+                "fi": "Valitse alustan kunto",
+                "en": "Select subfloor condition",
+                "sv": "Välj undergolvets skick",
+                "et": "Vali aluspõranda seisukord",
+                "ru": "Выберите состояние основания"
+            },
+            "options": [
+                {
+                    "value": "ready",
+                    "label": {
+                        "fi": "Valmis asennukseen",
+                        "en": "Ready for installation",
+                        "sv": "Klart för installation",
+                        "et": "Paigalduseks valmis",
+                        "ru": "Готово к укладке"
+                    }
+                },
+                {
+                    "value": "minor_levelling",
+                    "label": {
+                        "fi": "Vaatii pientä tasoitusta",
+                        "en": "Minor levelling required",
+                        "sv": "Behöver mindre avjämning",
+                        "et": "Vajab vähest tasandamist",
+                        "ru": "Требуется небольшое выравнивание"
+                    }
+                },
+                {
+                    "value": "major_levelling",
+                    "label": {
+                        "fi": "Vaatii laajaa tasoitusta",
+                        "en": "Major levelling required",
+                        "sv": "Behöver omfattande avjämning",
+                        "et": "Vajab ulatuslikku tasandamist",
+                        "ru": "Требуется значительное выравнивание"
+                    }
+                },
+                {
+                    "value": "damaged",
+                    "label": {
+                        "fi": "Vaurioitunut tai joustava",
+                        "en": "Damaged or unstable",
+                        "sv": "Skadat eller instabilt",
+                        "et": "Kahjustatud või ebastabiilne",
+                        "ru": "Повреждено или нестабильно"
+                    }
+                },
+                {
+                    "value": "moisture_concern",
+                    "label": {
+                        "fi": "Mahdollinen kosteusongelma",
+                        "en": "Possible moisture issue",
+                        "sv": "Möjligt fuktproblem",
+                        "et": "Võimalik niiskusprobleem",
+                        "ru": "Возможна проблема с влажностью"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "estimatedArea",
+            "type": "number",
+            "required": true,
+            "order": 240,
+            "label": {
+                "fi": "Lattian pinta-ala (m²)",
+                "en": "Floor area (m²)",
+                "sv": "Golvyta (m²)",
+                "et": "Põranda pindala (m²)",
+                "ru": "Площадь пола (м²)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 35",
+                "en": "For example, 35",
+                "sv": "Till exempel 35",
+                "et": "Näiteks 35",
+                "ru": "Например, 35"
+            },
+            "validation": {
+                "min": 1,
+                "max": 10000
+            }
+        },
+        {
+            "key": "materialAvailable",
+            "type": "select",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Lattiamateriaalin saatavuus",
+                "en": "Availability of flooring material",
+                "sv": "Tillgång till golvmaterial",
+                "et": "Põrandamaterjali olemasolu",
+                "ru": "Наличие напольного материала"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "all_available",
+                    "label": {
+                        "fi": "Kaikki materiaalit ovat valmiina",
+                        "en": "All materials are available",
+                        "sv": "Allt material finns",
+                        "et": "Kõik materjalid on olemas",
+                        "ru": "Все материалы имеются"
+                    }
+                },
+                {
+                    "value": "flooring_only",
+                    "label": {
+                        "fi": "Vain lattiamateriaali on valmiina",
+                        "en": "Only flooring material is available",
+                        "sv": "Endast golvmaterialet finns",
+                        "et": "Olemas on ainult põrandamaterjal",
+                        "ru": "Есть только напольный материал"
+                    }
+                },
+                {
+                    "value": "provider_supplies",
+                    "label": {
+                        "fi": "Asentaja hankkii materiaalit",
+                        "en": "Installer supplies the materials",
+                        "sv": "Installatören skaffar materialet",
+                        "et": "Paigaldaja hangib materjalid",
+                        "ru": "Мастер предоставляет материалы"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Materiaalia ei ole vielä valittu",
+                        "en": "Material not selected yet",
+                        "sv": "Materialet är inte valt ännu",
+                        "et": "Materjali ei ole veel valitud",
+                        "ru": "Материал ещё не выбран"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "floorHeating",
+            "type": "select",
+            "required": false,
+            "order": 260,
+            "label": {
+                "fi": "Lattialämmitys",
+                "en": "Underfloor heating",
+                "sv": "Golvvärme",
+                "et": "Põrandaküte",
+                "ru": "Тёплый пол"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "electric",
+                    "label": {
+                        "fi": "Sähköinen lattialämmitys",
+                        "en": "Electric underfloor heating",
+                        "sv": "Elektrisk golvvärme",
+                        "et": "Elektriline põrandaküte",
+                        "ru": "Электрический тёплый пол"
+                    }
+                },
+                {
+                    "value": "water",
+                    "label": {
+                        "fi": "Vesikiertoinen lattialämmitys",
+                        "en": "Water-based underfloor heating",
+                        "sv": "Vattenburen golvvärme",
+                        "et": "Vesipõrandaküte",
+                        "ru": "Водяной тёплый пол"
+                    }
+                },
+                {
+                    "value": "none",
+                    "label": {
+                        "fi": "Ei lattialämmitystä",
+                        "en": "No underfloor heating",
+                        "sv": "Ingen golvvärme",
+                        "et": "Põrandaküte puudub",
+                        "ru": "Тёплого пола нет"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 270,
+            "label": {
+                "fi": "Lisätiedot lattiatyöstä",
+                "en": "Additional flooring details",
+                "sv": "Ytterligare information om golvarbetet",
+                "et": "Lisainfo põrandatöö kohta",
+                "ru": "Дополнительная информация о работах с полом"
+            },
+            "placeholder": {
+                "fi": "Kuvaile nykyinen lattia, uusi materiaali ja mahdolliset ongelmat.",
+                "en": "Describe the current floor, new material and any known issues.",
+                "sv": "Beskriv det nuvarande golvet, det nya materialet och eventuella problem.",
+                "et": "Kirjelda olemasolevat põrandat, uut materjali ja võimalikke probleeme.",
+                "ru": "Опишите существующий пол, новый материал и возможные проблемы."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

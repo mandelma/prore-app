@@ -1,0 +1,668 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "demolition_worker",
+    "name": {
+        "fi": "Purkutyöntekijä",
+        "en": "Demolition worker",
+        "sv": "Rivningsarbetare",
+        "et": "Lammutaja",
+        "ru": "Демонтажник"
+    },
+    "description": {
+        "fi": "Sisätilojen, kalusteiden, pintojen ja pienten rakenteiden turvallinen purku sekä purkujätteen käsittely.",
+        "en": "Safe demolition of interiors, fixtures, finishes and small structures, including handling of demolition waste.",
+        "sv": "Säker rivning av interiörer, inredning, ytskikt och mindre konstruktioner samt hantering av rivningsavfall.",
+        "et": "Siseruumide, sisustuselementide, viimistluse ja väiksemate konstruktsioonide ohutu lammutamine ning jäätmete käitlemine.",
+        "ru": "Безопасный демонтаж интерьеров, оборудования, отделки и небольших конструкций, включая обращение со строительными отходами."
+    },
+    "icon": "fa-solid fa-person-digging",
+    "sortOrder": 90,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava purkutyö",
+                "en": "Required demolition service",
+                "sv": "Önskat rivningsarbete",
+                "et": "Vajalik lammutustöö",
+                "ru": "Необходимые демонтажные работы"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat purkutyöt",
+                "en": "Select the required demolition work",
+                "sv": "Välj önskat rivningsarbete",
+                "et": "Vali vajalikud lammutustööd",
+                "ru": "Выберите необходимые демонтажные работы"
+            },
+            "options": [
+                {
+                    "value": "kitchen_demolition",
+                    "label": {
+                        "fi": "Keittiön purku",
+                        "en": "Kitchen demolition",
+                        "sv": "Rivning av kök",
+                        "et": "Köögi lammutamine",
+                        "ru": "Демонтаж кухни"
+                    }
+                },
+                {
+                    "value": "bathroom_demolition",
+                    "label": {
+                        "fi": "Kylpyhuoneen purku",
+                        "en": "Bathroom demolition",
+                        "sv": "Rivning av badrum",
+                        "et": "Vannitoa lammutamine",
+                        "ru": "Демонтаж ванной комнаты"
+                    }
+                },
+                {
+                    "value": "floor_removal",
+                    "label": {
+                        "fi": "Lattiapäällysteen purku",
+                        "en": "Floor covering removal",
+                        "sv": "Rivning av golvbeläggning",
+                        "et": "Põrandakatte eemaldamine",
+                        "ru": "Демонтаж напольного покрытия"
+                    }
+                },
+                {
+                    "value": "wall_covering_removal",
+                    "label": {
+                        "fi": "Seinäpintojen purku",
+                        "en": "Wall finish removal",
+                        "sv": "Rivning av väggbeklädnad",
+                        "et": "Seinakatte eemaldamine",
+                        "ru": "Удаление отделки стен"
+                    }
+                },
+                {
+                    "value": "ceiling_removal",
+                    "label": {
+                        "fi": "Alakaton tai kattopinnan purku",
+                        "en": "Ceiling removal",
+                        "sv": "Rivning av undertak eller takyta",
+                        "et": "Ripplae või laekatte eemaldamine",
+                        "ru": "Демонтаж потолка"
+                    }
+                },
+                {
+                    "value": "partition_wall_removal",
+                    "label": {
+                        "fi": "Väliseinän purku",
+                        "en": "Partition wall removal",
+                        "sv": "Rivning av mellanvägg",
+                        "et": "Vaheseina lammutamine",
+                        "ru": "Демонтаж перегородки"
+                    }
+                },
+                {
+                    "value": "cabinet_fixture_removal",
+                    "label": {
+                        "fi": "Kalusteiden ja varusteiden purku",
+                        "en": "Cabinet and fixture removal",
+                        "sv": "Demontering av skåp och inredning",
+                        "et": "Kappide ja sisustuselementide eemaldamine",
+                        "ru": "Демонтаж шкафов и оборудования"
+                    }
+                },
+                {
+                    "value": "tile_removal",
+                    "label": {
+                        "fi": "Laattojen purku",
+                        "en": "Tile removal",
+                        "sv": "Rivning av kakel eller klinker",
+                        "et": "Plaatide eemaldamine",
+                        "ru": "Демонтаж плитки"
+                    }
+                },
+                {
+                    "value": "small_structure",
+                    "label": {
+                        "fi": "Pienen rakenteen purku",
+                        "en": "Small structure demolition",
+                        "sv": "Rivning av mindre konstruktion",
+                        "et": "Väiksema konstruktsiooni lammutamine",
+                        "ru": "Демонтаж небольшой конструкции"
+                    }
+                },
+                {
+                    "value": "outdoor_structure",
+                    "label": {
+                        "fi": "Pienen ulkorakenteen purku",
+                        "en": "Small outdoor structure demolition",
+                        "sv": "Rivning av mindre utomhuskonstruktion",
+                        "et": "Väikse väliskonstruktsiooni lammutamine",
+                        "ru": "Демонтаж небольшой наружной конструкции"
+                    }
+                },
+                {
+                    "value": "waste_removal",
+                    "label": {
+                        "fi": "Purkamisjätteen poiskuljetus",
+                        "en": "Demolition waste removal",
+                        "sv": "Borttransport av rivningsavfall",
+                        "et": "Lammutusjäätmete äravedu",
+                        "ru": "Вывоз строительного мусора"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu purkutyö",
+                        "en": "Other demolition work",
+                        "sv": "Annat rivningsarbete",
+                        "et": "Muu lammutustöö",
+                        "ru": "Другие демонтажные работы"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "structureMaterial",
+            "type": "multiselect",
+            "required": false,
+            "order": 210,
+            "label": {
+                "fi": "Purettava materiaali",
+                "en": "Material to be demolished",
+                "sv": "Material som ska rivas",
+                "et": "Lammutatav materjal",
+                "ru": "Материал для демонтажа"
+            },
+            "placeholder": {
+                "fi": "Valitse materiaalit",
+                "en": "Select materials",
+                "sv": "Välj material",
+                "et": "Vali materjalid",
+                "ru": "Выберите материалы"
+            },
+            "options": [
+                {
+                    "value": "wood",
+                    "label": {
+                        "fi": "Puu",
+                        "en": "Wood",
+                        "sv": "Trä",
+                        "et": "Puit",
+                        "ru": "Дерево"
+                    }
+                },
+                {
+                    "value": "drywall",
+                    "label": {
+                        "fi": "Kipsilevy",
+                        "en": "Drywall",
+                        "sv": "Gipsskiva",
+                        "et": "Kipsplaat",
+                        "ru": "Гипсокартон"
+                    }
+                },
+                {
+                    "value": "brick",
+                    "label": {
+                        "fi": "Tiili",
+                        "en": "Brick",
+                        "sv": "Tegel",
+                        "et": "Tellis",
+                        "ru": "Кирпич"
+                    }
+                },
+                {
+                    "value": "concrete",
+                    "label": {
+                        "fi": "Betoni",
+                        "en": "Concrete",
+                        "sv": "Betong",
+                        "et": "Betoon",
+                        "ru": "Бетон"
+                    }
+                },
+                {
+                    "value": "tile",
+                    "label": {
+                        "fi": "Laatta",
+                        "en": "Tile",
+                        "sv": "Kakel eller klinker",
+                        "et": "Plaat",
+                        "ru": "Плитка"
+                    }
+                },
+                {
+                    "value": "metal",
+                    "label": {
+                        "fi": "Metalli",
+                        "en": "Metal",
+                        "sv": "Metall",
+                        "et": "Metall",
+                        "ru": "Металл"
+                    }
+                },
+                {
+                    "value": "glass",
+                    "label": {
+                        "fi": "Lasi",
+                        "en": "Glass",
+                        "sv": "Glas",
+                        "et": "Klaas",
+                        "ru": "Стекло"
+                    }
+                },
+                {
+                    "value": "insulation",
+                    "label": {
+                        "fi": "Eriste",
+                        "en": "Insulation",
+                        "sv": "Isolering",
+                        "et": "Soojustusmaterjal",
+                        "ru": "Изоляция"
+                    }
+                },
+                {
+                    "value": "several_materials",
+                    "label": {
+                        "fi": "Useita materiaaleja",
+                        "en": "Several materials",
+                        "sv": "Flera material",
+                        "et": "Mitu materjali",
+                        "ru": "Несколько материалов"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "loadBearingStatus",
+            "type": "select",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Onko rakenne kantava?",
+                "en": "Is the structure load-bearing?",
+                "sv": "Är konstruktionen bärande?",
+                "et": "Kas konstruktsioon on kandev?",
+                "ru": "Является ли конструкция несущей?"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "not_load_bearing",
+                    "label": {
+                        "fi": "Ei ole kantava",
+                        "en": "Not load-bearing",
+                        "sv": "Inte bärande",
+                        "et": "Ei ole kandev",
+                        "ru": "Не несущая"
+                    }
+                },
+                {
+                    "value": "load_bearing",
+                    "label": {
+                        "fi": "On kantava",
+                        "en": "Load-bearing",
+                        "sv": "Bärande",
+                        "et": "On kandev",
+                        "ru": "Несущая"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "hazardousMaterialsKnown",
+            "type": "select",
+            "required": true,
+            "order": 230,
+            "label": {
+                "fi": "Onko kohteessa tiedossa haitta-aineita?",
+                "en": "Are hazardous materials known to be present?",
+                "sv": "Finns det kända farliga material?",
+                "et": "Kas objektil võib olla ohtlikke materjale?",
+                "ru": "Есть ли на объекте известные опасные материалы?"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "none_known",
+                    "label": {
+                        "fi": "Ei tiedossa olevia haitta-aineita",
+                        "en": "No hazardous materials known",
+                        "sv": "Inga kända farliga material",
+                        "et": "Teadaolevaid ohtlikke materjale ei ole",
+                        "ru": "Опасные материалы не известны"
+                    }
+                },
+                {
+                    "value": "asbestos_possible",
+                    "label": {
+                        "fi": "Asbestia voi esiintyä",
+                        "en": "Asbestos may be present",
+                        "sv": "Asbest kan förekomma",
+                        "et": "Võib esineda asbesti",
+                        "ru": "Возможно наличие асбеста"
+                    }
+                },
+                {
+                    "value": "lead_paint_possible",
+                    "label": {
+                        "fi": "Lyijymaalia voi esiintyä",
+                        "en": "Lead paint may be present",
+                        "sv": "Blyfärg kan förekomma",
+                        "et": "Võib esineda pliivärvi",
+                        "ru": "Возможно наличие свинцовой краски"
+                    }
+                },
+                {
+                    "value": "mold_or_moisture",
+                    "label": {
+                        "fi": "Hometta tai kosteusvaurioita",
+                        "en": "Mould or moisture damage",
+                        "sv": "Mögel eller fuktskador",
+                        "et": "Hallitus või niiskuskahjustus",
+                        "ru": "Плесень или повреждение влагой"
+                    }
+                },
+                {
+                    "value": "other_hazard",
+                    "label": {
+                        "fi": "Muu haitta-aine tai riski",
+                        "en": "Other hazardous material or risk",
+                        "sv": "Annat farligt material eller risk",
+                        "et": "Muu ohtlik materjal või risk",
+                        "ru": "Другой опасный материал или риск"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "utilitiesDisconnected",
+            "type": "multiselect",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Purettavan alueen liitännät",
+                "en": "Utilities in the demolition area",
+                "sv": "Installationer i rivningsområdet",
+                "et": "Lammutusala ühendused",
+                "ru": "Коммуникации в зоне демонтажа"
+            },
+            "placeholder": {
+                "fi": "Valitse alueella olevat liitännät",
+                "en": "Select utilities present",
+                "sv": "Välj installationer som finns",
+                "et": "Vali alal olevad ühendused",
+                "ru": "Выберите имеющиеся коммуникации"
+            },
+            "options": [
+                {
+                    "value": "electricity",
+                    "label": {
+                        "fi": "Sähköjohdot",
+                        "en": "Electrical wiring",
+                        "sv": "Elledningar",
+                        "et": "Elektrijuhtmed",
+                        "ru": "Электропроводка"
+                    }
+                },
+                {
+                    "value": "water",
+                    "label": {
+                        "fi": "Vesiputket",
+                        "en": "Water pipes",
+                        "sv": "Vattenrör",
+                        "et": "Veetorud",
+                        "ru": "Водопроводные трубы"
+                    }
+                },
+                {
+                    "value": "drain",
+                    "label": {
+                        "fi": "Viemäriputket",
+                        "en": "Drain pipes",
+                        "sv": "Avloppsrör",
+                        "et": "Kanalisatsioonitorud",
+                        "ru": "Канализационные трубы"
+                    }
+                },
+                {
+                    "value": "ventilation",
+                    "label": {
+                        "fi": "Ilmanvaihtokanavat",
+                        "en": "Ventilation ducts",
+                        "sv": "Ventilationskanaler",
+                        "et": "Ventilatsioonikanalid",
+                        "ru": "Вентиляционные каналы"
+                    }
+                },
+                {
+                    "value": "heating",
+                    "label": {
+                        "fi": "Lämmitysputket tai lattialämmitys",
+                        "en": "Heating pipes or underfloor heating",
+                        "sv": "Värmerör eller golvvärme",
+                        "et": "Küttetorud või põrandaküte",
+                        "ru": "Трубы отопления или тёплый пол"
+                    }
+                },
+                {
+                    "value": "none",
+                    "label": {
+                        "fi": "Ei liitäntöjä",
+                        "en": "No utilities present",
+                        "sv": "Inga installationer",
+                        "et": "Ühendusi ei ole",
+                        "ru": "Коммуникаций нет"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "wasteRemoval",
+            "type": "select",
+            "required": true,
+            "order": 250,
+            "label": {
+                "fi": "Purkamisjätteen käsittely",
+                "en": "Demolition waste handling",
+                "sv": "Hantering av rivningsavfall",
+                "et": "Lammutusjäätmete käitlemine",
+                "ru": "Обращение со строительным мусором"
+            },
+            "placeholder": {
+                "fi": "Valitse jätteen käsittelytapa",
+                "en": "Select waste handling",
+                "sv": "Välj hantering av avfallet",
+                "et": "Vali jäätmete käitlemise viis",
+                "ru": "Выберите способ обращения с отходами"
+            },
+            "options": [
+                {
+                    "value": "provider_removes",
+                    "label": {
+                        "fi": "Tekijä kuljettaa jätteen pois",
+                        "en": "Provider removes the waste",
+                        "sv": "Utföraren transporterar bort avfallet",
+                        "et": "Teenusepakkuja viib jäätmed ära",
+                        "ru": "Исполнитель вывозит мусор"
+                    }
+                },
+                {
+                    "value": "client_container",
+                    "label": {
+                        "fi": "Tilaajalla on jätekontti",
+                        "en": "Client provides a waste container",
+                        "sv": "Kunden har en avfallscontainer",
+                        "et": "Tellijal on jäätmekonteiner",
+                        "ru": "У заказчика есть контейнер"
+                    }
+                },
+                {
+                    "value": "client_handles",
+                    "label": {
+                        "fi": "Tilaaja huolehtii jätteestä",
+                        "en": "Client handles the waste",
+                        "sv": "Kunden tar hand om avfallet",
+                        "et": "Tellija tegeleb jäätmetega ise",
+                        "ru": "Заказчик сам занимается мусором"
+                    }
+                },
+                {
+                    "value": "to_be_agreed",
+                    "label": {
+                        "fi": "Sovitaan erikseen",
+                        "en": "To be agreed",
+                        "sv": "Enligt överenskommelse",
+                        "et": "Lepitakse eraldi kokku",
+                        "ru": "По договорённости"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "estimatedWasteVolume",
+            "type": "select",
+            "required": false,
+            "order": 260,
+            "label": {
+                "fi": "Purkamisjätteen arvioitu määrä",
+                "en": "Estimated demolition waste volume",
+                "sv": "Uppskattad mängd rivningsavfall",
+                "et": "Lammutusjäätmete hinnanguline kogus",
+                "ru": "Примерный объём строительного мусора"
+            },
+            "placeholder": {
+                "fi": "Valitse arvioitu määrä",
+                "en": "Select estimated volume",
+                "sv": "Välj uppskattad mängd",
+                "et": "Vali hinnanguline kogus",
+                "ru": "Выберите примерный объём"
+            },
+            "options": [
+                {
+                    "value": "small",
+                    "label": {
+                        "fi": "Pieni määrä, alle 1 m³",
+                        "en": "Small, under 1 m³",
+                        "sv": "Liten mängd, under 1 m³",
+                        "et": "Väike kogus, alla 1 m³",
+                        "ru": "Небольшой объём, менее 1 м³"
+                    }
+                },
+                {
+                    "value": "medium",
+                    "label": {
+                        "fi": "Keskimääräinen, 1–5 m³",
+                        "en": "Medium, 1–5 m³",
+                        "sv": "Medelstor mängd, 1–5 m³",
+                        "et": "Keskmine kogus, 1–5 m³",
+                        "ru": "Средний объём, 1–5 м³"
+                    }
+                },
+                {
+                    "value": "large",
+                    "label": {
+                        "fi": "Suuri määrä, yli 5 m³",
+                        "en": "Large, over 5 m³",
+                        "sv": "Stor mängd, över 5 m³",
+                        "et": "Suur kogus, üle 5 m³",
+                        "ru": "Большой объём, более 5 м³"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 270,
+            "label": {
+                "fi": "Lisätiedot purkutyöstä",
+                "en": "Additional demolition details",
+                "sv": "Ytterligare information om rivningsarbetet",
+                "et": "Lisainfo lammutustöö kohta",
+                "ru": "Дополнительная информация о демонтажных работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile purettava kohde, materiaalit, mitat, liitännät ja mahdolliset riskit.",
+                "en": "Describe what is to be demolished, materials, dimensions, utilities and possible risks.",
+                "sv": "Beskriv vad som ska rivas, material, mått, installationer och möjliga risker.",
+                "et": "Kirjelda lammutatavat osa, materjale, mõõte, ühendusi ja võimalikke riske.",
+                "ru": "Опишите объект демонтажа, материалы, размеры, коммуникации и возможные риски."
+            },
+            "validation": {
+                "maxLength": 2500
+            }
+        }
+    ]
+}

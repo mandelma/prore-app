@@ -1,0 +1,244 @@
+{
+    "code": "electrician",
+    "categoryCode": "construction",
+    "name": {
+        "fi": "Sähköasentaja",
+        "en": "Electrician",
+        "sv": "Elektriker",
+        "et": "Elektrik",
+        "ru": "Электрик"
+    },
+    "description": {
+        "fi": "Sähköasennukset, korjaukset, valaistus, pistorasiat ja sähkövikojen korjaus.",
+        "en": "Electrical installations, repairs, lighting, sockets and troubleshooting.",
+        "sv": "Elinstallationer, reparationer, belysning, uttag och felsökning.",
+        "et": "Elektritööd, remont, valgustus, pistikupesad ja rikete kõrvaldamine.",
+        "ru": "Электромонтаж, ремонт, освещение, розетки и устранение неисправностей."
+    },
+    "icon": "fa-solid fa-bolt",
+    "enabled": true,
+    "sortOrder": 10,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava sähkötyö",
+                "en": "Required electrical service",
+                "sv": "Önskad eltjänst",
+                "et": "Vajalik elektritöö",
+                "ru": "Необходимая электротехническая услуга"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade tjänster",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "lighting_installation",
+                    "label": {
+                        "fi": "Valaisimien asennus",
+                        "en": "Lighting installation",
+                        "sv": "Installation av belysning",
+                        "et": "Valgustite paigaldus",
+                        "ru": "Установка освещения"
+                    }
+                },
+                {
+                    "value": "socket_installation",
+                    "label": {
+                        "fi": "Pistorasioiden asennus tai vaihto",
+                        "en": "Socket installation or replacement",
+                        "sv": "Installation eller byte av uttag",
+                        "et": "Pistikupesade paigaldus või vahetus",
+                        "ru": "Установка или замена розеток"
+                    }
+                },
+                {
+                    "value": "switch_installation",
+                    "label": {
+                        "fi": "Kytkimien asennus tai vaihto",
+                        "en": "Switch installation or replacement",
+                        "sv": "Installation eller byte av strömbrytare",
+                        "et": "Lülitite paigaldus või vahetus",
+                        "ru": "Установка или замена выключателей"
+                    }
+                },
+                {
+                    "value": "wiring",
+                    "label": {
+                        "fi": "Sähköjohdotus",
+                        "en": "Electrical wiring",
+                        "sv": "Eldragning",
+                        "et": "Elektrijuhtmestik",
+                        "ru": "Электропроводка"
+                    }
+                },
+                {
+                    "value": "fault_detection",
+                    "label": {
+                        "fi": "Vianetsintä",
+                        "en": "Fault detection",
+                        "sv": "Felsökning",
+                        "et": "Rikke otsimine",
+                        "ru": "Поиск неисправности"
+                    }
+                },
+                {
+                    "value": "electrical_panel",
+                    "label": {
+                        "fi": "Sähkökeskuksen työt",
+                        "en": "Electrical panel work",
+                        "sv": "Arbete med elcentral",
+                        "et": "Elektrikilbi tööd",
+                        "ru": "Работы с электрощитом"
+                    }
+                },
+                {
+                    "value": "charger_installation",
+                    "label": {
+                        "fi": "Sähköauton laturin asennus",
+                        "en": "EV charger installation",
+                        "sv": "Installation av billaddare",
+                        "et": "Elektriauto laadija paigaldus",
+                        "ru": "Установка зарядного устройства"
+                    }
+                },
+                {
+                    "value": "security_system",
+                    "label": {
+                        "fi": "Hälytys- tai kamerajärjestelmä",
+                        "en": "Alarm or camera system",
+                        "sv": "Larm- eller kamerasystem",
+                        "et": "Valve- või kaamerasüsteem",
+                        "ru": "Сигнализация или камеры"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu sähkötyö",
+                        "en": "Other electrical work",
+                        "sv": "Annat elarbete",
+                        "et": "Muu elektritöö",
+                        "ru": "Другая электрическая работа"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "emergencyWork",
+            "type": "boolean",
+            "required": false,
+            "order": 210,
+            "label": {
+                "fi": "Onko kyse kiireellisestä sähköviasta?",
+                "en": "Is this an urgent electrical issue?",
+                "sv": "Är detta ett brådskande elfel?",
+                "et": "Kas tegemist on kiireloomulise elektririkkega?",
+                "ru": "Это срочная электрическая неисправность?"
+            }
+        },
+        {
+            "key": "powerOff",
+            "type": "boolean",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Onko sähköt poikki?",
+                "en": "Is the power off?",
+                "sv": "Är strömmen avstängd?",
+                "et": "Kas elekter on täielikult kadunud?",
+                "ru": "Полностью отсутствует электричество?"
+            }
+        },
+        {
+            "key": "voltageType",
+            "type": "select",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Jännite",
+                "en": "Voltage",
+                "sv": "Spänning",
+                "et": "Pinge",
+                "ru": "Напряжение"
+            },
+            "placeholder": {
+                "fi": "Valitse jännite",
+                "en": "Select voltage",
+                "sv": "Välj spänning",
+                "et": "Vali pinge",
+                "ru": "Выберите напряжение"
+            },
+            "options": [
+                {
+                    "value": "230v",
+                    "label": {
+                        "fi": "230 V",
+                        "en": "230 V",
+                        "sv": "230 V",
+                        "et": "230 V",
+                        "ru": "230 В"
+                    }
+                },
+                {
+                    "value": "400v",
+                    "label": {
+                        "fi": "400 V",
+                        "en": "400 V",
+                        "sv": "400 V",
+                        "et": "400 V",
+                        "ru": "400 В"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En tiedä",
+                        "en": "Not sure",
+                        "sv": "Vet inte",
+                        "et": "Ei tea",
+                        "ru": "Не знаю"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Lisätiedot",
+                "en": "Additional details",
+                "sv": "Ytterligare information",
+                "et": "Lisainfo",
+                "ru": "Дополнительная информация"
+            },
+            "placeholder": {
+                "fi": "Kuvaile työ mahdollisimman tarkasti",
+                "en": "Describe the work in as much detail as possible",
+                "sv": "Beskriv arbetet så noggrant som möjligt",
+                "et": "Kirjelda tööd võimalikult täpselt",
+                "ru": "Опишите работу как можно подробнее"
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

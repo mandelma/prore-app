@@ -1,0 +1,564 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "kitchen_installer",
+    "name": {
+        "fi": "Keittiöasentaja",
+        "en": "Kitchen installer",
+        "sv": "Köksmontör",
+        "et": "Köögipaigaldaja",
+        "ru": "Установщик кухонь"
+    },
+    "description": {
+        "fi": "Keittiökaappien, työtasojen, kodinkoneiden ja muiden keittiökalusteiden asennus ja vaihto.",
+        "en": "Installation and replacement of kitchen cabinets, worktops, appliances and other kitchen fittings.",
+        "sv": "Montering och byte av köksskåp, bänkskivor, vitvaror och annan köksinredning.",
+        "et": "Köögikappide, töötasapindade, kodumasinate ja muu köögisisustuse paigaldus ning vahetus.",
+        "ru": "Монтаж и замена кухонных шкафов, столешниц, бытовой техники и другого кухонного оборудования."
+    },
+    "icon": "fa-solid fa-kitchen-set",
+    "sortOrder": 80,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava keittiöasennus",
+                "en": "Required kitchen installation service",
+                "sv": "Önskad köksmontering",
+                "et": "Vajalik köögipaigaldustöö",
+                "ru": "Необходимые работы по установке кухни"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "full_kitchen_installation",
+                    "label": {
+                        "fi": "Koko keittiön asennus",
+                        "en": "Full kitchen installation",
+                        "sv": "Montering av komplett kök",
+                        "et": "Kogu köögi paigaldus",
+                        "ru": "Установка кухни целиком"
+                    }
+                },
+                {
+                    "value": "cabinet_installation",
+                    "label": {
+                        "fi": "Keittiökaappien asennus",
+                        "en": "Kitchen cabinet installation",
+                        "sv": "Montering av köksskåp",
+                        "et": "Köögikappide paigaldus",
+                        "ru": "Установка кухонных шкафов"
+                    }
+                },
+                {
+                    "value": "worktop_installation",
+                    "label": {
+                        "fi": "Työtason asennus",
+                        "en": "Worktop installation",
+                        "sv": "Montering av bänkskiva",
+                        "et": "Töötasapinna paigaldus",
+                        "ru": "Установка столешницы"
+                    }
+                },
+                {
+                    "value": "worktop_cutting",
+                    "label": {
+                        "fi": "Työtason aukot ja leikkaukset",
+                        "en": "Worktop cutting and openings",
+                        "sv": "Sågning och håltagning i bänkskiva",
+                        "et": "Töötasapinna lõikamine ja avade tegemine",
+                        "ru": "Резка столешницы и выполнение отверстий"
+                    }
+                },
+                {
+                    "value": "appliance_installation",
+                    "label": {
+                        "fi": "Kodinkoneiden asennus",
+                        "en": "Appliance installation",
+                        "sv": "Installation av vitvaror",
+                        "et": "Kodumasinate paigaldus",
+                        "ru": "Установка бытовой техники"
+                    }
+                },
+                {
+                    "value": "sink_tap_installation",
+                    "label": {
+                        "fi": "Altaan ja hanan asennus",
+                        "en": "Sink and tap installation",
+                        "sv": "Montering av diskho och kran",
+                        "et": "Valamu ja segisti paigaldus",
+                        "ru": "Установка мойки и смесителя"
+                    }
+                },
+                {
+                    "value": "backsplash",
+                    "label": {
+                        "fi": "Välitilan asennus",
+                        "en": "Splashback installation",
+                        "sv": "Montering av stänkskydd",
+                        "et": "Köögi tagaseina paigaldus",
+                        "ru": "Монтаж кухонного фартука"
+                    }
+                },
+                {
+                    "value": "old_kitchen_removal",
+                    "label": {
+                        "fi": "Vanhan keittiön purku",
+                        "en": "Old kitchen removal",
+                        "sv": "Demontering av gammalt kök",
+                        "et": "Vana köögi eemaldamine",
+                        "ru": "Демонтаж старой кухни"
+                    }
+                },
+                {
+                    "value": "adjustment_repair",
+                    "label": {
+                        "fi": "Kaappien säätö tai korjaus",
+                        "en": "Cabinet adjustment or repair",
+                        "sv": "Justering eller reparation av skåp",
+                        "et": "Kappide reguleerimine või remont",
+                        "ru": "Регулировка или ремонт шкафов"
+                    }
+                },
+                {
+                    "value": "handles_accessories",
+                    "label": {
+                        "fi": "Vetimien ja lisävarusteiden asennus",
+                        "en": "Handle and accessory installation",
+                        "sv": "Montering av handtag och tillbehör",
+                        "et": "Käepidemete ja lisatarvikute paigaldus",
+                        "ru": "Установка ручек и аксессуаров"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu keittiöasennus",
+                        "en": "Other kitchen installation",
+                        "sv": "Annan köksmontering",
+                        "et": "Muu köögipaigaldustöö",
+                        "ru": "Другие работы по установке кухни"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "kitchenCondition",
+            "type": "select",
+            "required": true,
+            "order": 210,
+            "label": {
+                "fi": "Keittiön nykytilanne",
+                "en": "Current kitchen status",
+                "sv": "Kökets nuvarande skick",
+                "et": "Köögi praegune seisukord",
+                "ru": "Текущее состояние кухни"
+            },
+            "placeholder": {
+                "fi": "Valitse nykytilanne",
+                "en": "Select current status",
+                "sv": "Välj nuvarande skick",
+                "et": "Vali praegune seisukord",
+                "ru": "Выберите текущее состояние"
+            },
+            "options": [
+                {
+                    "value": "empty_room",
+                    "label": {
+                        "fi": "Tila on tyhjä ja valmis asennukseen",
+                        "en": "Room is empty and ready",
+                        "sv": "Rummet är tomt och klart",
+                        "et": "Ruum on tühi ja paigalduseks valmis",
+                        "ru": "Помещение пустое и готово"
+                    }
+                },
+                {
+                    "value": "old_kitchen_present",
+                    "label": {
+                        "fi": "Vanha keittiö on vielä paikallaan",
+                        "en": "Old kitchen is still installed",
+                        "sv": "Det gamla köket är kvar",
+                        "et": "Vana köök on veel paigas",
+                        "ru": "Старая кухня ещё установлена"
+                    }
+                },
+                {
+                    "value": "partly_removed",
+                    "label": {
+                        "fi": "Vanha keittiö on osittain purettu",
+                        "en": "Old kitchen is partly removed",
+                        "sv": "Det gamla köket är delvis demonterat",
+                        "et": "Vana köök on osaliselt eemaldatud",
+                        "ru": "Старая кухня частично демонтирована"
+                    }
+                },
+                {
+                    "value": "partial_renovation",
+                    "label": {
+                        "fi": "Vain osa keittiöstä uusitaan",
+                        "en": "Only part of the kitchen is being replaced",
+                        "sv": "Endast en del av köket byts ut",
+                        "et": "Uuendatakse ainult osa köögist",
+                        "ru": "Заменяется только часть кухни"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "cabinetCount",
+            "type": "number",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Kaappien arvioitu määrä",
+                "en": "Estimated number of cabinets",
+                "sv": "Uppskattat antal skåp",
+                "et": "Kappide hinnanguline arv",
+                "ru": "Примерное количество шкафов"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 12",
+                "en": "For example, 12",
+                "sv": "Till exempel 12",
+                "et": "Näiteks 12",
+                "ru": "Например, 12"
+            },
+            "validation": {
+                "min": 1,
+                "max": 100
+            }
+        },
+        {
+            "key": "kitchenBrand",
+            "type": "text",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Keittiön valmistaja tai merkki",
+                "en": "Kitchen manufacturer or brand",
+                "sv": "Kökets tillverkare eller märke",
+                "et": "Köögi tootja või kaubamärk",
+                "ru": "Производитель или бренд кухни"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi IKEA, Puustelli tai muu",
+                "en": "For example IKEA, Puustelli or other",
+                "sv": "Till exempel IKEA, Puustelli eller annat",
+                "et": "Näiteks IKEA, Puustelli või muu",
+                "ru": "Например IKEA, Puustelli или другой"
+            },
+            "validation": {
+                "maxLength": 100
+            }
+        },
+        {
+            "key": "worktopMaterial",
+            "type": "select",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Työtason materiaali",
+                "en": "Worktop material",
+                "sv": "Material på bänkskiva",
+                "et": "Töötasapinna materjal",
+                "ru": "Материал столешницы"
+            },
+            "placeholder": {
+                "fi": "Valitse työtason materiaali",
+                "en": "Select worktop material",
+                "sv": "Välj material på bänkskivan",
+                "et": "Vali töötasapinna materjal",
+                "ru": "Выберите материал столешницы"
+            },
+            "options": [
+                {
+                    "value": "laminate",
+                    "label": {
+                        "fi": "Laminaatti",
+                        "en": "Laminate",
+                        "sv": "Laminat",
+                        "et": "Laminaat",
+                        "ru": "Ламинат"
+                    }
+                },
+                {
+                    "value": "solid_wood",
+                    "label": {
+                        "fi": "Massiivipuu",
+                        "en": "Solid wood",
+                        "sv": "Massivt trä",
+                        "et": "Täispuit",
+                        "ru": "Массив дерева"
+                    }
+                },
+                {
+                    "value": "stone",
+                    "label": {
+                        "fi": "Luonnonkivi",
+                        "en": "Natural stone",
+                        "sv": "Natursten",
+                        "et": "Looduskivi",
+                        "ru": "Натуральный камень"
+                    }
+                },
+                {
+                    "value": "quartz",
+                    "label": {
+                        "fi": "Kvartsi tai komposiitti",
+                        "en": "Quartz or composite",
+                        "sv": "Kvarts eller komposit",
+                        "et": "Kvarts või komposiit",
+                        "ru": "Кварц или композит"
+                    }
+                },
+                {
+                    "value": "stainless_steel",
+                    "label": {
+                        "fi": "Ruostumaton teräs",
+                        "en": "Stainless steel",
+                        "sv": "Rostfritt stål",
+                        "et": "Roostevaba teras",
+                        "ru": "Нержавеющая сталь"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Työtasoa ei ole vielä valittu",
+                        "en": "Worktop not selected yet",
+                        "sv": "Bänkskivan är inte vald ännu",
+                        "et": "Töötasapinda ei ole veel valitud",
+                        "ru": "Столешница ещё не выбрана"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu materiaali",
+                        "en": "Other material",
+                        "sv": "Annat material",
+                        "et": "Muu materjal",
+                        "ru": "Другой материал"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "plansAvailable",
+            "type": "boolean",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Onko keittiöstä asennus- tai mittapiirustukset?",
+                "en": "Are installation or measurement drawings available?",
+                "sv": "Finns monterings- eller måttritningar?",
+                "et": "Kas köögi paigaldus- või mõõdujoonised on olemas?",
+                "ru": "Есть ли монтажные или размерные чертежи?"
+            }
+        },
+        {
+            "key": "appliancesIncluded",
+            "type": "multiselect",
+            "required": false,
+            "order": 260,
+            "label": {
+                "fi": "Asennettavat kodinkoneet",
+                "en": "Appliances to be installed",
+                "sv": "Vitvaror som ska installeras",
+                "et": "Paigaldatavad kodumasinad",
+                "ru": "Устанавливаемая бытовая техника"
+            },
+            "placeholder": {
+                "fi": "Valitse kodinkoneet",
+                "en": "Select appliances",
+                "sv": "Välj vitvaror",
+                "et": "Vali kodumasinad",
+                "ru": "Выберите бытовую технику"
+            },
+            "options": [
+                {
+                    "value": "oven",
+                    "label": {
+                        "fi": "Uuni",
+                        "en": "Oven",
+                        "sv": "Ugn",
+                        "et": "Ahi",
+                        "ru": "Духовой шкаф"
+                    }
+                },
+                {
+                    "value": "hob",
+                    "label": {
+                        "fi": "Keittotaso",
+                        "en": "Hob",
+                        "sv": "Häll",
+                        "et": "Pliidiplaat",
+                        "ru": "Варочная панель"
+                    }
+                },
+                {
+                    "value": "dishwasher",
+                    "label": {
+                        "fi": "Astianpesukone",
+                        "en": "Dishwasher",
+                        "sv": "Diskmaskin",
+                        "et": "Nõudepesumasin",
+                        "ru": "Посудомоечная машина"
+                    }
+                },
+                {
+                    "value": "refrigerator",
+                    "label": {
+                        "fi": "Jääkaappi tai pakastin",
+                        "en": "Refrigerator or freezer",
+                        "sv": "Kyl eller frys",
+                        "et": "Külmik või sügavkülmik",
+                        "ru": "Холодильник или морозильник"
+                    }
+                },
+                {
+                    "value": "hood",
+                    "label": {
+                        "fi": "Liesituuletin",
+                        "en": "Extractor hood",
+                        "sv": "Köksfläkt",
+                        "et": "Õhupuhasti",
+                        "ru": "Вытяжка"
+                    }
+                },
+                {
+                    "value": "microwave",
+                    "label": {
+                        "fi": "Mikroaaltouuni",
+                        "en": "Microwave",
+                        "sv": "Mikrovågsugn",
+                        "et": "Mikrolaineahi",
+                        "ru": "Микроволновая печь"
+                    }
+                },
+                {
+                    "value": "none",
+                    "label": {
+                        "fi": "Ei kodinkoneita",
+                        "en": "No appliances",
+                        "sv": "Inga vitvaror",
+                        "et": "Kodumasinaid ei paigaldata",
+                        "ru": "Без бытовой техники"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "connectionsRequired",
+            "type": "multiselect",
+            "required": false,
+            "order": 270,
+            "label": {
+                "fi": "Tarvittavat liitännät",
+                "en": "Required connections",
+                "sv": "Anslutningar som behövs",
+                "et": "Vajalikud ühendused",
+                "ru": "Необходимые подключения"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat liitännät",
+                "en": "Select required connections",
+                "sv": "Välj nödvändiga anslutningar",
+                "et": "Vali vajalikud ühendused",
+                "ru": "Выберите необходимые подключения"
+            },
+            "options": [
+                {
+                    "value": "water",
+                    "label": {
+                        "fi": "Vesiliitäntä",
+                        "en": "Water connection",
+                        "sv": "Vattenanslutning",
+                        "et": "Veeühendus",
+                        "ru": "Подключение воды"
+                    }
+                },
+                {
+                    "value": "drain",
+                    "label": {
+                        "fi": "Viemäriliitäntä",
+                        "en": "Drain connection",
+                        "sv": "Avloppsanslutning",
+                        "et": "Kanalisatsiooniühendus",
+                        "ru": "Подключение к канализации"
+                    }
+                },
+                {
+                    "value": "electricity",
+                    "label": {
+                        "fi": "Sähköliitäntä",
+                        "en": "Electrical connection",
+                        "sv": "Elanslutning",
+                        "et": "Elektriühendus",
+                        "ru": "Электрическое подключение"
+                    }
+                },
+                {
+                    "value": "ventilation",
+                    "label": {
+                        "fi": "Ilmanvaihtoliitäntä",
+                        "en": "Ventilation connection",
+                        "sv": "Ventilationsanslutning",
+                        "et": "Ventilatsiooniühendus",
+                        "ru": "Подключение вентиляции"
+                    }
+                },
+                {
+                    "value": "none",
+                    "label": {
+                        "fi": "Ei uusia liitäntöjä",
+                        "en": "No new connections",
+                        "sv": "Inga nya anslutningar",
+                        "et": "Uusi ühendusi ei ole vaja",
+                        "ru": "Новые подключения не требуются"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 280,
+            "label": {
+                "fi": "Lisätiedot keittiöasennuksesta",
+                "en": "Additional kitchen installation details",
+                "sv": "Ytterligare information om köksmonteringen",
+                "et": "Lisainfo köögipaigalduse kohta",
+                "ru": "Дополнительная информация об установке кухни"
+            },
+            "placeholder": {
+                "fi": "Kuvaile keittiön mitat, kalusteet, työtasot, kodinkoneet ja mahdolliset erityisvaatimukset.",
+                "en": "Describe the kitchen dimensions, cabinets, worktops, appliances and any special requirements.",
+                "sv": "Beskriv kökets mått, skåp, bänkskivor, vitvaror och eventuella specialkrav.",
+                "et": "Kirjelda köögi mõõte, kappe, töötasapindu, kodumasinaid ja erinõudeid.",
+                "ru": "Опишите размеры кухни, шкафы, столешницы, бытовую технику и особые требования."
+            },
+            "validation": {
+                "maxLength": 2500
+            }
+        }
+    ]
+}

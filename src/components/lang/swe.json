@@ -524,6 +524,7 @@
 
   "recipientForm": {
     "serviceSectionTitle": "Välj tjänst",
+    "intro": "Skapa en beställning för att få offerter eller hitta en snabb lösning på kartan!",
     "serviceSectionHelp": "Välj det yrke eller den tjänst som passar uppgiften bäst.",
     "profession": "Yrke eller tjänst",
     "professionalPlaceholder": "Välj ett yrke eller en tjänst",

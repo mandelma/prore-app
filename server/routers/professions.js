@@ -1,6 +1,6 @@
 const express = require('express');
 const professionRouter = express.Router();
-const Profession = require('../models/professions');
+const Profession = require('../models/professions.js');
 const ProfessionCategory = require('../models/professionCategory');
 
 professionRouter.get('/', async (req, res) => {

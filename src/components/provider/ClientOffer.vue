@@ -554,6 +554,9 @@ const displayCustomFields = computed(() => {
   return _props.client.customFields.filter(field => {
     const value = field.value;
 
+    // Block to display textarea description
+    if (field.type === 'textarea') return;
+
     if (Array.isArray(value)) {
       return value.length > 0;
     }
@@ -565,52 +568,6 @@ const displayCustomFields = computed(() => {
 });
 
 // Booking custom fields data display
-const getCustomFieldDisplayValue__ = field => {
-  const value = field.value;
-
-  console.log("FIELD value - ", value);
-
-  if (field.type === 'boolean' || field.type === 'checkbox') {
-    return value
-      ? t('clientOffer.common.yes')
-      : t('clientOffer.common.no');
-  }
-
-  if (field.type === 'select') {
-    const selectedOption = field.optionsSnapshot?.find(
-      option => option.value === value
-    );
-
-    return selectedOption
-      ? getLocalizedValue(selectedOption.label)
-      : value;
-  }
-
-  if (field.type === 'multiselect') {
-    if (!Array.isArray(value)) {
-      return '';
-    }
-
-    return value
-      .map(selectedValue => {
-        const option = field.optionsSnapshot?.find(
-          item => item.value === selectedValue
-        );
-
-        return option
-          ? getLocalizedValue(option.label)
-          : selectedValue;
-      })
-      .join(', ');
-  }
-
-  if (Array.isArray(value)) {
-    return value.join(', ');
-  }
-  console.log("FIELD final value  - ", value);
-  return String(value);
-};
-
 const getCustomFieldDisplayValue = field => {
   const value = field?.value;
 
@@ -637,6 +594,9 @@ const getCustomFieldDisplayValue = field => {
       return Array.isArray(value)
         ? value.join(', ')
         : String(value ?? '');
+
+    case 'textarea': // block textarea value
+      return
 
     default:
       if (Array.isArray(value)) {
@@ -1308,6 +1268,7 @@ const handleCancelRemoving = () => {
   }
 }
 
+/* Photos */
 .photos-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -1,0 +1,524 @@
+{
+    "code": "tire_fitter",
+    "categoryCode": "vehicle_services",
+    "name": {
+        "fi": "Renkaiden asentaja",
+        "en": "Tire fitter",
+        "sv": "Däckmontör",
+        "et": "Rehvivahetaja",
+        "ru": "Шиномонтажник"
+    },
+    "description": {
+        "fi": "Ajoneuvojen renkaiden vaihto, asennus, tasapainotus ja rengaspalvelut.",
+        "en": "Vehicle tire replacement, fitting, balancing and related tire services.",
+        "sv": "Byte, montering och balansering av fordonsdäck samt andra däcktjänster.",
+        "et": "Sõidukite rehvide vahetamine, paigaldamine, tasakaalustamine ja muud rehvitööd.",
+        "ru": "Замена, монтаж, балансировка шин и другие шиномонтажные работы."
+    },
+    "icon": "fa-solid fa-car-burst",
+    "enabled": true,
+    "sortOrder": 20,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "vehicle"
+    ],
+    "customFields": [
+        {
+            "key": "tireServiceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 100,
+            "label": {
+                "fi": "Tarvittava rengaspalvelu",
+                "en": "Required tire service",
+                "sv": "Önskad däcktjänst",
+                "et": "Vajalik rehvitöö",
+                "ru": "Необходимая шиномонтажная услуга"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat rengaspalvelut",
+                "en": "Select the required tire services",
+                "sv": "Välj önskade däcktjänster",
+                "et": "Vali vajalikud rehvitööd",
+                "ru": "Выберите необходимые услуги"
+            },
+            "options": [
+                {
+                    "value": "wheel_change",
+                    "label": {
+                        "fi": "Pyörien vaihto",
+                        "en": "Wheel change",
+                        "sv": "Hjulbyte",
+                        "et": "Rataste vahetus",
+                        "ru": "Замена колёс"
+                    }
+                },
+                {
+                    "value": "tire_change_on_rims",
+                    "label": {
+                        "fi": "Renkaiden vaihto vanteille",
+                        "en": "Tire change on rims",
+                        "sv": "Däckbyte på fälg",
+                        "et": "Rehvide vahetus velgedel",
+                        "ru": "Замена шин на дисках"
+                    }
+                },
+                {
+                    "value": "wheel_balancing",
+                    "label": {
+                        "fi": "Pyörien tasapainotus",
+                        "en": "Wheel balancing",
+                        "sv": "Hjulbalansering",
+                        "et": "Rataste tasakaalustamine",
+                        "ru": "Балансировка колёс"
+                    }
+                },
+                {
+                    "value": "tire_repair",
+                    "label": {
+                        "fi": "Renkaan korjaus",
+                        "en": "Tire repair",
+                        "sv": "Däckreparation",
+                        "et": "Rehvi parandamine",
+                        "ru": "Ремонт шины"
+                    }
+                },
+                {
+                    "value": "valve_replacement",
+                    "label": {
+                        "fi": "Venttiilin vaihto",
+                        "en": "Valve replacement",
+                        "sv": "Ventilbyte",
+                        "et": "Ventiili vahetus",
+                        "ru": "Замена вентиля"
+                    }
+                },
+                {
+                    "value": "tpms_service",
+                    "label": {
+                        "fi": "Rengaspaineanturin huolto",
+                        "en": "TPMS sensor service",
+                        "sv": "Service av däcktryckssensor",
+                        "et": "Rehvirõhuanduri hooldus",
+                        "ru": "Обслуживание датчика давления в шинах"
+                    }
+                },
+                {
+                    "value": "tire_storage",
+                    "label": {
+                        "fi": "Renkaiden säilytys",
+                        "en": "Tire storage",
+                        "sv": "Däckförvaring",
+                        "et": "Rehvide hoiustamine",
+                        "ru": "Хранение шин"
+                    }
+                },
+                {
+                    "value": "tire_purchase_and_installation",
+                    "label": {
+                        "fi": "Uusien renkaiden hankinta ja asennus",
+                        "en": "Purchase and installation of new tires",
+                        "sv": "Köp och montering av nya däck",
+                        "et": "Uute rehvide ost ja paigaldus",
+                        "ru": "Покупка и установка новых шин"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu rengaspalvelu",
+                        "en": "Other tire service",
+                        "sv": "Annan däcktjänst",
+                        "et": "Muu rehvitöö",
+                        "ru": "Другая шиномонтажная услуга"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "tireType",
+            "type": "select",
+            "required": true,
+            "order": 110,
+            "label": {
+                "fi": "Renkaiden tyyppi",
+                "en": "Tire type",
+                "sv": "Typ av däck",
+                "et": "Rehvide tüüp",
+                "ru": "Тип шин"
+            },
+            "placeholder": {
+                "fi": "Valitse renkaiden tyyppi",
+                "en": "Select tire type",
+                "sv": "Välj typ av däck",
+                "et": "Vali rehvide tüüp",
+                "ru": "Выберите тип шин"
+            },
+            "options": [
+                {
+                    "value": "summer",
+                    "label": {
+                        "fi": "Kesärenkaat",
+                        "en": "Summer tires",
+                        "sv": "Sommardäck",
+                        "et": "Suverehvid",
+                        "ru": "Летние шины"
+                    }
+                },
+                {
+                    "value": "winter_studded",
+                    "label": {
+                        "fi": "Nastarenkaat",
+                        "en": "Studded winter tires",
+                        "sv": "Dubbade vinterdäck",
+                        "et": "Naastrehvid",
+                        "ru": "Шипованные зимние шины"
+                    }
+                },
+                {
+                    "value": "winter_friction",
+                    "label": {
+                        "fi": "Kitkarenkaat",
+                        "en": "Friction winter tires",
+                        "sv": "Odubbade vinterdäck",
+                        "et": "Lamellrehvid",
+                        "ru": "Нешипованные зимние шины"
+                    }
+                },
+                {
+                    "value": "all_season",
+                    "label": {
+                        "fi": "Ympärivuotiset renkaat",
+                        "en": "All-season tires",
+                        "sv": "Helårsdäck",
+                        "et": "Aastaringsed rehvid",
+                        "ru": "Всесезонные шины"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "tireSize",
+            "type": "text",
+            "required": true,
+            "order": 120,
+            "label": {
+                "fi": "Renkaan koko",
+                "en": "Tire size",
+                "sv": "Däckdimension",
+                "et": "Rehvi mõõt",
+                "ru": "Размер шины"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 205/55 R16",
+                "en": "For example, 205/55 R16",
+                "sv": "Till exempel 205/55 R16",
+                "et": "Näiteks 205/55 R16",
+                "ru": "Например, 205/55 R16"
+            },
+            "validation": {
+                "minLength": 5,
+                "maxLength": 30
+            }
+        },
+        {
+            "key": "wheelDiameter",
+            "type": "number",
+            "required": false,
+            "order": 130,
+            "label": {
+                "fi": "Vanteen halkaisija (tuumaa)",
+                "en": "Wheel diameter (inches)",
+                "sv": "Fälgdiameter (tum)",
+                "et": "Velje läbimõõt (tolli)",
+                "ru": "Диаметр диска (дюймы)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 16",
+                "en": "For example, 16",
+                "sv": "Till exempel 16",
+                "et": "Näiteks 16",
+                "ru": "Например, 16"
+            },
+            "validation": {
+                "min": 8,
+                "max": 30
+            }
+        },
+        {
+            "key": "wheelCount",
+            "type": "select",
+            "required": true,
+            "order": 140,
+            "label": {
+                "fi": "Pyörien tai renkaiden määrä",
+                "en": "Number of wheels or tires",
+                "sv": "Antal hjul eller däck",
+                "et": "Rataste või rehvide arv",
+                "ru": "Количество колёс или шин"
+            },
+            "placeholder": {
+                "fi": "Valitse määrä",
+                "en": "Select quantity",
+                "sv": "Välj antal",
+                "et": "Vali arv",
+                "ru": "Выберите количество"
+            },
+            "options": [
+                {
+                    "value": "1",
+                    "label": {
+                        "fi": "1 kappale",
+                        "en": "1",
+                        "sv": "1 styck",
+                        "et": "1",
+                        "ru": "1"
+                    }
+                },
+                {
+                    "value": "2",
+                    "label": {
+                        "fi": "2 kappaletta",
+                        "en": "2",
+                        "sv": "2 stycken",
+                        "et": "2",
+                        "ru": "2"
+                    }
+                },
+                {
+                    "value": "4",
+                    "label": {
+                        "fi": "4 kappaletta",
+                        "en": "4",
+                        "sv": "4 stycken",
+                        "et": "4",
+                        "ru": "4"
+                    }
+                },
+                {
+                    "value": "more_than_4",
+                    "label": {
+                        "fi": "Yli 4 kappaletta",
+                        "en": "More than 4",
+                        "sv": "Fler än 4",
+                        "et": "Rohkem kui 4",
+                        "ru": "Больше 4"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "tiresOnRims",
+            "type": "boolean",
+            "required": false,
+            "order": 150,
+            "label": {
+                "fi": "Ovatko vaihdettavat renkaat valmiiksi vanteilla?",
+                "en": "Are the replacement tires already mounted on rims?",
+                "sv": "Är däcken redan monterade på fälgar?",
+                "et": "Kas vahetatavad rehvid on juba velgedel?",
+                "ru": "Установлены ли сменные шины уже на дисках?"
+            }
+        },
+        {
+            "key": "runFlatTires",
+            "type": "boolean",
+            "required": false,
+            "order": 160,
+            "label": {
+                "fi": "Ovatko renkaat Run Flat -renkaat?",
+                "en": "Are the tires Run Flat tires?",
+                "sv": "Är däcken Run Flat-däck?",
+                "et": "Kas tegemist on Run Flat rehvidega?",
+                "ru": "Являются ли шины шинами Run Flat?"
+            }
+        },
+        {
+            "key": "tpmsSensors",
+            "type": "select",
+            "required": false,
+            "order": 170,
+            "label": {
+                "fi": "Rengaspaineanturit",
+                "en": "Tire pressure sensors",
+                "sv": "Däcktryckssensorer",
+                "et": "Rehvirõhuandurid",
+                "ru": "Датчики давления в шинах"
+            },
+            "placeholder": {
+                "fi": "Valitse antureita koskeva vaihtoehto",
+                "en": "Select the sensor option",
+                "sv": "Välj alternativ för sensorer",
+                "et": "Vali andurite kohta sobiv vastus",
+                "ru": "Выберите вариант для датчиков"
+            },
+            "options": [
+                {
+                    "value": "installed",
+                    "label": {
+                        "fi": "Anturit ovat käytössä",
+                        "en": "Sensors are installed",
+                        "sv": "Sensorer är installerade",
+                        "et": "Andurid on paigaldatud",
+                        "ru": "Датчики установлены"
+                    }
+                },
+                {
+                    "value": "not_installed",
+                    "label": {
+                        "fi": "Antureita ei ole",
+                        "en": "No sensors installed",
+                        "sv": "Inga sensorer är installerade",
+                        "et": "Andureid ei ole",
+                        "ru": "Датчики не установлены"
+                    }
+                },
+                {
+                    "value": "needs_replacement",
+                    "label": {
+                        "fi": "Anturi on vaihdettava",
+                        "en": "A sensor needs replacement",
+                        "sv": "En sensor behöver bytas",
+                        "et": "Andur vajab vahetamist",
+                        "ru": "Датчик необходимо заменить"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "hasLockingWheelNut",
+            "type": "boolean",
+            "required": false,
+            "order": 180,
+            "label": {
+                "fi": "Onko ajoneuvossa lukkopultit tai lukkomutterit?",
+                "en": "Does the vehicle have locking wheel bolts or nuts?",
+                "sv": "Har fordonet låsbultar eller låsmuttrar?",
+                "et": "Kas sõidukil on turvapoldid või turvamutrid?",
+                "ru": "Есть ли на автомобиле секретные болты или гайки?"
+            }
+        },
+        {
+            "key": "mobileServiceNeeded",
+            "type": "boolean",
+            "required": false,
+            "order": 190,
+            "label": {
+                "fi": "Tarvitaanko liikkuvaa rengaspalvelua asiakkaan luona?",
+                "en": "Is mobile tire service required at the client's location?",
+                "sv": "Behövs mobil däckservice hos kunden?",
+                "et": "Kas rehvitööd on vaja teha kliendi asukohas?",
+                "ru": "Требуется ли выездной шиномонтаж по адресу клиента?"
+            }
+        },
+        {
+            "key": "tireCondition",
+            "type": "select",
+            "required": false,
+            "order": 200,
+            "label": {
+                "fi": "Renkaiden kunto",
+                "en": "Tire condition",
+                "sv": "Däckens skick",
+                "et": "Rehvide seisukord",
+                "ru": "Состояние шин"
+            },
+            "placeholder": {
+                "fi": "Valitse renkaiden kunto",
+                "en": "Select tire condition",
+                "sv": "Välj däckens skick",
+                "et": "Vali rehvide seisukord",
+                "ru": "Выберите состояние шин"
+            },
+            "options": [
+                {
+                    "value": "new",
+                    "label": {
+                        "fi": "Uudet",
+                        "en": "New",
+                        "sv": "Nya",
+                        "et": "Uued",
+                        "ru": "Новые"
+                    }
+                },
+                {
+                    "value": "used_good",
+                    "label": {
+                        "fi": "Käytetyt, hyväkuntoiset",
+                        "en": "Used, in good condition",
+                        "sv": "Begagnade, i gott skick",
+                        "et": "Kasutatud, heas seisukorras",
+                        "ru": "Бывшие в употреблении, в хорошем состоянии"
+                    }
+                },
+                {
+                    "value": "damaged",
+                    "label": {
+                        "fi": "Vaurioituneet",
+                        "en": "Damaged",
+                        "sv": "Skadade",
+                        "et": "Kahjustatud",
+                        "ru": "Повреждённые"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 210,
+            "label": {
+                "fi": "Lisätiedot rengastyöstä",
+                "en": "Additional tire service details",
+                "sv": "Ytterligare information om däckarbetet",
+                "et": "Lisainfo rehvitöö kohta",
+                "ru": "Дополнительная информация о шиномонтажных работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile renkaiden kuntoa, mahdollista vauriota ja muita toiveita.",
+                "en": "Describe the tire condition, possible damage and any other requests.",
+                "sv": "Beskriv däckens skick, eventuella skador och andra önskemål.",
+                "et": "Kirjelda rehvide seisukorda, võimalikke kahjustusi ja muid soove.",
+                "ru": "Опишите состояние шин, возможные повреждения и другие пожелания."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

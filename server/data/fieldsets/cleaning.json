@@ -1,0 +1,310 @@
+{
+    "code": "cleaning",
+    "name": {
+        "fi": "Siivouskohteen tiedot",
+        "en": "Cleaning property details",
+        "sv": "Uppgifter om städobjektet",
+        "et": "Koristusobjekti andmed",
+        "ru": "Данные объекта уборки"
+    },
+    "customFields": [
+        {
+            "key": "propertyType",
+            "type": "select",
+            "required": true,
+            "order": 10,
+            "label": {
+                "fi": "Kohteen tyyppi",
+                "en": "Property type",
+                "sv": "Typ av objekt",
+                "et": "Objekti tüüp",
+                "ru": "Тип объекта"
+            },
+            "placeholder": {
+                "fi": "Valitse kohteen tyyppi",
+                "en": "Select property type",
+                "sv": "Välj typ av objekt",
+                "et": "Vali objekti tüüp",
+                "ru": "Выберите тип объекта"
+            },
+            "options": [
+                {
+                    "value": "apartment",
+                    "label": {
+                        "fi": "Kerrostaloasunto",
+                        "en": "Apartment",
+                        "sv": "Lägenhet",
+                        "et": "Korter",
+                        "ru": "Квартира"
+                    }
+                },
+                {
+                    "value": "terraced_house",
+                    "label": {
+                        "fi": "Rivitaloasunto",
+                        "en": "Terraced house",
+                        "sv": "Radhus",
+                        "et": "Ridaelamu",
+                        "ru": "Таунхаус"
+                    }
+                },
+                {
+                    "value": "semi_detached_house",
+                    "label": {
+                        "fi": "Paritalo",
+                        "en": "Semi-detached house",
+                        "sv": "Parhus",
+                        "et": "Paarismaja",
+                        "ru": "Дом на две семьи"
+                    }
+                },
+                {
+                    "value": "detached_house",
+                    "label": {
+                        "fi": "Omakotitalo",
+                        "en": "Detached house",
+                        "sv": "Villa",
+                        "et": "Eramaja",
+                        "ru": "Частный дом"
+                    }
+                },
+                {
+                    "value": "holiday_home",
+                    "label": {
+                        "fi": "Mökki tai vapaa-ajan asunto",
+                        "en": "Cottage or holiday home",
+                        "sv": "Stuga eller fritidshus",
+                        "et": "Suvila või puhkemaja",
+                        "ru": "Дача или загородный дом"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu kohde",
+                        "en": "Other property",
+                        "sv": "Annat objekt",
+                        "et": "Muu objekt",
+                        "ru": "Другой объект"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "propertyArea",
+            "type": "number",
+            "required": true,
+            "order": 20,
+            "label": {
+                "fi": "Kohteen pinta-ala (m²)",
+                "en": "Property area (m²)",
+                "sv": "Objektets yta (m²)",
+                "et": "Objekti pindala (m²)",
+                "ru": "Площадь объекта (м²)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 75",
+                "en": "For example, 75",
+                "sv": "Till exempel 75",
+                "et": "Näiteks 75",
+                "ru": "Например, 75"
+            },
+            "validation": {
+                "min": 1,
+                "max": 2000
+            }
+        },
+        {
+            "key": "roomCount",
+            "type": "number",
+            "required": false,
+            "order": 30,
+            "label": {
+                "fi": "Huoneiden määrä",
+                "en": "Number of rooms",
+                "sv": "Antal rum",
+                "et": "Tubade arv",
+                "ru": "Количество комнат"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 3",
+                "en": "For example, 3",
+                "sv": "Till exempel 3",
+                "et": "Näiteks 3",
+                "ru": "Например, 3"
+            },
+            "validation": {
+                "min": 1,
+                "max": 50
+            }
+        },
+        {
+            "key": "bathroomCount",
+            "type": "number",
+            "required": false,
+            "order": 40,
+            "label": {
+                "fi": "Kylpyhuoneiden ja WC-tilojen määrä",
+                "en": "Number of bathrooms and toilets",
+                "sv": "Antal badrum och toaletter",
+                "et": "Vannitubade ja tualettide arv",
+                "ru": "Количество ванных комнат и туалетов"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 2",
+                "en": "For example, 2",
+                "sv": "Till exempel 2",
+                "et": "Näiteks 2",
+                "ru": "Например, 2"
+            },
+            "validation": {
+                "min": 0,
+                "max": 20
+            }
+        },
+        {
+            "key": "cleaningFrequency",
+            "type": "select",
+            "required": true,
+            "order": 50,
+            "label": {
+                "fi": "Siivouksen toistuvuus",
+                "en": "Cleaning frequency",
+                "sv": "Städfrekvens",
+                "et": "Koristuse sagedus",
+                "ru": "Частота уборки"
+            },
+            "placeholder": {
+                "fi": "Valitse siivouksen toistuvuus",
+                "en": "Select cleaning frequency",
+                "sv": "Välj städfrekvens",
+                "et": "Vali koristuse sagedus",
+                "ru": "Выберите частоту уборки"
+            },
+            "options": [
+                {
+                    "value": "one_time",
+                    "label": {
+                        "fi": "Kertaluonteinen",
+                        "en": "One-time",
+                        "sv": "En gång",
+                        "et": "Ühekordne",
+                        "ru": "Однократно"
+                    }
+                },
+                {
+                    "value": "several_times_week",
+                    "label": {
+                        "fi": "Useita kertoja viikossa",
+                        "en": "Several times a week",
+                        "sv": "Flera gånger i veckan",
+                        "et": "Mitu korda nädalas",
+                        "ru": "Несколько раз в неделю"
+                    }
+                },
+                {
+                    "value": "weekly",
+                    "label": {
+                        "fi": "Kerran viikossa",
+                        "en": "Once a week",
+                        "sv": "En gång i veckan",
+                        "et": "Kord nädalas",
+                        "ru": "Один раз в неделю"
+                    }
+                },
+                {
+                    "value": "every_two_weeks",
+                    "label": {
+                        "fi": "Joka toinen viikko",
+                        "en": "Every two weeks",
+                        "sv": "Varannan vecka",
+                        "et": "Iga kahe nädala järel",
+                        "ru": "Раз в две недели"
+                    }
+                },
+                {
+                    "value": "monthly",
+                    "label": {
+                        "fi": "Kerran kuukaudessa",
+                        "en": "Once a month",
+                        "sv": "En gång i månaden",
+                        "et": "Kord kuus",
+                        "ru": "Один раз в месяц"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu toistuvuus",
+                        "en": "Other frequency",
+                        "sv": "Annan frekvens",
+                        "et": "Muu sagedus",
+                        "ru": "Другая частота"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "cleaningSupplies",
+            "type": "select",
+            "required": true,
+            "order": 60,
+            "label": {
+                "fi": "Siivousvälineet ja puhdistusaineet",
+                "en": "Cleaning equipment and supplies",
+                "sv": "Städutrustning och rengöringsmedel",
+                "et": "Koristusvahendid ja puhastusained",
+                "ru": "Инвентарь и чистящие средства"
+            },
+            "placeholder": {
+                "fi": "Valitse, kuka tuo siivousvälineet",
+                "en": "Select who provides the cleaning supplies",
+                "sv": "Välj vem som tillhandahåller städmaterial",
+                "et": "Vali, kes tagab koristusvahendid",
+                "ru": "Выберите, кто предоставляет средства для уборки"
+            },
+            "options": [
+                {
+                    "value": "client_provides",
+                    "label": {
+                        "fi": "Tilaaja tarjoaa välineet ja puhdistusaineet",
+                        "en": "Client provides the equipment and supplies",
+                        "sv": "Kunden tillhandahåller utrustning och rengöringsmedel",
+                        "et": "Tellija tagab vahendid ja puhastusained",
+                        "ru": "Заказчик предоставляет инвентарь и средства"
+                    }
+                },
+                {
+                    "value": "cleaner_provides",
+                    "label": {
+                        "fi": "Siivooja tuo välineet ja puhdistusaineet",
+                        "en": "Cleaner provides the equipment and supplies",
+                        "sv": "Städaren tar med utrustning och rengöringsmedel",
+                        "et": "Koristaja toob vahendid ja puhastusained",
+                        "ru": "Уборщик предоставляет инвентарь и средства"
+                    }
+                },
+                {
+                    "value": "partly_available",
+                    "label": {
+                        "fi": "Osa välineistä on kohteessa",
+                        "en": "Some equipment and supplies are available",
+                        "sv": "En del utrustning och rengöringsmedel finns",
+                        "et": "Osa vahendeid on objektil olemas",
+                        "ru": "Часть инвентаря и средств имеется"
+                    }
+                },
+                {
+                    "value": "to_be_agreed",
+                    "label": {
+                        "fi": "Sovitaan erikseen",
+                        "en": "To be agreed",
+                        "sv": "Enligt överenskommelse",
+                        "et": "Lepitakse eraldi kokku",
+                        "ru": "По договорённости"
+                    }
+                }
+            ]
+        }
+    ]
+}

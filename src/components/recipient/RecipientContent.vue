@@ -521,8 +521,10 @@ const removePublicBooking = async () => {
 const handleRemovePublicBooking = async () => {
   try {
     await clientStore.onRemovePublicBooking(props.booking.id);
+
+    handleQuitContent();
     
-    emit('out-here');
+    //emit('out-here');
   } catch (err) {
     console.log("Error to remove client multy booking");
   }

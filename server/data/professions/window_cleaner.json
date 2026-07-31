@@ -1,0 +1,30 @@
+{
+  "code": "window_cleaner",
+  "categoryCode": "cleaning",
+  "name": {
+    "fi": "Ikkunanpesijä",
+    "en": "Window cleaner",
+    "sv": "Fönsterputsare",
+    "et": "Aknapesija",
+    "ru": "Мойщик окон"
+  },
+  "description": {
+    "fi": "Ikkunoiden, parvekelasien ja muiden lasipintojen pesu.",
+    "en": "Cleaning of windows, balcony glazing and other glass surfaces.",
+    "sv": "Rengöring av fönster, balkongglas och andra glasytor.",
+    "et": "Akende, rõduklaaside ja muude klaaspindade pesu.",
+    "ru": "Мойка окон, балконного остекления и других стеклянных поверхностей."
+  },
+  "icon": "fa-solid fa-spray-can-sparkles",
+  "enabled": true,
+  "sortOrder": 40,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "window_cleaning"
+  ],
+  "customFields": []
+}

@@ -1,0 +1,343 @@
+{
+  "code": "window_cleaning",
+  "customFields": [
+    {
+      "key": "serviceType",
+      "type": "multiselect",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Ikkunanpesupalvelu",
+        "en": "Window cleaning service",
+        "sv": "Fönsterputsning",
+        "et": "Aknapesuteenuse tüüp",
+        "ru": "Услуга мойки окон"
+      },
+      "placeholder": {
+        "fi": "Valitse palvelut",
+        "en": "Select services",
+        "sv": "Välj tjänster",
+        "et": "Vali teenused",
+        "ru": "Выберите услуги"
+      },
+      "options": [
+        {
+          "value": "inside",
+          "label": {
+            "fi": "Sisäpuolinen pesu",
+            "en": "Inside cleaning",
+            "sv": "Invändig tvätt",
+            "et": "Sisepesu",
+            "ru": "Внутренняя мойка"
+          }
+        },
+        {
+          "value": "outside",
+          "label": {
+            "fi": "Ulkopuolinen pesu",
+            "en": "Outside cleaning",
+            "sv": "Utvändig tvätt",
+            "et": "Välipesu",
+            "ru": "Наружная мойка"
+          }
+        },
+        {
+          "value": "both",
+          "label": {
+            "fi": "Molemmat puolet",
+            "en": "Both sides",
+            "sv": "Båda sidor",
+            "et": "Mõlemad pooled",
+            "ru": "С обеих сторон"
+          }
+        },
+        {
+          "value": "balcony",
+          "label": {
+            "fi": "Parvekelasit",
+            "en": "Balcony glazing",
+            "sv": "Balkongglas",
+            "et": "Rõduklaasid",
+            "ru": "Балконное остекление"
+          }
+        },
+        {
+          "value": "roof",
+          "label": {
+            "fi": "Kattoikkunat",
+            "en": "Roof windows",
+            "sv": "Takfönster",
+            "et": "Katuseaknad",
+            "ru": "Мансардные окна"
+          }
+        },
+        {
+          "value": "shop",
+          "label": {
+            "fi": "Näyteikkunat",
+            "en": "Shop windows",
+            "sv": "Skyltfönster",
+            "et": "Vitriinaknad",
+            "ru": "Витрины"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu",
+            "en": "Other",
+            "sv": "Annat",
+            "et": "Muu",
+            "ru": "Другое"
+          }
+        }
+      ]
+    },
+    {
+      "key": "windowCount",
+      "type": "number",
+      "required": true,
+      "order": 210,
+      "label": {
+        "fi": "Ikkunoiden määrä",
+        "en": "Number of windows",
+        "sv": "Antal fönster",
+        "et": "Akende arv",
+        "ru": "Количество окон"
+      },
+      "validation": {
+        "min": 1,
+        "max": 500
+      }
+    },
+    {
+      "key": "buildingHeight",
+      "type": "select",
+      "required": true,
+      "order": 220,
+      "label": {
+        "fi": "Rakennuksen korkeus",
+        "en": "Building height",
+        "sv": "Byggnadens höjd",
+        "et": "Hoone kõrgus",
+        "ru": "Высота здания"
+      },
+      "placeholder": {
+        "fi": "Valitse korkeus",
+        "en": "Select height",
+        "sv": "Välj höjd",
+        "et": "Vali kõrgus",
+        "ru": "Выберите высоту"
+      },
+      "options": [
+        {
+          "value": "floor_1",
+          "label": {
+            "fi": "1. kerros",
+            "en": "1st floor",
+            "sv": "1:a våningen",
+            "et": "1. korrus",
+            "ru": "1 этаж"
+          }
+        },
+        {
+          "value": "floor_2",
+          "label": {
+            "fi": "2. kerros",
+            "en": "2nd floor",
+            "sv": "2:a våningen",
+            "et": "2. korrus",
+            "ru": "2 этаж"
+          }
+        },
+        {
+          "value": "floor_3",
+          "label": {
+            "fi": "3. kerros",
+            "en": "3rd floor",
+            "sv": "3:e våningen",
+            "et": "3. korrus",
+            "ru": "3 этаж"
+          }
+        },
+        {
+          "value": "floor_4_plus",
+          "label": {
+            "fi": "4+ kerros",
+            "en": "4th floor or higher",
+            "sv": "4:e våningen eller högre",
+            "et": "4+ korrus",
+            "ru": "4 этаж и выше"
+          }
+        },
+        {
+          "value": "house",
+          "label": {
+            "fi": "Omakotitalo",
+            "en": "House",
+            "sv": "Villa",
+            "et": "Eramaja",
+            "ru": "Частный дом"
+          }
+        },
+        {
+          "value": "unknown",
+          "label": {
+            "fi": "En tiedä",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei tea",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "accessType",
+      "type": "multiselect",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Pääsy ikkunoille",
+        "en": "Access to windows",
+        "sv": "Tillgång till fönstren",
+        "et": "Ligipääs akendele",
+        "ru": "Доступ к окнам"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehdot",
+        "en": "Select options",
+        "sv": "Välj alternativ",
+        "et": "Vali variandid",
+        "ru": "Выберите варианты"
+      },
+      "options": [
+        {
+          "value": "ground",
+          "label": {
+            "fi": "Maantasolta",
+            "en": "From ground",
+            "sv": "Från marken",
+            "et": "Maapinnalt",
+            "ru": "С земли"
+          }
+        },
+        {
+          "value": "balcony",
+          "label": {
+            "fi": "Parvekkeelta",
+            "en": "From balcony",
+            "sv": "Från balkongen",
+            "et": "Rõdult",
+            "ru": "С балкона"
+          }
+        },
+        {
+          "value": "ladder",
+          "label": {
+            "fi": "Tikkailla",
+            "en": "Ladder needed",
+            "sv": "Stege behövs",
+            "et": "Redeliga",
+            "ru": "С лестницы"
+          }
+        },
+        {
+          "value": "lift",
+          "label": {
+            "fi": "Nosturi tarvitaan",
+            "en": "Lift required",
+            "sv": "Lift krävs",
+            "et": "Vaja tõstukit",
+            "ru": "Нужен подъёмник"
+          }
+        }
+      ]
+    },
+    {
+      "key": "windowCondition",
+      "type": "select",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Ikkunoiden kunto",
+        "en": "Window condition",
+        "sv": "Fönstrens skick",
+        "et": "Akende seisukord",
+        "ru": "Состояние окон"
+      },
+      "placeholder": {
+        "fi": "Valitse kunto",
+        "en": "Select condition",
+        "sv": "Välj skick",
+        "et": "Vali seisukord",
+        "ru": "Выберите состояние"
+      },
+      "options": [
+        {
+          "value": "light",
+          "label": {
+            "fi": "Kevyesti likainen",
+            "en": "Light dirt",
+            "sv": "Lätt smutsig",
+            "et": "Kergelt määrdunud",
+            "ru": "Слегка загрязнены"
+          }
+        },
+        {
+          "value": "normal",
+          "label": {
+            "fi": "Normaali",
+            "en": "Normal",
+            "sv": "Normal",
+            "et": "Tavaline",
+            "ru": "Обычное"
+          }
+        },
+        {
+          "value": "heavy",
+          "label": {
+            "fi": "Hyvin likainen",
+            "en": "Very dirty",
+            "sv": "Mycket smutsig",
+            "et": "Väga määrdunud",
+            "ru": "Сильно загрязнены"
+          }
+        },
+        {
+          "value": "construction",
+          "label": {
+            "fi": "Rakennuspöly",
+            "en": "Construction dirt",
+            "sv": "Byggdamm",
+            "et": "Ehitusmustus",
+            "ru": "Строительная пыль"
+          }
+        }
+      ]
+    },
+    {
+      "key": "additionalDetails",
+      "type": "textarea",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Lisätiedot",
+        "en": "Additional details",
+        "sv": "Ytterligare information",
+        "et": "Lisainfo",
+        "ru": "Дополнительная информация"
+      },
+      "placeholder": {
+        "fi": "Kuvaile kohde ja erityistoiveet",
+        "en": "Describe the windows and special requests",
+        "sv": "Beskriv fönstren och önskemålen",
+        "et": "Kirjelda aknaid ja erisoove",
+        "ru": "Опишите окна и пожелания"
+      },
+      "validation": {
+        "maxLength": 2000
+      }
+    }
+  ]
+}

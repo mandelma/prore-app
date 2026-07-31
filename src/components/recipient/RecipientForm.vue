@@ -77,7 +77,7 @@
 
                 <template #option="{ option }">
                   <div class="profession-option">
-                    <i :class="option.icon" />
+                    <i style="color:aqua;" :class="option.icon" />
                     <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
                     <div>
                       <small v-if="option.localizedDescription">
@@ -93,6 +93,9 @@
               >
                 <i class="fa-solid fa-circle-exclamation" />
                 {{ errors.profession }}
+              </small>
+              <small class="booking-help">
+                {{ t("recipientForm.intro") }}
               </small>
             </div>
 
@@ -249,6 +252,7 @@
                 v-model.trim="form.customFieldValues[field.key]"
                 class="profession-field__textarea"
                 :placeholder="getLocalizedValue(field.placeholder)"
+                @input="descInput(field.key)"
                 rows="4"
               />
 
@@ -594,6 +598,7 @@ import map_image from '@/assets/map.gif'
 import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n';
+import { getFormatted } from "../helpers/formatDatepicker";
 import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
 import clientService from '../../service/recipients';
 import uploadService from '../../service/awsUploads';
@@ -888,12 +893,16 @@ const firstRelevantDetail = computed(() => {
   return getLocalizedValue(option?.label);
 });
 
+const descInput = (fieldKey) => {
+  form.explanation =
+    form.customFieldValues[fieldKey] || "";
+};
 
 
 const generatedOrderHeader = computed(() => {
   const professionName =
     selectedProfessionName.value;
-
+  //console.log("SP -- ", form.customFieldValues['additionalDetails']);
   if (!professionName) {
     return "";
   }
@@ -905,16 +914,6 @@ const generatedOrderHeader = computed(() => {
     ? `${professionName} – ${detail}`
     : professionName;
 });
-
-
-
-
-
-
-
-
-
-
 
 
 // Täida pealkiri automaatselt ainult seni,
@@ -1001,24 +1000,6 @@ function testToast() {
 }
 
 
-
-/* const selectedProfession = computed(() => {
-  for (const group of professions.value) {
-    const profession = group.items.find(
-      item => item.code === form.value.profession
-    );
-
-    if (profession) {
-      console.log("Profession - ", profession);
-      return profession;
-    }
-  }
-
-  return null;
-}); */
-
-
-
 const sortedCustomFields = computed(() => {
   return [...(selectedProfession.value?.customFields || [])]
     .filter(field => field.enabled !== false)
@@ -1080,86 +1061,7 @@ const mdbLocale = computed(() => {
 
 // label sets (add your own langs as needed)
 const L = computed(() => {
-  switch (locale.value) {
-    case 'en':
-      return {
-        firstDay: 0,
-        title: t("recipientForm.datePickerTitle"),
-        monthsFull:  ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-        weekdaysFull:  ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-        weekdaysShort: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-        weekdaysNarrow: ['S','M','T','W','T','F','S'],
-        cancelBtnText: t("recipientForm.datePickerCancel"),
-
-        cancelLabel: t("recipientForm.datePickerCancel"),
-        okLabel: t("recipientForm.datePickerOk"),
-        twelveHour: true
-
-
-      }
-    case 'sv':
-      return {
-        firstDay: 1,
-        title: t("recipientForm.datePickerTitle"),
-        monthsFull:  ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],
-        monthsShort: ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],
-        weekdaysFull:  ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'],
-        weekdaysShort: ['sö','må','ti','on','to','fr','lö'],
-        weekdaysNarrow: ['S','M','T','O','T','F','L'],
-        cancelBtnText: t("recipientForm.datePickerCancel"),
-
-        cancelLabel: t("recipientForm.datePickerCancel"),
-        okLabel: t("recipientForm.datePickerOk"),
-        twelveHour: false
-      }
-    case 'et':
-      return {
-        firstDay: 1,
-        title: t("recipientForm.datePickerTitle"),
-        monthsFull:  ['jaanuar','veebruar','märts','aprill','mai','juuni','juuli','august','september','oktoober','november','detsember'],
-        monthsShort: ['jaan','veebr','märts','apr','mai','juuni','juuli','aug','sept','okt','nov','dets'],
-        weekdaysFull:  ['pühapäev','esmaspäev','teisipäev','kolmapäev','neljapäev','reede','laupäev'],
-        weekdaysShort: ['P','E','T','K','N','R','L'],
-        weekdaysNarrow: ['P','E','T','K','N','R','L'],
-        cancelBtnText: t("recipientForm.datePickerCancel"),
-
-        cancelLabel: t("recipientForm.datePickerCancel"),
-        okLabel: t("recipientForm.datePickerOk"),
-        twelveHour: false
-      }
-    case 'ru':
-      return {
-        firstDay: 1,
-        title: t("recipientForm.datePickerTitle"),
-        monthsFull:  ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'],
-        monthsShort: ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'],
-        weekdaysFull:  ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
-        weekdaysShort: ['вс','пн','вт','ср','чт','пт','сб'],
-        weekdaysNarrow: ['В', 'П', 'В', 'С', 'Ч', 'П', 'С'],
-        cancelBtnText: t("recipientForm.datePickerCancel"),
-
-        cancelLabel: t("recipientForm.datePickerCancel"),
-        okLabel: t("recipientForm.datePickerOk"),
-        twelveHour: false
-      }
-    default:
-      return {
-        firstDay: 1,
-        title: t("recipientForm.datePickerTitle"),
-        monthsFull:  ['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'],
-        monthsShort: ['tammi','helmi','maalis','huhti','touko','kesä','heinä','elo','syys','loka','marras','joulu'],
-        weekdaysFull:  ['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'],
-        weekdaysShort: ['su','ma','ti','ke','to','pe','la'],
-        weekdaysNarrow: ['S','M','T','K','T','P','L'],
-        cancelBtnText: t("recipientForm.datePickerCancel"),
-        clearLabel: t("recipientForm.datePickerClear"),
-
-        cancelLabel: t("recipientForm.datePickerCancel"),
-        okLabel: t("recipientForm.datePickerOk"),
-        twelveHour: false
-      }
-  }
+  return getFormatted(locale.value);
 })
 
 // force a *full* re-init of both pickers whenever locale changes

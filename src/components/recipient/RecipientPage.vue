@@ -277,65 +277,6 @@
                 </button>
               </div>
 
-              
-              <!-- <div v-else class="order-card__actions">
-                <div class="direct-booking-info">
-                  123
-                </div>
-                <div
-                  v-if="
-                    selBookingId === booking.id &&
-                    isQuitBooking
-                  "
-                  class="quit-box"
-                >
-                  <MDBTextarea
-                    v-model="clientQuitBookingReason"
-                    white
-                    :label="
-                      t('recipientPage.reasonPlaceholder')
-                    "
-                    rows="3"
-                  />
-
-                  <div class="quit-box__actions">
-                    <button
-                      type="button"
-                      class="text-action"
-                      @click="canselQuitSelectedBooking"
-                    >
-                      {{ t("recipientPage.cancel") }}
-                    </button>
-
-                    <button
-                      v-if="
-                        clientQuitBookingReason.length > 1
-                      "
-                      type="button"
-                      class="danger-action"
-                      @click="
-                        clientRejectMapBooking(booking)
-                      "
-                    >
-                      {{ t("recipientPage.deleteOrder") }}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  v-else
-                  type="button"
-                  class="delete-link"
-                  @click="
-                    handleQuitSelectedBooking(booking.id)
-                  "
-                >
-                  <MDBIcon icon="trash-alt" />
-
-                  {{ t("recipientPage.deleteOrder") }}
-                </button>
-              </div> -->
-
               <!-- Direct booking -->
               <div v-else class="order-card__actions order-card__actions--direct">
                 <div class="direct-booking-info">

@@ -1,0 +1,508 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "tiler",
+    "name": {
+        "fi": "Laatoittaja",
+        "en": "Tiler",
+        "sv": "Plattsättare",
+        "et": "Plaatija",
+        "ru": "Плиточник"
+    },
+    "description": {
+        "fi": "Seinä- ja lattialaatoitukset, vedeneristys, saumaukset sekä vanhojen laattojen korjaukset.",
+        "en": "Wall and floor tiling, waterproofing, grouting and repairs of existing tiled surfaces.",
+        "sv": "Kakel- och klinkerarbeten, tätskikt, fogning och reparation av befintliga plattor.",
+        "et": "Seina- ja põrandaplaatimine, hüdroisolatsioon, vuukimine ning olemasolevate plaatpindade remont.",
+        "ru": "Облицовка стен и полов плиткой, гидроизоляция, затирка швов и ремонт плиточных поверхностей."
+    },
+    "icon": "fa-solid fa-border-all",
+    "sortOrder": 30,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava laatoitustyö",
+                "en": "Required tiling service",
+                "sv": "Önskat plattsättningsarbete",
+                "et": "Vajalik plaatimistöö",
+                "ru": "Необходимые плиточные работы"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "wall_tiling",
+                    "label": {
+                        "fi": "Seinälaatoitus",
+                        "en": "Wall tiling",
+                        "sv": "Kakelsättning på vägg",
+                        "et": "Seinaplaatimine",
+                        "ru": "Облицовка стен плиткой"
+                    }
+                },
+                {
+                    "value": "floor_tiling",
+                    "label": {
+                        "fi": "Lattialaatoitus",
+                        "en": "Floor tiling",
+                        "sv": "Klinkersättning på golv",
+                        "et": "Põrandaplaatimine",
+                        "ru": "Укладка плитки на пол"
+                    }
+                },
+                {
+                    "value": "bathroom_tiling",
+                    "label": {
+                        "fi": "Kylpyhuoneen laatoitus",
+                        "en": "Bathroom tiling",
+                        "sv": "Plattsättning i badrum",
+                        "et": "Vannitoa plaatimine",
+                        "ru": "Плиточные работы в ванной"
+                    }
+                },
+                {
+                    "value": "kitchen_tiling",
+                    "label": {
+                        "fi": "Keittiön välitilan laatoitus",
+                        "en": "Kitchen splashback tiling",
+                        "sv": "Kakelsättning i kök",
+                        "et": "Köögi tagaseina plaatimine",
+                        "ru": "Облицовка кухонного фартука"
+                    }
+                },
+                {
+                    "value": "waterproofing",
+                    "label": {
+                        "fi": "Vedeneristys",
+                        "en": "Waterproofing",
+                        "sv": "Tätskikt",
+                        "et": "Hüdroisolatsioon",
+                        "ru": "Гидроизоляция"
+                    }
+                },
+                {
+                    "value": "grouting",
+                    "label": {
+                        "fi": "Saumaus tai silikonityöt",
+                        "en": "Grouting or silicone work",
+                        "sv": "Fogning eller silikonarbete",
+                        "et": "Vuukimine või silikoonitööd",
+                        "ru": "Затирка швов или силиконовые работы"
+                    }
+                },
+                {
+                    "value": "tile_repair",
+                    "label": {
+                        "fi": "Rikkoutuneiden laattojen vaihto",
+                        "en": "Replacement of damaged tiles",
+                        "sv": "Byte av skadade plattor",
+                        "et": "Katkiste plaatide vahetus",
+                        "ru": "Замена повреждённой плитки"
+                    }
+                },
+                {
+                    "value": "old_tile_removal",
+                    "label": {
+                        "fi": "Vanhojen laattojen purku",
+                        "en": "Removal of old tiles",
+                        "sv": "Rivning av gamla plattor",
+                        "et": "Vanade plaatide eemaldamine",
+                        "ru": "Демонтаж старой плитки"
+                    }
+                },
+                {
+                    "value": "surface_preparation",
+                    "label": {
+                        "fi": "Pohjatyöt ja tasoitus",
+                        "en": "Surface preparation and levelling",
+                        "sv": "Underarbete och avjämning",
+                        "et": "Aluspinna ettevalmistus ja tasandus",
+                        "ru": "Подготовка и выравнивание основания"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu laatoitustyö",
+                        "en": "Other tiling work",
+                        "sv": "Annat plattsättningsarbete",
+                        "et": "Muu plaatimistöö",
+                        "ru": "Другие плиточные работы"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "surfaceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 210,
+            "label": {
+                "fi": "Laatoitettava pinta",
+                "en": "Surface to be tiled",
+                "sv": "Yta som ska plattsättas",
+                "et": "Plaaditav pind",
+                "ru": "Поверхность для укладки плитки"
+            },
+            "placeholder": {
+                "fi": "Valitse pinnat",
+                "en": "Select surfaces",
+                "sv": "Välj ytor",
+                "et": "Vali pinnad",
+                "ru": "Выберите поверхности"
+            },
+            "options": [
+                {
+                    "value": "wall",
+                    "label": {
+                        "fi": "Seinä",
+                        "en": "Wall",
+                        "sv": "Vägg",
+                        "et": "Sein",
+                        "ru": "Стена"
+                    }
+                },
+                {
+                    "value": "floor",
+                    "label": {
+                        "fi": "Lattia",
+                        "en": "Floor",
+                        "sv": "Golv",
+                        "et": "Põrand",
+                        "ru": "Пол"
+                    }
+                },
+                {
+                    "value": "stairs",
+                    "label": {
+                        "fi": "Portaat",
+                        "en": "Stairs",
+                        "sv": "Trappa",
+                        "et": "Trepid",
+                        "ru": "Лестница"
+                    }
+                },
+                {
+                    "value": "fireplace",
+                    "label": {
+                        "fi": "Takka tai hormi",
+                        "en": "Fireplace or chimney",
+                        "sv": "Eldstad eller skorsten",
+                        "et": "Kamin või korsten",
+                        "ru": "Камин или дымоход"
+                    }
+                },
+                {
+                    "value": "outdoor_surface",
+                    "label": {
+                        "fi": "Ulkotila",
+                        "en": "Outdoor surface",
+                        "sv": "Utomhusyta",
+                        "et": "Välispind",
+                        "ru": "Наружная поверхность"
+                    }
+                },
+                {
+                    "value": "several_surfaces",
+                    "label": {
+                        "fi": "Useita pintoja",
+                        "en": "Several surfaces",
+                        "sv": "Flera ytor",
+                        "et": "Mitu pinda",
+                        "ru": "Несколько поверхностей"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "tileMaterial",
+            "type": "select",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Laatan materiaali",
+                "en": "Tile material",
+                "sv": "Plattmaterial",
+                "et": "Plaadi materjal",
+                "ru": "Материал плитки"
+            },
+            "placeholder": {
+                "fi": "Valitse laatan materiaali",
+                "en": "Select tile material",
+                "sv": "Välj plattmaterial",
+                "et": "Vali plaadi materjal",
+                "ru": "Выберите материал плитки"
+            },
+            "options": [
+                {
+                    "value": "ceramic",
+                    "label": {
+                        "fi": "Keraaminen laatta",
+                        "en": "Ceramic tile",
+                        "sv": "Keramiska plattor",
+                        "et": "Keraamiline plaat",
+                        "ru": "Керамическая плитка"
+                    }
+                },
+                {
+                    "value": "porcelain",
+                    "label": {
+                        "fi": "Porcellanato tai klinkkeri",
+                        "en": "Porcelain or clinker tile",
+                        "sv": "Granitkeramik eller klinker",
+                        "et": "Portselan- või klinkerplaat",
+                        "ru": "Керамогранит или клинкер"
+                    }
+                },
+                {
+                    "value": "natural_stone",
+                    "label": {
+                        "fi": "Luonnonkivi",
+                        "en": "Natural stone",
+                        "sv": "Natursten",
+                        "et": "Looduskivi",
+                        "ru": "Натуральный камень"
+                    }
+                },
+                {
+                    "value": "mosaic",
+                    "label": {
+                        "fi": "Mosaiikki",
+                        "en": "Mosaic",
+                        "sv": "Mosaik",
+                        "et": "Mosaiik",
+                        "ru": "Мозаика"
+                    }
+                },
+                {
+                    "value": "large_format",
+                    "label": {
+                        "fi": "Suurlaatta",
+                        "en": "Large-format tile",
+                        "sv": "Storformatig platta",
+                        "et": "Suuremõõtmeline plaat",
+                        "ru": "Крупноформатная плитка"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Laattaa ei ole vielä valittu",
+                        "en": "Tile not selected yet",
+                        "sv": "Plattan är inte vald ännu",
+                        "et": "Plaati ei ole veel valitud",
+                        "ru": "Плитка ещё не выбрана"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu materiaali",
+                        "en": "Other material",
+                        "sv": "Annat material",
+                        "et": "Muu materjal",
+                        "ru": "Другой материал"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "oldSurfaceCondition",
+            "type": "select",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Nykyisen pinnan kunto",
+                "en": "Condition of existing surface",
+                "sv": "Befintlig ytans skick",
+                "et": "Olemasoleva pinna seisukord",
+                "ru": "Состояние существующей поверхности"
+            },
+            "placeholder": {
+                "fi": "Valitse pinnan kunto",
+                "en": "Select surface condition",
+                "sv": "Välj ytans skick",
+                "et": "Vali pinna seisukord",
+                "ru": "Выберите состояние поверхности"
+            },
+            "options": [
+                {
+                    "value": "ready_for_tiling",
+                    "label": {
+                        "fi": "Valmis laatoitettavaksi",
+                        "en": "Ready for tiling",
+                        "sv": "Klar för plattsättning",
+                        "et": "Plaatimiseks valmis",
+                        "ru": "Готова к укладке плитки"
+                    }
+                },
+                {
+                    "value": "needs_levelling",
+                    "label": {
+                        "fi": "Vaatii tasoitusta",
+                        "en": "Requires levelling",
+                        "sv": "Behöver avjämnas",
+                        "et": "Vajab tasandamist",
+                        "ru": "Требует выравнивания"
+                    }
+                },
+                {
+                    "value": "old_tiles_present",
+                    "label": {
+                        "fi": "Pinnassa on vanhat laatat",
+                        "en": "Old tiles are present",
+                        "sv": "Gamla plattor finns kvar",
+                        "et": "Vanad plaadid on alles",
+                        "ru": "Есть старая плитка"
+                    }
+                },
+                {
+                    "value": "damaged_or_damp",
+                    "label": {
+                        "fi": "Vaurioitunut tai kostea pinta",
+                        "en": "Damaged or damp surface",
+                        "sv": "Skadad eller fuktig yta",
+                        "et": "Kahjustatud või niiske pind",
+                        "ru": "Повреждённая или влажная поверхность"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "estimatedArea",
+            "type": "number",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Laatoitettavan alueen pinta-ala (m²)",
+                "en": "Estimated tiling area (m²)",
+                "sv": "Uppskattad yta för plattsättning (m²)",
+                "et": "Plaaditava ala hinnanguline pindala (m²)",
+                "ru": "Примерная площадь облицовки (м²)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 15",
+                "en": "For example, 15",
+                "sv": "Till exempel 15",
+                "et": "Näiteks 15",
+                "ru": "Например, 15"
+            },
+            "validation": {
+                "min": 1,
+                "max": 5000
+            }
+        },
+        {
+            "key": "tilesAvailable",
+            "type": "select",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Laattojen ja tarvikkeiden saatavuus",
+                "en": "Availability of tiles and materials",
+                "sv": "Tillgång till plattor och material",
+                "et": "Plaatide ja materjalide olemasolu",
+                "ru": "Наличие плитки и материалов"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "all_available",
+                    "label": {
+                        "fi": "Kaikki materiaalit ovat valmiina",
+                        "en": "All materials are available",
+                        "sv": "Allt material finns",
+                        "et": "Kõik materjalid on olemas",
+                        "ru": "Все материалы имеются"
+                    }
+                },
+                {
+                    "value": "tiles_only",
+                    "label": {
+                        "fi": "Vain laatat ovat valmiina",
+                        "en": "Only tiles are available",
+                        "sv": "Endast plattorna finns",
+                        "et": "Olemas on ainult plaadid",
+                        "ru": "Есть только плитка"
+                    }
+                },
+                {
+                    "value": "provider_supplies",
+                    "label": {
+                        "fi": "Laatoittaja hankkii materiaalit",
+                        "en": "Tiler supplies the materials",
+                        "sv": "Plattsättaren skaffar materialet",
+                        "et": "Plaatija hangib materjalid",
+                        "ru": "Плиточник предоставляет материалы"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Materiaaleja ei ole vielä valittu",
+                        "en": "Materials not selected yet",
+                        "sv": "Materialet är inte valt ännu",
+                        "et": "Materjale ei ole veel valitud",
+                        "ru": "Материалы ещё не выбраны"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 260,
+            "label": {
+                "fi": "Lisätiedot laatoitustyöstä",
+                "en": "Additional tiling details",
+                "sv": "Ytterligare information om plattsättningen",
+                "et": "Lisainfo plaatimistöö kohta",
+                "ru": "Дополнительная информация о плиточных работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile työ, pinnat, laatat ja mahdolliset ongelmat.",
+                "en": "Describe the work, surfaces, tiles and any known issues.",
+                "sv": "Beskriv arbetet, ytorna, plattorna och eventuella problem.",
+                "et": "Kirjelda tööd, pindu, plaate ja võimalikke probleeme.",
+                "ru": "Опишите работу, поверхности, плитку и возможные проблемы."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

@@ -525,6 +525,7 @@
 
   "recipientForm": {
     "serviceSectionTitle": "Vali teenus",
+    "intro": "Koosta tellimus pakkumiste saamiseks või leia kiire lahendus kaardilt!",
     "serviceSectionHelp": "Vali ülesandele kõige paremini sobiv amet või teenus.",
     "profession": "Amet või teenus",
     "professionalPlaceholder": "Vali amet või teenus",

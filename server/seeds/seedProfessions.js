@@ -3,7 +3,7 @@ const path = require("node:path");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-const Profession = require("../models/professions");
+const Profession = require("../models/professions.js");
 
 dotenv.config();
 

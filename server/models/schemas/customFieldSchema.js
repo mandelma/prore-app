@@ -38,7 +38,6 @@ const customFieldSchema = new mongoose.Schema(
                 "select",
                 "multiselect",
                 "checkbox",
-                "multiselect",
                 "date"
             ]
         },

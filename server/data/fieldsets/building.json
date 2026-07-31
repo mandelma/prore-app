@@ -1,0 +1,741 @@
+{
+    "code": "building",
+    "name": {
+        "fi": "Kohteen tiedot",
+        "en": "Property details",
+        "sv": "Uppgifter om objektet",
+        "et": "Objekti andmed",
+        "ru": "Данные объекта"
+    },
+    "customFields": [
+        {
+            "key": "propertyType",
+            "type": "select",
+            "required": true,
+            "order": 10,
+            "label": {
+                "fi": "Kohteen tyyppi",
+                "en": "Property type",
+                "sv": "Typ av objekt",
+                "et": "Objekti tüüp",
+                "ru": "Тип объекта"
+            },
+            "placeholder": {
+                "fi": "Valitse kohteen tyyppi",
+                "en": "Select property type",
+                "sv": "Välj typ av objekt",
+                "et": "Vali objekti tüüp",
+                "ru": "Выберите тип объекта"
+            },
+            "options": [
+                {
+                    "value": "apartment",
+                    "label": {
+                        "fi": "Kerrostaloasunto",
+                        "en": "Apartment",
+                        "sv": "Lägenhet",
+                        "et": "Korter",
+                        "ru": "Квартира"
+                    }
+                },
+                {
+                    "value": "terraced_house",
+                    "label": {
+                        "fi": "Rivitaloasunto",
+                        "en": "Terraced house",
+                        "sv": "Radhus",
+                        "et": "Ridaelamu",
+                        "ru": "Таунхаус"
+                    }
+                },
+                {
+                    "value": "semi_detached_house",
+                    "label": {
+                        "fi": "Paritalo",
+                        "en": "Semi-detached house",
+                        "sv": "Parhus",
+                        "et": "Paarismaja",
+                        "ru": "Дом на две семьи"
+                    }
+                },
+                {
+                    "value": "detached_house",
+                    "label": {
+                        "fi": "Omakotitalo",
+                        "en": "Detached house",
+                        "sv": "Villa",
+                        "et": "Eramaja",
+                        "ru": "Частный дом"
+                    }
+                },
+                {
+                    "value": "holiday_home",
+                    "label": {
+                        "fi": "Mökki tai vapaa-ajan asunto",
+                        "en": "Cottage or holiday home",
+                        "sv": "Stuga eller fritidshus",
+                        "et": "Suvila või puhkemaja",
+                        "ru": "Дача или загородный дом"
+                    }
+                },
+                {
+                    "value": "office",
+                    "label": {
+                        "fi": "Toimisto",
+                        "en": "Office",
+                        "sv": "Kontor",
+                        "et": "Kontor",
+                        "ru": "Офис"
+                    }
+                },
+                {
+                    "value": "small_business_premises",
+                    "label": {
+                        "fi": "Pieni liiketila",
+                        "en": "Small business premises",
+                        "sv": "Mindre affärslokal",
+                        "et": "Väiksem äripind",
+                        "ru": "Небольшое коммерческое помещение"
+                    }
+                },
+                {
+                    "value": "garage",
+                    "label": {
+                        "fi": "Autotalli",
+                        "en": "Garage",
+                        "sv": "Garage",
+                        "et": "Garaaž",
+                        "ru": "Гараж"
+                    }
+                },
+                {
+                    "value": "storage",
+                    "label": {
+                        "fi": "Varasto",
+                        "en": "Storage space",
+                        "sv": "Förråd",
+                        "et": "Panipaik või ladu",
+                        "ru": "Кладовая или склад"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu kohde",
+                        "en": "Other property",
+                        "sv": "Annat objekt",
+                        "et": "Muu objekt",
+                        "ru": "Другой объект"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "ownershipType",
+            "type": "select",
+            "required": false,
+            "order": 20,
+            "label": {
+                "fi": "Kohteen hallintamuoto",
+                "en": "Occupancy type",
+                "sv": "Upplåtelseform",
+                "et": "Objekti kasutusvorm",
+                "ru": "Форма пользования объектом"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "owner_occupied",
+                    "label": {
+                        "fi": "Omistusasunto tai oma tila",
+                        "en": "Owner-occupied property",
+                        "sv": "Ägd bostad eller lokal",
+                        "et": "Omandis olev objekt",
+                        "ru": "Объект в собственности"
+                    }
+                },
+                {
+                    "value": "rented",
+                    "label": {
+                        "fi": "Vuokra-asunto tai vuokratila",
+                        "en": "Rented property",
+                        "sv": "Hyresbostad eller hyrd lokal",
+                        "et": "Üüritud objekt",
+                        "ru": "Арендуемый объект"
+                    }
+                },
+                {
+                    "value": "housing_company",
+                    "label": {
+                        "fi": "Taloyhtiön vastuulla oleva tila",
+                        "en": "Housing company property",
+                        "sv": "Bostadsbolagets utrymme",
+                        "et": "Korteriühistu või haldusfirma vastutusel",
+                        "ru": "Объект в ведении жилищной компании"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "buildingAge",
+            "type": "select",
+            "required": false,
+            "order": 30,
+            "label": {
+                "fi": "Rakennuksen ikä",
+                "en": "Building age",
+                "sv": "Byggnadens ålder",
+                "et": "Hoone vanus",
+                "ru": "Возраст здания"
+            },
+            "placeholder": {
+                "fi": "Valitse rakennuksen ikä",
+                "en": "Select building age",
+                "sv": "Välj byggnadens ålder",
+                "et": "Vali hoone vanus",
+                "ru": "Выберите возраст здания"
+            },
+            "options": [
+                {
+                    "value": "under_10_years",
+                    "label": {
+                        "fi": "Alle 10 vuotta",
+                        "en": "Under 10 years",
+                        "sv": "Under 10 år",
+                        "et": "Alla 10 aasta",
+                        "ru": "Менее 10 лет"
+                    }
+                },
+                {
+                    "value": "10_30_years",
+                    "label": {
+                        "fi": "10–30 vuotta",
+                        "en": "10–30 years",
+                        "sv": "10–30 år",
+                        "et": "10–30 aastat",
+                        "ru": "10–30 лет"
+                    }
+                },
+                {
+                    "value": "31_50_years",
+                    "label": {
+                        "fi": "31–50 vuotta",
+                        "en": "31–50 years",
+                        "sv": "31–50 år",
+                        "et": "31–50 aastat",
+                        "ru": "31–50 лет"
+                    }
+                },
+                {
+                    "value": "over_50_years",
+                    "label": {
+                        "fi": "Yli 50 vuotta",
+                        "en": "Over 50 years",
+                        "sv": "Över 50 år",
+                        "et": "Üle 50 aasta",
+                        "ru": "Более 50 лет"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "workLocation",
+            "type": "multiselect",
+            "required": true,
+            "order": 40,
+            "label": {
+                "fi": "Työn sijainti kohteessa",
+                "en": "Work location within the property",
+                "sv": "Arbetets placering i objektet",
+                "et": "Töö asukoht objektil",
+                "ru": "Место выполнения работ на объекте"
+            },
+            "placeholder": {
+                "fi": "Valitse työn sijainti",
+                "en": "Select work location",
+                "sv": "Välj arbetets placering",
+                "et": "Vali töö asukoht",
+                "ru": "Выберите место выполнения работ"
+            },
+            "options": [
+                {
+                    "value": "indoors",
+                    "label": {
+                        "fi": "Sisätiloissa",
+                        "en": "Indoors",
+                        "sv": "Inomhus",
+                        "et": "Siseruumides",
+                        "ru": "В помещении"
+                    }
+                },
+                {
+                    "value": "outdoors",
+                    "label": {
+                        "fi": "Ulkona",
+                        "en": "Outdoors",
+                        "sv": "Utomhus",
+                        "et": "Väljas",
+                        "ru": "Снаружи"
+                    }
+                },
+                {
+                    "value": "wet_room",
+                    "label": {
+                        "fi": "Märkätilassa",
+                        "en": "Wet room",
+                        "sv": "I våtrum",
+                        "et": "Märgruumis",
+                        "ru": "Во влажном помещении"
+                    }
+                },
+                {
+                    "value": "attic",
+                    "label": {
+                        "fi": "Ullakolla",
+                        "en": "Attic",
+                        "sv": "På vinden",
+                        "et": "Pööningul",
+                        "ru": "На чердаке"
+                    }
+                },
+                {
+                    "value": "basement",
+                    "label": {
+                        "fi": "Kellarissa",
+                        "en": "Basement",
+                        "sv": "I källaren",
+                        "et": "Keldris",
+                        "ru": "В подвале"
+                    }
+                },
+                {
+                    "value": "garage_or_storage",
+                    "label": {
+                        "fi": "Autotallissa tai varastossa",
+                        "en": "Garage or storage space",
+                        "sv": "I garage eller förråd",
+                        "et": "Garaažis või panipaigas",
+                        "ru": "В гараже или кладовой"
+                    }
+                },
+                {
+                    "value": "several_areas",
+                    "label": {
+                        "fi": "Useissa tiloissa",
+                        "en": "Several areas",
+                        "sv": "I flera utrymmen",
+                        "et": "Mitmes ruumis või piirkonnas",
+                        "ru": "В нескольких помещениях"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "workAreaSize",
+            "type": "number",
+            "required": false,
+            "order": 50,
+            "label": {
+                "fi": "Työalueen arvioitu pinta-ala (m²)",
+                "en": "Estimated work area (m²)",
+                "sv": "Uppskattad arbetsyta (m²)",
+                "et": "Tööala hinnanguline pindala (m²)",
+                "ru": "Примерная площадь работ (м²)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 20",
+                "en": "For example, 20",
+                "sv": "Till exempel 20",
+                "et": "Näiteks 20",
+                "ru": "Например, 20"
+            },
+            "validation": {
+                "min": 1,
+                "max": 5000
+            }
+        },
+        {
+            "key": "floorNumber",
+            "type": "number",
+            "required": false,
+            "order": 60,
+            "label": {
+                "fi": "Kerros",
+                "en": "Floor number",
+                "sv": "Våningsplan",
+                "et": "Korrus",
+                "ru": "Этаж"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 3",
+                "en": "For example, 3",
+                "sv": "Till exempel 3",
+                "et": "Näiteks 3",
+                "ru": "Например, 3"
+            },
+            "validation": {
+                "min": -5,
+                "max": 100
+            }
+        },
+        {
+            "key": "elevatorAvailable",
+            "type": "boolean",
+            "required": false,
+            "order": 70,
+            "label": {
+                "fi": "Onko kohteessa hissi?",
+                "en": "Is an elevator available?",
+                "sv": "Finns det hiss?",
+                "et": "Kas objektil on lift?",
+                "ru": "Есть ли на объекте лифт?"
+            }
+        },
+        {
+            "key": "parkingAvailable",
+            "type": "select",
+            "required": false,
+            "order": 80,
+            "label": {
+                "fi": "Pysäköinti kohteen lähellä",
+                "en": "Parking near the property",
+                "sv": "Parkering nära objektet",
+                "et": "Parkimine objekti lähedal",
+                "ru": "Парковка рядом с объектом"
+            },
+            "placeholder": {
+                "fi": "Valitse pysäköintitilanne",
+                "en": "Select parking availability",
+                "sv": "Välj parkeringsmöjlighet",
+                "et": "Vali parkimisvõimalus",
+                "ru": "Выберите вариант парковки"
+            },
+            "options": [
+                {
+                    "value": "free_parking",
+                    "label": {
+                        "fi": "Maksuton pysäköinti",
+                        "en": "Free parking",
+                        "sv": "Gratis parkering",
+                        "et": "Tasuta parkimine",
+                        "ru": "Бесплатная парковка"
+                    }
+                },
+                {
+                    "value": "paid_parking",
+                    "label": {
+                        "fi": "Maksullinen pysäköinti",
+                        "en": "Paid parking",
+                        "sv": "Avgiftsbelagd parkering",
+                        "et": "Tasuline parkimine",
+                        "ru": "Платная парковка"
+                    }
+                },
+                {
+                    "value": "limited_parking",
+                    "label": {
+                        "fi": "Rajoitetusti pysäköintitilaa",
+                        "en": "Limited parking",
+                        "sv": "Begränsad parkering",
+                        "et": "Piiratud parkimisvõimalus",
+                        "ru": "Ограниченная парковка"
+                    }
+                },
+                {
+                    "value": "no_nearby_parking",
+                    "label": {
+                        "fi": "Ei pysäköintiä kohteen lähellä",
+                        "en": "No nearby parking",
+                        "sv": "Ingen parkering i närheten",
+                        "et": "Läheduses parkimisvõimalus puudub",
+                        "ru": "Рядом нет парковки"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "accessArrangement",
+            "type": "select",
+            "required": false,
+            "order": 90,
+            "label": {
+                "fi": "Pääsy kohteeseen",
+                "en": "Access to the property",
+                "sv": "Tillträde till objektet",
+                "et": "Objektile ligipääs",
+                "ru": "Доступ к объекту"
+            },
+            "placeholder": {
+                "fi": "Valitse pääsytapa",
+                "en": "Select access arrangement",
+                "sv": "Välj hur tillträde ordnas",
+                "et": "Vali ligipääsu viis",
+                "ru": "Выберите способ доступа"
+            },
+            "options": [
+                {
+                    "value": "client_present",
+                    "label": {
+                        "fi": "Tilaaja on paikalla",
+                        "en": "Client will be present",
+                        "sv": "Kunden är på plats",
+                        "et": "Tellija on kohal",
+                        "ru": "Заказчик будет на месте"
+                    }
+                },
+                {
+                    "value": "key_provided",
+                    "label": {
+                        "fi": "Avain luovutetaan työntekijälle",
+                        "en": "A key will be provided",
+                        "sv": "En nyckel lämnas till utföraren",
+                        "et": "Teenusepakkujale antakse võti",
+                        "ru": "Исполнителю будет передан ключ"
+                    }
+                },
+                {
+                    "value": "door_code_or_key_box",
+                    "label": {
+                        "fi": "Ovikoodi tai avainlokero",
+                        "en": "Door code or key box",
+                        "sv": "Dörrkod eller nyckelbox",
+                        "et": "Uksekood või võtmekarp",
+                        "ru": "Код двери или ключница"
+                    }
+                },
+                {
+                    "value": "reception_or_contact_person",
+                    "label": {
+                        "fi": "Vastaanotto tai yhteyshenkilö päästää sisään",
+                        "en": "Reception or contact person provides access",
+                        "sv": "Reception eller kontaktperson ger tillträde",
+                        "et": "Sissepääsu tagab vastuvõtt või kontaktisik",
+                        "ru": "Доступ предоставляет ресепшен или контактное лицо"
+                    }
+                },
+                {
+                    "value": "to_be_agreed",
+                    "label": {
+                        "fi": "Sovitaan erikseen",
+                        "en": "To be agreed",
+                        "sv": "Enligt överenskommelse",
+                        "et": "Lepitakse eraldi kokku",
+                        "ru": "По договорённости"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "occupiedDuringWork",
+            "type": "select",
+            "required": false,
+            "order": 100,
+            "label": {
+                "fi": "Onko kohde käytössä työn aikana?",
+                "en": "Will the property be occupied during the work?",
+                "sv": "Kommer objektet att användas under arbetet?",
+                "et": "Kas objekt on töö ajal kasutuses?",
+                "ru": "Будет ли объект использоваться во время работ?"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "occupied",
+                    "label": {
+                        "fi": "Kyllä, kohde on käytössä",
+                        "en": "Yes, the property is occupied",
+                        "sv": "Ja, objektet används",
+                        "et": "Jah, objekt on kasutuses",
+                        "ru": "Да, объект используется"
+                    }
+                },
+                {
+                    "value": "partly_occupied",
+                    "label": {
+                        "fi": "Osittain käytössä",
+                        "en": "Partly occupied",
+                        "sv": "Delvis i bruk",
+                        "et": "Osaliselt kasutuses",
+                        "ru": "Используется частично"
+                    }
+                },
+                {
+                    "value": "vacant",
+                    "label": {
+                        "fi": "Ei, kohde on tyhjillään",
+                        "en": "No, the property is vacant",
+                        "sv": "Nej, objektet är tomt",
+                        "et": "Ei, objekt on tühi",
+                        "ru": "Нет, объект пуст"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "materialArrangement",
+            "type": "select",
+            "required": false,
+            "order": 110,
+            "label": {
+                "fi": "Materiaalien hankinta",
+                "en": "Material arrangement",
+                "sv": "Anskaffning av material",
+                "et": "Materjalide hankimine",
+                "ru": "Обеспечение материалами"
+            },
+            "placeholder": {
+                "fi": "Valitse materiaalien hankintatapa",
+                "en": "Select how materials will be provided",
+                "sv": "Välj hur material ska ordnas",
+                "et": "Vali, kuidas materjalid hangitakse",
+                "ru": "Выберите способ обеспечения материалами"
+            },
+            "options": [
+                {
+                    "value": "client_has_materials",
+                    "label": {
+                        "fi": "Tilaajalla on materiaalit",
+                        "en": "Client has the materials",
+                        "sv": "Kunden har materialen",
+                        "et": "Materjalid on tellijal olemas",
+                        "ru": "Материалы есть у заказчика"
+                    }
+                },
+                {
+                    "value": "provider_supplies_materials",
+                    "label": {
+                        "fi": "Palveluntarjoaja hankkii materiaalit",
+                        "en": "Service provider supplies the materials",
+                        "sv": "Utföraren skaffar materialen",
+                        "et": "Materjalid hangib teenusepakkuja",
+                        "ru": "Материалы предоставляет исполнитель"
+                    }
+                },
+                {
+                    "value": "partly_available",
+                    "label": {
+                        "fi": "Osa materiaaleista on valmiina",
+                        "en": "Some materials are available",
+                        "sv": "En del material finns redan",
+                        "et": "Osa materjale on olemas",
+                        "ru": "Часть материалов уже имеется"
+                    }
+                },
+                {
+                    "value": "to_be_agreed",
+                    "label": {
+                        "fi": "Sovitaan erikseen",
+                        "en": "To be agreed",
+                        "sv": "Enligt överenskommelse",
+                        "et": "Lepitakse eraldi kokku",
+                        "ru": "По договорённости"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "permissionsOrApproval",
+            "type": "select",
+            "required": false,
+            "order": 120,
+            "label": {
+                "fi": "Tarvitaanko lupa tai hyväksyntä?",
+                "en": "Is permission or approval required?",
+                "sv": "Krävs tillstånd eller godkännande?",
+                "et": "Kas tööks on vaja luba või kooskõlastust?",
+                "ru": "Требуется ли разрешение или согласование?"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "not_required",
+                    "label": {
+                        "fi": "Lupaa ei tarvita",
+                        "en": "No permission required",
+                        "sv": "Inget tillstånd krävs",
+                        "et": "Luba ei ole vaja",
+                        "ru": "Разрешение не требуется"
+                    }
+                },
+                {
+                    "value": "already_approved",
+                    "label": {
+                        "fi": "Lupa tai hyväksyntä on saatu",
+                        "en": "Permission or approval has been obtained",
+                        "sv": "Tillstånd eller godkännande har erhållits",
+                        "et": "Luba või kooskõlastus on olemas",
+                        "ru": "Разрешение или согласование получено"
+                    }
+                },
+                {
+                    "value": "approval_needed",
+                    "label": {
+                        "fi": "Lupa tai hyväksyntä tarvitaan",
+                        "en": "Permission or approval is needed",
+                        "sv": "Tillstånd eller godkännande behövs",
+                        "et": "Luba või kooskõlastus on vajalik",
+                        "ru": "Необходимо разрешение или согласование"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        }
+    ]
+}

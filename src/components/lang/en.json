@@ -513,6 +513,7 @@
 
   "recipientForm": {
     "serviceSectionTitle": "Choose a service",
+    "intro": "Create an order to receive offers or find a quick solution on the map!",
     "serviceSectionHelp": "Select the profession or service that best matches the task.",
     "profession": "Profession or service",
     "professionalPlaceholder": "Select a profession or service",

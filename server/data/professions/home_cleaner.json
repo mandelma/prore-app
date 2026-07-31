@@ -1,0 +1,474 @@
+{
+    "code": "home_cleaner",
+    "categoryCode": "cleaning",
+    "name": {
+        "fi": "Kodin siivooja",
+        "en": "Home cleaner",
+        "sv": "Hemstädare",
+        "et": "Kodukoristaja",
+        "ru": "Уборщик дома"
+    },
+    "description": {
+        "fi": "Kotien ja asuntojen säännöllinen, kertaluonteinen ja perusteellinen siivous.",
+        "en": "Regular, one-time and deep cleaning of homes and apartments.",
+        "sv": "Regelbunden, tillfällig och grundlig städning av hem och lägenheter.",
+        "et": "Kodude ja korterite regulaarne, ühekordne ning põhjalik koristamine.",
+        "ru": "Регулярная, разовая и генеральная уборка домов и квартир."
+    },
+    "icon": "fa-solid fa-broom",
+    "enabled": true,
+    "sortOrder": 10,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "cleaning"
+    ],
+    "customFields": [
+        {
+            "key": "cleaningType",
+            "type": "select",
+            "required": true,
+            "order": 100,
+            "label": {
+                "fi": "Siivouksen tyyppi",
+                "en": "Cleaning type",
+                "sv": "Typ av städning",
+                "et": "Koristuse tüüp",
+                "ru": "Тип уборки"
+            },
+            "placeholder": {
+                "fi": "Valitse siivouksen tyyppi",
+                "en": "Select cleaning type",
+                "sv": "Välj typ av städning",
+                "et": "Vali koristuse tüüp",
+                "ru": "Выберите тип уборки"
+            },
+            "options": [
+                {
+                    "value": "regular_cleaning",
+                    "label": {
+                        "fi": "Tavallinen kotisiivous",
+                        "en": "Regular home cleaning",
+                        "sv": "Vanlig hemstädning",
+                        "et": "Tavaline kodukoristus",
+                        "ru": "Обычная уборка дома"
+                    }
+                },
+                {
+                    "value": "deep_cleaning",
+                    "label": {
+                        "fi": "Perusteellinen siivous",
+                        "en": "Deep cleaning",
+                        "sv": "Grundlig städning",
+                        "et": "Põhjalik koristus",
+                        "ru": "Генеральная уборка"
+                    }
+                },
+                {
+                    "value": "move_out_cleaning",
+                    "label": {
+                        "fi": "Muuttosiivous",
+                        "en": "Move-out cleaning",
+                        "sv": "Flyttstädning",
+                        "et": "Väljakolimiskoristus",
+                        "ru": "Уборка при выезде"
+                    }
+                },
+                {
+                    "value": "move_in_cleaning",
+                    "label": {
+                        "fi": "Sisäänmuuttosiivous",
+                        "en": "Move-in cleaning",
+                        "sv": "Inflyttningsstädning",
+                        "et": "Sissekolimiskoristus",
+                        "ru": "Уборка перед заселением"
+                    }
+                },
+                {
+                    "value": "post_renovation_cleaning",
+                    "label": {
+                        "fi": "Remontin jälkeinen siivous",
+                        "en": "Post-renovation cleaning",
+                        "sv": "Städning efter renovering",
+                        "et": "Remondijärgne koristus",
+                        "ru": "Уборка после ремонта"
+                    }
+                },
+                {
+                    "value": "holiday_home_cleaning",
+                    "label": {
+                        "fi": "Mökin tai vapaa-ajan asunnon siivous",
+                        "en": "Holiday home cleaning",
+                        "sv": "Städning av fritidshus",
+                        "et": "Suvila või puhkemaja koristus",
+                        "ru": "Уборка дачи или загородного дома"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu siivous",
+                        "en": "Other cleaning",
+                        "sv": "Annan städning",
+                        "et": "Muu koristus",
+                        "ru": "Другая уборка"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalServices",
+            "type": "multiselect",
+            "required": false,
+            "order": 110,
+            "label": {
+                "fi": "Lisäpalvelut",
+                "en": "Additional services",
+                "sv": "Tilläggstjänster",
+                "et": "Lisateenused",
+                "ru": "Дополнительные услуги"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat lisäpalvelut",
+                "en": "Select additional services",
+                "sv": "Välj tilläggstjänster",
+                "et": "Vali vajalikud lisateenused",
+                "ru": "Выберите дополнительные услуги"
+            },
+            "options": [
+                {
+                    "value": "window_cleaning",
+                    "label": {
+                        "fi": "Ikkunoiden pesu",
+                        "en": "Window cleaning",
+                        "sv": "Fönsterputsning",
+                        "et": "Akende pesemine",
+                        "ru": "Мытьё окон"
+                    }
+                },
+                {
+                    "value": "oven_cleaning",
+                    "label": {
+                        "fi": "Uunin puhdistus",
+                        "en": "Oven cleaning",
+                        "sv": "Rengöring av ugn",
+                        "et": "Ahju puhastamine",
+                        "ru": "Чистка духовки"
+                    }
+                },
+                {
+                    "value": "refrigerator_cleaning",
+                    "label": {
+                        "fi": "Jääkaapin puhdistus",
+                        "en": "Refrigerator cleaning",
+                        "sv": "Rengöring av kylskåp",
+                        "et": "Külmkapi puhastamine",
+                        "ru": "Чистка холодильника"
+                    }
+                },
+                {
+                    "value": "sauna_cleaning",
+                    "label": {
+                        "fi": "Saunan pesu",
+                        "en": "Sauna cleaning",
+                        "sv": "Rengöring av bastu",
+                        "et": "Sauna pesemine",
+                        "ru": "Уборка сауны"
+                    }
+                },
+                {
+                    "value": "balcony_cleaning",
+                    "label": {
+                        "fi": "Parvekkeen siivous",
+                        "en": "Balcony cleaning",
+                        "sv": "Städning av balkong",
+                        "et": "Rõdu koristamine",
+                        "ru": "Уборка балкона"
+                    }
+                },
+                {
+                    "value": "inside_cabinets",
+                    "label": {
+                        "fi": "Kaappien sisäpuolinen puhdistus",
+                        "en": "Cleaning inside cabinets",
+                        "sv": "Rengöring inuti skåp",
+                        "et": "Kappide seest puhastamine",
+                        "ru": "Уборка внутри шкафов"
+                    }
+                },
+                {
+                    "value": "laundry",
+                    "label": {
+                        "fi": "Pyykinpesu",
+                        "en": "Laundry",
+                        "sv": "Tvätt",
+                        "et": "Pesu pesemine",
+                        "ru": "Стирка"
+                    }
+                },
+                {
+                    "value": "ironing",
+                    "label": {
+                        "fi": "Silitys",
+                        "en": "Ironing",
+                        "sv": "Strykning",
+                        "et": "Triikimine",
+                        "ru": "Глажка"
+                    }
+                },
+                {
+                    "value": "changing_bed_linen",
+                    "label": {
+                        "fi": "Liinavaatteiden vaihto",
+                        "en": "Changing bed linen",
+                        "sv": "Byte av sängkläder",
+                        "et": "Voodipesu vahetamine",
+                        "ru": "Смена постельного белья"
+                    }
+                },
+                {
+                    "value": "dishwashing",
+                    "label": {
+                        "fi": "Astioiden pesu",
+                        "en": "Dishwashing",
+                        "sv": "Diskning",
+                        "et": "Nõude pesemine",
+                        "ru": "Мытьё посуды"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "petsInHome",
+            "type": "select",
+            "required": false,
+            "order": 120,
+            "label": {
+                "fi": "Onko kodissa lemmikkejä?",
+                "en": "Are there pets in the home?",
+                "sv": "Finns det husdjur i hemmet?",
+                "et": "Kas kodus on lemmikloomi?",
+                "ru": "Есть ли в доме домашние животные?"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv vastus",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "no_pets",
+                    "label": {
+                        "fi": "Ei lemmikkejä",
+                        "en": "No pets",
+                        "sv": "Inga husdjur",
+                        "et": "Lemmikloomi ei ole",
+                        "ru": "Нет домашних животных"
+                    }
+                },
+                {
+                    "value": "dog",
+                    "label": {
+                        "fi": "Koira",
+                        "en": "Dog",
+                        "sv": "Hund",
+                        "et": "Koer",
+                        "ru": "Собака"
+                    }
+                },
+                {
+                    "value": "cat",
+                    "label": {
+                        "fi": "Kissa",
+                        "en": "Cat",
+                        "sv": "Katt",
+                        "et": "Kass",
+                        "ru": "Кошка"
+                    }
+                },
+                {
+                    "value": "multiple_pets",
+                    "label": {
+                        "fi": "Useita lemmikkejä",
+                        "en": "Multiple pets",
+                        "sv": "Flera husdjur",
+                        "et": "Mitu lemmiklooma",
+                        "ru": "Несколько домашних животных"
+                    }
+                },
+                {
+                    "value": "other_pet",
+                    "label": {
+                        "fi": "Muu lemmikki",
+                        "en": "Other pet",
+                        "sv": "Annat husdjur",
+                        "et": "Muu lemmikloom",
+                        "ru": "Другое домашнее животное"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "accessArrangement",
+            "type": "select",
+            "required": false,
+            "order": 130,
+            "label": {
+                "fi": "Pääsy kohteeseen",
+                "en": "Access to the property",
+                "sv": "Tillgång till objektet",
+                "et": "Objektile ligipääs",
+                "ru": "Доступ к объекту"
+            },
+            "placeholder": {
+                "fi": "Valitse pääsytapa",
+                "en": "Select access arrangement",
+                "sv": "Välj hur tillträde ordnas",
+                "et": "Vali ligipääsu viis",
+                "ru": "Выберите способ доступа"
+            },
+            "options": [
+                {
+                    "value": "client_present",
+                    "label": {
+                        "fi": "Tilaaja on paikalla",
+                        "en": "Client will be present",
+                        "sv": "Kunden är på plats",
+                        "et": "Tellija on kohal",
+                        "ru": "Заказчик будет на месте"
+                    }
+                },
+                {
+                    "value": "key_provided",
+                    "label": {
+                        "fi": "Avain luovutetaan siivoojalle",
+                        "en": "A key will be provided",
+                        "sv": "En nyckel lämnas till städaren",
+                        "et": "Koristajale antakse võti",
+                        "ru": "Уборщику будет передан ключ"
+                    }
+                },
+                {
+                    "value": "door_code",
+                    "label": {
+                        "fi": "Ovikoodi tai avainlokero",
+                        "en": "Door code or key box",
+                        "sv": "Dörrkod eller nyckelbox",
+                        "et": "Uksekood või võtmekarp",
+                        "ru": "Код двери или ключница"
+                    }
+                },
+                {
+                    "value": "to_be_agreed",
+                    "label": {
+                        "fi": "Sovitaan erikseen",
+                        "en": "To be agreed",
+                        "sv": "Enligt överenskommelse",
+                        "et": "Lepitakse eraldi kokku",
+                        "ru": "По договорённости"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "specialRequirements",
+            "type": "multiselect",
+            "required": false,
+            "order": 140,
+            "label": {
+                "fi": "Erityisvaatimukset",
+                "en": "Special requirements",
+                "sv": "Särskilda krav",
+                "et": "Erinõuded",
+                "ru": "Особые требования"
+            },
+            "placeholder": {
+                "fi": "Valitse mahdolliset erityisvaatimukset",
+                "en": "Select any special requirements",
+                "sv": "Välj eventuella särskilda krav",
+                "et": "Vali vajadusel erinõuded",
+                "ru": "Выберите особые требования"
+            },
+            "options": [
+                {
+                    "value": "allergy_friendly_products",
+                    "label": {
+                        "fi": "Allergiaystävälliset puhdistusaineet",
+                        "en": "Allergy-friendly cleaning products",
+                        "sv": "Allergivänliga rengöringsmedel",
+                        "et": "Allergiasõbralikud puhastusained",
+                        "ru": "Гипоаллергенные чистящие средства"
+                    }
+                },
+                {
+                    "value": "eco_friendly_products",
+                    "label": {
+                        "fi": "Ympäristöystävälliset puhdistusaineet",
+                        "en": "Eco-friendly cleaning products",
+                        "sv": "Miljövänliga rengöringsmedel",
+                        "et": "Keskkonnasõbralikud puhastusained",
+                        "ru": "Экологичные чистящие средства"
+                    }
+                },
+                {
+                    "value": "fragrance_free_products",
+                    "label": {
+                        "fi": "Hajusteettomat puhdistusaineet",
+                        "en": "Fragrance-free cleaning products",
+                        "sv": "Parfymfria rengöringsmedel",
+                        "et": "Lõhnaaineteta puhastusained",
+                        "ru": "Чистящие средства без отдушек"
+                    }
+                },
+                {
+                    "value": "delicate_surfaces",
+                    "label": {
+                        "fi": "Herkästi vaurioituvia pintoja",
+                        "en": "Delicate surfaces",
+                        "sv": "Känsliga ytor",
+                        "et": "Õrnad pinnad",
+                        "ru": "Деликатные поверхности"
+                    }
+                },
+                {
+                    "value": "heavy_soiling",
+                    "label": {
+                        "fi": "Erittäin voimakas likaantuminen",
+                        "en": "Heavy soiling",
+                        "sv": "Kraftig nedsmutsning",
+                        "et": "Väga tugev määrdumine",
+                        "ru": "Сильное загрязнение"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 150,
+            "label": {
+                "fi": "Lisätiedot siivouksesta",
+                "en": "Additional cleaning details",
+                "sv": "Ytterligare information om städningen",
+                "et": "Lisainfo koristuse kohta",
+                "ru": "Дополнительная информация об уборке"
+            },
+            "placeholder": {
+                "fi": "Kuvaile kohteen kuntoa, siivoustarvetta ja erityistoiveita.",
+                "en": "Describe the condition of the property, cleaning needs and special requests.",
+                "sv": "Beskriv objektets skick, städbehov och särskilda önskemål.",
+                "et": "Kirjelda objekti seisukorda, koristusvajadust ja erisoove.",
+                "ru": "Опишите состояние объекта, объём уборки и особые пожелания."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

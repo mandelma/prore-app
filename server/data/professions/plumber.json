@@ -1,0 +1,336 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "plumber",
+    "name": {
+        "fi": "Putkiasentaja",
+        "en": "Plumber",
+        "sv": "Rörmokare",
+        "et": "Torumees",
+        "ru": "Сантехник"
+    },
+    "description": {
+        "fi": "Putkiasennukset, vuotojen korjaukset, hanojen, wc-istuinten ja vesikalusteiden asennukset.",
+        "en": "Plumbing installations, leak repairs, and installation of taps, toilets and water fixtures.",
+        "sv": "Rörinstallationer, reparation av läckor samt installation av kranar, toaletter och vattenarmaturer.",
+        "et": "Torutööd, lekete parandamine ning segistite, WC-pottide ja veeseadmete paigaldus.",
+        "ru": "Сантехнические работы, устранение протечек, установка смесителей, унитазов и водяного оборудования."
+    },
+    "icon": "fa-solid fa-faucet-drip",
+    "sortOrder": 20,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava putkityö",
+                "en": "Required plumbing service",
+                "sv": "Önskad VVS-tjänst",
+                "et": "Vajalik torutöö",
+                "ru": "Необходимая сантехническая услуга"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade tjänster",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "leak_repair",
+                    "label": {
+                        "fi": "Vuodon korjaus",
+                        "en": "Leak repair",
+                        "sv": "Reparation av läcka",
+                        "et": "Lekke parandamine",
+                        "ru": "Устранение протечки"
+                    }
+                },
+                {
+                    "value": "tap_installation",
+                    "label": {
+                        "fi": "Hanan asennus tai vaihto",
+                        "en": "Tap installation or replacement",
+                        "sv": "Installation eller byte av kran",
+                        "et": "Segisti paigaldus või vahetus",
+                        "ru": "Установка или замена смесителя"
+                    }
+                },
+                {
+                    "value": "toilet_installation",
+                    "label": {
+                        "fi": "WC-istuimen asennus tai vaihto",
+                        "en": "Toilet installation or replacement",
+                        "sv": "Installation eller byte av toalett",
+                        "et": "WC-poti paigaldus või vahetus",
+                        "ru": "Установка или замена унитаза"
+                    }
+                },
+                {
+                    "value": "sink_installation",
+                    "label": {
+                        "fi": "Altaan asennus",
+                        "en": "Sink installation",
+                        "sv": "Installation av handfat eller diskho",
+                        "et": "Valamu paigaldus",
+                        "ru": "Установка раковины"
+                    }
+                },
+                {
+                    "value": "dishwasher_connection",
+                    "label": {
+                        "fi": "Astianpesukoneen liitäntä",
+                        "en": "Dishwasher connection",
+                        "sv": "Anslutning av diskmaskin",
+                        "et": "Nõudepesumasina ühendamine",
+                        "ru": "Подключение посудомоечной машины"
+                    }
+                },
+                {
+                    "value": "washing_machine_connection",
+                    "label": {
+                        "fi": "Pyykinpesukoneen liitäntä",
+                        "en": "Washing machine connection",
+                        "sv": "Anslutning av tvättmaskin",
+                        "et": "Pesumasina ühendamine",
+                        "ru": "Подключение стиральной машины"
+                    }
+                },
+                {
+                    "value": "pipe_installation",
+                    "label": {
+                        "fi": "Vesijohto- tai viemäriputkien asennus",
+                        "en": "Water or drain pipe installation",
+                        "sv": "Installation av vatten- eller avloppsrör",
+                        "et": "Vee- või kanalisatsioonitorude paigaldus",
+                        "ru": "Монтаж водопроводных или канализационных труб"
+                    }
+                },
+                {
+                    "value": "drain_blockage",
+                    "label": {
+                        "fi": "Viemäritukoksen avaaminen",
+                        "en": "Drain blockage removal",
+                        "sv": "Rensning av avlopp",
+                        "et": "Kanalisatsiooni ummistuse eemaldamine",
+                        "ru": "Устранение засора"
+                    }
+                },
+                {
+                    "value": "water_heater",
+                    "label": {
+                        "fi": "Vedenlämmittimen asennus tai huolto",
+                        "en": "Water heater installation or service",
+                        "sv": "Installation eller service av varmvattenberedare",
+                        "et": "Veesoojendi paigaldus või hooldus",
+                        "ru": "Установка или обслуживание водонагревателя"
+                    }
+                },
+                {
+                    "value": "radiator_work",
+                    "label": {
+                        "fi": "Patterin asennus tai korjaus",
+                        "en": "Radiator installation or repair",
+                        "sv": "Installation eller reparation av radiator",
+                        "et": "Radiaatori paigaldus või remont",
+                        "ru": "Установка или ремонт радиатора"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu putkityö",
+                        "en": "Other plumbing work",
+                        "sv": "Annat VVS-arbete",
+                        "et": "Muu torutöö",
+                        "ru": "Другая сантехническая работа"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "problemUrgency",
+            "type": "select",
+            "required": true,
+            "order": 210,
+            "label": {
+                "fi": "Työn kiireellisyys",
+                "en": "Urgency",
+                "sv": "Hur brådskande är arbetet?",
+                "et": "Töö kiireloomulisus",
+                "ru": "Срочность работы"
+            },
+            "placeholder": {
+                "fi": "Valitse kiireellisyys",
+                "en": "Select urgency",
+                "sv": "Välj hur brådskande arbetet är",
+                "et": "Vali kiireloomulisus",
+                "ru": "Выберите срочность"
+            },
+            "options": [
+                {
+                    "value": "emergency",
+                    "label": {
+                        "fi": "Välitön hätätilanne",
+                        "en": "Immediate emergency",
+                        "sv": "Akut nödsituation",
+                        "et": "Kohene avariiolukord",
+                        "ru": "Аварийная ситуация"
+                    }
+                },
+                {
+                    "value": "within_24_hours",
+                    "label": {
+                        "fi": "24 tunnin sisällä",
+                        "en": "Within 24 hours",
+                        "sv": "Inom 24 timmar",
+                        "et": "24 tunni jooksul",
+                        "ru": "В течение 24 часов"
+                    }
+                },
+                {
+                    "value": "within_few_days",
+                    "label": {
+                        "fi": "Muutaman päivän sisällä",
+                        "en": "Within a few days",
+                        "sv": "Inom några dagar",
+                        "et": "Mõne päeva jooksul",
+                        "ru": "В течение нескольких дней"
+                    }
+                },
+                {
+                    "value": "flexible",
+                    "label": {
+                        "fi": "Ajankohta on joustava",
+                        "en": "Flexible timing",
+                        "sv": "Flexibel tidpunkt",
+                        "et": "Aeg on paindlik",
+                        "ru": "Срок гибкий"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "waterShutOffPossible",
+            "type": "boolean",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Voidaanko vedentulo sulkea kohteessa?",
+                "en": "Can the water supply be shut off?",
+                "sv": "Kan vattentillförseln stängas av?",
+                "et": "Kas objektil saab vee kinni keerata?",
+                "ru": "Можно ли перекрыть воду на объекте?"
+            }
+        },
+        {
+            "key": "visibleLeak",
+            "type": "boolean",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Onko kohteessa näkyvä vesivuoto?",
+                "en": "Is there a visible water leak?",
+                "sv": "Finns det en synlig vattenläcka?",
+                "et": "Kas objektil on nähtav veeleke?",
+                "ru": "Есть ли видимая утечка воды?"
+            }
+        },
+        {
+            "key": "materialsAvailable",
+            "type": "select",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Tarvikkeiden saatavuus",
+                "en": "Availability of fixtures and materials",
+                "sv": "Tillgång till material och utrustning",
+                "et": "Materjalide ja seadmete olemasolu",
+                "ru": "Наличие материалов и оборудования"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "all_available",
+                    "label": {
+                        "fi": "Kaikki tarvittava on valmiina",
+                        "en": "Everything required is available",
+                        "sv": "Allt som behövs finns",
+                        "et": "Kõik vajalik on olemas",
+                        "ru": "Всё необходимое имеется"
+                    }
+                },
+                {
+                    "value": "partly_available",
+                    "label": {
+                        "fi": "Osa tarvikkeista on valmiina",
+                        "en": "Some items are available",
+                        "sv": "En del material finns",
+                        "et": "Osa vajalikust on olemas",
+                        "ru": "Часть материалов имеется"
+                    }
+                },
+                {
+                    "value": "provider_supplies",
+                    "label": {
+                        "fi": "Putkiasentaja hankkii tarvikkeet",
+                        "en": "Plumber supplies the materials",
+                        "sv": "Rörmokaren skaffar materialet",
+                        "et": "Torumees hangib materjalid",
+                        "ru": "Сантехник предоставляет материалы"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Lisätiedot putkityöstä",
+                "en": "Additional plumbing details",
+                "sv": "Ytterligare information om VVS-arbetet",
+                "et": "Lisainfo torutöö kohta",
+                "ru": "Дополнительная информация о сантехнических работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile ongelma tai työ mahdollisimman tarkasti.",
+                "en": "Describe the problem or work in as much detail as possible.",
+                "sv": "Beskriv problemet eller arbetet så noggrant som möjligt.",
+                "et": "Kirjelda probleemi või tööd võimalikult täpselt.",
+                "ru": "Опишите проблему или работу как можно подробнее."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

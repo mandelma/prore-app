@@ -1,0 +1,466 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "handyman",
+    "name": {
+        "fi": "Yleismies",
+        "en": "Handyman",
+        "sv": "Allt-i-allo",
+        "et": "Remondimees",
+        "ru": "Мастер на все руки"
+    },
+    "description": {
+        "fi": "Pienet korjaus-, asennus- ja huoltotyöt kodeissa, toimistoissa ja muissa pienissä kohteissa.",
+        "en": "Small repair, installation and maintenance jobs in homes, offices and other small properties.",
+        "sv": "Mindre reparations-, installations- och underhållsarbeten i hem, kontor och andra mindre objekt.",
+        "et": "Väiksemad remondi-, paigaldus- ja hooldustööd kodudes, kontorites ning muudel väiksematel objektidel.",
+        "ru": "Небольшие ремонтные, монтажные и хозяйственные работы в домах, офисах и других небольших объектах."
+    },
+    "icon": "fa-solid fa-screwdriver-wrench",
+    "sortOrder": 70,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava pienkorjaus",
+                "en": "Required handyman service",
+                "sv": "Önskad hantverkstjänst",
+                "et": "Vajalik remondi- või paigaldustöö",
+                "ru": "Необходимая мелкая ремонтная работа"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "shelf_installation",
+                    "label": {
+                        "fi": "Hyllyn tai kaapin kiinnitys",
+                        "en": "Shelf or cabinet mounting",
+                        "sv": "Montering av hylla eller skåp",
+                        "et": "Riiuli või kapi kinnitamine",
+                        "ru": "Крепление полки или шкафа"
+                    }
+                },
+                {
+                    "value": "tv_mounting",
+                    "label": {
+                        "fi": "Television seinäkiinnitys",
+                        "en": "TV wall mounting",
+                        "sv": "Väggmontering av TV",
+                        "et": "Teleri seinale kinnitamine",
+                        "ru": "Крепление телевизора на стену"
+                    }
+                },
+                {
+                    "value": "picture_hanging",
+                    "label": {
+                        "fi": "Taulujen tai peilien ripustus",
+                        "en": "Picture or mirror hanging",
+                        "sv": "Upphängning av tavlor eller speglar",
+                        "et": "Piltide või peeglite riputamine",
+                        "ru": "Навешивание картин или зеркал"
+                    }
+                },
+                {
+                    "value": "furniture_assembly",
+                    "label": {
+                        "fi": "Huonekalujen kokoaminen",
+                        "en": "Furniture assembly",
+                        "sv": "Montering av möbler",
+                        "et": "Mööbli kokkupanek",
+                        "ru": "Сборка мебели"
+                    }
+                },
+                {
+                    "value": "curtain_rail",
+                    "label": {
+                        "fi": "Verhotangon tai kaihtimen asennus",
+                        "en": "Curtain rail or blind installation",
+                        "sv": "Montering av gardinstång eller persienn",
+                        "et": "Kardinapuu või ruloo paigaldus",
+                        "ru": "Установка карниза или жалюзи"
+                    }
+                },
+                {
+                    "value": "door_adjustment",
+                    "label": {
+                        "fi": "Oven säätö tai pieni korjaus",
+                        "en": "Door adjustment or minor repair",
+                        "sv": "Justering eller mindre reparation av dörr",
+                        "et": "Ukse reguleerimine või väiksem remont",
+                        "ru": "Регулировка или мелкий ремонт двери"
+                    }
+                },
+                {
+                    "value": "silicone_replacement",
+                    "label": {
+                        "fi": "Silikonisaumojen uusiminen",
+                        "en": "Silicone joint replacement",
+                        "sv": "Byte av silikonfogar",
+                        "et": "Silikoonvuukide vahetus",
+                        "ru": "Замена силиконовых швов"
+                    }
+                },
+                {
+                    "value": "minor_painting",
+                    "label": {
+                        "fi": "Pieni maalaus- tai paikkaustyö",
+                        "en": "Minor painting or patching",
+                        "sv": "Mindre målning eller lagning",
+                        "et": "Väiksem värvimis- või parandustöö",
+                        "ru": "Небольшая покраска или заделка"
+                    }
+                },
+                {
+                    "value": "minor_carpentry",
+                    "label": {
+                        "fi": "Pieni puu- tai listoitustyö",
+                        "en": "Minor carpentry or trim work",
+                        "sv": "Mindre snickeri- eller listarbeten",
+                        "et": "Väiksem puu- või liistutöö",
+                        "ru": "Небольшая плотницкая работа"
+                    }
+                },
+                {
+                    "value": "fixture_replacement",
+                    "label": {
+                        "fi": "Pienen kalusteen tai varusteen vaihto",
+                        "en": "Small fixture replacement",
+                        "sv": "Byte av mindre inredningsdetalj",
+                        "et": "Väikse seadme või tarviku vahetus",
+                        "ru": "Замена небольшого оборудования"
+                    }
+                },
+                {
+                    "value": "maintenance",
+                    "label": {
+                        "fi": "Pieni huoltotyö",
+                        "en": "Minor maintenance work",
+                        "sv": "Mindre underhållsarbete",
+                        "et": "Väiksem hooldustöö",
+                        "ru": "Небольшая хозяйственная работа"
+                    }
+                },
+                {
+                    "value": "several_small_jobs",
+                    "label": {
+                        "fi": "Useita pieniä töitä",
+                        "en": "Several small jobs",
+                        "sv": "Flera mindre arbeten",
+                        "et": "Mitu väikest tööd",
+                        "ru": "Несколько мелких работ"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu pienkorjaus",
+                        "en": "Other handyman work",
+                        "sv": "Annat mindre arbete",
+                        "et": "Muu väiksem töö",
+                        "ru": "Другая мелкая работа"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "numberOfTasks",
+            "type": "number",
+            "required": false,
+            "order": 210,
+            "label": {
+                "fi": "Tehtävien arvioitu määrä",
+                "en": "Estimated number of tasks",
+                "sv": "Uppskattat antal uppgifter",
+                "et": "Tööde hinnanguline arv",
+                "ru": "Примерное количество задач"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 3",
+                "en": "For example, 3",
+                "sv": "Till exempel 3",
+                "et": "Näiteks 3",
+                "ru": "Например, 3"
+            },
+            "validation": {
+                "min": 1,
+                "max": 100
+            }
+        },
+        {
+            "key": "toolsOrFastenersNeeded",
+            "type": "select",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Työkalut ja kiinnitystarvikkeet",
+                "en": "Tools and fasteners",
+                "sv": "Verktyg och fästdon",
+                "et": "Tööriistad ja kinnitusvahendid",
+                "ru": "Инструменты и крепёж"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "client_has_all",
+                    "label": {
+                        "fi": "Tilaajalla on kaikki tarvittava",
+                        "en": "Client has everything required",
+                        "sv": "Kunden har allt som behövs",
+                        "et": "Tellijal on kõik vajalik olemas",
+                        "ru": "У заказчика есть всё необходимое"
+                    }
+                },
+                {
+                    "value": "some_available",
+                    "label": {
+                        "fi": "Osa tarvikkeista on valmiina",
+                        "en": "Some items are available",
+                        "sv": "En del material finns",
+                        "et": "Osa tarvikuid on olemas",
+                        "ru": "Часть материалов имеется"
+                    }
+                },
+                {
+                    "value": "provider_brings",
+                    "label": {
+                        "fi": "Tekijä tuo työkalut ja tarvikkeet",
+                        "en": "Provider brings tools and supplies",
+                        "sv": "Utföraren tar med verktyg och material",
+                        "et": "Teenusepakkuja toob tööriistad ja tarvikud",
+                        "ru": "Исполнитель привозит инструменты и материалы"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "wallMaterial",
+            "type": "select",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Seinämateriaali",
+                "en": "Wall material",
+                "sv": "Väggmaterial",
+                "et": "Seinamaterjal",
+                "ru": "Материал стены"
+            },
+            "placeholder": {
+                "fi": "Valitse seinämateriaali",
+                "en": "Select wall material",
+                "sv": "Välj väggmaterial",
+                "et": "Vali seinamaterjal",
+                "ru": "Выберите материал стены"
+            },
+            "options": [
+                {
+                    "value": "drywall",
+                    "label": {
+                        "fi": "Kipsilevy",
+                        "en": "Drywall",
+                        "sv": "Gipsskiva",
+                        "et": "Kipsplaat",
+                        "ru": "Гипсокартон"
+                    }
+                },
+                {
+                    "value": "concrete",
+                    "label": {
+                        "fi": "Betoni",
+                        "en": "Concrete",
+                        "sv": "Betong",
+                        "et": "Betoon",
+                        "ru": "Бетон"
+                    }
+                },
+                {
+                    "value": "brick",
+                    "label": {
+                        "fi": "Tiili",
+                        "en": "Brick",
+                        "sv": "Tegel",
+                        "et": "Tellis",
+                        "ru": "Кирпич"
+                    }
+                },
+                {
+                    "value": "wood",
+                    "label": {
+                        "fi": "Puu",
+                        "en": "Wood",
+                        "sv": "Trä",
+                        "et": "Puit",
+                        "ru": "Дерево"
+                    }
+                },
+                {
+                    "value": "tile",
+                    "label": {
+                        "fi": "Laatta",
+                        "en": "Tile",
+                        "sv": "Kakel",
+                        "et": "Plaat",
+                        "ru": "Плитка"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu materiaali",
+                        "en": "Other material",
+                        "sv": "Annat material",
+                        "et": "Muu materjal",
+                        "ru": "Другой материал"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "estimatedDuration",
+            "type": "select",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Työn arvioitu kesto",
+                "en": "Estimated job duration",
+                "sv": "Uppskattad arbetstid",
+                "et": "Töö hinnanguline kestus",
+                "ru": "Примерная продолжительность работы"
+            },
+            "placeholder": {
+                "fi": "Valitse arvioitu kesto",
+                "en": "Select estimated duration",
+                "sv": "Välj uppskattad arbetstid",
+                "et": "Vali hinnanguline kestus",
+                "ru": "Выберите примерную продолжительность"
+            },
+            "options": [
+                {
+                    "value": "under_1_hour",
+                    "label": {
+                        "fi": "Alle tunti",
+                        "en": "Under 1 hour",
+                        "sv": "Under 1 timme",
+                        "et": "Alla 1 tunni",
+                        "ru": "Менее 1 часа"
+                    }
+                },
+                {
+                    "value": "1_3_hours",
+                    "label": {
+                        "fi": "1–3 tuntia",
+                        "en": "1–3 hours",
+                        "sv": "1–3 timmar",
+                        "et": "1–3 tundi",
+                        "ru": "1–3 часа"
+                    }
+                },
+                {
+                    "value": "half_day",
+                    "label": {
+                        "fi": "Noin puoli päivää",
+                        "en": "About half a day",
+                        "sv": "Cirka en halv dag",
+                        "et": "Umbes pool päeva",
+                        "ru": "Около половины дня"
+                    }
+                },
+                {
+                    "value": "full_day",
+                    "label": {
+                        "fi": "Noin yksi päivä",
+                        "en": "About one day",
+                        "sv": "Cirka en dag",
+                        "et": "Umbes üks päev",
+                        "ru": "Около одного дня"
+                    }
+                },
+                {
+                    "value": "several_days",
+                    "label": {
+                        "fi": "Useita päiviä",
+                        "en": "Several days",
+                        "sv": "Flera dagar",
+                        "et": "Mitu päeva",
+                        "ru": "Несколько дней"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Lisätiedot pienkorjauksista",
+                "en": "Additional handyman details",
+                "sv": "Ytterligare information om arbetena",
+                "et": "Lisainfo remondi- ja paigaldustööde kohta",
+                "ru": "Дополнительная информация о мелких работах"
+            },
+            "placeholder": {
+                "fi": "Luettele tehtävät ja kuvaile, mitä pitää asentaa, korjata tai huoltaa.",
+                "en": "List the tasks and describe what needs to be installed, repaired or maintained.",
+                "sv": "Lista uppgifterna och beskriv vad som ska monteras, repareras eller underhållas.",
+                "et": "Loetle tööd ja kirjelda, mida on vaja paigaldada, parandada või hooldada.",
+                "ru": "Перечислите задачи и опишите, что нужно установить, отремонтировать или обслужить."
+            },
+            "validation": {
+                "maxLength": 2500
+            }
+        }
+    ]
+}

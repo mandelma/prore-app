@@ -24,46 +24,13 @@
       </div>
     </header>
 
+    <!-- booking customFields {{ booking.customFields }} -->
+
     <!-- Read mode -->
     <div
       v-if="!isEditing"
       class="booking-panel__body"
     >
-      <!-- <section class="details-section">
-        <div class="section-heading">
-          <h3 class="section-heading__title">
-            {{ t("bookingContent.fields.description") }}
-          </h3>
-        </div>
-
-        <div class="description-card">
-          <p
-            v-if="booking.description"
-            class="description-card__text"
-          >
-            {{ booking.description }}
-          </p>
-
-          <p
-            v-else
-            class="description-card__empty"
-          >
-            —
-          </p>
-        </div>
-
-        <dl class="booking-meta">
-          <div class="booking-meta__item">
-            <dt class="booking-meta__label">
-              {{ t("bookingContent.fields.date") }}
-            </dt>
-
-            <dd class="booking-meta__value">
-              {{ formatDateTime(booking.created) || "—" }}
-            </dd>
-          </div>
-        </dl>
-      </section> -->
 
       <div class="direct-booking-info__panel">
         <div class="direct-booking-info__header">
@@ -92,6 +59,53 @@
               {{ booking.description }}
             </dd>
           </div>
+          
+
+          <table v-if="booking.customFields.length">
+            <tr v-if="booking.customFields.length">
+              <td>
+                {{ t('clientOffer.additional_details') }}
+              </td>
+
+              <td>
+                <MDBBtn
+                  type="button"
+                  outline
+                  color="primary"
+                  size="sm"
+                  @click="showCustomFields = !showCustomFields"
+                >
+                  {{
+                    showCustomFields
+                      ? t('clientOffer.hide_details')
+                      : t('clientOffer.show_details')
+                  }}
+                </MDBBtn>
+              </td>
+            </tr>
+
+            <tr v-if="showCustomFields && booking.customFields.length">
+              <td colspan="2">
+                <div class="custom-fields-panel">
+                  <div
+                    v-for="field in displayCustomFields"
+                    :key="field.key"
+                    class="custom-field-row"
+                  >
+                    <span class="custom-field-label">
+                      {{ getLocalizedValue(field.label) }}
+                    </span>
+
+                    <span class="custom-field-value">
+                      {{ getCustomFieldDisplayValue(field) }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+
 
           <div
             v-if="booking.created"
@@ -102,12 +116,11 @@
 
               {{ t("recipientPage.executionTime") }}
             </dt>
-
+          
             <dd>
               {{ formatDateTime(booking.created, locale) }}
             </dd>
           </div>
-
           <div
             v-if="booking.address"
             class="direct-booking-info__row"
@@ -140,9 +153,6 @@
         </dl>
       </div>
 
-
-
-
       <div class="section-divider" />
 
       <section class="photos-section">
@@ -160,7 +170,6 @@
             </p>
           </div>
         </div>
-
         
         <div v-if="booking.photos?.length"
           class="photos-grid"
@@ -474,7 +483,7 @@
 </template>
 
 <script setup>
-import { MDBDateTimepicker, MDBIcon } from 'mdb-vue-ui-kit';
+import { MDBDateTimepicker, MDBIcon, MDBBtn } from 'mdb-vue-ui-kit';
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from 'vue-i18n';
 import { useClientStore } from '@/stores/recipientStore';
@@ -500,7 +509,7 @@ const { t, locale } = useI18n();
 const isEditing = ref(false);
 const draft = ref(null);
 const fileInput = ref(null);
-
+const showCustomFields = ref(false);
 const replaceIndex = ref(null);
 const replaceInput = ref(null);
 
@@ -531,6 +540,78 @@ watch(
 function clonePhotos(photos) {
   return (photos || []).map((p) => ({ ...p }));
 }
+
+const displayCustomFields = computed(() => {
+  if (!Array.isArray(props.booking?.customFields)) {
+    return [];
+  }
+
+  return props.booking.customFields.filter(field => {
+    const value = field.value;
+
+    // Block textarea description
+    if (field.type === 'textarea') return; 
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+
+    return value !== null &&
+      value !== undefined &&
+      value !== '';
+  });
+});
+
+const getCustomFieldDisplayValue = field => {
+  const value = field?.value;
+
+  const selectedOptions = Array.isArray(field?.selectedOptions)
+    ? field.selectedOptions
+    : [];
+
+  switch (field?.type) {
+    case 'boolean':
+    case 'checkbox':
+      return value
+        ? t('clientOffer.common.yes')
+        : t('clientOffer.common.no');
+
+    case 'select':
+    case 'multiselect':
+      if (selectedOptions.length) {
+        return selectedOptions
+          .map(option => getLocalizedValue(option.label))
+          .filter(Boolean)
+          .join(', ');
+      }
+
+      return Array.isArray(value)
+        ? value.join(', ')
+        : String(value ?? '');
+
+    default:
+      if (Array.isArray(value)) {
+        return value.join(', ');
+      }
+
+      return String(value ?? '');
+  }
+};
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
 
 const localeMap = {
   fi: "fi-FI",
@@ -1251,9 +1332,45 @@ onBeforeUnmount(() => {
   font-weight: 700;
 }
 
+/* Booking custom fields */
+.custom-fields-panel {
+  margin-top: 6px;
+  padding: 14px;
+  border: 1px solid #3e4654;
+  border-radius: 7px;
+  background: #202633;
+}
+
+.custom-field-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 40%) 1fr;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.custom-field-row:last-child {
+  border-bottom: none;
+}
+
+.custom-field-label {
+  color: #aeb7c5;
+  font-weight: 600;
+}
+
+.custom-field-value {
+  color: #f1f3f5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 576px) {
+  .custom-field-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
 /* Booking info panel */
-
-
 .direct-booking-info__header {
   display: flex;
   align-items: flex-start;

@@ -1,0 +1,449 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "house_painter",
+    "name": {
+        "fi": "Maalari",
+        "en": "House painter",
+        "sv": "Målare",
+        "et": "Maaler",
+        "ru": "Маляр"
+    },
+    "description": {
+        "fi": "Sisä- ja ulkopintojen maalaus, tapetointi, tasoitus sekä vanhojen pintojen kunnostus.",
+        "en": "Interior and exterior painting, wallpapering, surface preparation and renovation of old finishes.",
+        "sv": "Invändig och utvändig målning, tapetsering, spackling och renovering av gamla ytor.",
+        "et": "Sise- ja välispindade värvimine, tapeetimine, pahteldamine ning vanade pindade taastamine.",
+        "ru": "Покраска внутренних и наружных поверхностей, оклейка обоями, шпаклевание и восстановление старых покрытий."
+    },
+    "icon": "fa-solid fa-paint-roller",
+    "sortOrder": 40,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava maalaustyö",
+                "en": "Required painting service",
+                "sv": "Önskat måleriarbete",
+                "et": "Vajalik maalritöö",
+                "ru": "Необходимые малярные работы"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "wall_painting",
+                    "label": {
+                        "fi": "Seinien maalaus",
+                        "en": "Wall painting",
+                        "sv": "Målning av väggar",
+                        "et": "Seinte värvimine",
+                        "ru": "Покраска стен"
+                    }
+                },
+                {
+                    "value": "ceiling_painting",
+                    "label": {
+                        "fi": "Katon maalaus",
+                        "en": "Ceiling painting",
+                        "sv": "Målning av tak",
+                        "et": "Lagede värvimine",
+                        "ru": "Покраска потолка"
+                    }
+                },
+                {
+                    "value": "door_window_painting",
+                    "label": {
+                        "fi": "Ovien tai ikkunoiden maalaus",
+                        "en": "Door or window painting",
+                        "sv": "Målning av dörrar eller fönster",
+                        "et": "Uste või akende värvimine",
+                        "ru": "Покраска дверей или окон"
+                    }
+                },
+                {
+                    "value": "cabinet_painting",
+                    "label": {
+                        "fi": "Kaappien tai kalusteiden maalaus",
+                        "en": "Cabinet or furniture painting",
+                        "sv": "Målning av skåp eller möbler",
+                        "et": "Kappide või mööbli värvimine",
+                        "ru": "Покраска шкафов или мебели"
+                    }
+                },
+                {
+                    "value": "exterior_painting",
+                    "label": {
+                        "fi": "Ulkopintojen maalaus",
+                        "en": "Exterior painting",
+                        "sv": "Utvändig målning",
+                        "et": "Välispindade värvimine",
+                        "ru": "Наружная покраска"
+                    }
+                },
+                {
+                    "value": "wallpaper_installation",
+                    "label": {
+                        "fi": "Tapetointi",
+                        "en": "Wallpaper installation",
+                        "sv": "Tapetsering",
+                        "et": "Tapeetimine",
+                        "ru": "Поклейка обоев"
+                    }
+                },
+                {
+                    "value": "wallpaper_removal",
+                    "label": {
+                        "fi": "Tapetin poisto",
+                        "en": "Wallpaper removal",
+                        "sv": "Borttagning av tapet",
+                        "et": "Tapeedi eemaldamine",
+                        "ru": "Удаление обоев"
+                    }
+                },
+                {
+                    "value": "surface_preparation",
+                    "label": {
+                        "fi": "Tasoitus ja pohjatyöt",
+                        "en": "Surface preparation and filling",
+                        "sv": "Spackling och underarbete",
+                        "et": "Pahteldus ja aluspinna ettevalmistus",
+                        "ru": "Шпаклевание и подготовка поверхности"
+                    }
+                },
+                {
+                    "value": "repair_painting",
+                    "label": {
+                        "fi": "Paikkamaalaus tai korjausmaalaus",
+                        "en": "Touch-up or repair painting",
+                        "sv": "Bättrings- eller reparationsmålning",
+                        "et": "Parandusvärvimine",
+                        "ru": "Локальная или ремонтная покраска"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu maalaustyö",
+                        "en": "Other painting work",
+                        "sv": "Annat måleriarbete",
+                        "et": "Muu maalritöö",
+                        "ru": "Другие малярные работы"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "surfaceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 210,
+            "label": {
+                "fi": "Maalattava pinta",
+                "en": "Surface to be painted",
+                "sv": "Yta som ska målas",
+                "et": "Värvitav pind",
+                "ru": "Поверхность для покраски"
+            },
+            "placeholder": {
+                "fi": "Valitse pinnat",
+                "en": "Select surfaces",
+                "sv": "Välj ytor",
+                "et": "Vali pinnad",
+                "ru": "Выберите поверхности"
+            },
+            "options": [
+                {
+                    "value": "plaster",
+                    "label": {
+                        "fi": "Tasoite- tai kipsilevypinta",
+                        "en": "Plaster or drywall",
+                        "sv": "Puts eller gipsskiva",
+                        "et": "Krohv või kipsplaat",
+                        "ru": "Штукатурка или гипсокартон"
+                    }
+                },
+                {
+                    "value": "concrete",
+                    "label": {
+                        "fi": "Betoni",
+                        "en": "Concrete",
+                        "sv": "Betong",
+                        "et": "Betoon",
+                        "ru": "Бетон"
+                    }
+                },
+                {
+                    "value": "wood",
+                    "label": {
+                        "fi": "Puu",
+                        "en": "Wood",
+                        "sv": "Trä",
+                        "et": "Puit",
+                        "ru": "Дерево"
+                    }
+                },
+                {
+                    "value": "brick",
+                    "label": {
+                        "fi": "Tiili",
+                        "en": "Brick",
+                        "sv": "Tegel",
+                        "et": "Tellis",
+                        "ru": "Кирпич"
+                    }
+                },
+                {
+                    "value": "metal",
+                    "label": {
+                        "fi": "Metalli",
+                        "en": "Metal",
+                        "sv": "Metall",
+                        "et": "Metall",
+                        "ru": "Металл"
+                    }
+                },
+                {
+                    "value": "previously_painted",
+                    "label": {
+                        "fi": "Aiemmin maalattu pinta",
+                        "en": "Previously painted surface",
+                        "sv": "Tidigare målad yta",
+                        "et": "Varem värvitud pind",
+                        "ru": "Ранее окрашенная поверхность"
+                    }
+                },
+                {
+                    "value": "wallpapered",
+                    "label": {
+                        "fi": "Tapetoitu pinta",
+                        "en": "Wallpapered surface",
+                        "sv": "Tapetserad yta",
+                        "et": "Tapeeditud pind",
+                        "ru": "Поверхность с обоями"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu pinta",
+                        "en": "Other surface",
+                        "sv": "Annan yta",
+                        "et": "Muu pind",
+                        "ru": "Другая поверхность"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "surfaceCondition",
+            "type": "select",
+            "required": true,
+            "order": 220,
+            "label": {
+                "fi": "Pinnan kunto",
+                "en": "Surface condition",
+                "sv": "Ytans skick",
+                "et": "Pinna seisukord",
+                "ru": "Состояние поверхности"
+            },
+            "placeholder": {
+                "fi": "Valitse pinnan kunto",
+                "en": "Select surface condition",
+                "sv": "Välj ytans skick",
+                "et": "Vali pinna seisukord",
+                "ru": "Выберите состояние поверхности"
+            },
+            "options": [
+                {
+                    "value": "good",
+                    "label": {
+                        "fi": "Hyvä, vain kevyt valmistelu",
+                        "en": "Good, only light preparation needed",
+                        "sv": "Bra, endast lätt förarbete behövs",
+                        "et": "Hea, vajab ainult kerget ettevalmistust",
+                        "ru": "Хорошее, требуется лёгкая подготовка"
+                    }
+                },
+                {
+                    "value": "minor_repairs",
+                    "label": {
+                        "fi": "Pieniä halkeamia tai reikiä",
+                        "en": "Minor cracks or holes",
+                        "sv": "Mindre sprickor eller hål",
+                        "et": "Väikesed praod või augud",
+                        "ru": "Небольшие трещины или отверстия"
+                    }
+                },
+                {
+                    "value": "needs_filling",
+                    "label": {
+                        "fi": "Vaatii laajaa tasoitusta",
+                        "en": "Requires extensive filling",
+                        "sv": "Kräver omfattande spackling",
+                        "et": "Vajab ulatuslikku pahteldamist",
+                        "ru": "Требует значительного шпаклевания"
+                    }
+                },
+                {
+                    "value": "peeling_or_damaged",
+                    "label": {
+                        "fi": "Hilseilevä tai vaurioitunut",
+                        "en": "Peeling or damaged",
+                        "sv": "Flagnande eller skadad",
+                        "et": "Kooruv või kahjustatud",
+                        "ru": "Отслаивающаяся или повреждённая"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "estimatedArea",
+            "type": "number",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Maalattavan alueen pinta-ala (m²)",
+                "en": "Estimated painting area (m²)",
+                "sv": "Uppskattad målningsyta (m²)",
+                "et": "Värvitava ala hinnanguline pindala (m²)",
+                "ru": "Примерная площадь покраски (м²)"
+            },
+            "placeholder": {
+                "fi": "Esimerkiksi 40",
+                "en": "For example, 40",
+                "sv": "Till exempel 40",
+                "et": "Näiteks 40",
+                "ru": "Например, 40"
+            },
+            "validation": {
+                "min": 1,
+                "max": 10000
+            }
+        },
+        {
+            "key": "paintSelected",
+            "type": "select",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Maalin ja värin valinta",
+                "en": "Paint and colour selection",
+                "sv": "Val av färg och kulör",
+                "et": "Värvi ja tooni valik",
+                "ru": "Выбор краски и цвета"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "paint_available",
+                    "label": {
+                        "fi": "Maali ja väri ovat valmiina",
+                        "en": "Paint and colour are already selected",
+                        "sv": "Färg och kulör är valda",
+                        "et": "Värv ja toon on valitud",
+                        "ru": "Краска и цвет выбраны"
+                    }
+                },
+                {
+                    "value": "colour_selected",
+                    "label": {
+                        "fi": "Väri on valittu, maali puuttuu",
+                        "en": "Colour selected, paint not purchased",
+                        "sv": "Kulören är vald, färgen saknas",
+                        "et": "Toon on valitud, värv ostmata",
+                        "ru": "Цвет выбран, краска не куплена"
+                    }
+                },
+                {
+                    "value": "help_needed",
+                    "label": {
+                        "fi": "Tarvitsen apua valinnassa",
+                        "en": "Help is needed with selection",
+                        "sv": "Behöver hjälp med valet",
+                        "et": "Vajan valimisel abi",
+                        "ru": "Нужна помощь с выбором"
+                    }
+                },
+                {
+                    "value": "provider_supplies",
+                    "label": {
+                        "fi": "Maalari hankkii maalit",
+                        "en": "Painter supplies the paint",
+                        "sv": "Målaren skaffar färgen",
+                        "et": "Maaler hangib värvid",
+                        "ru": "Маляр предоставляет краску"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "furnitureProtectionNeeded",
+            "type": "boolean",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Tarvitaanko kalusteiden suojausta tai siirtämistä?",
+                "en": "Is furniture protection or moving required?",
+                "sv": "Behöver möbler skyddas eller flyttas?",
+                "et": "Kas mööblit on vaja kaitsta või liigutada?",
+                "ru": "Нужно ли защищать или перемещать мебель?"
+            }
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 260,
+            "label": {
+                "fi": "Lisätiedot maalaustyöstä",
+                "en": "Additional painting details",
+                "sv": "Ytterligare information om måleriarbetet",
+                "et": "Lisainfo maalritöö kohta",
+                "ru": "Дополнительная информация о малярных работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile maalattavat pinnat, toivottu lopputulos ja mahdolliset vauriot.",
+                "en": "Describe the surfaces, desired result and any known damage.",
+                "sv": "Beskriv ytorna, önskat resultat och eventuella skador.",
+                "et": "Kirjelda värvitavaid pindu, soovitud tulemust ja võimalikke kahjustusi.",
+                "ru": "Опишите поверхности, желаемый результат и возможные повреждения."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

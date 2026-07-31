@@ -1,0 +1,435 @@
+{
+    "categoryCode": "construction",
+    "enabled": true,
+    "countries": [
+        "FI",
+        "EE",
+        "SE"
+    ],
+    "fieldSets": [
+        "building"
+    ],
+    "code": "carpenter",
+    "name": {
+        "fi": "Kirvesmies",
+        "en": "Carpenter",
+        "sv": "Snickare",
+        "et": "Puusepp",
+        "ru": "Плотник"
+    },
+    "description": {
+        "fi": "Puurakenteiden, väliseinien, ovien, listojen, terassien ja muiden puuosien asennus ja korjaus.",
+        "en": "Installation and repair of timber structures, partition walls, doors, trim, terraces and other wooden elements.",
+        "sv": "Montering och reparation av träkonstruktioner, mellanväggar, dörrar, lister, terrasser och andra trädelar.",
+        "et": "Puitkonstruktsioonide, vaheseinte, uste, liistude, terrasside ja muude puitosade paigaldus ning remont.",
+        "ru": "Монтаж и ремонт деревянных конструкций, перегородок, дверей, плинтусов, террас и других деревянных элементов."
+    },
+    "icon": "fa-solid fa-hammer",
+    "sortOrder": 60,
+    "customFields": [
+        {
+            "key": "serviceType",
+            "type": "multiselect",
+            "required": true,
+            "order": 200,
+            "label": {
+                "fi": "Tarvittava kirvesmiestyö",
+                "en": "Required carpentry service",
+                "sv": "Önskat snickeriarbete",
+                "et": "Vajalik puusepatöö",
+                "ru": "Необходимые плотницкие работы"
+            },
+            "placeholder": {
+                "fi": "Valitse tarvittavat työt",
+                "en": "Select the required services",
+                "sv": "Välj önskade arbeten",
+                "et": "Vali vajalikud tööd",
+                "ru": "Выберите необходимые работы"
+            },
+            "options": [
+                {
+                    "value": "partition_wall",
+                    "label": {
+                        "fi": "Väliseinän rakentaminen",
+                        "en": "Partition wall construction",
+                        "sv": "Byggande av mellanvägg",
+                        "et": "Vaheseina ehitus",
+                        "ru": "Строительство перегородки"
+                    }
+                },
+                {
+                    "value": "door_installation",
+                    "label": {
+                        "fi": "Oven asennus tai vaihto",
+                        "en": "Door installation or replacement",
+                        "sv": "Installation eller byte av dörr",
+                        "et": "Ukse paigaldus või vahetus",
+                        "ru": "Установка или замена двери"
+                    }
+                },
+                {
+                    "value": "window_trim",
+                    "label": {
+                        "fi": "Ikkunoiden tai ovien listoitus",
+                        "en": "Window or door trim installation",
+                        "sv": "Montering av foder runt fönster eller dörrar",
+                        "et": "Akna- või uksepiirdeliistude paigaldus",
+                        "ru": "Установка наличников окон или дверей"
+                    }
+                },
+                {
+                    "value": "skirting_boards",
+                    "label": {
+                        "fi": "Jalkalistojen asennus",
+                        "en": "Skirting board installation",
+                        "sv": "Montering av golvlister",
+                        "et": "Põrandaliistude paigaldus",
+                        "ru": "Установка плинтусов"
+                    }
+                },
+                {
+                    "value": "wooden_stairs",
+                    "label": {
+                        "fi": "Puuportaiden asennus tai korjaus",
+                        "en": "Wooden stair installation or repair",
+                        "sv": "Installation eller reparation av trätrappa",
+                        "et": "Puittrepi paigaldus või remont",
+                        "ru": "Установка или ремонт деревянной лестницы"
+                    }
+                },
+                {
+                    "value": "terrace",
+                    "label": {
+                        "fi": "Terassin rakentaminen tai korjaus",
+                        "en": "Terrace construction or repair",
+                        "sv": "Byggande eller reparation av terrass",
+                        "et": "Terrassi ehitus või remont",
+                        "ru": "Строительство или ремонт террасы"
+                    }
+                },
+                {
+                    "value": "decking",
+                    "label": {
+                        "fi": "Terassilaudoituksen vaihto",
+                        "en": "Decking replacement",
+                        "sv": "Byte av trall",
+                        "et": "Terrassilaudade vahetus",
+                        "ru": "Замена настила террасы"
+                    }
+                },
+                {
+                    "value": "wooden_frame",
+                    "label": {
+                        "fi": "Puurungon rakentaminen",
+                        "en": "Timber frame construction",
+                        "sv": "Byggande av trästomme",
+                        "et": "Puitkarkassi ehitus",
+                        "ru": "Строительство деревянного каркаса"
+                    }
+                },
+                {
+                    "value": "ceiling_panels",
+                    "label": {
+                        "fi": "Katto- tai seinäpaneelien asennus",
+                        "en": "Ceiling or wall panel installation",
+                        "sv": "Montering av tak- eller väggpanel",
+                        "et": "Lae- või seinapaneelide paigaldus",
+                        "ru": "Монтаж потолочных или стеновых панелей"
+                    }
+                },
+                {
+                    "value": "custom_woodwork",
+                    "label": {
+                        "fi": "Mittatilaustyö puusta",
+                        "en": "Custom woodwork",
+                        "sv": "Specialsnickeri",
+                        "et": "Eritellimusel puutöö",
+                        "ru": "Изготовление деревянных изделий на заказ"
+                    }
+                },
+                {
+                    "value": "repair",
+                    "label": {
+                        "fi": "Puurakenteen korjaus",
+                        "en": "Wooden structure repair",
+                        "sv": "Reparation av träkonstruktion",
+                        "et": "Puitkonstruktsiooni remont",
+                        "ru": "Ремонт деревянной конструкции"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu kirvesmiestyö",
+                        "en": "Other carpentry work",
+                        "sv": "Annat snickeriarbete",
+                        "et": "Muu puusepatöö",
+                        "ru": "Другие плотницкие работы"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "structureType",
+            "type": "select",
+            "required": false,
+            "order": 210,
+            "label": {
+                "fi": "Rakenteen tyyppi",
+                "en": "Structure type",
+                "sv": "Typ av konstruktion",
+                "et": "Konstruktsiooni tüüp",
+                "ru": "Тип конструкции"
+            },
+            "placeholder": {
+                "fi": "Valitse rakenteen tyyppi",
+                "en": "Select structure type",
+                "sv": "Välj typ av konstruktion",
+                "et": "Vali konstruktsiooni tüüp",
+                "ru": "Выберите тип конструкции"
+            },
+            "options": [
+                {
+                    "value": "load_bearing",
+                    "label": {
+                        "fi": "Kantava rakenne",
+                        "en": "Load-bearing structure",
+                        "sv": "Bärande konstruktion",
+                        "et": "Kandev konstruktsioon",
+                        "ru": "Несущая конструкция"
+                    }
+                },
+                {
+                    "value": "non_load_bearing",
+                    "label": {
+                        "fi": "Ei-kantava rakenne",
+                        "en": "Non-load-bearing structure",
+                        "sv": "Icke-bärande konstruktion",
+                        "et": "Mittekandev konstruktsioon",
+                        "ru": "Ненесущая конструкция"
+                    }
+                },
+                {
+                    "value": "decorative",
+                    "label": {
+                        "fi": "Koriste- tai viimeistelyrakenne",
+                        "en": "Decorative or finishing element",
+                        "sv": "Dekorativ eller avslutande konstruktion",
+                        "et": "Dekoratiivne või viimistluselement",
+                        "ru": "Декоративный или отделочный элемент"
+                    }
+                },
+                {
+                    "value": "not_sure",
+                    "label": {
+                        "fi": "En ole varma",
+                        "en": "Not sure",
+                        "sv": "Inte säker",
+                        "et": "Ei ole kindel",
+                        "ru": "Не уверен"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "woodMaterial",
+            "type": "select",
+            "required": false,
+            "order": 220,
+            "label": {
+                "fi": "Puumateriaali",
+                "en": "Wood material",
+                "sv": "Trämaterial",
+                "et": "Puitmaterjal",
+                "ru": "Древесный материал"
+            },
+            "placeholder": {
+                "fi": "Valitse materiaali",
+                "en": "Select material",
+                "sv": "Välj material",
+                "et": "Vali materjal",
+                "ru": "Выберите материал"
+            },
+            "options": [
+                {
+                    "value": "softwood",
+                    "label": {
+                        "fi": "Havupuu",
+                        "en": "Softwood",
+                        "sv": "Barrträ",
+                        "et": "Okaspuit",
+                        "ru": "Хвойная древесина"
+                    }
+                },
+                {
+                    "value": "hardwood",
+                    "label": {
+                        "fi": "Lehtipuu",
+                        "en": "Hardwood",
+                        "sv": "Lövträ",
+                        "et": "Lehtpuit",
+                        "ru": "Лиственная древесина"
+                    }
+                },
+                {
+                    "value": "plywood",
+                    "label": {
+                        "fi": "Vaneri",
+                        "en": "Plywood",
+                        "sv": "Plywood",
+                        "et": "Vineer",
+                        "ru": "Фанера"
+                    }
+                },
+                {
+                    "value": "mdf",
+                    "label": {
+                        "fi": "MDF-levy",
+                        "en": "MDF board",
+                        "sv": "MDF-skiva",
+                        "et": "MDF-plaat",
+                        "ru": "МДФ"
+                    }
+                },
+                {
+                    "value": "chipboard",
+                    "label": {
+                        "fi": "Lastulevy",
+                        "en": "Chipboard",
+                        "sv": "Spånskiva",
+                        "et": "Puitlaastplaat",
+                        "ru": "ДСП"
+                    }
+                },
+                {
+                    "value": "composite",
+                    "label": {
+                        "fi": "Komposiittimateriaali",
+                        "en": "Composite material",
+                        "sv": "Kompositmaterial",
+                        "et": "Komposiitmaterjal",
+                        "ru": "Композитный материал"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Materiaalia ei ole vielä valittu",
+                        "en": "Material not selected yet",
+                        "sv": "Materialet är inte valt ännu",
+                        "et": "Materjali ei ole veel valitud",
+                        "ru": "Материал ещё не выбран"
+                    }
+                },
+                {
+                    "value": "other",
+                    "label": {
+                        "fi": "Muu materiaali",
+                        "en": "Other material",
+                        "sv": "Annat material",
+                        "et": "Muu materjal",
+                        "ru": "Другой материал"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "measurementsAvailable",
+            "type": "boolean",
+            "required": false,
+            "order": 230,
+            "label": {
+                "fi": "Onko tarvittavat mitat tiedossa?",
+                "en": "Are the required measurements available?",
+                "sv": "Finns de nödvändiga måtten?",
+                "et": "Kas vajalikud mõõdud on teada?",
+                "ru": "Известны ли необходимые размеры?"
+            }
+        },
+        {
+            "key": "materialsAvailable",
+            "type": "select",
+            "required": false,
+            "order": 240,
+            "label": {
+                "fi": "Materiaalien saatavuus",
+                "en": "Availability of materials",
+                "sv": "Tillgång till material",
+                "et": "Materjalide olemasolu",
+                "ru": "Наличие материалов"
+            },
+            "placeholder": {
+                "fi": "Valitse sopiva vaihtoehto",
+                "en": "Select an option",
+                "sv": "Välj ett alternativ",
+                "et": "Vali sobiv variant",
+                "ru": "Выберите вариант"
+            },
+            "options": [
+                {
+                    "value": "all_available",
+                    "label": {
+                        "fi": "Kaikki materiaalit ovat valmiina",
+                        "en": "All materials are available",
+                        "sv": "Allt material finns",
+                        "et": "Kõik materjalid on olemas",
+                        "ru": "Все материалы имеются"
+                    }
+                },
+                {
+                    "value": "partly_available",
+                    "label": {
+                        "fi": "Osa materiaaleista on valmiina",
+                        "en": "Some materials are available",
+                        "sv": "En del material finns",
+                        "et": "Osa materjale on olemas",
+                        "ru": "Часть материалов имеется"
+                    }
+                },
+                {
+                    "value": "provider_supplies",
+                    "label": {
+                        "fi": "Kirvesmies hankkii materiaalit",
+                        "en": "Carpenter supplies the materials",
+                        "sv": "Snickaren skaffar materialet",
+                        "et": "Puusepp hangib materjalid",
+                        "ru": "Плотник предоставляет материалы"
+                    }
+                },
+                {
+                    "value": "not_selected",
+                    "label": {
+                        "fi": "Materiaaleja ei ole vielä valittu",
+                        "en": "Materials not selected yet",
+                        "sv": "Materialet är inte valt ännu",
+                        "et": "Materjale ei ole veel valitud",
+                        "ru": "Материалы ещё не выбраны"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "additionalDetails",
+            "type": "textarea",
+            "required": false,
+            "order": 250,
+            "label": {
+                "fi": "Lisätiedot kirvesmiestyöstä",
+                "en": "Additional carpentry details",
+                "sv": "Ytterligare information om snickeriarbetet",
+                "et": "Lisainfo puusepatöö kohta",
+                "ru": "Дополнительная информация о плотницких работах"
+            },
+            "placeholder": {
+                "fi": "Kuvaile rakennetta, mittoja, materiaaleja ja toivottua lopputulosta.",
+                "en": "Describe the structure, measurements, materials and desired result.",
+                "sv": "Beskriv konstruktionen, måtten, materialen och önskat resultat.",
+                "et": "Kirjelda konstruktsiooni, mõõte, materjale ja soovitud tulemust.",
+                "ru": "Опишите конструкцию, размеры, материалы и желаемый результат."
+            },
+            "validation": {
+                "maxLength": 2000
+            }
+        }
+    ]
+}

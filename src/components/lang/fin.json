@@ -536,6 +536,7 @@
 
   "recipientForm": {
     "serviceSectionTitle": "Valitse palvelu",
+    "intro": "Täytä tilaus tarjouksia varten tai löydä nopea ratkaisu kartalta!",
     "serviceSectionHelp": "Valitse tehtävään sopiva ammatti tai palvelu.",
     "profession": "Ammatti tai palvelu",
     "professionalPlaceholder": "Valitse ammatti tai palvelu",
