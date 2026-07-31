@@ -115,7 +115,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n/dist/vue-i18n'
 import { useProStore } from '@/stores/providerStore.js'
 import '@/styles/theme.css'
-import logo from '@/assets/logo_trans_main-edited.png'
+import logo from '@/assets/duun_hub_hero.png'
 
 defineOptions({
   name: 'Home'
