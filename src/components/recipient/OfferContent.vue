@@ -22,6 +22,14 @@
                         </td>
                     </tr>
                     <tr>
+                        <td class="c-td">
+                            {{ t('offerContent.description') }}
+                        </td>
+                        <td class="text-muted">
+                            {{ offerContent?.provider?.description }}
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="c-td">{{ t('offerContent.business_id') }}</td>
                         <td class="text-muted">{{ offerContent?.provider?.ide }}</td>
                     </tr>
@@ -55,14 +63,12 @@
                             {{ offerContent?.price }} eur
                         </td>
                     </tr>
-                    <tr>
-                        <td class="c-td">
-                            {{ t('offerContent.description') }}
-                        </td>
-                        <td class="text-muted">
-                            {{ offerContent?.provider?.description }}
+                    <tr v-if="offerContent?.description !== ''">
+                        <td colspan="2" class="text-muted">
+                            {{ offerContent?.description }}
                         </td>
                     </tr>
+                    
                     <tr v-if="offerContent?.provider?.reference.length">
                         <td class="c-td">
                             {{ t('offerContent.references') }}

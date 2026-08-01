@@ -42,20 +42,31 @@
               v-for="offer in offers"
               :key="offer.id"
               class="offer-item"
-              :class="{ 'is-new': offer.isNewOffer }"
+              :class="{
+                'offer-item--new': offer.isNewOffer,
+                'offer-item--opened': !offer.isNewOffer
+              }"
               @click="getProviderInfo(offer.provider, offer)"
             >
               <div class="offer-main">
-                <p class="offer-name">{{offer.name}}</p>
-                
-                <p class="offer-sub">{{ tr('distance', { distance: offer.distance }) }}</p>
+                <p class="offer-name">
+                  {{ offer.name }}
+                </p>
+
+                <p class="offer-sub">
+                  {{ tr('distance', { distance: offer.distance }) }}
+                </p>
               </div>
 
               <div class="offer-price">
                 {{ tr('priceEur', { price: offer.price }) }}
               </div>
-              <span v-if="offer.isNewOffer" class="new-dot" :aria-label="tr('newOffer')"></span>
-              
+
+              <span
+                v-if="offer.isNewOffer"
+                class="new-dot"
+                :aria-label="tr('newOffer')"
+              />
             </div>
             
 
@@ -670,7 +681,7 @@ const handleCancelRemoving = () => {
 
 
 
-.offer-item{
+/* .offer-item{
   position: relative;
   display:flex;
   align-items:center;
@@ -682,26 +693,142 @@ const handleCancelRemoving = () => {
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,.08);
   cursor:pointer;
+} */
+
+.offer-item {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 14px 18px;
+  margin-bottom: 12px;
+
+  border-radius: 14px;
+
+  background: rgb(28, 35, 48);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
 
-.new-dot{
+.offer-item:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.35);
+
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.offer-item--new {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(15, 55, 85, 0.95),
+      rgba(25, 38, 56, 0.95)
+    );
+
+  border: 1px solid rgba(73, 210, 255, 0.45);
+
+  box-shadow:
+    0 0 18px rgba(73, 210, 255, 0.15);
+}
+
+.offer-item--opened {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(36, 42, 55, 0.95),
+      rgba(24, 30, 40, 0.95)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.offer-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5f7fa;
+}
+
+.offer-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #aeb7c5;
+}
+
+.offer-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffb96d;
+  white-space: nowrap;
+}
+
+.new-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: #ff9b49;
+
+  box-shadow:
+    0 0 8px #ff9b49,
+    0 0 16px #ff9b49;
+
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* .new-dot{
   position:absolute;
   top:8px;
   right:8px;
   width:10px;
   height:10px;
   border-radius:999px;
-  background:#d34954;           /* red */
-  box-shadow:0 0 0 2px rgba(0,0,0,.25); /* ring so it pops on dark bg */
-}
+  background:#d34954;
+  box-shadow:0 0 0 2px rgba(0,0,0,.25);
+} */
 
 
 
 /* optional: make the whole card slightly highlighted if new */
-.offer-item.is-new{
+/* .offer-item.is-new{
   border-color: rgba(241, 134, 33, 0.45);
   background-color: rgba(241, 134, 33, 0.1);
-}
+  background-color: #083b4b
+} */
 
 .offer-main{
   min-width:0;
@@ -725,9 +852,9 @@ const handleCancelRemoving = () => {
   font-size: 12px;
 }
 
-.offer-item:hover{
+/* .offer-item:hover{
   border-color: rgba(255,255,255,.18);
-}
+} */
 .offer-item.is-active{
   border-color: rgba(13,202,240,.6); /* “info” vibe */
 }

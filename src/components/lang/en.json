@@ -70,7 +70,7 @@
 
 
   "home": {
-    "title": "Speed matters most!",
+    "title": "Speed makes the difference!",
     "clientButton": "I need a service",
     "providerButton": "I offer a service",
     "clientLabel": "For clients",
@@ -517,7 +517,7 @@
     "serviceSectionHelp": "Select the profession or service that best matches the task.",
     "profession": "Profession or service",
     "professionalPlaceholder": "Select a profession or service",
-    "openMap": "View on map",
+    "openMap": "Search on map",
     "professionDetails": "Service details",
     "bookingDetailsTitle": "Booking details",
     "bookingDetailsHelp": "Enter the work location, preferred date and other necessary details.",

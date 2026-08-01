@@ -83,7 +83,7 @@
   },
 
   "home": {
-    "title": "Snabbhet är viktigast!",
+    "title": "Snabbhet gör skillnaden!",
     "clientButton": "Jag söker en tjänst",
     "providerButton": "Jag erbjuder en tjänst",
     "clientLabel": "För kunder",
@@ -528,7 +528,7 @@
     "serviceSectionHelp": "Välj det yrke eller den tjänst som passar uppgiften bäst.",
     "profession": "Yrke eller tjänst",
     "professionalPlaceholder": "Välj ett yrke eller en tjänst",
-    "openMap": "Visa på karta",
+    "openMap": "Sök på kartan",
     "professionDetails": "Tjänstens tilläggsuppgifter",
     "bookingDetailsTitle": "Beställningens grunduppgifter",
     "bookingDetailsHelp": "Ange arbetsplats, önskat datum och övriga nödvändiga uppgifter.",

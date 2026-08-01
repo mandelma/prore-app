@@ -83,7 +83,7 @@
   },
 
   "home": {
-    "title": "Kiirus on kõige tähtsam!",
+    "title": "Kiirus määrab tulemuse!",
     "clientButton": "Otsin teenust",
     "providerButton": "Pakun teenust",
     "clientLabel": "Klientidele",
@@ -529,7 +529,7 @@
     "serviceSectionHelp": "Vali ülesandele kõige paremini sobiv amet või teenus.",
     "profession": "Amet või teenus",
     "professionalPlaceholder": "Vali amet või teenus",
-    "openMap": "Vaata kaardilt",
+    "openMap": "Otsi kaardilt",
     "professionDetails": "Teenuse lisainfo",
     "bookingDetailsTitle": "Tellimuse põhiandmed",
     "bookingDetailsHelp": "Sisesta töö tegemise koht, soovitud aeg ja muud vajalikud andmed.",

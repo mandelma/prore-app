@@ -100,7 +100,7 @@
   "client_form_btn_send": "Lähetä tilaus",
 
   "home": {
-    "title": "Nopeus on tärkeintä!",
+    "title": "Nopeus ratkaisee kaiken!",
     "clientButton": "Etsin palvelua",
     "providerButton": "Tarjoan palvelua",
     "clientLabel": "Asiakkaille",
@@ -540,7 +540,7 @@
     "serviceSectionHelp": "Valitse tehtävään sopiva ammatti tai palvelu.",
     "profession": "Ammatti tai palvelu",
     "professionalPlaceholder": "Valitse ammatti tai palvelu",
-    "openMap": "Näytä kartalla",
+    "openMap": "Etsi kartalta",
     "professionDetails": "Palvelun lisätiedot",
     "bookingDetailsTitle": "Tilauksen perustiedot",
     "bookingDetailsHelp": "Anna työn suorituspaikka, ajankohta ja muut tarvittavat tiedot.",

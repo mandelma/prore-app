@@ -16,12 +16,12 @@
 
           <!-- Client incomed offers -->
           <MDBNavbarItem  v-if="clientNewOffersAmount > 0 && route.name !== 'recipient-page'" @click="seeClientOffer" class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon  icon="bell" style="color: #0E7490;" class="icon"/>
+            <MDBIcon  icon="bell" style="color: #0E7490; cursor: pointer;" class="icon"/>
             <MDBBadge  notification color="danger" pill>{{clientNewOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
           <!-- Provider incomed offers-->
           <MDBNavbarItem  v-if="newOffersAmount > 0" @click="onIconBell" class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon  icon="bell" style="color: orange;" class="icon"/>
+            <MDBIcon  icon="bell" style="color: orange; cursor: pointer;" class="icon"/>
             <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
 
@@ -127,7 +127,7 @@
           </MDBNavbarItem>
 
           <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
-            {{t('app.login')}}
+            <span style="color: #ef8627;">{{t('app.login')}}</span>
           </MDBNavbarItem>
         </MDBNavbarNav>
       </div>
@@ -154,7 +154,7 @@
         >
           <div class="mb-3">
             <h6 class="brand-label">
-              PROKEIKKATORI
+              DuunHub
             </h6>
           </div>
 
@@ -323,7 +323,7 @@
           class="text-center p-3"
           style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
       >
-        © {{ currentYear }} PROKEIKKATORI
+        © {{ currentYear }} DuunHub
       </div>
       <!-- Copyright -->
     </MDBFooter>

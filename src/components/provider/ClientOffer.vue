@@ -764,7 +764,7 @@ const filterInput = ref((event) => {
       offerPriceWarning.value = true;
       setTimeout(() => {
         offerPriceWarning.value = false;
-      }, 1000)
+      }, 3000)
     } 
   }
   

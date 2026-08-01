@@ -55,7 +55,7 @@
             </span>
             
             <div v-if="booking?.disabled" style=" padding-top: 33px;">
-              <p style="color: red">{{ t('clientOfferList.booking_removed', {
+              <p class="text-danger">{{ t('clientOfferList.booking_removed', {
                   name: booking.user.firstName
                 }) }}&nbsp; &nbsp;
                 <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}
@@ -148,7 +148,7 @@
               </span>
               
               <div v-if="booking?.disabled" style=" padding-top: 33px;">
-                <p style="color: red">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}</strong></p>
+                <p class="text-danger">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}</strong></p>
                 
               </div>
 
