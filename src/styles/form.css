@@ -158,7 +158,29 @@ select:-webkit-autofill:focus {
     opacity: 1;
 }
 
+/* Form field help text and error messages */
+.profession-field__help,
+.profession-field__error
+.field__error {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+}
 
+.profession-field__help {
+    color: rgba(210, 220, 226, 0.55);
+}
+
+.profession-field__error {
+    color: #ff96a3;
+}
+
+.field__error {
+    color: #ff96a3;
+}
 
 
 /*!* Focus (keep all parts same color) *!*/

@@ -5,13 +5,11 @@
             <MDBBtn type="button" outline="info" @click="handleOpenChat">
               <i class="far fa-comments fa-2x"></i>
             </MDBBtn>
-
-            
-            
+          
           </div>
         
           <div class="field-wrapper">
-            <p>{{ props.target?.profession.join(', ')}}</p>
+            <p>{{ props.target?.profession.map(profession => localProfessionName(profession)).join(', ') }}</p>
           </div>
           <div class="field-wrapper">
 
@@ -34,46 +32,33 @@
               
                 disablePast
             />
-            </div>
-
-            <!-- <p>{{ formatLocalDate(props.date) }}</p> -->
-            <div >
-            <!-- <p v-if="props.date || dateTime">{{ props.date }}</p> -->
+            <small
+                v-if="!props.date && !dateTime"
+                class="profession-field__error"
+              >
+                <i class="fa-solid fa-circle-exclamation" />
+                {{ t('requestForm.dateTimeRequired') }}
+            </small>
+          </div>
+          
+          <div >
             <p v-if="props.date || dateTime">
               {{ formattedDateTime }}
             </p>
           
-            <p v-else class="text-danger">{{ t('requestForm.dateTimeRequired') }}</p>
+            <!-- <p v-else class="text-danger">{{ t('requestForm.dateTimeRequired') }}</p> -->
+            
           </div>
 
-       
-
-          <div style="width: 100%;" class="field-wrapper">
-            <div class="input-group">
-              <MDBInput
-                size="lg"
-                id="request-address-input"
-                v-model="form.address"
-                :label="t('requestForm.addressLabel')"
-                placeholder=""
-                wrapperClass="form-outline flex-grow-3"
-                :inputClass="'ps-0'"
-                aria-describedby="button-addon2"
-              />
-
-              <MDBBtn
-                type="button"
-                style="border:1px solid #ddd"
-                @click="form.address ? clearAddress() : showAddress()"
-              >
-                <MDBIcon size="2x">
-                  <i :class="form.address ? 'fas fa-times' : 'fas fa-search-location'"></i>
-                </MDBIcon>
-              </MDBBtn>
-            </div>
-
-            <span v-if="errors.address" class="field-footer">{{ errors.address }}</span>
-          </div>
+          <AddressAutocomplete
+            v-model="form.address"
+            v-model:valid="addressValid"
+            :active="props.isOpen"
+            :label="t('requestForm.addressLabel')"
+            :error="errors.address"
+            @typing="onAddressInput"
+            @place="onPlaceSelected"
+          />
 
           <div v-show="isLoadingAddress" style="text-align: center; padding-bottom: 27px;">
             <MDBSpinner grow color="info" />
@@ -89,7 +74,14 @@
                 required
 
             />
-            <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span>
+            <!-- <span v-if="errors.requestHeader" class="field-footer">{{ errors.requestHeader }}</span> -->
+            <small
+                v-if="errors.requestHeader"
+                class="field__error"
+              >
+                <i class="fa-solid fa-circle-exclamation" />
+                {{ errors.requestHeader }}
+            </small>
             <!-- custom error text -->
           </div>
           <div style="margin-top: 17px;" class="field-wrapper">
@@ -102,13 +94,16 @@
                   :validFeedback="t('requestForm.validOk')"
                   required
               />
-              <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span>
+              <!-- <span v-if="errors.requestContent" class="field-footer">{{ errors.requestContent }}</span> -->
+              <small
+                v-if="errors.requestContent"
+                class="field__error"
+              >
+                <i class="fa-solid fa-circle-exclamation" />
+                {{ errors.requestContent }}
+            </small>
               <span class="message-counter"> {{form.requestContent.length}} / 70</span>
           </div>
-
-          
-          
-
 
           <!-- About pictures -->
            <div v-if="!isAddPhotos">
@@ -116,7 +111,6 @@
                 <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">{{ t('requestForm.addOptionalPhotos') }}</MDBBtn>
                 <MDBBtn v-else color="light" @click="isAddPhotos = true">{{ t('requestForm.editPhotos') }}</MDBBtn>
               </div>
-              
               
               <BookingPhotos
                 
@@ -130,7 +124,6 @@
                 
                 <p v-if="!addedPhotos.length" class="empty-state__text">{{ t('requestForm.photosHelp') }}</p>
               </div>
-
 
             </div>
 
@@ -183,7 +176,6 @@
                     @remove="removeDraftPhoto"
                   />
 
-
                 </div>
 
                 <div class="actions">
@@ -202,9 +194,7 @@
           <div style="display: flex; justify-content: right; margin-top: 17px;">
             <MDBBtn color="primary" :disabled="!props.date && !dateTime" @click="handleRequest">{{ t('requestForm.sendOrder') }}</MDBBtn>
           </div>
-          
         </form>
-        
     </MDBContainer>
 </template>
 <script setup>
@@ -214,11 +204,15 @@
   import { storeToRefs } from 'pinia';
   import { useConversationStore } from '@/stores/conversationStore';
   import { useMapStore } from '@/stores/mapStore';
+  import { useProfessionStore } from '@/stores/professionStore';
   import { loadGoogleMaps } from '../controllers/loadGoogleMap';
   import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
   import { getFormatted } from '../helpers/formatDatepicker.js';
   import BookingPhotos from './BookingPhotos.vue';
   import uploadService from '@/service/awsUploads.js';
+  import AddressAutocomplete from '../AddressAutocomplete.vue';
+
+  //import { useLocationFieldLogic } from '@/components/helpers/locationFieldLogic.js';
 
   import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';
 
@@ -241,6 +235,8 @@
   })
   const emit = defineEmits(['sendRequest', 'open-chat']);
 
+  const professionStore = useProfessionStore();
+  const { professions } = storeToRefs(professionStore);
 
   const fileInput = ref(null);
   const addedPhotos = ref([]);
@@ -274,13 +270,16 @@
   const lng = ref(null);
   const dateTime = ref(null);
 
-  const addressInput = ref(null)
-  const autocomplete = ref(null)
+  //const addressInput = ref(null)
+  //const autocomplete = ref(null)
 
-  const suppressAutocomplete = ref(false)
+  //const suppressAutocomplete = ref(false)
 
   const mapError = ref(false);
   const isAddress = ref(false);
+  const addressValid = ref(false);
+  const selectedPlace = ref(null);
+
   const isLoadingAddress = ref(false);
   const form = reactive({
     address: "",  
@@ -296,47 +295,99 @@
   const errors = reactive({});
   const isValidating = ref(false);
 
+  /* const {
+    onAddressInput,
+    onPlaceSelected,
+    validateAddress,
+    selectedPlace,
+    addressValid
+  } = useLocationFieldLogic(form, errors); */
+
   // Date formatting for datepicker
   const L = computed(() => {
     return getFormatted(locale.value)
   })
 
   const localeMap = {
-  fi: "fi-FI",
-  en: "en-GB",
-  sv: "sv-SE",
-  et: "et-EE",
-  ru: "ru-RU"
-};
+    fi: "fi-FI",
+    en: "en-GB",
+    sv: "sv-SE",
+    et: "et-EE",
+    ru: "ru-RU"
+  };
 
-const formattedDateTime = computed(() => {
-  const value = props.date || dateTime.value;
-  const date = fromLocalInput(value);
+  const formattedDateTime = computed(() => {
+    const value = props.date || dateTime.value;
+    const date = fromLocalInput(value);
 
-  if (!date) return value || "";
+    if (!date) return value || "";
 
-  return date.toLocaleString(
-    localeMap[locale.value] || "fi-FI",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
+    return date.toLocaleString(
+      localeMap[locale.value] || "fi-FI",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }
+    );
+  });
+
+  const getLocalizedValue = translations => {
+    if (!translations) {
+      return "";
     }
-  );
-});
+
+    return (
+      translations[locale.value] ||
+      translations.en ||
+      translations.fi ||
+      Object.values(translations).find(Boolean) ||
+      ""
+    );
+  };
+
+  const localProfessionName = (code) => {
+    const professionObj = professions.value.find(
+      profession => profession.code === code
+    );
+    return getLocalizedValue(professionObj?.name) || code;
+  };
+
+ 
+
+  const validateInputAddress = () => {
+
+    if (!form.address) return;
+
+    if (lat.value === null || lng.value === null) {
+      console.log("Address is not valid, lat/lng missing");
+      addressError.value = "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+      return "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+    }
+
+    return;
+  };
 
   const validateForm = () => {
-    errors.address = form.address ? "" : t('requestForm.addressRequired');
-    errors.requestHeader = form.requestHeader ? "" : t('requestForm.requestHeaderRequired');
-    errors.requestContent = form.requestContent ? "" : t('requestForm.requestContentRequired');
+  errors.requestHeader = form.requestHeader?.trim()
+    ? ""
+    : t("requestForm.requestHeaderRequired");
 
-    return Object.values(errors).every(error => !error);
+  errors.requestContent = form.requestContent?.trim()
+    ? ""
+    : t("requestForm.requestContentRequired");
 
-    //return !errors.address && !errors.requestHeader && !errors.requestContent;
-  }
+  const isAddressValid = validateAddress();
+
+  return (
+    !errors.requestHeader &&
+    !errors.requestContent &&
+    isAddressValid
+  );
+};
 
   const validateHeader = () => {
     if (!isValidating.value) return;
@@ -353,11 +404,38 @@ const formattedDateTime = computed(() => {
   watch(() => form.requestContent, validateContent);
 
   const validateAddress = () => {
-    if (!isValidating.value) return;
-    errors.address = form.address ? "" : t('requestForm.addressRequired');
-  };
+    const address = form.address?.trim();
 
-  watch(() => form.address, validateAddress);
+    if (!address) {
+      errors.address = t("requestForm.addressRequired");
+      return false;
+    }
+
+    if (
+      !addressValid.value ||
+      lat.value === null ||
+      lng.value === null
+    ) {
+      errors.address = t(
+        "recipientForm.addressAutocompleteError"
+      );
+
+      return false;
+    }
+
+    errors.address = "";
+    return true;
+  };
+  
+
+ watch(
+  () => form.address,
+  () => {
+    if (!isValidating.value) return;
+
+    validateAddress();
+  }
+);
 
   /* watch(props.date, (date) => {
     if (date) {
@@ -375,21 +453,56 @@ const formattedDateTime = computed(() => {
     { immediate: true }
   );
 
-  watch(() => props.isOpen, async (open) => {
-    if (open) {
-      await nextTick()
-      setTimeout(async () => {
-        await initAutocomplete()
-      }, 100)
-    }
-  })
+  
 
   const isValidDate = (d) => d instanceof Date && !isNaN(+d);
 
+  const onAddressInput = value => {
+    form.address = value ?? "";
+
+    selectedPlace.value = null;
+    lat.value = null;
+    lng.value = null;
+    addressValid.value = false;
+
+    if (!isValidating.value) {
+      errors.address = "";
+      return;
+    }
+
+    if (!form.address.trim()) {
+      errors.address = t(
+        "requestForm.addressRequired"
+      );
+    } else {
+      errors.address = t(
+        "recipientForm.addressAutocompleteError"
+      );
+    }
+  };
+
+  const onPlaceSelected = place => {
+    if (!place) return;
+
+    selectedPlace.value = place;
+
+    form.address = place.address ?? "";
+    lat.value = place.lat ?? null;
+    lng.value = place.lng ?? null;
+
+    addressValid.value =
+      lat.value !== null &&
+      lng.value !== null;
+
+    errors.address = addressValid.value
+      ? ""
+      : t("recipientForm.addressAutocompleteError");
+  };
+
   onMounted( async () => {
-    //await loadGoogleMaps()
 
     try {
+      addressValid.value = false;
       const initPromise = mapStore.init()
       await nextTick()
 
@@ -397,13 +510,34 @@ const formattedDateTime = computed(() => {
       if (pos) {
         lat.value = pos.lat
         lng.value = pos.lng
-        await getAddressFromCoords(pos.lat, pos.lng)
+        const result = await getAddressFromCoords(pos.lat, pos.lng)
+        addressValid.value = Boolean(result)
       }
 
       await initPromise
-      await initAutocomplete()
+
+      const freshPos =
+      userPos.value ||
+      lastKnownPos.value;
+
+      if (
+        freshPos &&
+        !form.address
+      ) {
+        lat.value = freshPos.lat;
+        lng.value = freshPos.lng;
+
+        const result = await getAddressFromCoords(
+          freshPos.lat,
+          freshPos.lng
+        );
+
+        addressValid.value = Boolean(result);
+      }
+      
     } catch (err) {
-      console.error("Map init failed:", err)
+      console.error("Map init failed:", err);
+      addressValid.value = false;
     }
 
   })
@@ -431,76 +565,6 @@ const formattedDateTime = computed(() => {
     }
   }
 
-  const initAutocomplete = async () => {
-    await nextTick()
-
-    const root = document.getElementById("request-address-input")
-    const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
-
-    console.log("root:", root)
-    console.log("input:", input, input?.tagName)
-
-    if (!(input instanceof HTMLInputElement)) {
-      console.error("Not a real input element")
-      return
-    }
-
-    if (autocomplete.value) {
-      google.maps.event.clearInstanceListeners(autocomplete.value)
-      autocomplete.value = null
-    }
-
-    autocomplete.value = new google.maps.places.Autocomplete(input, {
-      componentRestrictions: { country: "fi" },
-      fields: ["address_components", "geometry", "place_id", "formatted_address"],
-      strictBounds: false,
-    })
-
-    autocomplete.value.addListener("place_changed", () => {
-      const place = autocomplete.value.getPlace()
-      console.log("place:", place)
-
-      if (!place.geometry) return
-
-      lat.value = place.geometry.location.lat()
-      lng.value = place.geometry.location.lng()
-      form.address = place.formatted_address || ""
-    })
-  }
-
-  const showAddress = async () => {
-    isLoadingAddress.value = true
-    suppressAutocomplete.value = true
-
-    try {
-      const pos = userPos.value || lastKnownPos.value
-
-      if (pos) {
-        lat.value = pos.lat
-        lng.value = pos.lng
-        await getAddressFromCoords(pos.lat, pos.lng)
-      }
-
-      await nextTick()
-
-      const root = document.getElementById("request-address-input")
-      const input = root?.tagName === "INPUT" ? root : root?.querySelector("input")
-      input?.blur()
-    } finally {
-      isLoadingAddress.value = false
-
-      setTimeout(() => {
-        suppressAutocomplete.value = false
-      }, 300)
-    }
-  }
-
-  const clearAddress = () => {
-    isAddress.value = false;
-    form.address = '';
-
-    
-  }
 
   const fromLocalInput = (v) => {
     if (!v) return null;

@@ -56,45 +56,14 @@
                 <span class="booking-required">*</span>
               </label>
 
-              <Select
-                style="width: 100%;"
-                v-model="form.profession"
-                :options="groupedProfessions"
-                option-label="label"
-                option-value="code"
-                option-group-label="label"
-                option-group-children="items"
-                filter
-                filter-by="label"
-                :placeholder="t('recipientForm.professionalPlaceholder')"
-                class="booking-control"
-              >
-                <template #optiongroup="{ option }">
-                  <div class="profession-group">
-                    <i :class="option.icon" />
-                    &nbsp;&nbsp;<span>{{ option.label }}</span>
-                  </div>
-                </template>
 
-                <template #option="{ option }">
-                  <div class="profession-option">
-                    <i style="color:aqua;" :class="option.icon" />
-                    <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
-                    <div>
-                      <small v-if="option.localizedDescription">
-                        {{ option.localizedDescription }}
-                      </small>
-                    </div>
-                  </div>
-                </template>
-              </Select>
-              <small
-                v-if="errors.profession"
-                class="profession-field__error"
-              >
-                <i class="fa-solid fa-circle-exclamation" />
-                {{ errors.profession }}
-              </small>
+              <select-profession
+                :professions="professions"
+                :label="t('recipientForm.professionalPlaceholder')"
+                :form="form"
+                :errors="errors"
+              />
+
               <small class="booking-help">
                 {{ t("recipientForm.intro") }}
               </small>
@@ -315,12 +284,12 @@
                 {{ t("recipientForm.orderHeaderHelp") }}
               </small>
             </div>
-            
+            <!-- v-model:error="errors.address" -->
             <div class="booking-field booking-field--wide">
               <AddressAutocomplete
                 v-model="form.address"
                 v-model:valid="addressValid"
-                v-model:error="errors.address"
+                
                 :label="t('recipientForm.addressLabel')"
                 :error="errors.address"
                 @typing="onAddressInput"
@@ -366,12 +335,12 @@
             
           </div>
           <small
-              v-if="errors.dateTime"
-              class="profession-field__error"
-            >
-              <i class="fa-solid fa-circle-exclamation" />
-              {{ errors.dateTime }}
-            </small>
+            v-if="errors.dateTime"
+            class="profession-field__error"
+          >
+            <i class="fa-solid fa-circle-exclamation" />
+            {{ errors.dateTime }}
+          </small>
         </section>
 
         <!-- 4. Eelarve -->
@@ -579,8 +548,6 @@
       
     </MDBContainer>
   </div>
-
-
 </template>
 
 
@@ -595,12 +562,14 @@ import proList from '@/components/controllers/professions'
 import { storeToRefs } from "pinia";
 import MultiSelect from "primevue/multiselect";
 import Select from 'primevue/select';
+import SelectProfession from '@/components/helpers/SelectProfession.vue'
 import map_image from '@/assets/map.gif'
 import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n';
 import { getFormatted } from "../helpers/formatDatepicker";
 import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
+import { useLocationFieldLogic } from '@/components/helpers/locationFieldLogic.js'
 import clientService from '../../service/recipients';
 import uploadService from '../../service/awsUploads';
 import { useProfessionStore } from "@/stores/professionStore";
@@ -615,6 +584,7 @@ import BookingPhotos from '@/components/recipient/BookingPhotos.vue';
 import { useBookingPhotos as useBookingPhotosLogic } from '@/components/helpers/useBookingPhotos.js';
 
 import '@/styles/pro-select.css';
+import '@/styles/form.css';
 
 defineOptions({
   name: 'recipient-form'
@@ -655,11 +625,19 @@ const orderHeaderEdited = ref(false);
 const currentProfession = ref(null);
 
 const isBudget = ref(false);
-const errors = reactive({});
+const errors = reactive({
+  profession: "",
+  orderHeader: "",
+  address: "",
+  dateTime: "",
+  explanation: "",
+  budgetMin: "",
+  budgetMax: ""
+});
 const isValidating = ref(false);
 
-const addressValid = ref(false);
-const selectedPlace = ref(null);
+//const addressValid = ref(false);
+//const selectedPlace = ref(null);
 
 const validateCustomFields = () => {
   let valid = true;
@@ -702,13 +680,13 @@ const validateForm = () => {
   //errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
   //errors.budgetMax = form.budgetMax != null ? "" : t('recipientForm.budgetMaxRequired');
 
-  if (form.address && (form.lat === null || form.lng === null) ) {
+  /* if (form.address && (form.lat === null || form.lng === null) ) {
       errors.address = t('recipientForm.addressAutocompleteError');
   } else if (!form.address) {
       errors.address = t('recipientForm.addressRequired');
   } else {
       errors.address = "";
-  }
+  } */
 
   if (
       form.budgetMin != null &&
@@ -717,15 +695,16 @@ const validateForm = () => {
     ) {
       errors.budgetMin = t('recipientForm.budgetMinTooHigh');
       errors.budgetMax = t('recipientForm.budgetMaxTooLow');
-    }
-
+  }
+  
+  const addressIsValid = validateAddress();
   const customFieldsValid =
     validateCustomFields();
 
   return (
     !errors.profession && 
     !errors.orderHeader && 
-    !errors.address && 
+    addressIsValid && 
     !errors.dateTime && 
     !errors.explanation && 
     !errors.budgetMin && 
@@ -736,20 +715,7 @@ const validateForm = () => {
 
 const validateBudgets = () => {
   if (!isValidating.value) return;
-  // Required validation
-  /* if (form.budgetMin == null || form.budgetMin === "") {
-    errors.budgetMin = t('recipientForm.budgetMinRequired');
-  } else {
-    errors.budgetMin = "";
-  }
 
-  if (form.budgetMax == null || form.budgetMax === "") {
-    errors.budgetMax = t('recipientForm.budgetMaxRequired');
-  } else {
-    errors.budgetMax = "";
-  } */
-
-  // Range validation only if both exist
   if (
     form.budgetMin !== null &&
     form.budgetMin !== "" &&
@@ -778,7 +744,7 @@ watch(
 
 watch(() => form.profession, () => (errors.profession = ""));
 watch(() => form.orderHeader, () => (errors.orderHeader = ""));
-watch(() => form.address, () => (errors.address = ""));
+//watch(() => form.address, () => (errors.address = ""));
 watch(() => form.dateTime, () => (errors.dateTime = ""));
 watch(() => form.explanation, () => (errors.explanation = ""));
 
@@ -826,8 +792,9 @@ const mapImage = map_image;
 const mapError = ref(false);
 const desiredRange = ref("")
 //const range = ref(null);
-const lat = ref(null);
-const lng = ref(null);
+
+//const lat = ref(null);
+//const lng = ref(null);
 
 const o = ref(null);
 
@@ -980,6 +947,14 @@ const openFilePicker = () => {
   if (!isAddPhotos.value) isAddPhotos.value = true;
 };
 
+const {
+  onAddressInput,
+  onPlaceSelected,
+  validateAddress,
+  selectedPlace,
+  addressValid
+} = useLocationFieldLogic(form, errors);
+
 
 
 const toastModel = ref(false)
@@ -1008,7 +983,7 @@ const sortedCustomFields = computed(() => {
 });
 
 
-const groupedProfessions = computed(() => {
+/* const groupedProfessions = computed(() => {
   return professionCategories.value
     .filter(category => category.enabled)
     .sort((a, b) => {
@@ -1047,7 +1022,7 @@ const groupedProfessions = computed(() => {
       };
     })
     .filter(category => category.items.length > 0);
-});
+}); */
 
 
 
@@ -1077,24 +1052,6 @@ watch(currentLang, (lang) => {
   selectedLang.value = lang;
 }, { immediate: true })
 
-
-onMounted(async() => {
-  //validateMaps();
-
-  //console.log("form.profession =", form.profession);
-  //console.log("professions.value[0] =", professions.value[0]);
-
-  
-
-  /* console.log(
-    "Professions:",
-    JSON.stringify(professions.value, null, 2)
-  ); */
-
-  //console.log("P --- ", professions)
-
-  //getReadyDataParams()
-})
 
 const validateMaps = async() => {
   mapError.value = false;
@@ -1141,7 +1098,7 @@ const validateMaps = async() => {
 }
 
 // Validating address field: if user types an address but doesn't select from the autocomplete, lat/lng will be null. Show error in that case.
-watch([() => form.address, () => form.lat, () => form.lng], () => {
+/* watch([() => form.address, () => form.lat, () => form.lng], () => {
   if (form.address && (form.lat === null || form.lng === null)) {
     errors.address = t('recipientForm.addressAutocompleteError');
   } else {
@@ -1200,7 +1157,7 @@ function onPlaceSelected(place) {
 
   errors.address = "";
 
-}
+} */
 
 const getReadyDataParams = () => {
   const clientData = route.query.content;
@@ -1507,6 +1464,8 @@ const createClient = async() => {
       photos: photosForBackend,
       status: "active",
     } */
+
+    // selectedProfessionName.value
     const client = {
       author_id: userAuth.user.id,
 
@@ -1519,7 +1478,7 @@ const createClient = async() => {
         generatedOrderHeader.value,
 
       professionCode: form.profession,
-      professional: selectedProfessionName.value,
+      professional: form.profession,
 
 
 
@@ -2119,7 +2078,7 @@ const createClient = async() => {
 
 /* Abi- ja veatekstid */
 
-.profession-field__help,
+/* .profession-field__help,
 .profession-field__error {
   display: flex;
   align-items: flex-start;
@@ -2135,7 +2094,7 @@ const createClient = async() => {
 
 .profession-field__error {
   color: #ff96a3;
-}
+} */
 
 /* PrimeVue Select ja MultiSelect */
 

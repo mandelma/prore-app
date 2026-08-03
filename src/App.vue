@@ -281,6 +281,7 @@
       
     >
     <!-- && conversations.length -->
+     
       <chat-widget 
         v-if="login.isAuthenticated && conversations.length"
         :did-drag="didDrag"

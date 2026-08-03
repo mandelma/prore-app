@@ -187,7 +187,15 @@
     "your_location": "Your location",
     "client_marker_title": "Needed",
     "no_clients_found": "No clients were found for the selected profession and distance.",
-    "try_adjust_filters": "Try changing the profession or increasing the search distance."
+    "try_adjust_filters": "Try changing the profession or increasing the search distance.",
+
+    "found_clients_count": "{count} clients found",
+    
+    "searchTitle": "Find clients",
+    "searchHelp": "Select an address, profession and search area to see clients on the map.",
+    "collapsePanel": "Minimize panel",
+    "close": "Close",
+    "search": "Search"
   },
 
   "clientOffer": {
@@ -292,18 +300,35 @@
       "provider_create_failed": "An error occurred. Please try again!"
     },
     "fields": {
-      "company_name": "Enter company name or your name *",
+      "company_name": "Enter company name or your name",
       "business_id": "Enter business ID",
       "address": "Enter address",
       "service_radius": "Enter service radius (km)",
-      "profession": "Select profession *",
+      "profession": "Select profession",
       "hourly_price": "Hourly rate",
       "hourly_price_input": "Enter hourly rate",
       "fixed_price": "Fixed price",
       "description": "Tell something about yourself and your business...",
       "website": "Enter company website address (if available)"
     },
+    "sections": {
+      "company": "Company information",
+      "location": "Location and service area",
+      "profession": "Profession and services",
+      "pricing": "Pricing",
+      "description": "Service description"
+    },
     "help": {
+      "account_intro": "Create your provider profile and start receiving orders.",
+      "company_info": "Enter your company information.",
+      "profession_info": "Choose your profession and the services you offer.",
+      "pricing_info": "Choose the pricing method that suits your services.",
+      "hourly_price_info": "Enter your estimated hourly rate.",
+      "fixed_price_info": "You can agree on a fixed price with the client.",
+      "description_info": "Briefly describe your company and services.",
+      "website_info": "You can add your company's website.",
+      "locating": "Detecting location...",
+      "submit_info": "Review your information before creating the account.",
       "radius_info": "If no radius is specified, you provide services only at the specified address."
     },
     "buttons": {
@@ -485,7 +510,13 @@
     "currencyEur": "€{amount}",
     "requestSent": "The order was sent successfully!",
     "requestFailed": "Failed to send the order. Please try again.",
-    "close": "Close"
+    "close": "Close",
+
+    "searchTitle": "Find a service provider",
+    "searchHelp": "Select the address, service, preferred time, and search area.",
+    "dateTimeHelp": "Choose a preferred time or mark the service as needed immediately.",
+    "collapsePanel": "Minimize search panel",
+    "expandPanel": "Expand search panel"
   },
 
   "recipientContent": {
@@ -520,11 +551,11 @@
     "openMap": "Search on map",
     "professionDetails": "Service details",
     "bookingDetailsTitle": "Booking details",
-    "bookingDetailsHelp": "Enter the work location, preferred date and other necessary details.",
+    "bookingDetailsHelp": "Enter your address, preferred service time, and any other required details.",
     "orderKeyword": "Booking title",
     "orderHeaderHelp": "The title is generated automatically, but you can edit it.",
     "orderKeywordInvalid": "The booking title is required.",
-    "addressLabel": "Work address",
+    "addressLabel": "Your address",
     "addressRequired": "The address is required.",
     "addressAutocompleteError": "Select an address from the suggestion list.",
     "radiusLabel": "Provider search radius",
@@ -674,7 +705,8 @@
     "agreement": "Agreement",
     "defaultNoteTitle": "Note",
     "saveFailed": "Saving failed.",
-    "datePickerTitle": "Select a date"
+    "datePickerTitle": "Select a date",
+    "editWorkDuration": "Edit work duration"
   },
 
   "chatWidget": {

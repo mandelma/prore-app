@@ -21,175 +21,181 @@
         </span>
 
       </button>
-      <!-- Window -->
-      <section
-        class="chat-window"
-        :class="{ open: isOpen }" 
-        :style="chatWindowStyle"
-        
-        :aria-label="t('chatWidget.chatWindow')"
-        role="dialog"
-        aria-modal="false"
-    >
-        <header 
-            class="chat-header"
 
-          >
+      <!-- chatWindowStyle before Teleporting -->
+      <Teleport to="body">
+        <!-- Window -->
+        <section
+          class="chat-window"
+          :class="{ open: isOpen }" 
+          :style="teleportedChatWindowStyle"
           
-          <div 
-              v-if="!mobile"
-              class="chat-drag-bar"
-              @pointerdown.stop="$emit('start-drag', $event)"
-              
+          :aria-label="t('chatWidget.chatWindow')"
+          role="dialog"
+          aria-modal="false"
+      >
+          <header 
+              class="chat-header"
+
             >
-            <i class="fas fa-arrows-alt fa-lg"></i>
-          </div>
-
-          <ul class="chat-dropdown horizontal">
-            <li
-              v-for="opt in convo_options"
-              :class="{ active: opt.conversationId === activeConversationId }"
-              :key="opt.conversationId"
-              @click="selectConversation(opt.conversationId)"
-            >
-              <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
-                
-              <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
-                <div style="margin-top: 17px; margin-left: -17px; ">
-                {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
-              </div>
-              
-              <div class="chat-name-row">
-                <span>{{ opt.name }}</span>
-
-                <i
-                  class="fas fa-times chat-name-close"
-                  @click.stop="removeChatMember(opt)"
-                ></i>
-              </div>
-              <!-- <span>{{ opt.name }}</span><MDBBtnClose /> -->
-
-              <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
-            </li>
             
-          </ul>
-
-          <div style="display: flex; justify-content: right;  margin-top: 0;">
-            <button class="chat-close" type="button" :aria-label="t('chatWidget.closeChat')" @click="$emit('request-close')">―</button>
-          </div>
-          
-        </header>
-
-        <div v-if="meId" ref="chatBody" class="chat-body">
-          <div
-            v-for="m in activeMessages"
-            :key="m.id || m._id"
-            class="message-wrap"
-            :class="{ me: isMine(m) }"
-          >
-            <div class="msg">
-              <div v-if="m.text">{{ m.text }}</div>
-
-              <div v-for="a in m.attachments || []" :key="a.id || a.key">
+            <!-- <div 
+                v-if="!mobile"
+                class="chat-drag-bar"
+                @pointerdown.stop="$emit('start-drag', $event)"
                 
-                <img
-                  v-if="a.mime?.startsWith('image/')"
-                  :src="a.url || a.preview"
-                  class="chat-image"
-                />
+              >
+              <i class="fas fa-arrows-alt fa-lg"></i>
+            </div> -->
 
-                <a
-                  v-else
-                  class="file-attachment"
-                  :href="a.url"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <div class="file-icon">
-                    <i :class="fileIconClass(a)"></i>
-                  </div>
+            <ul class="chat-dropdown horizontal">
+              <li
+                v-for="opt in convo_options"
+                :class="{ active: opt.conversationId === activeConversationId }"
+                :key="opt.conversationId"
+                @click="selectConversation(opt.conversationId)"
+              >
+                <!-- <img :src="opt.avatar" class="avatar" v-if="opt.avatar"> -->
+                  
+                <MDBIcon size="2x"><i class="fas fa-user-circle"></i></MDBIcon>
+                  <div style="margin-top: 17px; margin-left: -17px; ">
+                  {{ isOnline(opt.otherId) ? ' 🟢' : ' ⚪' }}
+                </div>
+                
+                <div class="chat-name-row">
+                  <span>{{ opt.name }}</span>
 
-                  <div class="file-info">
-                    <div class="file-name">
-                      {{ a.name || "file" }}
+                  <i
+                    class="fas fa-times chat-name-close"
+                    @click.stop="removeChatMember(opt)"
+                  ></i>
+                </div>
+                <!-- <span>{{ opt.name }}</span><MDBBtnClose /> -->
+
+                <span v-if="opt.unread" class="chat-unread-badge">{{ opt.unread > 9 ? '9+' : opt.unread }}</span>
+              </li>
+              
+            </ul>
+
+            <div style="display: flex; justify-content: right;  margin-top: 0;">
+              <button class="chat-close" type="button" :aria-label="t('chatWidget.closeChat')" @click="$emit('request-close')">―</button>
+            </div>
+            
+          </header>
+
+          <div v-if="meId" ref="chatBody" class="chat-body">
+            <div
+              v-for="m in activeMessages"
+              :key="m.id || m._id"
+              class="message-wrap"
+              :class="{ me: isMine(m) }"
+            >
+              <div class="msg">
+                <div v-if="m.text">{{ m.text }}</div>
+
+                <div v-for="a in m.attachments || []" :key="a.id || a.key">
+                  
+                  <img
+                    v-if="a.mime?.startsWith('image/')"
+                    :src="a.url || a.preview"
+                    class="chat-image"
+                  />
+
+                  <a
+                    v-else
+                    class="file-attachment"
+                    :href="a.url"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <div class="file-icon">
+                      <i :class="fileIconClass(a)"></i>
                     </div>
 
-                    <div class="file-meta">
-                      {{ formatFileSize(a.size) }}
+                    <div class="file-info">
+                      <div class="file-name">
+                        {{ a.name || "file" }}
+                      </div>
+
+                      <div class="file-meta">
+                        {{ formatFileSize(a.size) }}
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                </div>
+              </div>
+
+              <div class="message-meta" v-if="m.createdAt">
+                <span class="message-time">
+                  {{ formatDateTime(m.createdAt) }}
+                </span>
+
               </div>
             </div>
-
-            <div class="message-meta" v-if="m.createdAt">
-              <span class="message-time">
-                {{ formatDateTime(m.createdAt) }}
-              </span>
-
-            </div>
           </div>
-        </div>
 
-        <div v-if="files.length" class="file-preview">
-            <div
-                v-for="(f, i) in files"
-                :key="f.id"
-                class="file-chip"
-            >
-                <!-- Image preview -->
-                <img
-                v-if="f.isImage"
-                :src="f.preview"
-                class="img-thumb"
-                :alt="t('chatWidget.filePreview')"
-                />
+          <div v-if="files.length" class="file-preview">
+              <div
+                  v-for="(f, i) in files"
+                  :key="f.id"
+                  class="file-chip"
+              >
+                  <!-- Image preview -->
+                  <img
+                  v-if="f.isImage"
+                  :src="f.preview"
+                  class="img-thumb"
+                  :alt="t('chatWidget.filePreview')"
+                  />
 
-                <!-- File name fallback -->
-                <span v-else>{{ f.file.name }}</span>
+                  <!-- File name fallback -->
+                  <span v-else>{{ f.file.name }}</span>
 
-                <button type="button" @click="removeFile(i)">✕</button>
-            </div>
-        </div>
+                  <button type="button" @click="removeFile(i)">✕</button>
+              </div>
+          </div>
 
-        <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
-            <!-- Attachment button -->
-            <label  :aria-label="t('chatWidget.attachFile')">
-                <!-- 📎 -->
-                <i class="fas fa-copy" style="cursor: pointer;"></i>
-                <input
-                    type="file"
-                    hidden
-                    multiple
-                    accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                    @change="onFileSelect"
-                    />
-            </label>
+          <form v-if="activeConversationId" class="chat-input" @submit.prevent="send">
+              <!-- Attachment button -->
+              <label  :aria-label="t('chatWidget.attachFile')">
+                  <!-- 📎 -->
+                  <i class="fas fa-copy" style="cursor: pointer;"></i>
+                  <input
+                      type="file"
+                      hidden
+                      multiple
+                      accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                      @change="onFileSelect"
+                      />
+              </label>
 
-            <textarea
-              ref="chatInput"
-              v-model="draft"
-              class="chat-textarea"
-              rows="1"
-              :placeholder="t('chatWidget.messagePlaceholder')"
-              @input="autoResize"
-            ></textarea>
+              <textarea
+                ref="chatInput"
+                v-model="draft"
+                class="chat-textarea"
+                rows="1"
+                :placeholder="t('chatWidget.messagePlaceholder')"
+                @input="autoResize"
+              ></textarea>
 
-            <!-- Send -->
-            <button style="max-height: 50px;" type="submit">{{ t("chatWidget.send") }}</button>
-        </form>
-      </section>
+              <!-- Send -->
+              <button style="max-height: 50px;" type="submit">{{ t("chatWidget.send") }}</button>
+          </form>
+        </section>
 
-      <ConfirmModal
-        v-model="showDeleteModal"
-        :title="cTitle"
-        :message="cMessage"
-        :confirm-text="t('chatWidget.delete')"
-        :cancel-text="t('chatWidget.keep')"
-        :danger="true"
-        @confirm="handleConfirmRemoveChatUser"
-        @cancel="handleCancelRemoving"
-      />
+        <ConfirmModal
+          v-model="showDeleteModal"
+          :title="cTitle"
+          :message="cMessage"
+          :confirm-text="t('chatWidget.delete')"
+          :cancel-text="t('chatWidget.keep')"
+          :danger="true"
+          @confirm="handleConfirmRemoveChatUser"
+          @cancel="handleCancelRemoving"
+        />
+        </Teleport>
+
+      
 
       <!-- <div style="color:red; position:absolute; top:-20px;">
         {{ mobile }}
@@ -375,7 +381,7 @@
     };
   });
 
-  const chatWindowStyle = computed(() => {
+  /* const chatWindowStyle = computed(() => {
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
     const isMobile = viewportW <= 640;
@@ -414,7 +420,32 @@
       width: `${winW}px`,
       height: `${winH}px`
     };
-  });
+  }); */
+
+  const teleportedChatWindowStyle = computed(() => {
+  if (mobile.value) {
+    return {
+      position: "fixed",
+      inset: "8px",
+      width: "auto",
+      height: "auto",
+      maxWidth: "none",
+      maxHeight: "none",
+      zIndex: 200000
+    };
+  }
+
+  return {
+    position: "fixed",
+    right: "20px",
+    bottom: "20px",
+    left: "auto",
+    top: "auto",
+    width: "360px",
+    height: "520px",
+    zIndex: 200000
+  };
+});
 
   const intlLocale = computed(() => ({
     fi: "fi-FI",
@@ -940,11 +971,7 @@
 
 
 /* Chat window */
-.chat-window {
-  /* position: fixed;
-  right: 20px; */
-  /* bottom: calc(20px + 56px + 12px); */ /* above launcher */
-
+.chat-window-w {
   position: absolute;
   display: none;
   z-index: 9999;
@@ -960,6 +987,28 @@
   display: none;
   z-index: 9999;
   border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.chat-window {
+  position: fixed;
+  display: none;
+  z-index: 200000 !important;
+
+  width: 360px;
+  max-width: calc(100vw - 20px);
+  height: 520px;
+  max-height: calc(100dvh - 20px);
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.chat-window.open {
+  display: flex;
+  flex-direction: column;
 }
 .chat-window.open {
   display: flex;
@@ -987,6 +1036,7 @@
   grid-template-columns: 32px minmax(0, 1fr) 36px;
   height: 60px;
   padding-bottom: 0;
+  padding-left: 7px;
   background: #111827;
   
   color: #fff;

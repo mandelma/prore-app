@@ -143,27 +143,6 @@
       return "";
     };
 
-    
-
-    /* watch(selectedPlace, (place) => {
-      if (!place) return;
-
-      pForm.address = place.address;
-      pForm.lat = place.lat;
-      pForm.lng = place.lng;
-
-      pErrors.address = ""
-    }); */
-
-    /* watch(() => pForm.email, (val) => {
-      if (!val) {
-        pErrors.email = "";
-      } else if (!isValidEmail(val)) {
-        pErrors.email = t("editProfile.invalidEmail");
-      } else {
-        pErrors.email = "";
-      }
-    }); */
 
     watch(
       () => pForm.email,

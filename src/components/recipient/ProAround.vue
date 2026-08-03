@@ -4,117 +4,219 @@
     
     <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 10px;">
       
-      <div v-show="isMainPanel" class="client-map-panel">
-        <div class="panel-header">
-          <button class="panel-refresh" @click="refreshMapState">{{ t("proAround.refresh") }}</button>
+      <div
+        v-show="isMainPanel"
+        class="client-map-panel"
+      >
+        <!-- Paneeli päis -->
+        <div class="map-panel-header">
+          <div class="map-panel-heading">
+            <div class="map-panel-heading__icon">
+              <i class="fa-solid fa-magnifying-glass-location" />
+            </div>
 
-          <div class="panel-actions">
-            <MDBIcon size="lg" class="panel-icon" @click="isMainPanel = false">
-              <i class="fas fa-expand-arrows-alt"></i>
-            </MDBIcon>
+            <div>
+              <h2 class="map-panel-title">
+                {{ t("proAround.searchTitle") }}
+              </h2>
 
-            <MDBBtnClose white size="sm" class="panel-close" @click="$router.go(-1)" />
+              <p class="map-panel-subtitle">
+                {{ t("proAround.searchHelp") }}
+              </p>
+            </div>
+          </div>
+
+          <div class="map-panel-actions">
+            <button
+              type="button"
+              class="map-panel-icon-button"
+              :title="t('proAround.refresh')"
+              @click="refreshMapState"
+            >
+              <i class="fa-solid fa-rotate-right" />
+            </button>
+
+            <button
+              type="button"
+              class="map-panel-icon-button"
+              :title="t('proAround.collapsePanel')"
+              @click="isMainPanel = false"
+            >
+              <i class="fa-solid fa-expand" />
+            </button>
+
+            <button
+              type="button"
+              class="map-panel-icon-button map-panel-icon-button--close"
+              :title="t('proAround.close')"
+              @click="$router.go(-1)"
+            >
+              <i class="fa-solid fa-xmark" />
+            </button>
           </div>
         </div>
 
-        <div :class="{ hideClientInput: !address && isAddress }" class="field-wrapper">
-          <div class="input-group modern-input-group">
-            <MDBInput
-              size="sm"
-              v-model="address"
-              :label="t('proAround.addressLabel')"
-              id="client-input"
-              wrapperClass="form-outline flex-grow-3"
-              :inputClass="'ps-0'"
-            />
+        <!-- Aadress -->
+        <div class="map-panel-field">
+          <label class="map-panel-label">
+            {{ t("proAround.addressLabel") }}
 
-            <MDBBtn v-if="address" type="button" class="clear-btn">
-              <MDBIcon size="1x" @click="clearAddress()">
-                <i class="fas fa-times"></i>
-              </MDBIcon>
-            </MDBBtn>
-          </div>
-        </div>
-        
-        <div class="field-wrapper">
-          <Select
-            v-model="profession"
-            @change="changedProfession"
-            :options="professions"
-            filter
-            optionLabel="label"
-            optionGroupLabel="label"
-            optionGroupChildren="items"
-            :placeholder="t('proAround.professionalPlaceholder')"
-            showClear
-            :class="['modern-select', { 'field-error': isNoPro }]"
+            <span class="map-panel-required">*</span>
+          </label>
+
+          <div
+            :class="{
+              hideClientInput: !address && isAddress
+            }"
           >
-            <template #value="slotProps">
-              <div v-if="slotProps.value">{{ slotProps.value.label }}</div>
-              <span v-else>{{ slotProps.placeholder }}</span>
-            </template>
-
-            <template #optiongroup="slotProps">
-              <div class="select-group">
-                <i :class="slotProps.option.icon"></i>
-                <span>{{ slotProps.option.label }}</span>
-              </div>
-            </template>
-          </Select>
-
-          <p v-if="panelProError" class="error-text">{{ t("proAround.professionRequired") }}</p>
-        </div>
-
-        <div :class="{ hideDistSelectPanel: !isDistSelection }">
-          <p class="section-label">{{ t("proAround.selectDateOrNow") }}</p>
-
-          <div class="field-wrapper">
-            <MDBDateTimepicker
-              size="md"
-              :label="t('proAround.dateTimeLabel')"
-              v-model="dt"
-              :toggleButton="false"
-              inputToggle
-              :datepicker="{ ...L }"
-              :timepicker="{ ...L, hoursFormat: 24 }"
-              :key="reInitKey"
-              disablePast
+            <AddressAutocomplete
+              v-model="address"
+              v-model:valid="addressValid"
+              :label="t('proAround.addressLabel')"
+              :error="addressError"
+              @typing="onAddressInput"
+              @place="onPlaceSelected"
             />
           </div>
+        </div>
 
-          <MDBCheckbox
-            :label="t('proAround.now')"
-            name="selection"
-            v-model="isDateNow"
-            value="true"
-            @click="removeDateIfExist"
-            wrapperClass="mb-3"
-            class="modern-checkbox"
+        <!-- Amet -->
+        <div class="map-panel-field">
+          <label class="map-panel-label">
+            {{ t("proAround.professionalPlaceholder") }}
+
+            <span class="map-panel-required">*</span>
+          </label>
+
+          <SelectProfession
+            v-model="profession"
+            :label="t('proAround.professionalPlaceholder')"
+            :errors="{
+              profession: panelProError
+                ? t('proAround.professionRequired')
+                : ''
+            }"
+            @change="changedProfession"
           />
         </div>
 
-        <MDBSelect
-          size="md"
-          v-model:selected="selectedRange"
-          :options="rangeOptions"
-          :label="t('proAround.searchArea')"
-          id="distance"
-          class="modern-mdb-select"
-        />
+        <!-- Aeg -->
+        <div
+          v-show="isDistSelection"
+          class="map-panel-field map-panel-time"
+        >
+          <div class="map-panel-field-header">
+            <div>
+              <label class="map-panel-label">
+                {{ t("proAround.selectDateOrNow") }}
+              </label>
 
-        <p v-if="panelRangeError" class="error-text">{{ t("proAround.distanceRequired") }}</p>
+              <small class="map-panel-field-help">
+                {{ t("proAround.dateTimeHelp") }}
+              </small>
+            </div>
 
-        <div class="panel-footer">
-          <p v-if="countOfSelectedProfessional === 0 && clickedPanelGet" class="empty-text">
+            <label class="map-now-toggle">
+              <input
+                v-model="isDateNow"
+                type="checkbox"
+                class="map-now-toggle__input"
+                @change="removeDateIfExist"
+              />
+
+              <span class="map-now-toggle__control">
+                <i class="fa-solid fa-check" />
+              </span>
+
+              <span class="map-now-toggle__label">
+                {{ t("proAround.now") }}
+              </span>
+            </label>
+          </div>
+
+          <MDBDateTimepicker
+            v-if="!isDateNow"
+            v-model="dt"
+            size="md"
+            :label="t('proAround.dateTimeLabel')"
+            :toggle-button="false"
+            input-toggle
+            :datepicker="{ ...L }"
+            :timepicker="{ ...L, hoursFormat: 24 }"
+            :key="reInitKey"
+            disable-past
+            class="map-datetime-picker"
+          />
+        </div>
+
+        <!-- Otsinguraadius -->
+        <div class="map-panel-field">
+          <label class="map-panel-label">
+            {{ t("proAround.searchArea") }}
+
+            <span class="map-panel-required">*</span>
+          </label>
+
+          <MDBSelect
+            id="distance"
+            v-model:selected="selectedRange"
+            :options="rangeOptions"
+            :label="t('proAround.searchArea')"
+            size="md"
+            class="map-range-select"
+          />
+
+          <small
+            v-if="panelRangeError"
+            class="map-panel-error"
+          >
+            <i class="fa-solid fa-circle-exclamation" />
+
+            {{ t("proAround.distanceRequired") }}
+          </small>
+        </div>
+
+        <!-- Tulemus puudub -->
+        <div
+          v-if="
+            countOfSelectedProfessional === 0 &&
+            clickedPanelGet
+          "
+          class="map-panel-empty"
+        >
+          <i class="fa-solid fa-location-dot" />
+
+          <span>
             {{ t("proAround.noProfessionals") }}
-          </p>
-          <span v-else></span>
+          </span>
+        </div>
 
-          <MDBBtn color="primary" size="sm" class="search-btn" @click="onGetProviders">
+        <!-- Footer -->
+        <div class="map-panel-footer">
+          <button
+            type="button"
+            class="map-panel-reset"
+            @click="refreshMapState"
+          >
+            <i class="fa-solid fa-arrow-rotate-left" />
+
+            {{ t("proAround.refresh") }}
+          </button>
+
+          <MDBBtn
+            color="primary"
+            class="map-panel-search-button"
+            @click="onGetProviders"
+          >
+            <i class="fa-solid fa-magnifying-glass" />
+
             {{ t("proAround.search") }}
           </MDBBtn>
         </div>
       </div>
+
+
+
 
       <!--Displaying when no main panel open-->
       <MDBBtn
@@ -185,21 +287,26 @@
   </div>
   
   <div id="map-container">
-    <div v-if="!startPos && isLocating" class="spinner-overlay">
+    <div
+      v-if="!isMapLoaded && !locationFailed"
+      class="spinner-overlay"
+    >
       <div class="spinner"></div>
     </div>
 
-    <div v-else-if="!startPos && !isLocating" class="spinner-overlay">
+    <div
+      v-else-if="locationFailed"
+      class="spinner-overlay"
+    >
       <div class="location-error-box">
         {{ t("proAround.locationFetchFailed") }}
       </div>
     </div>
 
-    <div v-show="!!startPos" id="map"></div>
-
-    <div v-if="!!startPos && isLocating" class="locating-badge">
-      {{ t("proAround.updatingLocation") }}
-    </div>
+    <div
+      id="map"
+      :class="{ 'map-ready': isMapLoaded }"
+    ></div>
   </div>
 </template>
 
@@ -225,8 +332,12 @@ import { useClientStore } from '@/stores/recipientStore';
 import { useLoginStore } from '@/stores/login';
 import { useProStore } from '@/stores/providerStore';
 import { useConversationStore } from '@/stores/conversationStore';
+import { useProfessionStore } from '@/stores/professionStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
+import AddressAutocomplete from '../AddressAutocomplete.vue';
+import SelectProfession from '../helpers/SelectProfession.vue';
+
 
 import { getChatWindowGeometry, getBottomRightAnchor } from '../helpers/chatGeometry.js';
 
@@ -244,8 +355,10 @@ const emit = defineEmits([ 'open-chat' ]);
 const { t, locale } = useI18n();
 const mapStore = useMapStore();
 const convoStore = useConversationStore();
+const professionStore = useProfessionStore();
 const { userPos, lastKnownPos, mapsReady, isLocating, locationError } = storeToRefs(mapStore);
 const { otherChatUsers } = storeToRefs(convoStore);
+const { professionCategories, professions } = storeToRefs(professionStore);
 
 const address = ref("");
 const selectedPlaceId = ref(null)
@@ -253,7 +366,7 @@ const selectedAddressComponents = ref([])
 const myLat = ref( null);
 const myLng = ref(null);
 const mapsError = ref(false);
-const professions = proList;
+//const professions = proList;
 const profession = ref("");
 const isAddress = ref(false);
 const isMapLoaded = ref(false);
@@ -283,6 +396,9 @@ const rs_error_msg = ref("");
 const panelProError = ref(false);
 const panelRangeError = ref(false);
 
+const addressValid = ref(false);
+const selectedPlace = ref(null);
+const addressError = ref("");
 
 const clientStore = useClientStore();
 const auth = useLoginStore();
@@ -350,23 +466,35 @@ watch(selectedRange, (newVal) => {
 
 
 const initMap = (lat, lng) => {
-  if (map) return map
+  if (map) return map;
 
-  const el = document.getElementById('map')
-  if (!el) throw new Error('Map container not found')
+  const el = document.getElementById("map");
+
+  if (!el) {
+    throw new Error("Map container not found");
+  }
+
+  isMapLoaded.value = false;
 
   map = new google.maps.Map(el, {
     center: { lat, lng },
     zoom: 13,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     mapId: "DEMO_MAP_ID",
-  })
+  });
 
-  infoWindow = new google.maps.InfoWindow()
-  isMapLoaded.value = true
+  infoWindow = new google.maps.InfoWindow();
 
-  return map
-}
+  google.maps.event.addListenerOnce(
+    map,
+    "idle",
+    () => {
+      isMapLoaded.value = true;
+    }
+  );
+
+  return map;
+};
 
 const getAddressFromCoords = async (lat, lng) => {
   try {
@@ -474,45 +602,133 @@ watch(isDateNow, (state) => {
   }
 })
 
+// About address autocomplite
+watch([() => address.value, () => myLat.value, () => myLng.value], () => {
+  if (address.value && (myLat.value === null || myLng.value === null)) {
+    addressError.value = t('recipientForm.addressAutocompleteError');
+  } else {
+    addressError.value = "";
+  }
+});
 
-onMounted (async () => {
+const validateAddress = () => {
+
+  if (!address.value) return;
+
+  if (myLat.value === null || myLng.value === null) {
+    console.log("Address is not valid, lat/lng missing");
+    addressError.value = "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+    return "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+  }
+
+  return;
+};
+
+const onAddressInput = (value) => {
+  address.value = value;
+
+  selectedPlace.value = null;
+  myLat.value = null;
+  myLng.value = null;
+
+  console.log(
+    "Address input changed:",
+    value,
+    "lat:",
+    myLat.value,
+    "lng:",
+    myLng.value
+  );
+
+  if (value.trim()) {
+    validateAddress();
+    addressError.value =
+      t("recipientForm.addressAutocompleteError");
+    
+  } else {
+    addressError.value = "";
+  }
+};
+
+function onPlaceSelected(place) {
+  selectedPlace.value = place;
+  console.log("Place selected:", place);
+  address.value = place.address;
+  myLat.value = place.lat;
+  myLng.value = place.lng;
+
+
+  addressError.value = "";
+
+}
+
+
+onMounted(async () => {
   try {
-    const initPromise = mapStore.init()
+    locationFailed.value = false;
+    isMapLoaded.value = false;
+    addressValid.value = false;
 
-    await nextTick()
+    const initPromise = mapStore.init();
 
-    const pos = userPos.value || lastKnownPos.value
+    await nextTick();
+
+    const pos =
+      userPos.value ||
+      lastKnownPos.value;
+
     if (pos) {
-      myLat.value = pos.lat
-      myLng.value = pos.lng
+      myLat.value = pos.lat;
+      myLng.value = pos.lng;
 
-      if (address.value) {
-        console.log("Address is set " + address.value);
-      }
-      initMap(pos.lat, pos.lng)
-      showUserMarker(pos.lat, pos.lng)
-      //getAddressFrom(pos.lat, pos,lng);
-      await getAddressFromCoords(pos.lat, pos.lng);
-      await initAutocomplete()
+      initMap(pos.lat, pos.lng);
+      showUserMarker(pos.lat, pos.lng);
+
+      const result = await getAddressFromCoords(
+        pos.lat,
+        pos.lng
+      );
+
+      addressValid.value = Boolean(result);
+
+      await initAutocomplete();
     }
 
-    await initPromise
+    await initPromise;
 
-    const freshPos = userPos.value || lastKnownPos.value
+    const freshPos =
+      userPos.value ||
+      lastKnownPos.value;
+
     if (freshPos && !map) {
-      myLat.value = freshPos.lat
-      myLng.value = freshPos.lng
+      myLat.value = freshPos.lat;
+      myLng.value = freshPos.lng;
 
-      initMap(freshPos.lat, freshPos.lng)
+      initMap(freshPos.lat, freshPos.lng);
       showUserMarker(freshPos.lat, freshPos.lng);
-      await getAddressFromCoords(freshPos.lat, freshPos.lng)
-      await initAutocomplete()
+
+      const result = await getAddressFromCoords(
+        freshPos.lat,
+        freshPos.lng
+      );
+
+      addressValid.value = Boolean(result);
+
+      await initAutocomplete();
+    }
+
+    if (!freshPos && !pos) {
+      locationFailed.value = true;
+      addressValid.value = false;
     }
   } catch (err) {
-    console.error('Map init failed:', err)
-  }
-})
+    console.error("Map init failed:", err);
 
+    locationFailed.value = true;
+    isMapLoaded.value = false;
+    addressValid.value = false;
+  }
+});
 
 function applyUserPosition() {
   if (!userPos.value) return
@@ -565,10 +781,20 @@ const hasProfession = computed(() => {
   }
 }); */
 
+watch(() => profession.value, (newVal) => {
+  if (newVal) {
+    console.log("New profession is null or empty " + newVal);
+  } else {
+    console.log("Profession is null or empty " + newVal);
+    //selectedRange.value = 0;
+    //showClientLocationOnTheMap(profession.value?.label, selectedRange.value);
+  }
+});
+
 const changedProfession = () => {
-      console.log("Changed " + profession.value.label);
+      console.log("Changed " + profession.value);
       //this.showClientLocationOnTheMap(this.prof.label, this.distBtw);
-      currentProfession.value = profession.value.label;
+      currentProfession.value = profession.value;
       isDistSelection.value = true;
 }
 
@@ -583,6 +809,7 @@ function toPickerString(d = new Date()) {
   return `${y}-${m}-${day}, ${hh}:${mm}`
 }
 
+// Search providers button click handler
 const onGetProviders = () => {
   clickedPanelGet.value = false;
   panelProError.value = false;
@@ -591,20 +818,27 @@ const onGetProviders = () => {
   if (!profession.value) {
     panelProError.value = true;
     errors = true;
-    console.log("Get providers " + profession.value.label);
+    console.log("Get providers " + profession.value);
     console.log("Sel range " + selectedRange.value);
   };
 
   if (selectedRange.value === 0) {
     errors = true;
     panelRangeError.value = true;
-    showClientLocationOnTheMap(profession.value?.label, selectedRange.value);
+    showClientLocationOnTheMap(profession.value, selectedRange.value);
   }
+
+  if (!addressValid.value) {
+    errors = true;
+    addressError.value = t('recipientForm.addressAutocompleteError');
+  }
+
+ 
 
   if (!errors) {
     clickedPanelGet.value = true;
     
-    showClientLocationOnTheMap(profession.value.label, selectedRange.value);
+    showClientLocationOnTheMap(profession.value, selectedRange.value);
     updateMapDistance(map, {lat: myLat.value, lng: myLng.value}, selectedRange.value);
   }
   
@@ -1347,16 +1581,14 @@ html {
 body.modal-open .sticky-top,
 body.modal-open .navbar) { padding-right: 0 !important; }
 
-/* .client-map-panel {
-  background-color: #1B2330;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 60px 17px 0 0;
-  width: 30%;
-  float: right;
-} */
 
-.client-map-panel {
+
+
+
+
+
+
+/* .client-map-panel {
   position: absolute;
   top: 48px;
   right: 24px;
@@ -1490,30 +1722,527 @@ body.modal-open .navbar) { padding-right: 0 !important; }
     padding: 16px;
   }
 
-  /* .panel-footer {
-    position: sticky;
-    bottom: 0;
-    margin: 12px -16px -16px;
-    padding: 12px 16px 16px;
-    background: rgba(22, 27, 34, 0.92);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-radius: 0 0 18px 18px;
-  } */
+  
 }
 
 @media only screen and (max-width: 1000px) {
   #address-panel {
     display: none !important;
   }
-  /* .client-map-panel {
-    background-color: #1B2330;
-    padding: 10px;
-    margin: 60px auto;
-    width: 80%;
-    float: none;
-  } */
+ 
+} */
+
+.client-map-panel {
+  position: absolute;
+  top: 48px;
+  right: 24px;
+  z-index: 1000;
+
+  width: min(410px, calc(100vw - 32px));
+  max-height: calc(100dvh - 130px);
+  padding: 18px;
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  border: 1px solid rgba(139, 197, 202, 0.24);
+  border-radius: 18px;
+
+  color: #eef4f6;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(31, 44, 59, 0.96),
+      rgba(20, 31, 44, 0.96)
+    );
+
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
+
+/* Päis */
+
+.map-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding-bottom: 15px;
+  margin-bottom: 17px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.map-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 11px;
+}
+
+.map-panel-heading__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  border: 1px solid rgba(95, 158, 160, 0.35);
+  border-radius: 11px;
+
+  color: #92cbd0;
+  background: rgba(95, 158, 160, 0.14);
+  font-size: 16px;
+}
+
+.map-panel-title {
+  margin: 1px 0 0;
+
+  color: #f4f7f8;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.map-panel-subtitle {
+  margin: 4px 0 0;
+
+  color: rgba(219, 229, 234, 0.58);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.map-panel-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.map-panel-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+
+  color: rgba(232, 239, 242, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.map-panel-icon-button:hover {
+  color: #ffffff;
+  border-color: rgba(139, 197, 202, 0.42);
+  background: rgba(95, 158, 160, 0.16);
+  transform: translateY(-1px);
+}
+
+.map-panel-icon-button--close:hover {
+  color: #ffb1bb;
+  border-color: rgba(255, 116, 132, 0.38);
+  background: rgba(255, 92, 112, 0.12);
+}
+
+/* Väljad */
+
+.map-panel-field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.map-panel-label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #dfe8eb;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.map-panel-required {
+  margin-left: 2px;
+  color: #ff8e9d;
+}
+
+.map-panel-field-help {
+  display: block;
+  margin-top: 3px;
+
+  color: rgba(213, 224, 229, 0.5);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.map-panel-field-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+/* Aadress ja SelectProfession */
+
+.client-map-panel :deep(.field-wrapper) {
+  width: 100%;
+  margin: 0;
+}
+
+.client-map-panel :deep(.input-group) {
+  width: 100%;
+}
+
+.client-map-panel :deep(.booking-input-wrapper) {
+  min-width: 0;
+}
+
+.client-map-panel :deep(.form-control) {
+  color: #edf3f5;
+  background: #182332;
+  border-color: #39495d;
+}
+
+.client-map-panel :deep(.form-control:focus) {
+  border-color: #72aeb2;
+  box-shadow: 0 0 0 3px rgba(95, 158, 160, 0.14);
+}
+
+.client-map-panel :deep(.p-select) {
+  width: 100%;
+  min-height: 43px;
+
+  color: #edf3f5;
+  border: 1px solid #39495d;
+  border-radius: 9px;
+  background: #182332;
+  box-shadow: none;
+}
+
+.client-map-panel :deep(.p-select:hover) {
+  border-color: rgba(139, 197, 202, 0.62);
+}
+
+.client-map-panel :deep(.p-select.p-focus),
+.client-map-panel :deep(.p-select.p-inputwrapper-focus) {
+  border-color: #72aeb2;
+  box-shadow: 0 0 0 3px rgba(95, 158, 160, 0.14);
+}
+
+.client-map-panel :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+
+  min-height: 41px;
+  padding: 9px 12px;
+
+  color: #edf3f5;
+  font-size: 13px;
+}
+
+.client-map-panel :deep(.p-select-label.p-placeholder) {
+  color: rgba(218, 227, 232, 0.42);
+}
+
+/* Kohe-valik */
+
+.map-now-toggle {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 7px;
+
+  padding: 6px 9px;
+
+  border: 1px solid rgba(139, 197, 202, 0.22);
+  border-radius: 9px;
+
+  background: rgba(95, 158, 160, 0.07);
+  cursor: pointer;
+}
+
+.map-now-toggle__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.map-now-toggle__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 18px;
+  height: 18px;
+
+  border: 1px solid #68878f;
+  border-radius: 5px;
+
+  color: transparent;
+  background: #111b28;
+
+  font-size: 9px;
+  transition: 0.2s ease;
+}
+
+.map-now-toggle__input:checked
+  + .map-now-toggle__control {
+  color: #ffffff;
+  border-color: cadetblue;
+  background: cadetblue;
+}
+
+.map-now-toggle__label {
+  color: #dce7ea;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Datepicker */
+
+.map-datetime-picker {
+  width: 100%;
+}
+
+.client-map-panel :deep(.datetimepicker) {
+  width: 100%;
+}
+
+/* MDB kauguse Select */
+
+.map-range-select {
+  width: 100%;
+}
+
+.client-map-panel :deep(.select-wrapper) {
+  width: 100%;
+}
+
+.client-map-panel :deep(.select-input) {
+  color: #edf3f5;
+  border-color: #39495d;
+  background: #182332;
+}
+
+/* Veateade */
+
+.map-panel-error,
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+
+  margin-top: 7px;
+
+  color: #ff96a3;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Tühi tulemus */
+
+.map-panel-empty {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 12px;
+  margin: 2px 0 14px;
+
+  border: 1px solid rgba(244, 174, 92, 0.24);
+  border-radius: 10px;
+
+  color: #eec28d;
+  background: rgba(226, 146, 53, 0.09);
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.map-panel-empty i {
+  flex: 0 0 auto;
+}
+
+/* Footer */
+
+.map-panel-footer {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr);
+  align-items: center;
+  gap: 11px;
+
+  padding-top: 15px;
+  margin-top: 4px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.map-panel-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 0 13px;
+
+  border: 1px solid rgba(139, 197, 202, 0.2);
+  border-radius: 9px;
+
+  color: rgba(219, 229, 234, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.map-panel-reset:hover {
+  color: #ffffff;
+  background: rgba(95, 158, 160, 0.13);
+}
+
+.map-panel-search-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 42px;
+  gap: 8px;
+
+  border-radius: 10px;
+  font-weight: 650;
+
+  background:
+    linear-gradient(
+      135deg,
+      #278eae,
+      #3b82f6
+    ) !important;
+
+  box-shadow:
+    0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Scrollbar */
+
+.client-map-panel {
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(139, 197, 202, 0.32)
+    transparent;
+}
+
+.client-map-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.client-map-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(139, 197, 202, 0.3);
+}
+
+/* Mobiil */
+
+@media (max-width: 768px) {
+  .client-map-panel {
+    position: fixed;
+    top: auto;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 10px;
+
+    width: auto;
+    max-height: min(
+      78dvh,
+      calc(100dvh - 90px)
+    );
+
+    padding: 15px;
+    border-radius: 17px;
+  }
+
+  .map-panel-subtitle {
+    display: none;
+  }
+
+  .map-panel-field-header {
+    align-items: center;
+  }
+
+  .map-panel-footer {
+    position: sticky;
+    bottom: -15px;
+    z-index: 3;
+
+    margin-right: -15px;
+    margin-bottom: -15px;
+    margin-left: -15px;
+    padding: 13px 15px 15px;
+
+    border-radius: 0 0 17px 17px;
+
+    background: rgba(22, 33, 46, 0.97);
+    backdrop-filter: blur(15px);
+  }
+}
+
+@media (max-width: 440px) {
+  .map-panel-heading__icon {
+    display: none;
+  }
+
+  .map-panel-title {
+    font-size: 16px;
+  }
+
+  .map-panel-actions {
+    gap: 4px;
+  }
+
+  .map-panel-icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .map-panel-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .map-panel-reset {
+    order: 2;
+  }
+}
+
+
+
+
+
+
+
 
 
 
@@ -1838,6 +2567,13 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 #map {
   width: 100%;
   height: 100%;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* Preventing map from being hidden behind the panel on mobile */
+#map.map-ready {
+  opacity: 1;
 }
 
 .spinner-overlay {

@@ -217,7 +217,15 @@
     "your_location": "Sijaintisi",
     "client_marker_title": "Tarvitaan",
     "no_clients_found": "Valitulla ammatilla ja etäisyydellä ei löytynyt asiakkaita.",
-    "try_adjust_filters": "Kokeile vaihtaa ammattia tai suurentaa hakualuetta."
+    "try_adjust_filters": "Kokeile vaihtaa ammattia tai suurentaa hakualuetta.",
+
+    "found_clients_count": "Löytyi {count} asiakasta",
+
+    "searchTitle": "Etsi asiakkaita",
+    "searchHelp": "Valitse osoite, ammatti ja hakualue nähdäksesi asiakkaat kartalla.",
+    "collapsePanel": "Pienennä paneeli",
+    "close": "Sulje",
+    "search": "Etsi"
   },
 
   "clientOffer": {
@@ -321,18 +329,35 @@
       "provider_create_failed": "Tapahtui virhe, yritä uudelleen!"
     },
     "fields": {
-      "company_name": "Anna yrityksen tai oma nimesi *",
+      "company_name": "Anna yrityksen tai oma nimesi",
       "business_id": "Anna yrityksen Y-tunnus",
       "address": "Anna osoite",
       "service_radius": "Anna toiminta-alueen säde (km)",
-      "profession": "Valitse ammatti *",
+      "profession": "Valitse ammatti",
       "hourly_price": "Tuntihinta",
       "hourly_price_input": "Anna tuntihinta",
       "fixed_price": "Urakkahinta",
       "description": "Kirjoita tähän jotain itsestäsi ja toiminnastasi...",
       "website": "Anna yrityksen verkkosivun osoite (jos on)"
     },
+    "sections": {
+      "company": "Yrityksen tiedot",
+      "location": "Sijainti ja palvelualue",
+      "profession": "Ammatti ja palvelut",
+      "pricing": "Hinnoittelu",
+      "description": "Palvelun kuvaus"
+    },
     "help": {
+      "account_intro": "Luo palveluntarjoajaprofiili ja aloita tilausten vastaanottaminen.",
+      "company_info": "Anna yrityksesi perustiedot.",
+      "profession_info": "Valitse ammattisi ja tarjoamasi palvelut.",
+      "pricing_info": "Valitse palveluihisi sopiva hinnoittelutapa.",
+      "hourly_price_info": "Anna arvioitu tuntihintasi.",
+      "fixed_price_info": "Voit sopia työn kokonaishinnasta asiakkaan kanssa.",
+      "description_info": "Kuvaile lyhyesti yritystäsi ja palveluitasi.",
+      "website_info": "Voit lisätä yrityksesi verkkosivuston.",
+      "locating": "Sijaintia haetaan...",
+      "submit_info": "Tarkista tiedot ennen tilin luomista.",
       "radius_info": "Jos sädettä ei ole määritetty, tarjoat palvelua vain ilmoitetussa osoitteessa."
     },
     "buttons": {
@@ -508,7 +533,13 @@
     "currencyEur": "{amount} €",
     "requestSent": "Tilaus lähetetty onnistuneesti!",
     "requestFailed": "Tilauksen lähettäminen epäonnistui. Yritä uudestaan.",
-    "close": "Sulje"
+    "close": "Sulje",
+
+    "searchTitle": "Etsi palveluntarjoaja",
+    "searchHelp": "Valitse osoite, palvelu, ajankohta ja hakualue.",
+    "dateTimeHelp": "Valitse ajankohta tai merkitse palvelu tarvittavaksi heti.",
+    "collapsePanel": "Pienennä hakupaneeli",
+    "expandPanel": "Laajenna hakupaneeli"
   },
 
   "recipientContent": {
@@ -543,11 +574,11 @@
     "openMap": "Etsi kartalta",
     "professionDetails": "Palvelun lisätiedot",
     "bookingDetailsTitle": "Tilauksen perustiedot",
-    "bookingDetailsHelp": "Anna työn suorituspaikka, ajankohta ja muut tarvittavat tiedot.",
+    "bookingDetailsHelp": "Syötä osoitteesi, haluamasi palveluaika ja muut tarvittavat tiedot.",
     "orderKeyword": "Tilauksen otsikko",
     "orderHeaderHelp": "Otsikko luodaan automaattisesti, mutta voit muokata sitä.",
     "orderKeywordInvalid": "Tilauksen otsikko on pakollinen.",
-    "addressLabel": "Työn suoritusosoite",
+    "addressLabel": "Oma osoite",
     "addressRequired": "Osoite on pakollinen.",
     "addressAutocompleteError": "Valitse osoite ehdotuslistalta.",
     "radiusLabel": "Palveluntarjoajien hakusäde",
@@ -697,7 +728,8 @@
     "agreement": "Sopimus",
     "defaultNoteTitle": "Muistiinpano",
     "saveFailed": "Tallennus epäonnistui.",
-    "datePickerTitle": "Valitse päivämäärä"
+    "datePickerTitle": "Valitse päivämäärä",
+    "editWorkDuration": "Muuta työn kestoa"
   },
 
   "chatWidget": {

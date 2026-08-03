@@ -200,7 +200,13 @@
     "your_location": "Sinu asukoht",
     "client_marker_title": "Vajatakse",
     "no_clients_found": "Valitud ameti ja kauguse kohta kliente ei leitud.",
-    "try_adjust_filters": "Proovi muuta ametit või suurendada otsingukaugust."
+    "try_adjust_filters": "Proovi muuta ametit või suurendada otsingukaugust.",
+    "found_clients_count": "Leitud {count} klienti",
+    "searchTitle": "Leia kliente",
+    "searchHelp": "Vali aadress, amet ja otsingupiirkond, et näha kliente kaardil.",
+    "collapsePanel": "Minimeeri paneel",
+    "close": "Sulge",
+    "search": "Otsi"
   },
 
   "clientOffer": {
@@ -304,18 +310,35 @@
       "provider_create_failed": "Tekkis viga. Proovi uuesti!"
     },
     "fields": {
-      "company_name": "Sisesta ettevõtte nimi või oma nimi *",
+      "company_name": "Sisesta ettevõtte nimi või oma nimi",
       "business_id": "Sisesta ettevõtte registrikood",
       "address": "Sisesta aadress",
       "service_radius": "Sisesta teenindusraadius (km)",
-      "profession": "Vali amet *",
+      "profession": "Vali amet",
       "hourly_price": "Tunnihind",
       "hourly_price_input": "Sisesta tunnihind",
       "fixed_price": "Fikseeritud hind",
       "description": "Kirjuta midagi endast ja oma tegevusest...",
       "website": "Sisesta ettevõtte veebilehe aadress (kui on olemas)"
     },
+    "sections": {
+      "company": "Ettevõtte andmed",
+      "location": "Asukoht ja teeninduspiirkond",
+      "profession": "Amet ja teenused",
+      "pricing": "Hinnastamine",
+      "description": "Teenuse kirjeldus"
+    },
     "help": {
+      "account_intro": "Loo teenusepakkuja profiil ja alusta tellimuste vastuvõtmist.",
+      "company_info": "Sisesta ettevõtte põhiandmed.",
+      "profession_info": "Vali oma amet ja pakutavad teenused.",
+      "pricing_info": "Vali oma teenustele sobiv hinnastamise viis.",
+      "hourly_price_info": "Sisesta oma hinnanguline tunnitasu.",
+      "fixed_price_info": "Võid kliendiga kokku leppida töö fikseeritud hinna.",
+      "description_info": "Kirjelda lühidalt oma ettevõtet ja teenuseid.",
+      "website_info": "Võid lisada ettevõtte veebilehe.",
+      "locating": "Asukoha tuvastamine...",
+      "submit_info": "Kontrolli andmed enne konto loomist.",
       "radius_info": "Kui raadiust pole määratud, pakud teenust ainult määratud aadressil."
     },
     "buttons": {
@@ -497,7 +520,12 @@
     "currencyEur": "{amount} €",
     "requestSent": "Tellimus saadeti edukalt!",
     "requestFailed": "Tellimuse saatmine ebaõnnestus. Proovi uuesti.",
-    "close": "Sulge"
+    "close": "Sulge",
+    "searchTitle": "Leia teenusepakkuja",
+    "searchHelp": "Vali aadress, teenus, soovitud aeg ja otsingupiirkond.",
+    "dateTimeHelp": "Vali soovitud aeg või märgi, et vajad teenust kohe.",
+    "collapsePanel": "Minimeeri otsingupaneel",
+    "expandPanel": "Laienda otsingupaneel"
   },
 
   "recipientContent": {
@@ -532,11 +560,11 @@
     "openMap": "Otsi kaardilt",
     "professionDetails": "Teenuse lisainfo",
     "bookingDetailsTitle": "Tellimuse põhiandmed",
-    "bookingDetailsHelp": "Sisesta töö tegemise koht, soovitud aeg ja muud vajalikud andmed.",
+    "bookingDetailsHelp": "Sisesta oma aadress, teenuse soovitud aeg ja muud vajalikud andmed.",
     "orderKeyword": "Tellimuse pealkiri",
     "orderHeaderHelp": "Pealkiri luuakse automaatselt, kuid saad seda muuta.",
     "orderKeywordInvalid": "Tellimuse pealkiri on kohustuslik.",
-    "addressLabel": "Töö tegemise aadress",
+    "addressLabel": "Oma aadress",
     "addressRequired": "Aadress on kohustuslik.",
     "addressAutocompleteError": "Vali aadress ettepanekute loendist.",
     "radiusLabel": "Teenusepakkujate otsinguraadius",
@@ -686,7 +714,8 @@
     "agreement": "Leping",
     "defaultNoteTitle": "Märkus",
     "saveFailed": "Salvestamine ebaõnnestus.",
-    "datePickerTitle": "Vali kuupäev"
+    "datePickerTitle": "Vali kuupäev",
+    "editWorkDuration": "Muuda töö kestust"
   },
 
   "chatWidget": {

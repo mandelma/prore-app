@@ -200,7 +200,13 @@
     "your_location": "Din plats",
     "client_marker_title": "Behövs",
     "no_clients_found": "Inga kunder hittades för det valda yrket och avståndet.",
-    "try_adjust_filters": "Prova att ändra yrke eller öka sökavståndet."
+    "try_adjust_filters": "Prova att ändra yrke eller öka sökavståndet.",
+    "found_clients_count": "Hittade {count} kunder",
+    "searchTitle": "Hitta kunder",
+    "searchHelp": "Välj adress, yrke och sökområde för att se kunder på kartan.",
+    "collapsePanel": "Minimera panelen",
+    "close": "Stäng",
+    "search": "Sök"
   },
 
   "clientOffer": {
@@ -303,18 +309,35 @@
       "provider_create_failed": "Ett fel uppstod. Försök igen!"
     },
     "fields": {
-      "company_name": "Ange företagsnamn eller ditt namn *",
+      "company_name": "Ange företagsnamn eller ditt namn",
       "business_id": "Ange FO-nummer",
       "address": "Ange adress",
       "service_radius": "Ange verksamhetsområde (km)",
-      "profession": "Välj yrke *",
+      "profession": "Välj yrke",
       "hourly_price": "Timpris",
       "hourly_price_input": "Ange timpris",
       "fixed_price": "Fast pris",
       "description": "Berätta något om dig själv och din verksamhet...",
       "website": "Ange företagets webbplatsadress (om sådan finns)"
     },
+    "sections": {
+      "company": "Företagsuppgifter",
+      "location": "Plats och serviceområde",
+      "profession": "Yrke och tjänster",
+      "pricing": "Prissättning",
+      "description": "Beskrivning av tjänsten"
+    },
     "help": {
+      "account_intro": "Skapa din tjänsteleverantörsprofil och börja ta emot beställningar.",
+      "company_info": "Ange företagets grunduppgifter.",
+      "profession_info": "Välj ditt yrke och de tjänster du erbjuder.",
+      "pricing_info": "Välj den prismodell som passar dina tjänster.",
+      "hourly_price_info": "Ange ditt uppskattade timpris.",
+      "fixed_price_info": "Du kan komma överens om ett fast pris med kunden.",
+      "description_info": "Beskriv kort ditt företag och dina tjänster.",
+      "website_info": "Du kan lägga till företagets webbplats.",
+      "locating": "Hämtar platsinformation...",
+      "submit_info": "Kontrollera uppgifterna innan du skapar kontot.",
       "radius_info": "Om ingen radie anges erbjuds tjänsten endast på den angivna adressen."
     },
     "buttons": {
@@ -496,7 +519,12 @@
     "currencyEur": "{amount} €",
     "requestSent": "Beställningen skickades!",
     "requestFailed": "Det gick inte att skicka beställningen. Försök igen.",
-    "close": "Stäng"
+    "close": "Stäng",
+    "searchTitle": "Hitta en tjänsteleverantör",
+    "searchHelp": "Välj adress, tjänst, önskad tid och sökområde.",
+    "dateTimeHelp": "Välj önskad tid eller ange att tjänsten behövs omedelbart.",
+    "collapsePanel": "Minimera sökpanelen",
+    "expandPanel": "Expandera sökpanelen"
   },
 
   "recipientContent": {
@@ -531,11 +559,11 @@
     "openMap": "Sök på kartan",
     "professionDetails": "Tjänstens tilläggsuppgifter",
     "bookingDetailsTitle": "Beställningens grunduppgifter",
-    "bookingDetailsHelp": "Ange arbetsplats, önskat datum och övriga nödvändiga uppgifter.",
+    "bookingDetailsHelp": "Ange din adress, önskad tid för tjänsten och övriga nödvändiga uppgifter.",
     "orderKeyword": "Beställningens rubrik",
     "orderHeaderHelp": "Rubriken skapas automatiskt, men du kan redigera den.",
     "orderKeywordInvalid": "Beställningens rubrik är obligatorisk.",
-    "addressLabel": "Arbetsadress",
+    "addressLabel": "Din adress",
     "addressRequired": "Adressen är obligatorisk.",
     "addressAutocompleteError": "Välj en adress från förslagslistan.",
     "radiusLabel": "Sökradie för tjänsteleverantörer",
@@ -685,7 +713,8 @@
     "agreement": "Avtal",
     "defaultNoteTitle": "Anteckning",
     "saveFailed": "Det gick inte att spara.",
-    "datePickerTitle": "Välj ett datum"
+    "datePickerTitle": "Välj ett datum",
+    "editWorkDuration": "Muuda töö kestust"
   },
 
   "chatWidget": {

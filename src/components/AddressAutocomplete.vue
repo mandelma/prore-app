@@ -1,19 +1,11 @@
 <template>
-  <!-- <MDBInput
-    size="md"
-    id="el"
-    placeholder=""
-    :label="label"
-    v-model="localValue"
-    @input="onUserInput"
-  /> -->
   <div div :class="{hideInput: !localValue && isDisplayAddress}" style="width: 100%;" class="field-wrapper ">
     
     <div  class="input-group">
       <div class="booking-input-wrapper">
         <MDBInput
           size="md"
-          id="el"
+          :id="inputId"
 
           v-model="localValue"
           :label="label"
@@ -23,7 +15,7 @@
           aria-describedby="button-addon2"
           @input="onUserInput"
         />
-        <span class="booking-required-corner">*</span>
+        <span v-if="route.name !== 'providerAdmin' && route.name !== 'profile'" class="booking-required-corner">*</span>
       </div>
       
       <MDBBtn type="button" style="border:1px solid #ddd">
@@ -31,9 +23,6 @@
           <i :class="localValue ? 'fas fa-times' : 'fas fa-search-location'"></i>
         </MDBIcon>
       </MDBBtn>
-      
-    
-    
     </div>
     
     <small
@@ -62,7 +51,10 @@ import {
   onMounted
 } from "vue";
 import { loadGoogleMaps } from "./controllers/loadGoogleMap";
+import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
+
+import '@/styles/form.css';
 
 const props = defineProps({
   modelValue: {
@@ -76,6 +68,10 @@ const props = defineProps({
   error: {
     type: String,
     default: ""
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -87,6 +83,8 @@ const emit = defineEmits([
   "place"
 ]);
 
+const route = useRoute();
+const router = useRouter();
 const isDisplayAddress = ref(false);
 const localValue = ref(props.modelValue);
 const mapToastError = ref("");
@@ -95,11 +93,25 @@ const mapError = ref(false);
 const latLocal = ref(null);
 const lngLocal = ref(null);
 
+const inputId = `address-input-${Math.random()
+  .toString(36)
+  .slice(2, 9)}`;
+
 /*
  * Tõene siis, kui väärtus muutub Google'i valiku tõttu,
  * mitte kasutaja käsitsi kirjutamise tõttu.
  */
 const selectingGooglePlace = ref(false);
+
+watch(
+  () => props.active,
+  async active => {
+    if (!active) return;
+
+    await nextTick();
+    await initMap();
+  }
+);
 
 watch(
   () => props.modelValue,
@@ -220,7 +232,7 @@ const initMap = async () => {
       west: center.lng - 0.1
     };
 
-    const input = document.getElementById("el");
+    const input = document.getElementById(inputId);
 
     if (!input) {
       console.error("Address input was not found.");
@@ -338,4 +350,6 @@ const initMap = async () => {
 
   pointer-events: none;
 }
+
+
 </style>

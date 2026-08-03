@@ -50,10 +50,13 @@
     </MDBModalFooter>
   </MDBModal>
 
+  <!-- Create edit confirmer offer on pro side ----- -->
+
 
   <!-- Edit event   :modelValue="true"-->
   <MDBModal
-    v-model="showEdit" center
+    v-model="showEdit" 
+    center
     centered
     tabindex="-1"
 
@@ -75,7 +78,7 @@
         </div>
         
         
-        <div v-else-if="event_state === 'time'">
+        <div v-else-if="event_state === 'time' || event_state === 'pro'">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           
             <div><strong>{{ t('calendar.start') }}</strong> {{ formatLocalDate(editForm.start) }}</div>
@@ -437,7 +440,7 @@
       scrollable
   >
     <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle><h5 style="color: #097a5e;">{{ t('calendar.agreementAsProvider') }}</h5></MDBModalTitle>
+      <MDBModalTitle><h5 style="color: #ef8627;">{{ t('calendar.agreementAsProvider') }}</h5></MDBModalTitle>
     </MDBModalHeader>
     <MDBModalBody class="event-modal-body">
       <h2 class="event-title">
@@ -496,9 +499,10 @@
         <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
       </div>
     </MDBModalBody>
-    <MDBModalFooter>
+    <MDBModalFooter class="footer-buttons">
       <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
       <MDBBtn v-if="(event_state === 'vacation' || event_state === 'time') && !selectedEvent?.allDay"  color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
+      <!-- <MDBBtn outline="warning" @click="showEventEdit = true">{{ t('calendar.editWorkDuration') }}</MDBBtn> -->
       <MDBBtn color="secondary" outline @click="showProEventModal=false">{{ t('calendar.cancel') }}</MDBBtn>
       <!-- <MDBBtn color="danger" @click="deleteEvent">Delete</MDBBtn> -->
     </MDBModalFooter>

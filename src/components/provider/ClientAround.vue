@@ -3,113 +3,207 @@
   
 <div id="map-container">
   <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 17px;">
-    <div v-if="isMainPanel" class="pro-map-panel">
-      
-      <div style="display: flex; justify-content: space-between;">
-        <p style="cursor: pointer; color: burlywood;" @click="refreshMapState">{{ t('clientAround.refresh') }}</p>
-        <div style="display: flex; justify-content: right;">
-          <MDBIcon size="lg" style="padding: 10px;" @click="isMainPanel = false">
-            <i class="fas fa-expand-arrows-alt"></i>
-          </MDBIcon>
-          <div>
-            <MDBBtnClose
-                white
-                style=" padding: 10px;"
-                size="sm"
-                @click="$router.go(-1)"
-            />
+    <div
+    v-if="isMainPanel"
+        class="pro-map-panel"
+      >
+        <!-- Päis -->
+        <div class="pro-map-panel__header">
+          <div class="pro-map-panel__heading">
+            <div class="pro-map-panel__heading-icon">
+              <i class="fas fa-user-friends" />
+            </div>
+
+            <div>
+              <h2 class="pro-map-panel__title">
+                {{ t("clientAround.searchTitle") }}
+              </h2>
+
+              <p class="pro-map-panel__subtitle">
+                {{ t("clientAround.searchHelp") }}
+              </p>
+            </div>
           </div>
 
+          <div class="pro-map-panel__actions">
+            <button
+              type="button"
+              class="pro-map-panel__icon-button"
+              :title="t('clientAround.refresh')"
+              @click="refreshMapState"
+            >
+              <i class="fa-solid fa-rotate-right" />
+            </button>
+
+            <button
+              type="button"
+              class="pro-map-panel__icon-button"
+              :title="t('clientAround.collapsePanel')"
+              @click="isMainPanel = false"
+            >
+              <i class="fa-solid fa-expand" />
+            </button>
+
+            <button
+              type="button"
+              class="pro-map-panel__icon-button pro-map-panel__icon-button--close"
+              :title="t('clientAround.close')"
+              @click="$router.go(-1)"
+            >
+              <i class="fa-solid fa-xmark" />
+            </button>
+          </div>
         </div>
-      </div>
-      
-      <div  style="width: 100%;" class="field-wrapper ">
-        <div  class="input-group">
-          <MDBInput
-              size="sm"
-              v-model="address"
-              :label="t('clientAround.address')"
-              id="pro-input"
-              placeholder=""
-              wrapperClass="form-outline flex-grow-3"
-              :inputClass="'ps-0'"
-              aria-describedby="button-addon2"
+
+        <!-- Aadress -->
+        <div class="pro-map-panel__field">
+          <label class="pro-map-panel__label">
+            {{ t("clientAround.address") }}
+
+            <span class="pro-map-panel__required">*</span>
+          </label>
+
+          <AddressAutocomplete
+            v-model="address"
+            v-model:valid="addressValid"
+            :label="t('clientAround.address')"
+            :error="addressError"
+            @typing="onAddressInput"
+            @place="onPlaceSelected"
           />
-          <MDBBtn v-if="address" type="button" style="border:1px solid #ddd">
-            <MDBIcon size="1x" @click="clearAddress()">
-              <i :class="'fas fa-times'"></i>
-            </MDBIcon>
-          </MDBBtn>
         </div>
-      </div>
 
-      <div class="proselect-wrapper">
-        <div>
-          <Select
-              style="width: 100%;"
-              v-model="profession"
-              @change="changedProfession"
-              :options="professions"
-              filter optionLabel="label"
-              optionGroupLabel="label"
-              optionGroupChildren="items"
-              :placeholder="t('clientAround.select_profession')"
-              showClear
-              v-bind:style="isNoPro ? 'color: pink; border: 1px solid red;' : 'color: white;'"
-              class="w-full md:w-[30rem]"
+        <!-- Amet -->
+        <div class="pro-map-panel__field">
+          <label class="pro-map-panel__label">
+            {{ t("clientAround.select_profession") }}
 
+            <span class="pro-map-panel__required">*</span>
+          </label>
+
+          <SelectProfession
+            v-model="profession"
+            :label="t('clientAround.select_profession')"
+            :errors="{}"
+            @change="changedProfession"
+          />
+        </div>
+
+        <!-- Kaugus -->
+        <div
+          v-show="hasProfession"
+          class="pro-map-panel__field"
+        >
+          <label class="pro-map-panel__label">
+            {{ t("clientAround.search_distance") }}
+
+            <span class="pro-map-panel__required">*</span>
+          </label>
+
+          <MDBSelect
+            id="client-dist"
+            v-model:selected="selectedRange"
+            :options="rangeOptions"
+            :label="t('clientAround.search_distance')"
+            size="md"
+            class="pro-map-panel__range"
+          />
+        </div>
+
+        <!-- Tulemus puudub -->
+        <div
+          v-if="
+            hasProfession &&
+            selectedRange !== null &&
+            selectedClientsCount === 0
+          "
+          class="pro-map-result pro-map-result--empty"
+        >
+          <div class="pro-map-result__icon">
+            <i class="fa-solid fa-user-slash" />
+          </div>
+
+          <div>
+            <p class="pro-map-result__title">
+              {{ t("clientAround.no_clients_found") }}
+            </p>
+
+            <p class="pro-map-result__text">
+              {{ t("clientAround.try_adjust_filters") }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Kliendid leitud -->
+        <div
+          v-else-if="
+            hasProfession &&
+            selectedRange !== null &&
+            selectedClientsCount > 0
+          "
+          class="pro-map-result pro-map-result--success"
+        >
+          <div class="pro-map-result__icon">
+            <i class="fa-solid fa-users" />
+          </div>
+
+          <div>
+            <p>
+              {{ t("clientAround.found_clients_count", {
+                count: selectedClientsCount
+              }) }}
+            </p>
+            <!-- <p class="pro-map-result__title">
+              {{ t("clientAround.found_clients") }}
+            </p>
+
+            <p class="pro-map-result__count">
+              {{ selectedClientsCount }}
+            </p> -->
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pro-map-panel__footer pro-map-panel__footer--single">
+          <button
+            type="button"
+            class="pro-map-panel__reset"
+            @click="refreshMapState"
           >
-
-            <template #value="slotProps">
-              <div v-if="slotProps.value" >
-              
-                <div>{{ slotProps.value.label }}</div>
-              </div>
-              <span v-else>
-                  {{ slotProps.placeholder }}
-                </span>
-            </template>
-            <template #optiongroup="slotProps" >
-              <div  class="flex items-center gap-2">
-                <i :class= 'slotProps.option.icon' style='font-size:17px;color:cadetblue;'></i>&nbsp;&nbsp;&nbsp;
-                <span>{{ slotProps.option.label }}</span>
-              </div>
-            </template>
-          </Select>
+            <i class="fa-solid fa-arrow-rotate-left" />
+            {{ t("clientAround.refresh") }}
+          </button>
         </div>
-      </div>
-      
-      <div v-show="hasProfession" style="margin-top: 13px;">
-        <MDBSelect size="md" v-model:selected="selectedRange" :options = rangeOptions :label="t('clientAround.search_distance')" id="client-dist"/>
-      </div>
-      
-      <!-- <div v-if="isClients" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
-        <p class=" semibold"> {{ t('clientAround.found_clients') }} - {{ selectedClientsCount }}</p>
-      </div>
-      <div v-else-if="!isClients && selectedRange" style="display: flex; justify-content: center; margin: 13px 0 0 0;">
-        <p>No clients</p>
-      </div> -->
 
-      <div
-        v-if="hasProfession && selectedRange !== null && selectedClientsCount === 0"
-        class="empty-clients"
-      >
-        <p class="empty-title">
-          {{ t('clientAround.no_clients_found') }}
-        </p>
-        <p class="empty-text">
-          {{ t('clientAround.try_adjust_filters') }}
-        </p>
+        <!-- <div class="pro-map-panel__footer">
+          <button
+            type="button"
+            class="pro-map-panel__reset"
+            @click="refreshMapState"
+          >
+            <i class="fa-solid fa-arrow-rotate-left" />
+
+            {{ t("clientAround.refresh") }}
+          </button>
+
+          <MDBBtn
+            color="primary"
+            class="pro-map-panel__search"
+            :disabled="
+              !addressValid ||
+              !hasProfession ||
+              selectedRange === null
+            "
+            @click="showClientsOnMap"
+          >
+            <i class="fa-solid fa-magnifying-glass-location" />
+
+            {{ t("clientAround.search") }}
+          </MDBBtn>
+        </div> -->
       </div>
-      <div 
-        v-else-if="hasProfession && selectedRange !== null && selectedClientsCount > 0"
-        class="has-clients"
-      >
-        <p class="client-info"> {{ t('clientAround.found_clients') }} - {{ selectedClientsCount }}</p>
-      </div>
-      
-        
-    </div>
+
+
     
     <MDBBtn
       v-else
@@ -121,6 +215,9 @@
     </MDBBtn>
     
   </div>
+
+
+
 
   <div style="padding: 13px 0 20px 0;">
     <MDBToast
@@ -176,6 +273,8 @@ import spinnerWorld from '@/assets/map.gif'
 import ToastHandler from '../helpers/ToastHandler.vue';
 import recipientService from '../../service/recipients';
 import { useMapStore } from '@/stores/mapStore';
+import AddressAutocomplete from '@/components/AddressAutocomplete.vue';
+import SelectProfession from '@/components/helpers/SelectProfession.vue';
 
 defineOptions({
   name: "client-around"
@@ -200,6 +299,12 @@ const professions = proList;
 const profession = ref(null);
 const currentProfession = ref("");
 const isMapLoaded = ref(false);
+
+const panelError = ref("");
+
+const addressValid = ref(false);
+const selectedPlace = ref(null)
+const addressError = ref("");
 
 const isClients = ref(false);
 const selectedClientsCount = ref(0);
@@ -243,18 +348,18 @@ function setRange(val) {
 }
 
 watch(
-  () => profession.value?.label,
+  () => profession.value,
   () => {
-    setRange(0);          // reset to 0 km
+    setRange(selectedRange.value);
   }
 );
 
 const hasProfession = computed(() => {
   if (!profession.value) return false;
-
+  console.log("Profession value:", profession.value);
   // PrimeVue object case
   if (typeof profession.value === "object")
-    return !!profession.value.label;
+    return !!profession.value;
 
   // string case
   if (typeof profession.value === "string")
@@ -281,30 +386,46 @@ watch(
 
 watch([profession, selectedRange, isMapLoaded], ([pro, dist, ready]) => {
   if (!ready) return;
-  if (!pro?.label || dist == null) return;
+  if (!pro || dist == null) return;
   
   const km = typeof dist === "object" ? dist.value : dist;
-  showClientLocationOnTheMap(pro.label, km);
+  showClientLocationOnTheMap(pro, km);
 });
 
 watch(hasProfession, (ok) => {
   if (!ok) {
     selectedRange.value = null;
     profession.value = null;
-    showClientLocationOnTheMap(profession.value, selectedRange.value);
+    //showClientLocationOnTheMap(profession.value, selectedRange.value);
+    selectedRange.value = 1;
     updateMapDistance(
-    map,
-    { lat: myLat.value, lng: myLng.value },
-    1
-  );
+      map,
+      { lat: myLat.value, lng: myLng.value },
+      selectedRange.value
+    );
   }
 });
 
 watch(
-  () => profession.value?.label,
+  () => profession.value,
   (newLabel, oldLabel) => {
     if (newLabel !== oldLabel) {
-      selectedRange.value = 0;   // default distance
+      //selectedRange.value = 0;
+      if (selectedRange.value > 0) {
+        showClientLocationOnTheMap(profession.value, selectedRange.value);
+      }
+    }
+  }
+);
+
+watch(
+  () => selectedRange.value,
+  (newRange, oldRange) => {
+    if (newRange !== oldRange) {
+      console.log("Selected range changed to:", newRange);
+      if (hasProfession.value && newRange > 0) {
+        showClientLocationOnTheMap(profession.value, newRange);
+      }
     }
   }
 );
@@ -318,6 +439,65 @@ watch(selectedRange, (range) => {
     range
   );
 });
+
+const validateAddress = () => {
+
+  if (!address.value) return;
+
+  if (myLat.value === null || myLng.value === null) {
+    console.log("Address is not valid, lat/lng missing");
+    //addressError.value = "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+    return "Valitse osoite listasta (ei pelkkää kirjoitusta)";
+  }
+
+  return;
+};
+
+const onAddressInput = (value) => {
+  address.value = value;
+
+  selectedPlace.value = null;
+  myLat.value = null;
+  myLng.value = null;
+
+  console.log(
+    "Address input changed:",
+    value,
+    "lat:",
+    myLat.value,
+    "lng:",
+    myLng.value
+  );
+
+  if (value.trim()) {
+    validateAddress();
+    addressError.value =
+      t("recipientForm.addressAutocompleteError");
+    
+  } else {
+    addressError.value = "";
+  }
+};
+
+const onPlaceSelected = (place) => {
+  selectedPlace.value = place;
+  console.log("Place selected:", place);
+  address.value = place.address;
+  myLat.value = place.lat;
+  myLng.value = place.lng;
+
+  profession.value = null;
+  selectedRange.value = 1;
+
+  /* updateMapDistance(
+    map,
+    { lat: myLat.value, lng: myLng.value },
+    selectedRange.value
+  ); */
+
+  addressError.value = "";
+
+}
 
 onMounted (async () => {
   try {
@@ -703,43 +883,6 @@ const otherUserLocations = (recipients, profession, dist) => {
   console.log("Users count: " + recipients.length);
   console.log("Current distance " + dist)
 
-  //let count = 0;
-  /* if (recipients.filter(client => client.status === 'active').length > 0) {
-    let recipientCount = [];
-    for (let pos = 0; pos < recipients.filter(client => client.status === 'active').length; pos++) {
-      console.log("Client professions - ", recipients[pos].professional)
-      console.log("ZZZZZZZZZ " + profession + " -- " + recipients[pos].header)
-
-      if (recipients[pos].professional[0] === profession) {
-        console.log("YES ")
-      }
-      recipients[pos].professional.forEach(prof => {
-        if (prof === profession) {
-          console.log("Distance btw " + distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude));
-          console.log("---------")
-          if (!recipientCount.includes(recipients[pos].user))
-            recipientCount.push(recipients[pos].user);
-
-          if (distanceBtw(myLat.value, myLng.value, recipients[pos].latitude, recipients[pos].longitude) <= dist) {
-            count ++;
-            console.log("XXXXXX")
-            addClientMarker(recipients[pos], 'green', 'green');
-            
-          }
-        }
-      })
-
-    }
-
-    if (count > 0) {
-      isClients.value = true;
-      console.log("There are some recipients")
-    } else {
-      isClients.value = false;
-      console.log("There are not any recipient")
-    }
-    selectedClientsCount.value = count;
-  } */
 
   const activeRecipients = recipients.filter(
     recipient => recipient.status === "active"
@@ -779,8 +922,8 @@ const otherUserLocations = (recipients, profession, dist) => {
 }
 
 const changedProfession = () => {
-      console.log("Changed in pro " + profession.value?.label);
-      currentProfession.value = profession.value?.label;
+      console.log("Changed in pro " + profession.value);
+      currentProfession.value = profession.value;
 }
 
 const refreshMapState = async() => {
@@ -869,78 +1012,516 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
 }
 
 .pro-map-panel {
-  /* background-color: #1B2330; */
-  background-color: #35322e;
-  border-radius: 7px;
-  padding: 10px;
-  margin: 60px 27px 0 0;
-  width: 30%;
-  float: right;
+  position: absolute;
+  top: 48px;
+  right: 24px;
+  z-index: 1000;
+
+  width: min(410px, calc(100vw - 32px));
+  max-height: calc(100dvh - 130px);
+  padding: 18px;
+  box-sizing: border-box;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  border: 1px solid rgba(139, 197, 202, 0.24);
+  border-radius: 18px;
+
+  color: #eef4f6;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(31, 44, 59, 0.96),
+      rgba(20, 31, 44, 0.96)
+    );
+
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(139, 197, 202, 0.32)
+    transparent;
 }
 
-.proselect-wrapper {
-  margin-bottom: 11px;
+.pro-map-panel::-webkit-scrollbar {
+  width: 6px;
 }
 
-.open-panel-btn {
-  position: absolute; 
-  opacity: 0.8; 
-  top: 60px; 
-  left: 80%; 
-  z-index: 2;
+.pro-map-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(139, 197, 202, 0.3);
 }
 
-/* Info about find clients */
-.empty-clients {
-  margin-top: 13px;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #f3f4f6;
-  text-align: left;
+/* Päis */
+
+.pro-map-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding-bottom: 15px;
+  margin-bottom: 17px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.empty-title {
-  /* margin: 0 0 4px; */
+.pro-map-panel__heading {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 11px;
+}
+
+.pro-map-panel__heading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  border: 1px solid rgba(95, 158, 160, 0.35);
+  border-radius: 11px;
+
+  color: #92cbd0;
+  background: rgba(95, 158, 160, 0.14);
+
+  font-size: 16px;
+}
+
+.pro-map-panel__title {
+  margin: 1px 0 0;
+
+  color: #f4f7f8;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.pro-map-panel__subtitle {
+  margin: 4px 0 0;
+
+  color: rgba(219, 229, 234, 0.58);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.pro-map-panel__actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.pro-map-panel__icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+
+  color: rgba(232, 239, 242, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pro-map-panel__icon-button:hover {
+  color: #ffffff;
+  border-color: rgba(139, 197, 202, 0.42);
+  background: rgba(95, 158, 160, 0.16);
+  transform: translateY(-1px);
+}
+
+.pro-map-panel__icon-button--close:hover {
+  color: #ffb1bb;
+  border-color: rgba(255, 116, 132, 0.38);
+  background: rgba(255, 92, 112, 0.12);
+}
+
+/* Väljad */
+
+.pro-map-panel__field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.pro-map-panel__label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #dfe8eb;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.has-clients {
-  margin-top: 13px;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #f3f4f6;
-  text-align: left;
-}
-.client-info {
-  /* margin: 0 0 4px; */
-  font-weight: 600;
+.pro-map-panel__required {
+  margin-left: 2px;
+  color: #ff8e9d;
 }
 
-.empty-text {
+/* AddressAutocomplete */
+
+.pro-map-panel :deep(.field-wrapper) {
+  width: 100%;
   margin: 0;
-  font-size: 0.9rem;
-  color: #d1d5db;
 }
 
-@media only screen and (max-width: 1000px) {
+.pro-map-panel :deep(.input-group) {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.pro-map-panel :deep(.booking-input-wrapper) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pro-map-panel :deep(.form-outline) {
+  width: 100%;
+}
+
+.pro-map-panel :deep(.form-control) {
+  min-height: 43px;
+
+  color: #edf3f5;
+  border-color: #39495d;
+  background: #182332;
+}
+
+.pro-map-panel :deep(.form-control:focus) {
+  border-color: #72aeb2;
+  box-shadow: 0 0 0 3px rgba(95, 158, 160, 0.14);
+}
+
+/* AddressAutocomplete nupp */
+
+.pro-map-panel :deep(.input-group > button) {
+  width: 50px;
+  min-width: 50px;
+  padding: 0 !important;
+
+  border: 1px solid #39495d !important;
+  border-left: 0 !important;
+  border-radius: 0 9px 9px 0 !important;
+
+  color: #91c9cd !important;
+  background: rgba(95, 158, 160, 0.09) !important;
+
+  box-shadow: none !important;
+}
+
+/* SelectProfession */
+
+.pro-map-panel :deep(.p-select) {
+  width: 100%;
+  min-height: 43px;
+
+  color: #edf3f5;
+  border: 1px solid #39495d;
+  border-radius: 9px;
+  background: #182332;
+
+  box-shadow: none;
+}
+
+.pro-map-panel :deep(.p-select:hover) {
+  border-color: rgba(139, 197, 202, 0.62);
+}
+
+.pro-map-panel :deep(.p-select.p-focus),
+.pro-map-panel :deep(.p-select.p-inputwrapper-focus) {
+  border-color: #72aeb2;
+  box-shadow: 0 0 0 3px rgba(95, 158, 160, 0.14);
+}
+
+.pro-map-panel :deep(.p-select-label) {
+  display: flex;
+  align-items: center;
+
+  min-height: 41px;
+  padding: 9px 12px;
+
+  color: #edf3f5;
+  font-size: 13px;
+}
+
+.pro-map-panel :deep(.p-select-label.p-placeholder) {
+  color: rgba(218, 227, 232, 0.42);
+}
+
+.pro-map-panel :deep(.p-select-dropdown) {
+  color: #86bdc1;
+}
+
+/* MDB kauguse select */
+
+.pro-map-panel__range {
+  width: 100%;
+}
+
+.pro-map-panel :deep(.select-wrapper) {
+  width: 100%;
+}
+
+.pro-map-panel :deep(.select-input) {
+  min-height: 43px;
+
+  color: #edf3f5;
+  border-color: #39495d;
+  background: #182332;
+}
+
+/* Tulemus */
+
+.pro-map-result {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 12px 13px;
+  margin: 3px 0 15px;
+
+  border-radius: 11px;
+}
+
+.pro-map-result__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 37px;
+  height: 37px;
+  flex: 0 0 37px;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+}
+
+.pro-map-result__title {
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.pro-map-result__text {
+  margin: 3px 0 0;
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.pro-map-result__count {
+  margin: 2px 0 0;
+
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Tulemust pole */
+
+.pro-map-result--empty {
+  border: 1px solid rgba(244, 174, 92, 0.24);
+  color: #eec28d;
+  background: rgba(226, 146, 53, 0.09);
+}
+
+.pro-map-result--empty .pro-map-result__icon {
+  color: #efbd82;
+  background: rgba(226, 146, 53, 0.14);
+}
+
+.pro-map-result--empty .pro-map-result__text {
+  color: rgba(238, 194, 141, 0.72);
+}
+
+/* Kliendid leitud */
+
+.pro-map-result--success {
+  border: 1px solid rgba(76, 175, 125, 0.25);
+  color: #a6dfbd;
+  background: rgba(63, 151, 105, 0.1);
+}
+
+.pro-map-result--success .pro-map-result__icon {
+  color: #a6dfbd;
+  background: rgba(63, 151, 105, 0.16);
+}
+
+.pro-map-result--success .pro-map-result__count {
+  color: #c0edcf;
+}
+
+/* Footer */
+
+/* .pro-map-panel__footer {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr);
+  align-items: center;
+  gap: 11px;
+
+  padding-top: 15px;
+  margin-top: 4px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+} */
+
+.pro-map-panel__footer--single {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pro-map-panel__reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 0 13px;
+
+  border: 1px solid rgba(139, 197, 202, 0.2);
+  border-radius: 9px;
+
+  color: rgba(219, 229, 234, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.pro-map-panel__reset:hover {
+  color: #ffffff;
+  background: rgba(95, 158, 160, 0.13);
+}
+
+.pro-map-panel__search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 42px;
+  gap: 8px;
+
+  border-radius: 10px;
+
+  font-weight: 650;
+
+  background:
+    linear-gradient(
+      135deg,
+      #278eae,
+      #3b82f6
+    ) !important;
+
+  box-shadow:
+    0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.pro-map-panel__search:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* Mobiil */
+
+@media (max-width: 768px) {
   .pro-map-panel {
-    background-color: #1B2330;
-    padding: 10px;
-    margin: 60px auto;
-    width: 80%;
-    float: none;
+    position: fixed;
+    top: auto;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 10px;
+
+    width: auto;
+    max-height: min(
+      78dvh,
+      calc(100dvh - 90px)
+    );
+
+    padding: 15px;
+    border-radius: 17px;
   }
-  .open-panel-btn {
-  position: absolute; 
-  opacity: 0.8; 
-  top: 60px; 
-  left: 65%; 
-  z-index: 2;
+
+  .pro-map-panel__subtitle {
+    display: none;
+  }
+
+  .pro-map-panel__footer {
+    position: sticky;
+    bottom: -15px;
+    z-index: 3;
+
+    margin-right: -15px;
+    margin-bottom: -15px;
+    margin-left: -15px;
+    padding: 13px 15px 15px;
+
+    border-radius: 0 0 17px 17px;
+
+    background: rgba(22, 33, 46, 0.97);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
 }
 
+@media (max-width: 440px) {
+  .pro-map-panel__heading-icon {
+    display: none;
+  }
+
+  .pro-map-panel__title {
+    font-size: 16px;
+  }
+
+  .pro-map-panel__actions {
+    gap: 4px;
+  }
+
+  .pro-map-panel__icon-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pro-map-panel__footer {
+    grid-template-columns: 1fr;
+  }
+
+  .pro-map-panel__reset {
+    order: 2;
+  }
 }
+
+
+
+
 
 .hideSelect {
   display: none;

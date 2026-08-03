@@ -295,10 +295,10 @@
                 <div class="text-muted info-panel">{{ draftProvider.address }}</div>
                 <div class="text-muted info-panel">
                   {{ t('providerAdmin.serviceAreaValue', {
-                  range: draftProvider.range ? draftProvider.range : 0
+                    range: draftProvider.range ? draftProvider.range : 0
                   }) }}
                 </div>
-                <div class="text-muted info-panel">{{ draftProvider.profession.join(", ") }}</div>
+                <div class="text-muted info-panel">{{ draftProvider.profession.map(p => localProfessionName(p)).join(", ") }}</div>
                 <div class="text-muted info-panel">
                   {{ t('providerAdmin.hourlyRateValue', {
                     price: draftProvider.priceByHour
@@ -321,7 +321,7 @@
                 <MDBBtn size="sm" color="light" outline @click="resetProvider" :disabled="busy || !providerDirty">
                   {{ t('providerAdmin.reset') }}
                 </MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="busy || !providerDirty || !addressValid">
+                <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="!canSaveProvider">
                   {{ t('providerAdmin.save') }}
                 </MDBBtn>
               </div>
@@ -357,7 +357,8 @@
                   <MDBTable  style="font-size: 14px; color: #ddd; width: 100%; text-align: left;">
                     <tbody>
                       <tr v-for="(pro, index) in draftProvider.profession" :key="pro">
-                        <td>{{ pro }}</td>
+                        
+                        <td>{{localProfessionName(pro) || pro}}</td>
                         <td>
                           <MDBBtnClose
                             v-if="draftProvider.profession.length > 1"
@@ -376,26 +377,59 @@
                     <Select
                       style="width: 100%;"
                       v-model="selectedProfession"
-                      :options="professions"
+                      :options="groupedProfessions"
+                      option-label="label"
+                      option-value="code"
+                      option-group-label="label"
+                      option-group-children="items"
                       filter
-                      optionLabel="label"
-                      optionValue="label"
-                      optionGroupLabel="label"
-                      optionGroupChildren="items"
-                      :placeholder="t('providerAdmin.enterNewProfession')"
-                      class="w-full md:w-[30rem]"
+                      filter-by="label"
                       showClear
                       appendTo="body"
+                      :placeholder="t('providerAdmin.enterNewProfession')"
                       @update:modelValue="onProfessionPicked"
-                    />
+                    >
+                      <template #optiongroup="{ option }">
+                        <div class="profession-group">
+                          <i :class="option.icon" />
+                          &nbsp;&nbsp;<span>{{ option.label }}</span>
+                        </div>
+                      </template>
+
+                      <template #option="{ option }">
+                        <div class="profession-option">
+                          <i style="color: orange;" :class="option.icon" />
+                          <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
+                          <div>
+                            <small v-if="option.localizedDescription">
+                              {{ option.localizedDescription }}
+                            </small>
+                          </div>
+                        </div>
+                      </template>
+                    </Select>
                   </div>
                 </div>
                 
               </fieldset>
      
-              <MDBInput :label="t('providerAdmin.serviceAreaKm')" v-model="draftProvider.range" :value="field" @input="filterInput" />
-              
-              <MDBInput :label="t('providerAdmin.hourlyRate')" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" />
+              <!-- <MDBInput :label="t('providerAdmin.serviceAreaKm')" v-model="draftProvider.range" :value="field" @input="filterInput" /> -->
+              <MDBInput
+                :label="t('providerAdmin.serviceAreaKm')"
+                v-model="draftProvider.range"
+                type="text"
+                inputmode="numeric"
+                @input="filterPositiveInteger($event, 'range')"
+              />
+                              
+              <!-- <MDBInput :label="t('providerAdmin.hourlyRate')" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" /> -->
+              <MDBInput
+                :label="t('providerAdmin.hourlyRate')"
+                v-model="draftProvider.priceByHour"
+                type="text"
+                inputmode="decimal"
+                @input="filterPositiveDecimal($event, 'priceByHour')"
+              />
 
               <MDBTextarea :label="t('providerAdmin.notes')" rows="3" v-model="draftProvider.notes"
                 @input="markDirty('provider')" />
@@ -591,6 +625,7 @@
         </div>
       </div>
     </div>
+    
   </MDBContainer>
 </template>
 
@@ -628,6 +663,7 @@ import { storeToRefs } from "pinia";
 import { useProStore } from "@/stores/providerStore";
 import { useClientStore } from "@/stores/recipientStore";
 import { useProArchiveStore } from "@/stores/pArchiveStore";
+import { useProfessionStore } from "@/stores/professionStore";
 import map_image from '@/assets/map.gif'
 import ToastHandler from "../helpers/ToastHandler.vue";
 import Calendar from "../Calendar.vue";
@@ -638,14 +674,16 @@ import socket from "@/socket";
 
 const emit = defineEmits(["handle-user-action", "open-chat"]);
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const providerStore = useProStore();
 const clientStore = useClientStore();
 const providerArchiveStore = useProArchiveStore();
+const professionStore = useProfessionStore();
 const router = useRouter();
 const { incomingOffers, proCalendarEvents, reference, proTimetable } = storeToRefs(providerStore);
 const { isBookings } = storeToRefs(clientStore);
 const { providerHistory } = storeToRefs(providerArchiveStore);
+const { professionCategories, professions } = storeToRefs(professionStore);
 
 const addressValid = ref(false);
 
@@ -658,7 +696,7 @@ const provider = computed(() => providerStore.provider);
 const pro_map = map_image;
 
 const profession = ref("");
-const professions = professionList;
+//const professions = professionList;
 
 const selectedProfession = ref(null);
 
@@ -667,6 +705,8 @@ const selectedProfession = ref(null);
 const addressEl = ref(null)
 let autocomplete = null
 let placeListener = null
+
+const dirty = reactive({ provider: false });
 
 const selectedPlace = ref(null);
 const pmForm = reactive({
@@ -690,7 +730,7 @@ const isPanelInfoEditSection = ref(false);
 
 const isCalendar = ref(false);
 
-const field = ref("");
+//const field = ref("");
 
 const clientOpen = ref(false);
 
@@ -712,52 +752,154 @@ const validateProAddress = () => {
 
 function onAddressInput(value) {
   pmForm.address = value;
+  addressValid.value = false;
 
   selectedPlace.value = null;
   pmForm.lat = null;
   pmForm.lng = null;
 
-  console.log(
-    "Address input changed:",
-    value,
-    "lat:",
-    pmForm.lat,
-    "lng:",
-    pmForm.lng
-  );
-
   if (value.trim()) {
-    pmError.address =
-      t("providerAdmin.addressAutocompleteError");
-    
+    pmError.address = t(
+      "providerAdmin.addressAutocompleteError"
+    );
   } else {
     pmError.address = "";
   }
-}
 
-function onPlaceSelected_prev(p) {
-  pmForm.address = p.address
-  pmForm.lat = p.lat
-  pmForm.lng = p.lng
-
-  // Storing it directly to draft provider
-  draftProvider.address = p.address
-  markDirty("provider")
+  markDirty("provider");
 }
 
 function onPlaceSelected(place) {
   selectedPlace.value = place;
-  console.log("Place selected:", place);
+
   pmForm.address = place.address;
   pmForm.lat = place.lat;
   pmForm.lng = place.lng;
 
   draftProvider.address = place.address;
 
+  addressValid.value = true;
   pmError.address = "";
 
   markDirty("provider");
 }
+
+// Group professions by category and sort them
+const groupedProfessions = computed(() => {
+  return professionCategories.value
+    .filter(category => category.enabled)
+    .sort((a, b) => {
+      return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    })
+    .map(category => {
+      const items = professions.value
+        .filter(profession => {
+          return (
+            profession.enabled &&
+            profession.categoryCode === category.code
+          );
+        })
+        .sort((a, b) => {
+          return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+        })
+        .map(profession => ({
+          ...profession,
+
+          label: getLocalizedValue(profession.name),
+
+          localizedDescription: getLocalizedValue(
+            profession.description
+          )
+        }));
+
+      return {
+        code: category.code,
+        label: getLocalizedValue(category.name),
+        description: getLocalizedValue(category.description),
+        icon: category.icon,
+        sortOrder: category.sortOrder,
+        items
+      };
+    })
+    .filter(category => category.items.length > 0);
+});
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
+
+async function onProfessionPicked (val) {
+  if (!val) return
+  console.log("Profession picked:", val);
+  const professionObj = professions.value.find(
+    profession => profession.code === val
+  );
+  
+  console.log("Profession object:", professionObj.name);
+
+  const localizedProfessionName = getLocalizedValue(
+    professionObj?.name
+  );
+
+  console.log("Localized profession name:", localizedProfessionName);
+
+  const p = String(val).trim()
+  if (!p) return
+
+  // ensure array exists
+  if (!Array.isArray(draftProvider.profession)) draftProvider.profession = []
+
+  // avoid duplicates
+  if (!draftProvider.profession.includes(p)) {
+    draftProvider.profession.push(p)
+    markDirty("provider")
+  }
+
+  await nextTick()
+  selectedProfession.value = null
+}
+
+
+/* const selectedProfessionName = computed(() => {
+  return getLocalizedValue(
+    selectedProfession.value?.name
+  );
+}); */
+
+// Get localized profession name by code
+const localProfessionName = (code) => {
+  const professionObj = professions.value.find(
+    profession => profession.code === code
+  );
+  return getLocalizedValue(professionObj?.name) || code;
+};
+
+// Check if the address has changed from the original provider address
+const addressChanged = computed(() => {
+  return pmForm.address.trim() !== (provider.value?.address ?? "").trim();
+});
+
+// Determine if the provider can be saved based on various conditions
+const canSaveProvider = computed(() => {
+  if (busy.value) return false;
+  if (!providerDirty.value) return false;
+
+  // Kui aadressi pole muudetud, ei pea autocomplete'i uuesti valima
+  if (!addressChanged.value) return true;
+
+  // Muudetud aadress peab olema soovituste loendist valitud
+  return addressValid.value;
+});
 
 
 /* watch(selectedPlace, (place) => {
@@ -787,7 +929,15 @@ watch(
       return;
     }
     Object.assign(draftProvider, mapProviderToDraft(pro));
-    providerDirty.value = false;
+    pmForm.address = draftProvider.address;
+    pmForm.lat = pro?.lat ?? null;
+    pmForm.lng = pro?.lng ?? null;
+
+    selectedPlace.value = null;
+    addressValid.value = true;
+    pmError.address = "";
+
+    dirty.provider = false;
   },
   { immediate: true, deep: false }
 );
@@ -804,11 +954,6 @@ const handleToast = (payload) => {
   console.log("Toast payload - " + payload.state + " " + payload.message);
   onToast(payload.icon, payload.message, payload.color);
 
-}
-
-// Call this on input/change
-function markProviderDirty() {
-  providerDirty.value = true;
 }
 
 const tickerKey = ref(0);
@@ -862,41 +1007,20 @@ const showFeedback = () => {
   router.push({name: 'pro-feedback', params: {id: provider.value.id}})
 }
 
-const persistableImages = (arr) =>
+/* const persistableImages = (arr) =>
   (arr || []).map(img => ({
     _id: img._id ?? img.imageId ?? null,
     imageUrl: img.imageUrl ?? null,
     key: img.key ?? null,
   })).filter(x => x._id || x.imageUrl);
-
+ */
 const openReferences = () => {
-  //const imgs = reference.value ?? [];
-  //sessionStorage.setItem("referenceImages", JSON.stringify(persistableImages(imgs)));
   router.push("/reference");
 }
 
 const seeClients = () => {
   console.log("Display clients on map.");
   router.push("/client-around");
-}
-
-async function onProfessionPicked (val) {
-  if (!val) return
-
-  const p = String(val).trim()
-  if (!p) return
-
-  // ensure array exists
-  if (!Array.isArray(draftProvider.profession)) draftProvider.profession = []
-
-  // avoid duplicates
-  if (!draftProvider.profession.includes(p)) {
-    draftProvider.profession.push(p)
-    markDirty("provider")
-  }
-
-  await nextTick()
-  selectedProfession.value = null
 }
 
 function removeProfession(index) {
@@ -935,13 +1059,21 @@ function normalizeProfessions(val) {
 
 function resetProvider() {
   const pro = provider.value ?? null;
-  Object.assign(draftProvider, pro ? mapProviderToDraft(pro) : emptyProviderDraft());
-  // reset address autocomplete input
-  pmForm.address = draftProvider.address
-  pmError.address = ""
-  pmForm.lat = null
-  pmForm.lng = null
-  providerDirty.value = false;
+
+  Object.assign(
+    draftProvider,
+    pro ? mapProviderToDraft(pro) : emptyProviderDraft()
+  );
+
+  pmForm.address = draftProvider.address;
+  pmForm.lat = pro?.lat ?? null;
+  pmForm.lng = pro?.lng ?? null;
+
+  selectedPlace.value = null;
+  addressValid.value = true;
+  pmError.address = "";
+
+  dirty.provider = false;
 }
 
 async function saveProvider() {
@@ -966,7 +1098,7 @@ async function saveProvider() {
     }
 
     // No need to manually update draft; watcher will sync when provider.value changes
-    providerDirty.value = false;
+    dirty.provider = false;
   } finally {
     busy.value = false;
   }
@@ -999,6 +1131,7 @@ function mapProviderToDraft(pro) {
     name: pro?.pName ?? "",
     description: pro?.description ?? "",
     profession: normalizeProfessions(pro.profession),
+    
     range: pro?.range ?? "",
     priceByHour: pro?.priceByHour ?? "",
     
@@ -1062,7 +1195,7 @@ const upcomingAppointments = ref([]);
 const alerts = ref([]);
 const billing = reactive({ openInvoices: 0, nextPayout: null });
 
-const dirty = reactive({ provider: false });
+
 
 const clientModalOpen = ref(false);
 const newClient = reactive({ name: "", email: "", status: "Active" });
@@ -1143,7 +1276,52 @@ function refreshAll() {
   bootstrap();
 }
 
-const filterInput = ref((event) => {
+function filterPositiveInteger(event, fieldName) {
+  const raw = event.target.value;
+
+  // Lubab ainult numbreid 0–9
+  const filtered = raw.replace(/\D/g, "");
+
+  event.target.value = filtered;
+  draftProvider[fieldName] = filtered;
+
+  markDirty("provider");
+}
+
+function filterPositiveDecimal(event, fieldName) {
+  const raw = event.target.value;
+
+  // Muudab koma punktiks
+  let filtered = raw.replace(",", ".");
+
+  // Eemaldab kõik peale numbrite ja punkti
+  filtered = filtered.replace(/[^0-9.]/g, "");
+
+  // Lubab ainult ühe punkti
+  const parts = filtered.split(".");
+
+  if (parts.length > 2) {
+    filtered = `${parts[0]}.${parts.slice(1).join("")}`;
+  }
+
+  // ".5" -> "0.5"
+  if (filtered.startsWith(".")) {
+    filtered = `0${filtered}`;
+  }
+
+  // Maksimaalselt kaks komakohta
+  if (filtered.includes(".")) {
+    const [whole, decimal] = filtered.split(".");
+    filtered = `${whole}.${decimal.slice(0, 2)}`;
+  }
+
+  event.target.value = filtered;
+  draftProvider[fieldName] = filtered;
+
+  markDirty("provider");
+}
+
+const filterInput___ = ref((event) => {
   // Filter out non-digit characters
   const raw = event.target.value;
 
