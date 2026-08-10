@@ -7,148 +7,491 @@
 
   <!-- Creating event modal in day view-->
   <MDBModal
-      v-model="showCreate" center
-      centered
-      tabindex="-1"
-
-      :modelValue="true"
-      removeBackdrop
-      :keyboard="false"
-      :focus="false"
-  >
-    <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>{{ t("calendar.newEntry") }}</MDBModalTitle>
-    </MDBModalHeader>
-    <MDBModalBody>
-      <div class="space-y-3">
-        
-        <MDBSelect 
-          
-          v-model:options="stateOptions" 
-          
-          :label="t('calendar.selectEntryType')" 
-          style="margin-bottom: 20px;"
-        />
-
-        <!-- Option {{ stateOptions[1].selected }} -->
-
-        <MDBInput v-if="stateOptions[1].selected" v-model="form.title" :label="t('calendar.title')" wrapperClass="mb-4" />
-
-        <MDBTextarea v-if="stateOptions[1].selected" v-model="form.note" :label="t('calendar.description')" rows="3" wrapperClass="mb-4"/>
-
-        <div class="text-sm opacity-80">
-          <div><strong>{{ t('calendar.start') }}</strong> {{ formatLocalDate(form.start) }}</div>
-          <div><strong>{{ t('calendar.end') }}</strong>   {{ formatLocalDate(form.end) }}</div>
-          <!-- <div><strong>Loppu:</strong>   {{ form.end?.toLocaleString() }}</div> -->
-        </div>
-      </div>
-    </MDBModalBody>
-    <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="danger" outline @click="showCreate=false">{{ t("calendar.close") }}</MDBBtn>
-      
-      <MDBBtn color="primary" @click="saveEvent">{{ t("calendar.save") }}</MDBBtn>
-    </MDBModalFooter>
-  </MDBModal>
-
-  <!-- Create edit confirmer offer on pro side ----- -->
-
-
-  <!-- Edit event   :modelValue="true"-->
-  <MDBModal
-    v-model="showEdit" 
-    center
+    v-model="showCreate"
     centered
     tabindex="-1"
-
-    :modelValue="true"
     removeBackdrop
     :keyboard="false"
     :focus="false"
-  > 
-    <!-- v-if="event_state === 'vacation' || event_state === 'time'"  v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay" -->
-    <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle> {{ event_state === 'vacation' ? t('calendar.editNote') : t('calendar.editTimeEntry') }}</MDBModalTitle>
+    scrollable
+  >
+    <MDBModalHeader
+      class="modal-header-custom"
+      :class="[
+        'create-entry-modal__header',
+        {
+          'create-entry-modal__header--availability':
+            selectedEntryType === 'time',
+
+          'create-entry-modal__header--note':
+            selectedEntryType === 'vacation'
+        }
+      ]"
+    >
+      <MDBModalTitle class="create-entry-modal__title">
+        <span
+          :class="[
+            'create-entry-modal__title-icon',
+            {
+              'create-entry-modal__title-icon--availability':
+                selectedEntryType === 'time',
+
+              'create-entry-modal__title-icon--note':
+                selectedEntryType === 'vacation'
+            }
+          ]"
+        >
+          <i
+            :class="
+              selectedEntryType === 'vacation'
+                ? 'far fa-note-sticky'
+                : 'far fa-calendar-check'
+            "
+          ></i>
+        </span>
+
+        <span>
+          {{
+            selectedEntryType === 'vacation'
+              ? t('calendar.createNote')
+              : t('calendar.createAvailability')
+          }}
+        </span>
+      </MDBModalTitle>
     </MDBModalHeader>
-    <MDBModalBody>
-      <div class="space-y-3">
-        <!--  -->
-        <div v-if="event_state === 'vacation'">
-          <MDBInput v-model="editForm.title" :label="t('calendar.title')" wrapperClass="mb-4" />
-          <MDBTextarea v-model="editForm.note" :label="t('calendar.description')" rows="3" />
+
+    <MDBModalBody class="create-entry-modal__body">
+      <p class="create-entry-modal__description">
+        {{ t('calendar.createEntryDescription') }}
+      </p>
+
+      <div class="create-entry-modal__type">
+        <MDBSelect
+          v-model:options="stateOptions"
+          :label="t('calendar.selectEntryType')"
+        />
+      </div>
+
+      <!-- Saadaolev aeg -->
+      <div
+        v-if="selectedEntryType === 'time'"
+        class="create-availability"
+      >
+        <div class="create-entry-info create-entry-info--availability">
+          <span class="create-entry-info__icon">
+            <i class="fas fa-eye"></i>
+          </span>
+
+          <div>
+            <strong>
+              {{ t('calendar.visibleToClients') }}
+            </strong>
+
+            <span>
+              {{ t('calendar.createAvailabilityVisibilityInfo') }}
+            </span>
+          </div>
         </div>
-        
-        
-        <div v-else-if="event_state === 'time' || event_state === 'pro'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          
-            <div><strong>{{ t('calendar.start') }}</strong> {{ formatLocalDate(editForm.start) }}</div>
 
-            <div class="field-wrapper">
-                <MDBDateTimepicker
-                    size="lg"
-                    :label="t('calendar.start')"
-                    v-model="editForm.start"
-                    :valueType="'date'"
-                
-                    :datepicker="{
-                    ...L,
-                    format: 'YYYY-MM-DD'
-                  }"
-                  
-                    :timepicker="{
-                    ...L,
-                    hoursFormat: 24
-                  }"
+        <div class="create-entry-time-card">
+          <div class="create-entry-time-card__item">
+            <span class="create-entry-time-card__icon">
+              <i class="fas fa-play"></i>
+            </span>
 
-                    :key="reInitKey"
-                    disablePast
-                />
-                
+            <div>
+              <span>{{ t('calendar.availabilityStarts') }}</span>
+
+              <strong>
+                {{
+                  form.start
+                    ? formatLocalDate(form.start)
+                    : '—'
+                }}
+              </strong>
             </div>
-
-            <div><strong>{{ t('calendar.end') }}</strong>   {{ formatLocalDate(editForm.end) }}</div>
-
-            <div class="field-wrapper">
-                <MDBDateTimepicker
-                    size="lg"
-                    :label="t('calendar.end')"
-                    v-model="editForm.end"
-                    :valueType="'date'" 
-                    
-                    :datepicker="{
-                    ...L,
-                    format: 'YYYY-MM-DD'
-                  }"
-                  
-                    :timepicker="{
-                    ...L,
-                    hoursFormat: 24
-                  }"
-
-                    :key="reInitKey"
-                    disablePast
-                />
-                
-            </div>
-
           </div>
 
+          <div class="create-entry-time-card__line">
+            <span></span>
+          </div>
+
+          <div class="create-entry-time-card__item">
+            <span
+              class="
+                create-entry-time-card__icon
+                create-entry-time-card__icon--end
+              "
+            >
+              <i class="fas fa-stop"></i>
+            </span>
+
+            <div>
+              <span>{{ t('calendar.availabilityEnds') }}</span>
+
+              <strong>
+                {{
+                  form.end
+                    ? formatLocalDate(form.end)
+                    : '—'
+                }}
+              </strong>
+            </div>
+          </div>
         </div>
 
-        <div class="text-sm opacity-80">
-          <!-- <div><strong>Loppu:</strong>   {{ form.end?.toLocaleString() }}</div> -->
+        <div class="create-entry-duration">
+          <div>
+            <span>{{ t('calendar.availabilityDuration') }}</span>
+            <strong>{{ createEntryDuration }}</strong>
+          </div>
+
+          <i class="far fa-clock"></i>
+        </div>
+      </div>
+
+      <!-- Märge -->
+      <div
+        v-else-if="selectedEntryType === 'vacation'"
+        class="create-note"
+      >
+        <div class="create-entry-info create-entry-info--note">
+          <span class="create-entry-info__icon">
+            <i class="fas fa-lock"></i>
+          </span>
+
+          <div>
+            <strong>
+              {{ t('calendar.privateNote') }}
+            </strong>
+
+            <span>
+              {{ t('calendar.createPrivateNoteInfo') }}
+            </span>
+          </div>
         </div>
 
-        
+        <div class="create-note__date">
+          <span class="create-note__date-icon">
+            <i class="far fa-calendar"></i>
+          </span>
+
+          <div>
+            <span>{{ t('calendar.noteDate') }}</span>
+
+            <strong>
+              {{
+                form.start
+                  ? formatLocalDate(form.start)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <MDBInput
+          v-model="form.title"
+          :label="t('calendar.noteTitle')"
+          wrapperClass="mb-4"
+        />
+
+        <MDBTextarea
+          v-model="form.note"
+          :label="t('calendar.noteContent')"
+          rows="5"
+        />
+      </div>
+
+      <small
+        v-if="createEventError"
+        class="create-entry-modal__error"
+        role="alert"
+      >
+        <i class="fas fa-circle-exclamation"></i>
+        {{ createEventError }}
+      </small>
+    </MDBModalBody>
+
+    <MDBModalFooter class="create-entry-modal__footer">
+      <MDBBtn
+        color="secondary"
+        outline
+        @click="closeCreateEventModal"
+      >
+        {{ t('calendar.cancel') }}
+      </MDBBtn>
+
+      <MDBBtn
+        :color="
+          selectedEntryType === 'time'
+            ? 'success'
+            : 'primary'
+        "
+        @click="saveEvent"
+      >
+        <i class="fas fa-plus me-2"></i>
+
+        {{
+          selectedEntryType === 'vacation'
+            ? t('calendar.createNote')
+            : t('calendar.createAvailability')
+        }}
+      </MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+  <!-- Create edit confirmer offer on pro side ----- -->
+
+
+  <!-- Edit event ----------------------  :modelValue="true"-->
+  <MDBModal
+    v-model="showEdit"
+    centered
+    tabindex="-1"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+    scrollable
+  >
+    <MDBModalHeader
+    class="modal-header-custom"
+      :class="[
+        'calendar-edit-modal__header', 
+        {
+          'calendar-edit-modal__header--note': event_state === 'vacation',
+          'calendar-edit-modal__header--availability': event_state === 'time'
+        }
+      ]"
+    >
+      <MDBModalTitle class="calendar-edit-modal__title">
+        <span
+          :class="[
+            'calendar-edit-modal__title-icon',
+            {
+              'calendar-edit-modal__title-icon--note':
+                event_state === 'vacation',
+              'calendar-edit-modal__title-icon--availability':
+                event_state === 'time'
+            }
+          ]"
+        >
+          <i
+            :class="
+              event_state === 'vacation'
+                ? 'far fa-note-sticky'
+                : 'far fa-calendar-check'
+            "
+          ></i>
+        </span>
+
+        <span>
+          {{
+            event_state === 'vacation'
+              ? t('calendar.editNote')
+              : t('calendar.editAvailability')
+          }}
+        </span>
+      </MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody class="calendar-edit-modal__body">
+      <!-- Märkme muutmine -->
+      <div
+        v-if="event_state === 'vacation'"
+        class="note-edit-form"
+      >
+        <p class="calendar-edit-modal__description">
+          {{ t('calendar.editNoteDescription') }}
+        </p>
+
+        <div class="note-edit-form__private-info">
+          <i class="fas fa-lock"></i>
+
+          <span>
+            {{ t('calendar.privateNoteInfo') }}
+          </span>
+        </div>
+
+        <div class="note-edit-form__date">
+          <span class="note-edit-form__date-icon">
+            <i class="far fa-calendar"></i>
+          </span>
+
+          <div>
+            <span>{{ t('calendar.noteDate') }}</span>
+
+            <strong>
+              {{
+                editForm.start
+                  ? formatLocalDate(editForm.start)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <MDBInput
+          v-model="editForm.title"
+          :label="t('calendar.noteTitle')"
+          wrapperClass="mb-4"
+        />
+
+        <MDBTextarea
+          v-model="editForm.note"
+          :label="t('calendar.noteContent')"
+          rows="5"
+        />
+      </div>
+
+      <!-- Saadaoleva aja muutmine -->
+      <div
+        v-else-if="event_state === 'time'"
+        class="availability-edit-form"
+      >
+        <p class="calendar-edit-modal__description">
+          {{ t('calendar.editAvailabilityDescription') }}
+        </p>
+
+        <div class="availability-edit-form__visibility">
+          <span class="availability-edit-form__visibility-icon">
+            <i class="fas fa-eye"></i>
+          </span>
+
+          <div>
+            <strong>{{ t('calendar.visibleToClients') }}</strong>
+
+            <span>
+              {{ t('calendar.editAvailabilityVisibilityInfo') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="availability-edit-form__summary">
+          <div class="availability-edit-form__summary-item">
+            <span>{{ t('calendar.availabilityStarts') }}</span>
+
+            <strong>
+              {{
+                editForm.start
+                  ? formatLocalDate(editForm.start)
+                  : '—'
+              }}
+            </strong>
+          </div>
+
+          <i class="fas fa-arrow-right"></i>
+
+          <div class="availability-edit-form__summary-item">
+            <span>{{ t('calendar.availabilityEnds') }}</span>
+
+            <strong>
+              {{
+                editForm.end
+                  ? formatLocalDate(editForm.end)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="availability-edit-form__duration">
+          <div>
+            <span>{{ t('calendar.availabilityDuration') }}</span>
+            <strong>{{ editAvailabilityDuration }}</strong>
+          </div>
+
+          <i class="far fa-clock"></i>
+        </div>
+
+        <div class="availability-edit-form__fields">
+          <div class="availability-edit-form__field">
+            <label class="availability-edit-form__label">
+              {{ t('calendar.selectAvailabilityStart') }}
+            </label>
+
+            <MDBDateTimepicker
+              :key="`start-${reInitKey}`"
+              v-model="editForm.start"
+              valueType="date"
+              size="lg"
+              :label="t('calendar.start')"
+              input-toggle
+              :toggle-button="false"
+              disablePast
+              :datepicker="{
+                ...L,
+                format: 'YYYY-MM-DD'
+              }"
+              :timepicker="{
+                ...L,
+                hoursFormat: 24
+              }"
+              @update:modelValue="editAvailabilityError = null"
+            />
+          </div>
+
+          <div class="availability-edit-form__field">
+            <label class="availability-edit-form__label">
+              {{ t('calendar.selectAvailabilityEnd') }}
+            </label>
+
+            <MDBDateTimepicker
+              :key="`end-${reInitKey}`"
+              v-model="editForm.end"
+              valueType="date"
+              size="lg"
+              :label="t('calendar.end')"
+              input-toggle
+              :toggle-button="false"
+              disablePast
+              :datepicker="{
+                ...L,
+                format: 'YYYY-MM-DD'
+              }"
+              :timepicker="{
+                ...L,
+                hoursFormat: 24
+              }"
+              @update:modelValue="editAvailabilityError = null"
+            />
+          </div>
+        </div>
+
+        <small
+          v-if="editAvailabilityError"
+          class="calendar-edit-modal__error"
+          role="alert"
+        >
+          <i class="fas fa-circle-exclamation"></i>
+          {{ editAvailabilityError }}
+        </small>
       </div>
     </MDBModalBody>
-    <MDBModalFooter class="footer-buttons">
-      <MDBBtn color="secondary" outline @click="showEdit=false">{{ t('calendar.cancel') }}</MDBBtn>
-      <MDBBtn color="primary" @click="saveEventEdits">{{ t('calendar.save') }}</MDBBtn>
+
+    <MDBModalFooter class="calendar-edit-modal__footer">
+      <MDBBtn
+        color="secondary"
+        outline
+        @click="closeCalendarEditModal"
+      >
+        {{ t('calendar.cancel') }}
+      </MDBBtn>
+
+      <MDBBtn
+        :color="event_state === 'time' ? 'success' : 'primary'"
+        @click="saveEventEdits"
+      >
+        <i class="fas fa-check me-2"></i>
+
+        {{
+          event_state === 'vacation'
+            ? t('calendar.saveNote')
+            : t('calendar.saveAvailability')
+        }}
+      </MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
-  <!-- Opening client and provider event edit -->
+  <!-- Opening -- ? client and --  provider event edit ????????????????????????? -->
   <MDBModal
     v-model="showEventEdit"
     centered
@@ -167,7 +510,7 @@
         :label="t('calendar.service')"
         wrapperClass="mb-4"
       />
-
+      xxxx-xxx
       <MDBTextarea
         v-model="editOfferForm.note"
         :label="t('calendar.description')"
@@ -200,7 +543,7 @@
     </MDBModalFooter>
   </MDBModal>
 
-  <!-- Open time event edit -->
+  <!-- Open time event edit ??????????????-->
   <MDBModal
     v-model="showTimeEventEdit"
     centered
@@ -216,6 +559,8 @@
     <MDBModalBody>
       <p>Time event edit form...</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+
         
         <div><strong>{{ t('calendar.start') }}:</strong> {{ formatLocalDate(editForm.start) }}</div>
 
@@ -225,7 +570,8 @@
                 :label="t('calendar.start')"
                 v-model="editForm.start"
                 :valueType="'date'"
-            
+                input-toggle
+                :toggle-button="false"
                 :datepicker="{
                 ...L,
                 format: 'YYYY-MM-DD'
@@ -239,6 +585,8 @@
                 :key="reInitKey"
                 disablePast
             />
+
+            xxx
             
         </div>
 
@@ -250,7 +598,8 @@
                 :label="t('calendar.end')"
                 v-model="editForm.end"
                 :valueType="'date'" 
-                
+                input-toggle
+                :toggle-button="false"
                 :datepicker="{
                 ...L,
                 format: 'YYYY-MM-DD'
@@ -287,73 +636,283 @@
     v-model="showTimeEventModal"
     tabindex="-1"
     centered
-    :modelValue="true"
     removeBackdrop
     :keyboard="false"
     :focus="false"
     scrollable
   >
-    <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>{{ formatDateTitle(selectedEvent?.start) }}</MDBModalTitle>
+    <MDBModalHeader class="modal-header-custom availability-modal__header">
+      <MDBModalTitle class="availability-modal__title">
+        <span class="availability-modal__title-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+
+        <span>
+          {{ t('calendar.availabilityDetails') }}
+        </span>
+      </MDBModalTitle>
     </MDBModalHeader>
 
-    <MDBModalBody class="event-modal-body">
-      
+    <MDBModalBody class="availability-modal__body">
+      <div class="availability-modal__date-heading">
+        {{ formatDateTitle(selectedEvent?.start) }}
+      </div>
 
-      <h2 class="event-title">
-        {{ selectedEvent?.allDay ? t('calendar.availableAllDay') : t('calendar.available') }}
-      </h2>
+      <div class="availability-status">
+        <span class="availability-status__icon">
+          <i class="fas fa-check"></i>
+        </span>
 
-      <div class="event-date">
+        <div class="availability-status__content">
+          <span class="availability-status__label">
+            {{ t('calendar.availabilityStatus') }}
+          </span>
+
+          <strong>
+            {{
+              selectedEvent?.allDay
+                ? t('calendar.availableAllDay')
+                : t('calendar.available')
+            }}
+          </strong>
+        </div>
+
+        <span class="availability-status__badge">
+          {{ t('calendar.visibleToClients') }}
+        </span>
+      </div>
+
+      <p class="availability-modal__description">
         {{
-          selectedEvent?.start && selectedEvent?.end &&
-          formatLocalDate(selectedEvent.start).split(' ')[0] === formatLocalDate(selectedEvent.end).split(' ')[0]
-            ? t('calendar.at') + ' ' + formatLocalTime(selectedEvent.start) + ' - ' + formatLocalTime(selectedEvent.end)
-            : formatLocalDate(selectedEvent.start) + ' - ' + formatLocalDate(selectedEvent.end)
+          selectedEvent?.allDay
+            ? t('calendar.allDayAvailabilityDescription')
+            : t('calendar.availabilityDescription')
         }}
+      </p>
 
+      <div
+        v-if="selectedEvent?.allDay"
+        class="availability-all-day"
+      >
+        <span class="availability-all-day__icon">
+          <i class="far fa-sun"></i>
+        </span>
+
+        <div>
+          <span>{{ t('calendar.availabilityPeriod') }}</span>
+
+          <strong>
+            {{ t('calendar.fullDay') }}
+          </strong>
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="availability-schedule"
+      >
+        <div class="availability-schedule__item">
+          <span class="availability-schedule__icon">
+            <i class="fas fa-play"></i>
+          </span>
+
+          <div class="availability-schedule__content">
+            <span>{{ t('calendar.availabilityStarts') }}</span>
+
+            <strong>
+              {{
+                selectedEvent?.start
+                  ? formatLocalDate(selectedEvent.start)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="availability-schedule__line">
+          <span></span>
+        </div>
+
+        <div class="availability-schedule__item">
+          <span class="availability-schedule__icon availability-schedule__icon--end">
+            <i class="fas fa-stop"></i>
+          </span>
+
+          <div class="availability-schedule__content">
+            <span>{{ t('calendar.availabilityEnds') }}</span>
+
+            <strong>
+              {{
+                selectedEvent?.end
+                  ? formatLocalDate(selectedEvent.end)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="!selectedEvent?.allDay"
+        class="availability-duration"
+      >
+        <div>
+          <span>{{ t('calendar.availabilityDuration') }}</span>
+          <strong>{{ selectedAvailabilityDuration }}</strong>
+        </div>
+
+        <i class="far fa-clock"></i>
+      </div>
+
+      <div class="availability-visibility-note">
+        <i class="fas fa-eye"></i>
+
+        <span>
+          {{ t('calendar.availabilityVisibilityInfo') }}
+        </span>
       </div>
     </MDBModalBody>
 
-    <MDBModalFooter class="footer-buttons">
-      <MDBBtn  color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
-      <MDBBtn   color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
-      <MDBBtn color="secondary" @click="showTimeEventModal = false">{{ t('calendar.close') }}</MDBBtn>
+    <MDBModalFooter class="availability-modal__footer">
+      <MDBBtn
+        color="danger"
+        outline
+        @click="deleteFromPreview"
+      >
+        <i class="far fa-trash-can me-2"></i>
+        {{ t('calendar.delete') }}
+      </MDBBtn>
+
+      <MDBBtn
+        color="primary"
+        @click="openEditModalFromPreview"
+      >
+        <i class="far fa-pen-to-square me-2"></i>
+        {{ t('calendar.editAvailability') }}
+      </MDBBtn>
+
+      <MDBBtn
+        color="secondary"
+        outline
+        @click="showTimeEventModal = false"
+      >
+        {{ t('calendar.close') }}
+      </MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <!-- Opening provider notes event -->
-  <MDBModal
+ <MDBModal
     v-model="showNotesEventModal"
     tabindex="-1"
     centered
-    :modelValue="true"
     removeBackdrop
     :keyboard="false"
     :focus="false"
     scrollable
   >
-    <MDBModalHeader class="modal-header-custom">
-      <MDBModalTitle>{{ selectedEvent?.title || '—' }}</MDBModalTitle>
+    <MDBModalHeader class="note-modal__header modal-header-custom">
+      <MDBModalTitle class="note-modal__title">
+        <span class="note-modal__title-icon">
+          <i class="far fa-note-sticky"></i>
+        </span>
+
+        <span>
+          {{ t('calendar.noteDetails') }}
+        </span>
+      </MDBModalTitle>
     </MDBModalHeader>
-    <!-- v-if="event_state === 'vacation' || event_state === 'time'"  v-if="event_state === 'vacation' || event_state === 'time' && !selectedEvent.allDay" -->
-     <MDBModalBody class="event-modal-body">
-     </MDBModalBody>
-     
-      <div class="event-card" style="margin: 20px; border-top: 2px solid rgb(231, 134, 134);">
-        <div class="event-date">
-          {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+
+    <MDBModalBody class="note-modal__body">
+      <div class="note-modal__heading">
+        <span class="note-modal__heading-label">
+          {{ t('calendar.noteTitle') }}
+        </span>
+
+        <h2>
+          {{ selectedEvent?.title || t('calendar.untitledNote') }}
+        </h2>
+      </div>
+
+      <div class="note-date-card">
+        <span class="note-date-card__icon">
+          <i class="far fa-calendar"></i>
+        </span>
+
+        <div class="note-date-card__content">
+          <span>{{ t('calendar.noteDate') }}</span>
+
+          <strong>
+            {{
+              selectedEvent?.start
+                ? formatLocalDate(selectedEvent.start)
+                : '—'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="note-content-card">
+        <div class="note-content-card__header">
+          <span>
+            <i class="far fa-file-lines"></i>
+            {{ t('calendar.noteContent') }}
+          </span>
         </div>
 
-        <p class="event-subtitle">
-          {{ selectedEvent?.note || '—' }}
+        <p class="note-content-card__text">
+          {{ selectedEvent?.note || t('calendar.emptyNote') }}
         </p>
       </div>
-      
-    <MDBModalFooter class="footer-buttons">
-      <MDBBtn  color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
-      <MDBBtn   color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
-      <MDBBtn color="secondary" @click="showNotesEventModal = false">{{ t('calendar.close') }}</MDBBtn>
+
+      <div class="note-private-info">
+        <i class="fas fa-lock"></i>
+
+        <span>
+          {{ t('calendar.privateNoteInfo') }}
+        </span>
+      </div>
+    </MDBModalBody>
+
+    <MDBModalFooter class="note-modal__footer">
+      <MDBBtn
+        color="danger"
+        outline
+        @click="deleteFromPreview"
+      >
+        <i class="far fa-trash-can me-2"></i>
+        {{ t('calendar.delete') }}
+      </MDBBtn>
+
+      <MDBBtn
+        color="primary"
+        @click="openEditModalFromPreview"
+      >
+        <i class="far fa-pen-to-square me-2"></i>
+        {{ t('calendar.editNote') }}
+      </MDBBtn>
+
+      <MDBBtn
+        color="secondary"
+        outline
+        @click="showNotesEventModal = false"
+      >
+        {{ t('calendar.close') }}
+      </MDBBtn>
     </MDBModalFooter>
   </MDBModal>
 
@@ -444,13 +1003,41 @@
     </MDBModalHeader>
     <MDBModalBody class="event-modal-body">
       <h2 class="event-title">
-        {{ 
-          t('calendar.clientWaitingForOffer', {client: selectedEvent?.client})
+        {{
+          t('calendar.clientWaitingForOffer', {
+            client: selectedEvent?.client
+          })
         }}
       </h2>
 
-      <div class="event-date">
-        {{ selectedEvent?.start ? formatLocalDate(selectedEvent.start) : '—' }}
+      <div class="event-schedule">
+        <div class="schedule-item">
+          <span>{{ t('calendar.start') }}</span>
+
+          <strong>
+            {{
+              selectedEvent?.start
+                ? formatLocalDate(selectedEvent.start)
+                : '—'
+            }}
+          </strong>
+        </div>
+
+        <div class="schedule-divider">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+
+        <div class="schedule-item">
+          <span>{{ t('calendar.end') }}</span>
+
+          <strong>
+            {{
+              selectedEvent?.end
+                ? formatLocalDate(selectedEvent.end)
+                : '—'
+            }}
+          </strong>
+        </div>
       </div>
 
       <p class="event-subtitle">
@@ -470,44 +1057,231 @@
           <strong v-html="selectedEvent?.note || '—'"></strong>
         </div>
 
-        <div class="info-row" v-if="selectedEvent?.location">
+        <div
+          v-if="selectedEvent?.location"
+          class="info-row"
+        >
           <span>{{ t('calendar.location') }}</span>
-          <strong>{{ selectedEvent.address }}</strong>
+          <strong>{{ selectedEvent?.address || '—' }}</strong>
         </div>
 
         <div class="info-row">
           <span>{{ t('calendar.estimatedPrice') }}</span>
+
           <strong>
-            {{ selectedEvent?.budget }} €
-            <!-- {{
-              selectedEvent?.budget != null &&
-              selectedEvent?.budget !== ""
+            {{
+              selectedEvent?.budget !== null &&
+              selectedEvent?.budget !== undefined &&
+              selectedEvent?.budget !== ''
                 ? `${selectedEvent.budget} €`
-                : t("calendar.toBeAgreedSeparately")
-            }} -->
-        </strong>
+                : t('calendar.toBeAgreedSeparately')
+            }}
+          </strong>
         </div>
 
         <div class="info-row">
+        <span class="desktop-label">
+          {{ t('calendar.workDuration') }}
+        </span>
+
+        <span class="mobile-label">
+          {{ t('calendar.workDurationShort') }}
+        </span>
+
+        <div class="work-time-value">
+          <strong>{{ selectedEventDuration }}</strong>
+
+          <button
+            type="button"
+            class="duration-edit-button"
+            @click="openOfferEventEdit"
+          >
+            <i class="fas fa-pen"></i>
+
+            <span class="desktop-label">
+              {{ t('calendar.changeDuration') }}
+            </span>
+
+            <span class="mobile-label">
+              {{ t('calendar.changeDurationShort') }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+        <div class="info-row">
           <span>{{ t('calendar.status') }}</span>
-          <strong class="status-waiting">{{ t('calendar.agreed') }}</strong>
+          <strong class="status-waiting">
+            {{ t('calendar.agreed') }}
+          </strong>
         </div>
       </div>
 
       <div class="event-note">
         {{ selectedEvent?.location }}
-        <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
+
+        <i
+          class="far fa-comments fa-lg event-chat"
+          @click="
+            onEventChat(
+              selectedEvent?.otherId,
+              selectedEvent?.id
+            )
+          "
+        ></i>
       </div>
+      <!-- {{ t('calendar.cancel') }} -->
     </MDBModalBody>
     <MDBModalFooter class="footer-buttons">
       <MDBBtn v-if="event_state === 'vacation' || event_state === 'time'" color="danger" outline @click="deleteFromPreview">{{ t('calendar.delete') }}</MDBBtn>
       <MDBBtn v-if="(event_state === 'vacation' || event_state === 'time') && !selectedEvent?.allDay"  color="primary" @click="openEditModalFromPreview">{{ t('calendar.edit') }}</MDBBtn>
-      <!-- <MDBBtn outline="warning" @click="showEventEdit = true">{{ t('calendar.editWorkDuration') }}</MDBBtn> -->
-      <MDBBtn color="secondary" outline @click="showProEventModal=false">{{ t('calendar.cancel') }}</MDBBtn>
+      <!-- <MDBBtn outline="warning" @click="openOfferEventEdit">{{ t('calendar.editWorkDuration') }}</MDBBtn> -->
+      <MDBBtn color="secondary" outline @click="showProEventModal=false"><i class="fas fa-undo-alt fa-2x"></i></MDBBtn>
       <!-- <MDBBtn color="danger" @click="deleteEvent">Delete</MDBBtn> -->
     </MDBModalFooter>
   </MDBModal>
 
+  <!-- Open provider event edit -->
+  <MDBModal
+    v-model="showProviderEventEdit"
+    centered
+    tabindex="-1"
+    removeBackdrop
+    :keyboard="false"
+    :focus="false"
+  >
+    <MDBModalHeader class="modal-header-custom duration-modal__header">
+      <MDBModalTitle class="duration-modal__title">
+        <i class="far fa-clock duration-modal__title-icon"></i>
+        {{ t('calendar.durationEditorTitle') }}
+      </MDBModalTitle>
+    </MDBModalHeader>
+
+    <MDBModalBody class="duration-modal__body">
+      <p class="duration-modal__description">
+        {{ t('calendar.durationEditorDescription') }}
+      </p>
+
+      <div class="duration-summary">
+        <div class="duration-summary__item">
+          <div class="duration-summary__icon">
+            <i class="fas fa-play"></i>
+          </div>
+
+          <div class="duration-summary__content">
+            <span>{{ t('calendar.serviceStart') }}</span>
+
+            <strong>
+              {{
+                editOfferForm.start
+                  ? formatLocalDate(editOfferForm.start)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="duration-summary__arrow">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+
+        <div class="duration-summary__item">
+          <div class="duration-summary__icon duration-summary__icon--end">
+            <i class="fas fa-flag-checkered"></i>
+          </div>
+
+          <div class="duration-summary__content">
+            <span>{{ t('calendar.serviceEnd') }}</span>
+
+            <strong>
+              {{
+                editOfferForm.end
+                  ? formatLocalDate(editOfferForm.end)
+                  : '—'
+              }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="duration-current">
+        <div>
+          <span class="duration-current__label">
+            {{ t('calendar.estimatedDuration') }}
+          </span>
+
+          <strong class="duration-current__value">
+            {{ selectedEventDuration }}
+          </strong>
+        </div>
+
+        <i class="far fa-hourglass duration-current__icon"></i>
+      </div>
+
+      <div class="duration-picker-section">
+        <label class="duration-picker-section__label">
+          {{ t('calendar.selectServiceEnd') }}
+        </label>
+
+        <p class="duration-picker-section__hint">
+          {{ t('calendar.minimumDurationHint') }}
+        </p>
+
+        <div class="field-wrapper">
+          <MDBDateTimepicker
+            v-if="providerPickerReady"
+            :key="reInitKey"
+            v-model="editOfferForm.end"
+            valueType="date"
+            size="lg"
+            :label="t('calendar.serviceEnd')"
+            :defaultDate="pickerOfferDefaultDate"
+            :defaultTime="pickerOfferDefaultTime"
+            :toggle-button="false"
+            input-toggle
+            disablePast
+            :datepicker="{
+              ...L,
+              format: 'YYYY-MM-DD'
+            }"
+            :timepicker="{
+              ...L,
+              hoursFormat: 24
+            }"
+            @update:modelValue="offerDurationError = null"
+          />
+
+          <small
+            v-if="offerDurationError"
+            class="field__error"
+            role="alert"
+          >
+            <i class="fas fa-circle-exclamation"></i>
+            {{ offerDurationError }}
+          </small>
+        </div>
+      </div>
+    </MDBModalBody>
+
+    <MDBModalFooter class="footer-buttons duration-modal__footer">
+      <MDBBtn
+        color="secondary"
+        outline
+        @click="closeProviderDurationEdit"
+      >
+        {{ t('calendar.cancel') }}
+      </MDBBtn>
+
+      <MDBBtn
+        color="primary"
+        @click="saveOfferEventEdits"
+      >
+        <i class="fas fa-check me-2"></i>
+        {{ t('calendar.saveDuration') }}
+      </MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+  
 </template>
 
 <script setup>
@@ -537,6 +1311,8 @@ import { storeToRefs } from 'pinia';
 import { useLoginStore } from '@/stores/login';
 import { useClientStore } from '@/stores/recipientStore';
 import { useProStore } from '@/stores/providerStore';
+
+import '@/styles/form.css'
 
 defineProps({
   count: {type: Number},
@@ -573,7 +1349,11 @@ const selectedEvent = ref(null)
 
 const showEdit = ref(false)
 const showTimeEventEdit = ref(false);
+const showProviderEventEdit = ref(false);
 const showEventEdit = ref(false);
+
+const reInitKey = ref(0);
+const providerPickerReady = ref(false);
 
 const  L = computed(() => {
   return getFormatted(locale.value);
@@ -633,51 +1413,64 @@ const events = computed(() => [
   })),
   // Confirmed offer in calendar
   ...proCalendarEvents.value.map(pce => {
-    const offer = pce?.offers?.find(o => o.sender === user.value.id)
-    const confirmedOffer = pce?.confirmedOffer;
+    const offer = pce?.offers?.find(
+      o => String(o.sender) === String(user.value.id)
+    );
+
     const place = offer?.placeOrGo || "";
-    const dist = offer?.distance;
-    const duration = offer?.duration;
     const price = offer?.price || "";
-    
+
+    const start = toDate(pce.created);
+    const estimatedEnd = toDate(pce.estimatedFinish);
+
+    const end =
+      estimatedEnd &&
+      start &&
+      estimatedEnd > start
+        ? estimatedEnd
+        : start
+          ? new Date(start.getTime() + 60 * 60 * 1000)
+          : null;
+
     return {
-      id: pce.id,
+      id: String(pce.id),
       title: pce.header,
-      
-      start: toDate(pce.created),
+
+      start,
+      end,
+      allDay: false,
+
       startEditable: false,
-      durationEditable: false,
+      durationEditable: true,
+
       extendedProps: {
-        /* type: "booking", */
         type: "pro",
         canEdit: false,
         canResize: false,
         otherId: pce?.author_id,
         client: pce?.user?.firstName,
         note: pce.description,
-        address: 
-          `${pce?.isIncludeOffers && place !== '' 
-          ? 
-          (
-            place === 'go' ? offer?.cAddress : offer?.pAddress
-          ) 
-          : t('calendar.toBeAgreedSeparately')}`,
-        priceOffer: pce?.offer?.price,
-        budget: 
-          pce.isIncludeOffers 
-          ? 
-          price 
-          : t('calendar.toBeAgreedSeparately'),
-        
-        location: 
-          pce?.isIncludeOffers && place !== '' 
-          ?
-          (
-            place === 'go' ? t('calendar.travelToClient') : t('calendar.clientComing')
-          ) 
-          : t('calendar.serviceLocationByAgreement')
-      }
-    }
+
+        address:
+          pce?.isIncludeOffers && place !== ""
+            ? place === "go"
+              ? offer?.cAddress
+              : offer?.pAddress
+            : t("calendar.toBeAgreedSeparately"),
+
+        budget:
+          pce.isIncludeOffers
+            ? price
+            : t("calendar.toBeAgreedSeparately"),
+
+        location:
+          pce?.isIncludeOffers && place !== ""
+            ? place === "go"
+              ? t("calendar.travelToClient")
+              : t("calendar.clientComing")
+            : t("calendar.serviceLocationByAgreement"),
+      },
+    };
   }),
   ...proTimetable.value.map(ppt => ({
     id: ppt.id,
@@ -712,7 +1505,7 @@ const filteredEvents = computed(() =>
   {text: "📝 Muistiinpano", value: "vacation"}
 ]) */
 
-const stateOptions = computed(() => [
+/* const stateOptions = computed(() => [
   {
     text: `🕒 ${t("calendar.freeTime")}`,
     value: "time"
@@ -721,7 +1514,38 @@ const stateOptions = computed(() => [
     text: `📝 ${t("calendar.note")}`,
     value: "vacation"
   }
+]); */
+
+const stateOptions = ref([
+  {
+    text: `🕒 ${t("calendar.availableTime")}`,
+    value: "time",
+    selected: true
+  },
+  {
+    text: `📝 ${t("calendar.privateNote")}`,
+    value: "vacation",
+    selected: false
+  }
 ]);
+
+// Changing locale language
+watch(locale, () => {
+  stateOptions.value = stateOptions.value.map(option => ({
+    ...option,
+    text:
+      option.value === "time"
+        ? `🕒 ${t("calendar.availableTime")}`
+        : `📝 ${t("calendar.privateNote")}`
+  }));
+});
+
+const selectedEntryType = computed(() => {
+  return (
+    stateOptions.value.find(option => option.selected)?.value ||
+    "time"
+  );
+});
 
 
 const selectedState = computed(() => {
@@ -729,6 +1553,52 @@ const selectedState = computed(() => {
   return sel ? sel.value : null;
   
 });
+
+// Eventi loomise kestuse arvutamine
+const createEntryDuration = computed(() => {
+  const start = fromLocalInput(form.value.start);
+  const end = fromLocalInput(form.value.end);
+
+  if (
+    !isValidDate(start) ||
+    !isValidDate(end) ||
+    end <= start
+  ) {
+    return t("calendar.durationNotSet");
+  }
+
+  const totalMinutes = Math.round(
+    (end.getTime() - start.getTime()) / 60000
+  );
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return t("calendar.durationHoursMinutes", {
+      hours,
+      minutes
+    });
+  }
+
+  if (hours > 0) {
+    return t("calendar.durationHours", {
+      hours
+    });
+  }
+
+  return t("calendar.durationMinutes", {
+    minutes
+  });
+});
+
+// Modali sulgemine
+const createEventError = ref(null);
+
+const closeCreateEventModal = () => {
+  showCreate.value = false;
+  createEventError.value = null;
+};
 
 /* ----- Create-event modal state ----- */
 const calendarRef = ref(null)
@@ -755,14 +1625,596 @@ const editForm = ref({
   note: ''
 })
 
+
+
+// Provider offer edit
 const editOfferForm = ref({
   id: '',
-  title: '',
-  note: '',
-  address: '',
-  priceOffer: '',
-  location: ''
+  start: '',
+  end: '',
 })
+
+
+const addOneHour = date => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Date(date.getTime() + 60 * 60 * 1000);
+};
+
+const pickerOfferDefaultDate = computed(() => {
+  const end = editOfferForm.value.end;
+
+  if (!end) return "";
+
+  const date = new Date(end);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const pad = value => String(value).padStart(2, "0");
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+  ].join("-");
+});
+
+const pickerOfferDefaultTime = computed(() => {
+  const end = editOfferForm.value.end;
+
+  if (!end) return "";
+
+  const date = new Date(end);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const pad = value => String(value).padStart(2, "0");
+
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+});
+
+
+
+async function openOfferEventEdit() {
+  providerPickerReady.value = false;
+
+  const ev = selectedEvent.value;
+
+  if (!ev?.id || !ev?.start) return;
+
+  const start = new Date(ev.start);
+
+  if (Number.isNaN(start.getTime())) return;
+
+  const minimumEnd = new Date(
+    start.getTime() + 60 * 60 * 1000
+  );
+
+  const existingEnd = ev.end
+    ? new Date(ev.end)
+    : null;
+
+  const end =
+    existingEnd &&
+    !Number.isNaN(existingEnd.getTime()) &&
+    existingEnd >= minimumEnd
+      ? existingEnd
+      : minimumEnd;
+
+  editOfferForm.value = {
+    id: String(ev.id),
+    start,
+    end,
+  };
+
+  editingEventId.value = String(ev.id);
+
+  showProEventModal.value = false;
+  showProviderEventEdit.value = true;
+
+  await nextTick();
+
+  reInitKey.value++;
+  providerPickerReady.value = true;
+}
+
+const offerDurationError__ = ref(null)
+
+
+const saveOfferEventEdits__ = async () => {
+  offerDurationError.value = null;
+
+  const id =
+    editOfferForm.value.id ||
+    editingEventId.value;
+
+  if (!id) {
+    offerDurationError.value =
+      t("calendar.durationErrorMissingEvent");
+
+    return;
+  }
+
+  const calendarApi =
+    calendarRef.value?.getApi();
+
+  const eventApi =
+    calendarApi?.getEventById(String(id));
+
+  if (!eventApi) {
+    offerDurationError.value =
+      t("calendar.durationErrorEventNotFound");
+
+    console.error(
+      t("calendar.durationErrorEventNotFound"),
+      id
+    );
+
+    return;
+  }
+
+  const start = new Date(
+    editOfferForm.value.start
+  );
+
+  const end = new Date(
+    editOfferForm.value.end
+  );
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime())
+  ) {
+    offerDurationError.value =
+      t("calendar.durationErrorInvalidTime");
+
+    return;
+  }
+
+
+
+
+
+
+  const minimumEnd = new Date(
+    start.getTime() + 30 * 60 * 1000
+  );
+
+  if (end < minimumEnd) {
+    offerDurationError.value =
+      t("calendar.durationErrorMinimum");
+
+    editOfferForm.value.end =
+      new Date(minimumEnd);
+
+    await nextTick();
+    reInitKey.value++;
+
+    return;
+  }
+
+  const previousState =
+    eventApi.extendedProps?.type;
+
+  try {
+    eventApi.setDates(start, end, {
+      allDay: false
+    });
+
+    const eventOnEdit = {
+      id: String(id),
+      state: previousState,
+      isAllDay: false,
+      start,
+      end
+    };
+
+    await proStore.onEditOrderDuration(
+      String(id),
+      eventOnEdit
+    );
+
+    selectedEvent.value = {
+      ...selectedEvent.value,
+      start: start.toISOString(),
+      end: end.toISOString(),
+      allDay: false
+    };
+
+    showProviderEventEdit.value = false;
+    offerDurationError.value = null;
+  } catch (error) {
+    offerDurationError.value =
+      t("calendar.durationErrorSaveFailed");
+
+    console.error(
+      "Teenuse kestuse salvestamine ebaõnnestus:",
+      error
+    );
+  }
+};
+
+// Handle delete selection error message
+watch(() => showProviderEventEdit.value,
+(value) => {
+  console.log('NEW VALUE ', value)
+  if (!value) offerDurationError.value = null
+})
+
+// Display work estimated duration
+const selectedEventDuration = computed(() => {
+  const startValue = selectedEvent.value?.start;
+  const endValue = selectedEvent.value?.end;
+
+  if (!startValue || !endValue) {
+    return t("calendar.durationNotSet");
+  }
+
+  const start = new Date(startValue);
+  const end = new Date(endValue);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end <= start
+  ) {
+    return t("calendar.durationNotSet");
+  }
+
+  const totalMinutes = Math.round(
+    (end.getTime() - start.getTime()) / 60000
+  );
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return t("calendar.durationHoursMinutes", {
+      hours,
+      minutes
+    });
+  }
+
+  if (hours > 0) {
+    return t("calendar.durationHours", {
+      hours
+    });
+  }
+
+  return t("calendar.durationMinutes", {
+    minutes
+  });
+});
+
+
+const closeProviderDurationEdit = () => {
+  showProviderEventEdit.value = false;
+  offerDurationError.value = null;
+};
+
+
+
+
+
+
+
+ 
+// Time event
+
+const pickerDefaultDate = computed(() => {
+  const end = editForm.value.end;
+
+  if (!end) return "";
+
+  const date = new Date(end);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const pad = value => String(value).padStart(2, "0");
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+  ].join("-");
+});
+
+const pickerDefaultTime = computed(() => {
+  const end = editForm.value.end;
+
+  if (!end) return "";
+
+  const date = new Date(end);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const pad = value => String(value).padStart(2, "0");
+
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+});
+
+const timePickerReady = ref(false);
+
+async function openTimeEventEdit() {
+  timePickerReady.value = false;
+
+  const ev = selectedEvent.value;
+
+  if (!ev?.id || !ev?.start) return;
+
+  const start = new Date(ev.start);
+
+  if (Number.isNaN(start.getTime())) return;
+
+  const minimumEnd = new Date(
+    start.getTime() + 60 * 60 * 1000
+  );
+
+  const existingEnd = ev.end
+    ? new Date(ev.end)
+    : null;
+
+  const end =
+    existingEnd &&
+    !Number.isNaN(existingEnd.getTime()) &&
+    existingEnd >= minimumEnd
+      ? existingEnd
+      : minimumEnd;
+
+  editOfferForm.value = {
+    id: String(ev.id),
+    start,
+    end,
+  };
+
+  editingEventId.value = String(ev.id);
+
+  showProEventModal.value = false;
+  showProviderEventEdit.value = true;
+
+  await nextTick();
+
+  reInitKey.value++;
+  providerPickerReady.value = true;
+}
+
+const offerDurationError = ref(null)
+
+
+const saveOfferEventEdits = async () => {
+  offerDurationError.value = null;
+
+  const id =
+    editOfferForm.value.id ||
+    editingEventId.value;
+
+  if (!id) {
+    offerDurationError.value =
+      t("calendar.durationErrorMissingEvent");
+
+    return;
+  }
+
+  const calendarApi =
+    calendarRef.value?.getApi();
+
+  const eventApi =
+    calendarApi?.getEventById(String(id));
+
+  if (!eventApi) {
+    offerDurationError.value =
+      t("calendar.durationErrorEventNotFound");
+
+    console.error(
+      t("calendar.durationErrorEventNotFound"),
+      id
+    );
+
+    return;
+  }
+
+  const start = new Date(
+    editOfferForm.value.start
+  );
+
+  const end = new Date(
+    editOfferForm.value.end
+  );
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime())
+  ) {
+    offerDurationError.value =
+      t("calendar.durationErrorInvalidTime");
+
+    return;
+  }
+
+  const minimumEnd = new Date(
+    start.getTime() + 30 * 60 * 1000
+  );
+
+  if (end < minimumEnd) {
+    offerDurationError.value =
+      t("calendar.durationErrorMinimum");
+
+    editOfferForm.value.end =
+      new Date(minimumEnd);
+
+    await nextTick();
+    reInitKey.value++;
+
+    return;
+  }
+
+  const previousState =
+    eventApi.extendedProps?.type;
+
+  try {
+    eventApi.setDates(start, end, {
+      allDay: false
+    });
+
+    const eventOnEdit = {
+      id: String(id),
+      state: previousState,
+      isAllDay: false,
+      start,
+      end
+    };
+
+    await proStore.onEditOrderDuration(
+      String(id),
+      eventOnEdit
+    );
+
+    selectedEvent.value = {
+      ...selectedEvent.value,
+      start: start.toISOString(),
+      end: end.toISOString(),
+      allDay: false
+    };
+
+    showProviderEventEdit.value = false;
+    offerDurationError.value = null;
+  } catch (error) {
+    offerDurationError.value =
+      t("calendar.durationErrorSaveFailed");
+
+    console.error(
+      "Teenuse kestuse salvestamine ebaõnnestus:",
+      error
+    );
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+// If your type bar should show ONLY on the start day:
+const startKeyOf = (start) => {
+  const s = new Date(start);
+  return ymdLocal(s);
+};
+
+
+// Notes and time event modal time counter
+const editAvailabilityError = ref(null);
+
+const editAvailabilityDuration = computed(() => {
+  const startValue = editForm.value.start;
+  const endValue = editForm.value.end;
+
+  if (!startValue || !endValue) {
+    return t("calendar.durationNotSet");
+  }
+
+  const start = new Date(startValue);
+  const end = new Date(endValue);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end <= start
+  ) {
+    return t("calendar.durationNotSet");
+  }
+
+  const totalMinutes = Math.round(
+    (end.getTime() - start.getTime()) / 60000
+  );
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return t("calendar.durationHoursMinutes", {
+      hours,
+      minutes
+    });
+  }
+
+  if (hours > 0) {
+    return t("calendar.durationHours", {
+      hours
+    });
+  }
+
+  return t("calendar.durationMinutes", {
+    minutes
+  });
+});
+
+// Closing modal
+const closeCalendarEditModal = () => {
+  showEdit.value = false;
+  editAvailabilityError.value = null;
+};
+
+// Provider time event duration counter
+const selectedAvailabilityDuration = computed(() => {
+  const startValue = selectedEvent.value?.start;
+  const endValue = selectedEvent.value?.end;
+
+  if (!startValue || !endValue) {
+    return t("calendar.durationNotSet");
+  }
+
+  const start = new Date(startValue);
+  const end = new Date(endValue);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end <= start
+  ) {
+    return t("calendar.durationNotSet");
+  }
+
+  const totalMinutes = Math.round(
+    (end.getTime() - start.getTime()) / 60000
+  );
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return t("calendar.durationHoursMinutes", {
+      hours,
+      minutes
+    });
+  }
+
+  if (hours > 0) {
+    return t("calendar.durationHours", {
+      hours
+    });
+  }
+
+  return t("calendar.durationMinutes", {
+    minutes
+  });
+});
 
 onMounted(() => {
   console.log("Mounted is on...");
@@ -912,7 +2364,101 @@ function openCreate({ start, end, allDay }) {
 }
 
 /* save new event with extendedProps */
-const saveEvent = async() => {
+const saveEvent = async () => {
+  createEventError.value = null;
+
+  const eventType = selectedEntryType.value;
+
+  const start = fromLocalInput(form.value.start);
+  const end = fromLocalInput(form.value.end);
+
+  if (!isValidDate(start) || !isValidDate(end)) {
+    createEventError.value = t(
+      "calendar.createEventErrorInvalidTime"
+    );
+
+    return;
+  }
+
+  if (start < new Date()) {
+    createEventError.value = t(
+      "calendar.createEventErrorPastStart"
+    );
+
+    return;
+  }
+
+  if (end <= start) {
+    createEventError.value = t(
+      "calendar.createEventErrorEndBeforeStart"
+    );
+
+    return;
+  }
+
+  if (eventType === "time") {
+    const minimumEnd = new Date(
+      start.getTime() + 30 * 60 * 1000
+    );
+
+    if (end < minimumEnd) {
+      createEventError.value = t(
+        "calendar.createEventErrorMinimumDuration"
+      );
+
+      return;
+    }
+  }
+
+  const title =
+    eventType === "vacation"
+      ? String(form.value.title || "").trim()
+      : t("calendar.available");
+
+  const note =
+    eventType === "vacation"
+      ? String(form.value.note || "").trim()
+      : "";
+
+  if (eventType === "vacation" && !title) {
+    createEventError.value = t(
+      "calendar.createEventErrorMissingTitle"
+    );
+
+    return;
+  }
+
+  const eventPayload = {
+    state: eventType,
+    allDay: Boolean(form.value.allDay),
+    title,
+    content: note,
+    start,
+    end
+  };
+
+  try {
+    await proStore.addAvailableTimeEvent(
+      eventPayload
+    );
+
+    showCreate.value = false;
+    createEventError.value = null;
+  } catch (error) {
+    createEventError.value = t(
+      "calendar.createEventErrorSaveFailed"
+    );
+
+    console.error(
+      "Kalendrikirje loomine ebaõnnestus:",
+      error
+    );
+  }
+};
+
+
+
+const saveEvent__prev = async() => {
   const f = form.value
   
   console.log("CREATED time start - " + f.start);
@@ -954,9 +2500,6 @@ const saveEvent = async() => {
   ]
   showCreate.value = false
 }
-
-
-
 
 
 /* ------------ helpers ------------ */
@@ -1005,7 +2548,8 @@ const fromLocalInput = (v) => {
 let editingEventApi = null // FullCalendar EventApi currently being edited
 
 
-function openEditModalFromPreview() {
+// Really for time
+const openEditModalFromPreview = () => {
   const id = selectedEvent.value?.id;
   if (!id) return;
 
@@ -1016,10 +2560,8 @@ function openEditModalFromPreview() {
     return;
   }
 
-  
-
   // reuse your existing editor opener
-  openEdittModal(evApi);
+  openEditModal(evApi);
 
   // optionally close the preview modal
   showProEventModal.value = false;
@@ -1028,7 +2570,7 @@ function openEditModalFromPreview() {
 const editingEventId = ref(null);
 
 /* Open modal from an event click to edit */
-function openEdittModal(eventLike) {
+function openEditModal(eventLike) {
   const ev = eventLike?.event ?? eventLike;
   if (!ev) return;
 
@@ -1047,6 +2589,20 @@ function openEdittModal(eventLike) {
     note: ev.extendedProps?.note || ''
   };
 
+   /* editForm.value = {
+    title: ev.title || "",
+    note: ev.extendedProps?.note || "",
+    location: ev.extendedProps?.location || "",
+    start: ev.start ? new Date(ev.start) : null,
+    end: ev.end
+      ? new Date(ev.end)
+      : ev.start
+        ? new Date(ev.start.getTime() + 60 * 60 * 1000)
+        : null,
+  }; */
+
+
+  //reInitKey.value++;
   showEdit.value = true;
 
   // clear selection
@@ -1062,44 +2618,310 @@ const ymdLocal = (d) => {
 };
 
 
-// helpers
-const MS_DAY = 86400000;
-const ymdLocal_xx = d => {
-  const z = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return z.toISOString().slice(0,10); // YYYY-MM-DD (local date turned UTC midnight)
-};
 
-// If your type bar should show ONLY on the start day:
-const startKeyOf = (start) => {
-  const s = new Date(start);
-  return ymdLocal(s);
-};
 
-// If your type bar should span all-days across the range (use this instead):
-const dayKeysOfRange = (start, end, allDay) => {
-  const s = new Date(start);
-  const e = end ? new Date(end) : new Date(start);
-  if (allDay) e.setTime(e.getTime() - MS_DAY); // exclusive → inclusive
-  s.setHours(0,0,0,0);
-  e.setHours(0,0,0,0);
 
-  const out = [];
-  for (let cur = new Date(s); cur <= e; cur.setDate(cur.getDate() + 1)) {
-    out.push(ymdLocal(cur));
-  }
-  return out;
-};
 
 const saveTimeEdit = () => {
 
 }
 
+
+
+
+/* if (prevState === "time") {
+  if (
+    !isValidDate(startForApi) ||
+    !isValidDate(endForApi)
+  ) {
+    editAvailabilityError.value =
+      t("calendar.availabilityErrorInvalidTime");
+
+    return;
+  }
+
+  if (startForApi < new Date()) {
+    editAvailabilityError.value =
+      t("calendar.availabilityErrorPastStart");
+
+    return;
+  }
+
+  if (endForApi <= startForApi) {
+    editAvailabilityError.value =
+      t("calendar.availabilityErrorEndBeforeStart");
+
+    return;
+  }
+
+  const minimumEnd = new Date(
+    startForApi.getTime() + 30 * 60 * 1000
+  );
+
+  if (endForApi < minimumEnd) {
+    editAvailabilityError.value =
+      t("calendar.availabilityErrorMinimumDuration");
+
+    return;
+  }
+} */
+
+// Eduka salvestamise lõpus 
+// editAvailabilityError.value = null;
+// showEdit.value = false;
+
+const MS_DAY = 24 * 60 * 60 * 1000;
+
+const dayKeysOfRange = (
+  start,
+  end,
+  allDay = false
+) => {
+  if (!start) return [];
+
+  const rangeStart = new Date(start);
+  const rangeEnd = end
+    ? new Date(end)
+    : new Date(start);
+
+  if (
+    !isValidDate(rangeStart) ||
+    !isValidDate(rangeEnd)
+  ) {
+    return [];
+  }
+
+  /*
+   * FullCalendari all-day event'i end on exclusive.
+   * Näiteks 10.–11. kuupäev tähendab ainult 10. kuupäeva.
+   */
+  if (allDay) {
+    rangeEnd.setTime(
+      rangeEnd.getTime() - MS_DAY
+    );
+  }
+
+  rangeStart.setHours(0, 0, 0, 0);
+  rangeEnd.setHours(0, 0, 0, 0);
+
+  const keys = [];
+
+  for (
+    let current = new Date(rangeStart);
+    current <= rangeEnd;
+    current.setDate(current.getDate() + 1)
+  ) {
+    keys.push(ymdLocal(current));
+  }
+
+  return keys;
+};
+
+
+
 const saveEventEdits = async () => {
+  editAvailabilityError.value = null;
+
+  const id = String(editingEventId.value || "");
+
+  if (!id) {
+    console.error("Muudetava sündmuse ID puudub");
+    return;
+  }
+
+  const calendarApi = calendarRef.value?.getApi?.();
+  const eventApi = calendarApi?.getEventById(id);
+
+  if (!eventApi) {
+    console.error("Kalendrisündmust ei leitud:", id);
+    return;
+  }
+
+  const eventType = eventApi.extendedProps?.type;
+  const form = editForm.value;
+
+  const title = String(form.title || "").trim();
+  const note = String(form.note || "").trim();
+
+  /*
+   * Märkme muutmine
+   *
+   * Märkme modalis ei muudeta kuupäeva ega kellaaega,
+   * seega säilitame olemasolevad väärtused.
+   */
+  if (eventType === "vacation") {
+    const payload = {
+      id,
+      state: eventType,
+      allDay: eventApi.allDay,
+      isAllDay: eventApi.allDay,
+      title: title || t("calendar.untitledNote"),
+      content: note,
+      start: eventApi.start,
+      end: eventApi.end,
+    };
+
+    try {
+      await proStore.onEdit(id, payload);
+
+      eventApi.setProp("title", payload.title);
+      eventApi.setExtendedProp("note", note);
+      eventApi.setExtendedProp("content", note);
+
+      selectedEvent.value = {
+        ...selectedEvent.value,
+        title: payload.title,
+        note,
+        content: note,
+        start: eventApi.start?.toISOString() || null,
+        end: eventApi.end?.toISOString() || null,
+        allDay: eventApi.allDay,
+      };
+
+      showEdit.value = false;
+      showNotesEventModal.value = true;
+    } catch (error) {
+      console.error("Märkme salvestamine ebaõnnestus:", error);
+    }
+
+    return;
+  }
+
+  /*
+   * Saadaoleva aja muutmine
+   */
+  if (eventType === "time") {
+    const newStart = fromLocalInput(form.start);
+    const newEnd = fromLocalInput(form.end);
+
+    if (!isValidDate(newStart) || !isValidDate(newEnd)) {
+      editAvailabilityError.value = t(
+        "calendar.availabilityErrorInvalidTime"
+      );
+      return;
+    }
+
+    const now = new Date();
+
+    if (newStart < now) {
+      editAvailabilityError.value = t(
+        "calendar.availabilityErrorPastStart"
+      );
+      return;
+    }
+
+    if (newEnd <= newStart) {
+      editAvailabilityError.value = t(
+        "calendar.availabilityErrorEndBeforeStart"
+      );
+      return;
+    }
+
+    const minimumEnd = new Date(
+      newStart.getTime() + 30 * 60 * 1000
+    );
+
+    if (newEnd < minimumEnd) {
+      editAvailabilityError.value = t(
+        "calendar.availabilityErrorMinimumDuration"
+      );
+      return;
+    }
+
+    const oldDayKeys = new Set(
+      dayKeysOfRange(
+        eventApi.start,
+        eventApi.end,
+        eventApi.allDay
+      )
+    );
+
+    const newDayKeys = new Set(
+      dayKeysOfRange(
+        newStart,
+        newEnd,
+        false
+      )
+    );
+
+    const affectedDayKeys = new Set([
+      ...oldDayKeys,
+      ...newDayKeys,
+    ]);
+
+    const payload = {
+      id,
+      state: eventType,
+      allDay: false,
+      isAllDay: false,
+      title: eventApi.title,
+      content:
+        eventApi.extendedProps?.note ||
+        eventApi.extendedProps?.content ||
+        "",
+      start: newStart,
+      end: newEnd,
+    };
+
+    try {
+      /*
+       * Salvesta kõigepealt backendis.
+       * Nii ei jää FullCalendar valele ajale,
+       * kui server annab vea.
+       */
+      await proStore.onEdit(id, payload);
+
+      /* eventApi.setDates(newStart, newEnd, {
+        allDay: false,
+      }); */
+
+      selectedEvent.value = {
+        ...selectedEvent.value,
+        start: newStart.toISOString(),
+        end: newEnd.toISOString(),
+        allDay: false,
+      };
+
+      await nextTick();
+
+      affectedDayKeys.forEach(
+        rebuildTypeBarForDay
+      );
+
+      editAvailabilityError.value = null;
+      showEdit.value = false;
+      showTimeEventModal.value = true;
+    } catch (error) {
+      editAvailabilityError.value = t(
+        "calendar.availabilityErrorSaveFailed"
+      );
+
+      console.error(
+        "Saadaoleva aja salvestamine ebaõnnestus:",
+        error
+      );
+    }
+
+    return;
+  }
+
+  console.warn(
+    "Selle sündmuse tüüpi ei saa selle funktsiooniga muuta:",
+    eventType
+  );
+};
+
+
+
+const saveEventEdits__prev = async () => {
   const id = editingEventId.value;
+  console.log("ID " + id)
   if (!id) return;
 
-  const cal = calendarRef.value.getApi();
+  const cal = calendarRef.value.getApi(); 
   const evApi = cal.getEventById(id);
+
+  console.log("Eventapi ", evApi)
   
   if (!evApi) return;
 
@@ -1108,23 +2930,41 @@ const saveEventEdits = async () => {
 
   const f = editForm.value;
 
+  console.log("EFV ", f)
+
   // ---------- 1) capture OLD cells BEFORE editing ----------
-  // If your bar is only on the start day:
+  // If bar is only on the start day:
   const oldKeys = new Set([ startKeyOf(evApi.start) ]);
 
-  // If your bar spans ranges, replace the line above with:
+  // If bar spans ranges, replace the line above with:
   // const oldKeys = new Set(dayKeysOfRange(evApi.start, evApi.end, evApi.allDay));
 
   // ---------- 2) compute new dates ----------
   const newStart = fromLocalInput(f.start); // Date or null
   const newEnd   = fromLocalInput(f.end);   // Date or null
 
-  const startForApi = isValidDate(newStart) ? newStart : evApi.start;
-  const endForApi   = isValidDate(newEnd)   ? newEnd   : evApi.end;
+  console.log("New start - " + newStart + " New end - " + newEnd)
 
-  // OPTIONAL: decide allDay explicitly (your current heuristic is fragile)
-  // Example: if both start and end have times, it’s timed; otherwise all-day:
-  const becomesAllDay =
+
+  const startForApi = isValidDate(newStart)
+    ? newStart
+    : evApi.start;
+
+  const endForApi = isValidDate(newEnd)
+    ? newEnd
+    : evApi.end;
+
+  if (!isValidDate(startForApi) || !isValidDate(endForApi)) {
+    console.error("Algus või lõpp ei ole korrektne");
+    return;
+  }
+
+  if (endForApi <= startForApi) {
+    console.error("Teenuse lõpp peab olema algusest hilisem");
+    return;
+  }
+
+  const becomesAllDay__ =
     !(isValidDate(newStart) && isValidDate(newEnd) &&
       (newStart.getHours() + newStart.getMinutes() + newEnd.getHours() + newEnd.getMinutes() !== 0));
 
@@ -1159,6 +2999,30 @@ const saveEventEdits = async () => {
       ...createdEvents.value.slice(idx + 1),
     ];
   }
+
+  // helpers
+  const MS_DAY = 86400000;
+  const ymdLocal_xx = d => {
+    const z = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return z.toISOString().slice(0,10); // YYYY-MM-DD (local date turned UTC midnight)
+  };
+
+  
+
+  // If your type bar should span all-days across the range (use this instead):
+  const dayKeysOfRange = (start, end, allDay) => {
+    const s = new Date(start);
+    const e = end ? new Date(end) : new Date(start);
+    if (allDay) e.setTime(e.getTime() - MS_DAY); // exclusive → inclusive
+    s.setHours(0,0,0,0);
+    e.setHours(0,0,0,0);
+
+    const out = [];
+    for (let cur = new Date(s); cur <= e; cur.setDate(cur.getDate() + 1)) {
+      out.push(ymdLocal(cur));
+    }
+    return out;
+  };
 
   // ---------- 5) capture NEW cells AFTER editing ----------
   const newKeys = new Set([ startKeyOf(startForApi) ]);
@@ -1206,6 +3070,14 @@ const saveEventEdits = async () => {
   }
     
 };
+
+
+
+
+
+
+
+
 
 
 
@@ -1662,9 +3534,14 @@ const typeBarByDate = computed(() => {
 const handleEventResize = async (info) => {
   const event = info.event;
 
+  
   console.log('📏 Event resized!');
   console.log('New start:', event.start);
   console.log('New end:', event.end);
+
+  const evType = event.extendedProps.type;
+
+  console.log("Resize type ", evType)
 
   const formatLocal = (d) =>
     d?.toLocaleString('fi-FI', {
@@ -1693,11 +3570,16 @@ const handleEventResize = async (info) => {
     start: event.start,
     end: event.end
   }
-
-  await proStore.onEdit(event.id, eventOnResize);
-
-  // Save new range to backend if needed
-  // await api.updateEvent(event.id, { start: event.start, end: event.end });
+  
+  if (evType === 'time') {
+    await proStore.onEdit(event.id, eventOnResize);
+  }
+  
+  if (evType === 'pro') {
+    console.log("Event type resize on pro ")
+    await proStore.onEditOrderDuration(event.id, eventOnResize);
+  }
+  
 }
 
 
@@ -2411,4 +4293,1364 @@ const options = computed(() => ({
 /* .event-chat :hoover{
   background-color: red;
 } */
+
+
+
+
+/* Creating event css */
+.create-entry-modal__header {
+  border-bottom: 1px solid rgba(72, 118, 156, 0.14);
+}
+
+.create-entry-modal__header--availability {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 143, 101, 0.1),
+    rgba(72, 118, 156, 0.04)
+  );
+}
+
+.create-entry-modal__header--note {
+  background: linear-gradient(
+    135deg,
+    rgba(221, 164, 63, 0.1),
+    rgba(72, 118, 156, 0.03)
+  );
+}
+
+.create-entry-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #324957;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.create-entry-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.create-entry-modal__title-icon--availability {
+  background: rgba(47, 143, 101, 0.14);
+  color: #2b825e;
+}
+
+.create-entry-modal__title-icon--note {
+  background: rgba(221, 164, 63, 0.15);
+  color: #b87812;
+}
+
+.create-entry-modal__body {
+  padding: 22px;
+}
+
+.create-entry-modal__description {
+  margin: 0 0 17px;
+  color: #687985;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.create-entry-modal__type {
+  margin-bottom: 18px;
+}
+
+.create-entry-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 14px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+.create-entry-info--availability {
+  border: 1px solid rgba(47, 143, 101, 0.15);
+  background: rgba(47, 143, 101, 0.06);
+}
+
+.create-entry-info--note {
+  border: 1px solid rgba(221, 164, 63, 0.17);
+  background: rgba(221, 164, 63, 0.07);
+}
+
+.create-entry-info__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(72, 118, 156, 0.1);
+  color: #48769c;
+}
+
+.create-entry-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.create-entry-info strong {
+  color: #304f45;
+  font-size: 0.85rem;
+}
+
+.create-entry-info span {
+  color: #687985;
+  font-size: 0.77rem;
+  line-height: 1.4;
+}
+
+.create-entry-time-card {
+  padding: 16px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.create-entry-time-card__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.create-entry-time-card__item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.create-entry-time-card__item span {
+  color: #798994;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.create-entry-time-card__item strong {
+  color: #304653;
+  font-size: 0.9rem;
+}
+
+.create-entry-time-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(47, 143, 101, 0.12);
+  color: #2f8f65;
+  font-size: 0.7rem;
+}
+
+.create-entry-time-card__icon--end {
+  background: rgba(72, 118, 156, 0.12);
+  color: #48769c;
+}
+
+.create-entry-time-card__line {
+  display: flex;
+  width: 34px;
+  height: 24px;
+  justify-content: center;
+}
+
+.create-entry-time-card__line span {
+  width: 1px;
+  height: 100%;
+  background: rgba(72, 118, 156, 0.23);
+}
+
+.create-entry-duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  margin-top: 12px;
+  border-left: 4px solid #2f8f65;
+  border-radius: 8px;
+  background: rgba(47, 143, 101, 0.06);
+}
+
+.create-entry-duration > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.create-entry-duration span {
+  color: #71827a;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.create-entry-duration strong {
+  color: #276849;
+  font-size: 1rem;
+}
+
+.create-entry-duration > i {
+  color: rgba(47, 143, 101, 0.7);
+  font-size: 1.25rem;
+}
+
+.create-note__date {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.create-note__date-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  background: rgba(72, 118, 156, 0.11);
+  color: #48769c;
+}
+
+.create-note__date > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.create-note__date span {
+  color: #7a8994;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.create-note__date strong {
+  color: #304552;
+  font-size: 0.9rem;
+}
+
+.create-entry-modal__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 12px;
+  color: #b63846;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.create-entry-modal__footer {
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(72, 118, 156, 0.12);
+}
+
+@media (max-width: 576px) {
+  .create-entry-modal__body {
+    padding: 18px;
+  }
+
+  .create-entry-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .create-entry-modal__footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+
+/* Notes event */
+.note-modal__header {
+  border-bottom: 1px solid rgba(94, 104, 116, 0.14);
+  background: linear-gradient(
+    135deg,
+    rgba(94, 104, 116, 0.08),
+    rgba(72, 118, 156, 0.04)
+  );
+}
+
+.note-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #344653;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.note-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(221, 164, 63, 0.14);
+  color: #bb7b12;
+}
+
+.note-modal__body {
+  padding: 22px;
+}
+
+.note-modal__heading {
+  margin-bottom: 16px;
+}
+
+.note-modal__heading-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #7b8993;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.note-modal__heading h2 {
+  margin: 0;
+  color: #304552;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.note-date-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 15px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.note-date-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(72, 118, 156, 0.11);
+  color: #48769c;
+}
+
+.note-date-card__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.note-date-card__content span {
+  color: #7a8994;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.note-date-card__content strong {
+  color: #304552;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.note-content-card {
+  overflow: hidden;
+  border: 1px solid rgba(221, 164, 63, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 249, 235, 0.72);
+}
+
+.note-content-card__header {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(221, 164, 63, 0.17);
+  background: rgba(221, 164, 63, 0.08);
+}
+
+.note-content-card__header span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8b671f;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.note-content-card__text {
+  margin: 0;
+  padding: 16px;
+  color: #46535c;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-private-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  margin-top: 14px;
+  border-radius: 8px;
+  background: rgba(94, 104, 116, 0.06);
+  color: #6d7b84;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.note-private-info i {
+  margin-top: 2px;
+  color: #74818a;
+}
+
+.note-modal__footer {
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(94, 104, 116, 0.12);
+}
+
+@media (max-width: 576px) {
+  .note-modal__body {
+    padding: 18px;
+  }
+
+  .note-modal__heading h2 {
+    font-size: 1.08rem;
+  }
+
+  .note-content-card__text {
+    padding: 14px;
+  }
+
+  .note-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .note-modal__footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+
+/* Time event modal */
+.availability-modal__header {
+  border-bottom: 1px solid rgba(47, 143, 101, 0.14);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 143, 101, 0.08),
+    rgba(72, 118, 156, 0.04)
+  );
+}
+
+.availability-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #2f4d43;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.availability-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(47, 143, 101, 0.13);
+  color: #287d59;
+}
+
+.availability-modal__body {
+  padding: 22px;
+}
+
+.availability-modal__date-heading {
+  margin-bottom: 13px;
+  color: #667984;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.availability-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 16px;
+  margin-bottom: 13px;
+  border: 1px solid rgba(47, 143, 101, 0.18);
+  border-radius: 12px;
+  background: rgba(47, 143, 101, 0.07);
+}
+
+.availability-status__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2f8f65;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.availability-status__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.availability-status__label {
+  color: #71827a;
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.availability-status__content strong {
+  color: #255f49;
+  font-size: 1rem;
+}
+
+.availability-status__badge {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(72, 118, 156, 0.1);
+  color: #48769c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.availability-modal__description {
+  margin: 0 0 18px;
+  color: #697985;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.availability-schedule {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 16px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.availability-schedule__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.availability-schedule__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(47, 143, 101, 0.12);
+  color: #2f8f65;
+  font-size: 0.7rem;
+}
+
+.availability-schedule__icon--end {
+  background: rgba(72, 118, 156, 0.12);
+  color: #48769c;
+}
+
+.availability-schedule__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.availability-schedule__content span {
+  color: #798994;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.availability-schedule__content strong {
+  color: #304653;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.availability-schedule__line {
+  display: flex;
+  width: 34px;
+  height: 24px;
+  justify-content: center;
+}
+
+.availability-schedule__line span {
+  width: 1px;
+  height: 100%;
+  background: rgba(72, 118, 156, 0.24);
+}
+
+.availability-all-day {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(47, 143, 101, 0.16);
+  border-radius: 12px;
+  background: #f8faf9;
+}
+
+.availability-all-day__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(239, 174, 39, 0.14);
+  color: #d28b12;
+  font-size: 1rem;
+}
+
+.availability-all-day > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.availability-all-day span {
+  color: #798994;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.availability-all-day strong {
+  color: #304653;
+  font-size: 0.95rem;
+}
+
+.availability-duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 15px;
+  margin-top: 12px;
+  border-left: 4px solid #2f8f65;
+  border-radius: 8px;
+  background: rgba(47, 143, 101, 0.06);
+}
+
+.availability-duration > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.availability-duration span {
+  color: #71827a;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.availability-duration strong {
+  color: #276849;
+  font-size: 1rem;
+}
+
+.availability-duration > i {
+  color: rgba(47, 143, 101, 0.7);
+  font-size: 1.25rem;
+}
+
+.availability-visibility-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  margin-top: 15px;
+  border-radius: 8px;
+  background: rgba(72, 118, 156, 0.07);
+  color: #647884;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.availability-visibility-note i {
+  margin-top: 2px;
+  color: #48769c;
+}
+
+.availability-modal__footer {
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(72, 118, 156, 0.12);
+}
+
+@media (max-width: 576px) {
+  .availability-modal__body {
+    padding: 18px;
+  }
+
+  .availability-status {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .availability-status__badge {
+    margin-left: 48px;
+  }
+
+  .availability-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .availability-modal__footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+
+/* Time event and notes event edit modal */
+.calendar-edit-modal__header {
+  border-bottom: 1px solid rgba(72, 118, 156, 0.14);
+}
+
+.calendar-edit-modal__header--note {
+  background: linear-gradient(
+    135deg,
+    rgba(221, 164, 63, 0.09),
+    rgba(72, 118, 156, 0.03)
+  );
+}
+
+.calendar-edit-modal__header--availability {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 143, 101, 0.1),
+    rgba(72, 118, 156, 0.04)
+  );
+}
+
+.calendar-edit-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #324957;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.calendar-edit-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.calendar-edit-modal__title-icon--note {
+  background: rgba(221, 164, 63, 0.15);
+  color: #b87812;
+}
+
+.calendar-edit-modal__title-icon--availability {
+  background: rgba(47, 143, 101, 0.14);
+  color: #2b825e;
+}
+
+.calendar-edit-modal__body {
+  padding: 22px;
+}
+
+.calendar-edit-modal__description {
+  margin: 0 0 17px;
+  color: #687985;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+/* Märkme vorm */
+
+.note-edit-form__private-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background: rgba(94, 104, 116, 0.06);
+  color: #6d7b84;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.note-edit-form__private-info i {
+  margin-top: 2px;
+  color: #74818a;
+}
+
+.note-edit-form__date {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.note-edit-form__date-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  background: rgba(72, 118, 156, 0.11);
+  color: #48769c;
+}
+
+.note-edit-form__date > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.note-edit-form__date span {
+  color: #7a8994;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.note-edit-form__date strong {
+  color: #304552;
+  font-size: 0.9rem;
+}
+
+/* Saadaoleva aja vorm */
+
+.availability-edit-form__visibility {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 14px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(47, 143, 101, 0.15);
+  border-radius: 10px;
+  background: rgba(47, 143, 101, 0.06);
+}
+
+.availability-edit-form__visibility-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(47, 143, 101, 0.13);
+  color: #2f8f65;
+}
+
+.availability-edit-form__visibility > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.availability-edit-form__visibility strong {
+  color: #28684d;
+  font-size: 0.85rem;
+}
+
+.availability-edit-form__visibility span {
+  color: #687b72;
+  font-size: 0.77rem;
+  line-height: 1.4;
+}
+
+.availability-edit-form__summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(72, 118, 156, 0.14);
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.availability-edit-form__summary > i {
+  color: #95a3ac;
+  font-size: 0.82rem;
+}
+
+.availability-edit-form__summary-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.availability-edit-form__summary-item span {
+  color: #798994;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.availability-edit-form__summary-item strong {
+  color: #304653;
+  font-size: 0.87rem;
+  line-height: 1.4;
+}
+
+.availability-edit-form__duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2f8f65;
+  border-radius: 8px;
+  background: rgba(47, 143, 101, 0.06);
+}
+
+.availability-edit-form__duration > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.availability-edit-form__duration span {
+  color: #71827a;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.availability-edit-form__duration strong {
+  color: #276849;
+  font-size: 1rem;
+}
+
+.availability-edit-form__duration > i {
+  color: rgba(47, 143, 101, 0.7);
+  font-size: 1.25rem;
+}
+
+.availability-edit-form__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.availability-edit-form__field {
+  min-width: 0;
+}
+
+.availability-edit-form__label {
+  display: block;
+  margin-bottom: 7px;
+  color: #344b5d;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.calendar-edit-modal__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 11px;
+  color: #b63846;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.calendar-edit-modal__error i {
+  margin-top: 2px;
+}
+
+.calendar-edit-modal__footer {
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(72, 118, 156, 0.12);
+}
+
+@media (max-width: 576px) {
+  .calendar-edit-modal__body {
+    padding: 18px;
+  }
+
+  .availability-edit-form__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .availability-edit-form__summary > i {
+    display: none;
+  }
+
+  .availability-edit-form__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-edit-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .calendar-edit-modal__footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+ /* Provider order event modal */
+ .event-schedule {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(72, 118, 156, 0.18);
+  border-radius: 12px;
+  background: rgba(72, 118, 156, 0.06);
+}
+
+.schedule-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.schedule-item span {
+  font-size: 0.78rem;
+  color: #6c757d;
+}
+
+.schedule-item strong {
+  font-size: 0.95rem;
+  color: #4f667a;
+}
+
+.schedule-divider {
+  color: #8495a5;
+}
+
+.work-time-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.duration-edit-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid #ef8627;
+  border-radius: 7px;
+  background: transparent;
+  color: #cf6e17;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.duration-edit-button:hover {
+  background: #ef8627;
+  color: #fff !important;
+}
+
+@media (max-width: 576px) {
+  .event-schedule {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-divider {
+    display: none;
+  }
+
+  .work-time-value {
+    align-items: flex-end;
+    flex-direction: column;
+  }
+}
+
+/* Deskdop duration display detail and mobile */
+
+.desktop-label {
+  display: inline;
+}
+
+.mobile-label {
+  display: none;
+}
+
+@media (max-width: 576px) {
+  .desktop-label {
+    display: none;
+  }
+
+  .mobile-label {
+    display: inline;
+  }
+}
+
+/* Order duration edit */
+.duration-modal__header {
+  border-bottom: 1px solid rgba(72, 118, 156, 0.14);
+}
+
+.duration-modal__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #31485b;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.duration-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(239, 134, 39, 0.12);
+  color: #df781d;
+}
+
+.duration-modal__body {
+  padding: 22px;
+}
+
+.duration-modal__description {
+  margin-bottom: 18px;
+  color: #667684;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.duration-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(72, 118, 156, 0.16);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.duration-summary__item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.duration-summary__icon {
+  display: flex;
+  flex: 0 0 35px;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  background: rgba(72, 118, 156, 0.12);
+  color: #48769c;
+}
+
+.duration-summary__icon--end {
+  background: rgba(239, 134, 39, 0.12);
+  color: #df781d;
+}
+
+.duration-summary__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.duration-summary__content span {
+  color: #788792;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.duration-summary__content strong {
+  color: #2f4353;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.duration-summary__arrow {
+  color: #9ba8b1;
+  font-size: 0.85rem;
+}
+
+.duration-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  margin-bottom: 22px;
+  border-left: 4px solid #ef8627;
+  border-radius: 8px;
+  background: rgba(239, 134, 39, 0.07);
+}
+
+.duration-current > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.duration-current__label {
+  color: #7b6a5b;
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+
+.duration-current__value {
+  color: #bd6010;
+  font-size: 1.05rem;
+}
+
+.duration-current__icon {
+  color: rgba(223, 120, 29, 0.65);
+  font-size: 1.35rem;
+}
+
+.duration-picker-section {
+  padding-top: 2px;
+}
+
+.duration-picker-section__label {
+  display: block;
+  margin-bottom: 4px;
+  color: #344b5d;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.duration-picker-section__hint {
+  margin-bottom: 13px;
+  color: #788792;
+  font-size: 0.79rem;
+  line-height: 1.4;
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 8px;
+  color: #b63846;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.field__error i {
+  margin-top: 2px;
+}
+
+.duration-modal__footer {
+  padding-top: 14px;
+  border-top: 1px solid rgba(72, 118, 156, 0.12);
+}
+
+@media (max-width: 576px) {
+  .duration-modal__body {
+    padding: 18px;
+  }
+
+  .duration-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .duration-summary__arrow {
+    display: none;
+  }
+
+  .duration-summary__item {
+    align-items: flex-start;
+  }
+
+  .duration-current {
+    margin-bottom: 18px;
+  }
+
+  .duration-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .duration-modal__footer .btn {
+    width: 100%;
+    margin: 0;
+  }
+}
 </style>

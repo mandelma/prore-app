@@ -194,16 +194,11 @@
           @cancel="handleCancelRemoving"
         />
         </Teleport>
-
-      
-
       <!-- <div style="color:red; position:absolute; top:-20px;">
         {{ mobile }}
       </div> -->
     </div>
 
-    
-    
 </template>
 
 <script setup>

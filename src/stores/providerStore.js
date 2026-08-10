@@ -420,8 +420,13 @@ export const useProStore = defineStore("pro", () => {
         
     }
 
-    const onEdit = async (id, edited) => {
-        await timetableService.updateTimetableEvent(id, edited);
+    // Edit local availability timetable
+    const onEdit_prev = async (id, edited) => {
+        const done = await timetableService.updateTimetableEvent(id, edited);
+        console.log("Editing edits - ", edited);
+
+        if (!done) return;
+
         const existing = proTimetable.value.find(time => time.id === id);
         
         proTimetable.value = proTimetable.value.map(time =>
@@ -435,6 +440,88 @@ export const useProStore = defineStore("pro", () => {
                 }
                 : time
         );
+    }
+
+    const onEdit = async (id, edited) => {
+        const eventId = String(id);
+
+        const done =
+            await timetableService.updateTimetableEvent(
+                eventId,
+                edited
+            );
+
+        if (!done) {
+            return false;
+        }
+
+        let found = false;
+
+        proTimetable.value = proTimetable.value.map(time => {
+            if (String(time.id) !== eventId) {
+                return time;
+            }
+
+            found = true;
+
+            return {
+                ...time,
+
+                state:
+                    edited.state ??
+                    time.state,
+
+                title:
+                    edited.title ??
+                    time.title,
+
+                content:
+                    edited.content ??
+                    time.content,
+
+                start:
+                    edited.start ??
+                    time.start,
+
+                end:
+                    edited.end ??
+                    time.end,
+
+                isAllDay:
+                    edited.isAllDay ??
+                    edited.allDay ??
+                    time.isAllDay
+            };
+        });
+
+        if (!found) {
+            console.warn(
+                "Timetable event not found in store:",
+                eventId
+            );
+        }
+
+        return true;
+    };
+
+    const onEditOrderDuration = async (id, result) => {
+        console.log("Id - " + id);
+        console.log("Edited - ", result);
+
+        const toEnd = new Date(result.end);
+
+        const changedOrderDuration = await clientService.orderDuration(id, { finish: toEnd});
+
+        console.log("End updated result: ", changedOrderDuration);
+
+        if (!changedOrderDuration.ok) return;
+
+        proCalendarEvents.value = proCalendarEvents.value.map(pce => 
+            pce.id === id
+            ? {...pce, estimatedFinish: new Date(result.end)}
+            : pce
+        )
+
     }
 
     const onDelete = async (eventId) => {
@@ -478,6 +565,7 @@ export const useProStore = defineStore("pro", () => {
         getIncomOfferById,
         addAvailableTimeEvent,
         onEdit,
+        onEditOrderDuration,
         onDelete,
         handleConfirmed,
         onClientBooking,

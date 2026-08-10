@@ -124,9 +124,28 @@ const archivedClient = ref(null);
 const { profile } = storeToRefs(userStore);
 
 const handleNoRating = async () => {
+  const booking = clientStore.getBookingById(props.booking_id);
+
+  if (!booking) return;
+  //const provider = await providerService.getProvByProvId(props.providerId);
+  const provider = await providerService.getProvider(props.target);
+
+  console.log("TARGET " + props.target)
+  console.log("Booking id in feedback no page " + props.booking_id);
+
+  if (!booking && !provider) return;
+
+  console.log("Confirm not feedback PROVIDER - ", provider.id);
+
+  try {
+    await handleArchiveClient(booking, provider);
+    emit('no-rating');
+      
+  } catch (err) {
+    console.log("Error to handle no rating given " + err.message);
+  }
   //await clientStore.handleGivenFeedback(props.booking_id, props.target, 'archieved');
-  emit('no-rating');
-  await handleArchiveClient();
+ 
 }
 
 const { t } = useI18n();

@@ -378,6 +378,7 @@ import { useClientArchiveStore } from './stores/cArchiveStore';
 import { useProArchiveStore } from './stores/pArchiveStore';
 import { useMapStore } from './stores/mapStore';
 import { useProfessionStore } from './stores/professionStore.js';
+import { useAdminStore } from './stores/adminStore.js';
 
 
 import { useI18n } from 'vue-i18n';
@@ -411,12 +412,15 @@ const clientArchiveStore = useClientArchiveStore();
 const proArchiveStore = useProArchiveStore();
 const mapStore = useMapStore();
 const professionStore = useProfessionStore();
+const adminStore = useAdminStore();
 
 const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
 const { notifications, newNotesCount } = storeToRefs(notificationStore);
 const { openChat, conversations, totalUnread } = storeToRefs(conversationStore);
+
+const { _providers } = storeToRefs(adminStore);
 
 const contactModal = ref(false);
 const contactMessage = ref("");
@@ -749,7 +753,8 @@ const refreshUserData = async (userId) => {
     notificationStore.handleNotifications(userId),
     clientArchiveStore.initClientArchive(),
     proArchiveStore.initProviderArchive(),
-    conversationStore.getConversations()
+    conversationStore.getConversations(),
+    adminStore.fetchAdminData()
   ])
 }
 

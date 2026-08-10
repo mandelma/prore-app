@@ -27,6 +27,14 @@ const updateMain = async (clientId, payload) => {
     const main = await axios.put(`${baseUrl}/update-client-main/${clientId}`, payload);
     return main.data;
 }
+
+// Update booking duration
+const orderDuration = async (id, result) => {
+    const updated = await axios.put(`${baseUrl}/${id}/duration`, result);
+    return updated.data;
+}
+
+
 // Update booking status
 const updateRecipientStatus = async (id, update) => {
     const updated = await axios.put(`${baseUrl}/${id}`, update);
@@ -129,6 +137,7 @@ export default {
     createOffer,
     confirmOffer,
     updateOffer,
+    orderDuration,
     //addProviderID,
     newDate,
     addImage,

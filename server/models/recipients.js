@@ -118,6 +118,10 @@ const recipientSchema = new Schema({
     created_ms: {
         type: Number
     },
+    estimatedFinish: {
+        type: Date,
+        default: null
+    },
     date: {
         type: String
     },

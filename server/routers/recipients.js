@@ -90,6 +90,7 @@ module.exports = (io) => {
                 started: new Date(),
                 created: body.created,
                 created_ms: body.created_ms,
+                estimatedFinish: new Date(body.created).getTime() + 60 * 60 * 1000,
                 header: body.header,
                 isContactAgreement: body.agreement,
                 address: body.address,
@@ -386,6 +387,40 @@ module.exports = (io) => {
             console.log("Error: " + error.message);
         }
 
+    })
+
+    // Edit order duration
+    recipientRouter.put ('/:id/duration', async (req, res) => {
+        try {
+            const { finish } = req.body;
+            console.log("Duration - ", finish);
+
+            const finishUpdated = await Recipient.findByIdAndUpdate(
+                req.params.id,
+                {
+                    $set: { 'estimatedFinish': finish}
+                },
+                { new: true }
+            )
+
+            if (!finishUpdated) {
+                return res.status(404).json({
+                    ok: false,
+                    msg: "Order duration is not updated"
+                })
+            }
+
+            return res.status(200).json({
+                ok: true,
+                msg: "Order duration is updated successfully"
+            })
+        } catch (err) {
+            console.log("Error " + err.message);
+            res.status(500).json({
+                ok: false,
+                msg: "Order duration update failed"
+            })
+        }
     })
 
     // Update offer in booking
