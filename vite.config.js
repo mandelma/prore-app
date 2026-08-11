@@ -33,7 +33,8 @@ export default defineConfig({
         "icon-32x32.png",
         "icon-48x48.png",
         "icon-64x64.png",
-        "icon-180x180.png"
+        "icon-180x180.png",
+        "icon-maskable-512x512.png"
       ],
 
       manifest: {
@@ -90,11 +91,17 @@ export default defineConfig({
              * Kontrolli, et logo ümber oleks
              * piisavalt läbipaistvat ruumi.
              */
-            src: "/icon-512x512.png",
+            src: "/icon-maskable-512x512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"
-          }
+          },
+          {
+            src: "/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any"
+          },
         ]
       },
 
