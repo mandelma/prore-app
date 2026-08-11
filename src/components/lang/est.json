@@ -43,6 +43,14 @@
     "register": "Registreeru"
   },
 
+  "pwa": {
+    "update_available": "Saadaval on DuunHubi uus versioon",
+    "update_description": "Uusimate funktsioonide ja paranduste saamiseks uuenda rakendust.",
+    "update_now": "Uuenda kohe",
+    "later": "Hiljem",
+    "install_app": "Paigalda rakendus"
+  },
+
   "login": {
     "username": "Kasutajanimi",
     "password": "Parool",

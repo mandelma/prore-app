@@ -292,6 +292,8 @@
         @request-close="closeChatWindow"
       />
     </div>
+
+    <PwaUpdate />
     
     <MDBFooter
 
@@ -315,7 +317,7 @@
        </section>
         <!-- Section: CTA -->
          <section>
-
+          <PwaInstallButton />
          </section>
       </MDBContainer>
       
@@ -379,6 +381,9 @@ import { useProArchiveStore } from './stores/pArchiveStore';
 import { useMapStore } from './stores/mapStore';
 import { useProfessionStore } from './stores/professionStore.js';
 import { useAdminStore } from './stores/adminStore.js';
+
+import PwaUpdate from './components/PwaUpdate.vue';
+import PwaInstallButton from './components/PwaInstallButton.vue'
 
 
 import { useI18n } from 'vue-i18n';

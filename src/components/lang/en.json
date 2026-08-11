@@ -10,6 +10,16 @@
     "register": "Register"
   }, 
 
+  "pwa": {
+    "update_available": "A new version of DuunHub is available",
+    "update_description": "Update the app to get the latest features and fixes.",
+    "update_now": "Update now",
+    "later": "Later",
+    "install_app": "Install app"
+  },
+
+  "install_app": "Install app",
+
   "login": {
     "username": "Username",
     "password": "Password",

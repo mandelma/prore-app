@@ -101,7 +101,9 @@
                 </button>
               </div>
             </main>
+            
           </div>
+          
         </MDBCol>
       </MDBRow>
     </MDBContainer>
@@ -116,6 +118,7 @@ import { useI18n } from 'vue-i18n/dist/vue-i18n'
 import { useProStore } from '@/stores/providerStore.js'
 import '@/styles/theme.css'
 import logo from '@/assets/duun_hub_hero.png'
+import PwaInstallButton from './PwaInstallButton.vue'
 
 defineOptions({
   name: 'Home'

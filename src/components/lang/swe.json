@@ -43,6 +43,14 @@
     "register": "Registrera dig"
   },
 
+  "pwa": {
+    "update_available": "En ny version av DuunHub är tillgänglig",
+    "update_description": "Uppdatera appen för att få de senaste funktionerna och korrigeringarna.",
+    "update_now": "Uppdatera nu",
+    "later": "Senare",
+    "install_app": "Installera appen"
+  },
+
   "login": {
     "username": "Användarnamn",
     "password": "Lösenord",

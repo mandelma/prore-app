@@ -3,11 +3,283 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+
+    VitePWA({
+      /*
+       * Kasutaja saab teate, kui rakenduse uus versioon
+       * on saadaval.
+       */
+      registerType: "prompt",
+
+      /*
+       * Lisab service worker'i registreerimise
+       * automaatselt rakendusse.
+       */
+      injectRegister: "auto",
+
+      /*
+       * Need public-kausta failid lisatakse
+       * service worker'i precache'i.
+       */
+      includeAssets: [
+        "favicon.ico",
+        "icon-16x16.png",
+        "icon-32x32.png",
+        "icon-48x48.png",
+        "icon-64x64.png",
+        "icon-180x180.png"
+      ],
+
+      manifest: {
+        name: "DuunHub",
+        short_name: "DuunHub",
+
+        description:
+          "Leia töö või professionaalne teenusepakkuja enda lähedalt.",
+
+        lang: "fi",
+
+        start_url: "/",
+        scope: "/",
+
+        display: "standalone",
+
+        /*
+         * Proovitakse kasutada standalone-režiimi.
+         * Toetatud seadmetes võib kasutada ka
+         * minimal-ui režiimi.
+         */
+        display_override: [
+          "standalone",
+          "minimal-ui"
+        ],
+
+        orientation: "portrait-primary",
+
+        background_color: "#ffffff",
+        theme_color: "#2563eb",
+
+        categories: [
+          "business",
+          "productivity",
+          "lifestyle"
+        ],
+
+        icons: [
+          {
+            src: "/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png"
+          },
+          {
+            src: "/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png"
+          },
+          {
+            /*
+             * Sama 512px ikooni kasutatakse ka
+             * maskable-ikoonina.
+             *
+             * Kontrolli, et logo ümber oleks
+             * piisavalt läbipaistvat ruumi.
+             */
+            src: "/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable"
+          }
+        ]
+      },
+
+      workbox: {
+        /*
+         * Vite build'i genereeritud JS-, CSS-, HTML-,
+         * pildi- ja fondifailid lisatakse precache'i.
+         */
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"
+        ],
+
+        /*
+         * Vue Router history mode'i puhul suunatakse
+         * navigeerimispäringud index.html faili.
+         */
+        navigateFallback: "/index.html",
+
+        /*
+         * Neid aadresse ei tohiks käsitleda
+         * SPA navigeerimisena.
+         */
+        navigateFallbackDenylist: [
+          /^\/api\//,
+          /^\/socket\.io\//
+        ],
+
+        /*
+         * Väldi liiga vana vahemälu kogunemist.
+         */
+        cleanupOutdatedCaches: true,
+
+        /*
+         * Võtab uue service worker'i kohe kasutusele,
+         * kui kasutaja uuendamise kinnitab.
+         */
+        skipWaiting: false,
+        clientsClaim: true,
+
+        runtimeCaching: [
+          /*
+           * Google Fonts stylesheet.
+           */
+          {
+            urlPattern:
+              /^https:\/\/fonts\.googleapis\.com\/.*/i,
+
+            handler: "StaleWhileRevalidate",
+
+            options: {
+              cacheName: "google-fonts-stylesheets",
+
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+
+          /*
+           * Google Fonts failid.
+           */
+          {
+            urlPattern:
+              /^https:\/\/fonts\.gstatic\.com\/.*/i,
+
+            handler: "CacheFirst",
+
+            options: {
+              cacheName: "google-fonts-webfonts",
+
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+
+          /*
+           * Rakenduse avalikud pildid.
+           *
+           * See reegel ei puuduta sinu S3 pilte,
+           * kui need tulevad teisest domeenist.
+           */
+          {
+            urlPattern: ({ request, url }) => {
+              return (
+                request.destination === "image" &&
+                url.origin === self.location.origin
+              );
+            },
+
+            handler: "StaleWhileRevalidate",
+
+            options: {
+              cacheName: "duunhub-local-images",
+
+              expiration: {
+                maxEntries: 80,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              },
+
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+
+          /*
+           * API päringuid EI salvestata püsivalt
+           * vahemällu.
+           *
+           * DuunHubi API sisaldab kasutajate,
+           * tellimuste, pakkumiste ja vestluste
+           * privaatseid andmeid.
+           */
+          {
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith("/api/"),
+
+            handler: "NetworkOnly",
+
+            method: "GET"
+          },
+
+          {
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith("/api/"),
+
+            handler: "NetworkOnly",
+
+            method: "POST"
+          },
+
+          {
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith("/api/"),
+
+            handler: "NetworkOnly",
+
+            method: "PUT"
+          },
+
+          {
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith("/api/"),
+
+            handler: "NetworkOnly",
+
+            method: "PATCH"
+          },
+
+          {
+            urlPattern: ({ url }) =>
+              url.pathname.startsWith("/api/"),
+
+            handler: "NetworkOnly",
+
+            method: "DELETE"
+          }
+        ]
+      },
+
+      /*
+       * Võimaldab testida PWA-d ka npm run dev ajal.
+       * Arenduses kasutab service worker tavaliselt
+       * lihtsamat režiimi.
+       */
+      devOptions: {
+        enabled: true,
+        type: "module",
+        navigateFallback: "index.html"
+      }
+    }),
+
+
+
     vueDevTools(),
   ],
   server: {

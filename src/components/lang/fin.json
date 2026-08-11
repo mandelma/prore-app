@@ -10,6 +10,14 @@
     "register": "Rekisteröidy"
   },
 
+  "pwa": {
+    "update_available": "DuunHubista on saatavilla uusi versio",
+    "update_description": "Päivitä sovellus saadaksesi uusimmat ominaisuudet ja korjaukset.",
+    "update_now": "Päivitä nyt",
+    "later": "Myöhemmin",
+    "install_app": "Asenna sovellus"
+  },
+
   "login": {
     "username": "Käyttäjätunnus",
     "password": "Salasana",
