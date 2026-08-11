@@ -42,6 +42,11 @@ const routes = [
         component: () => import("../components/Terms.vue")
     },
     {
+        path: "/pwa-install",
+        name: "pwa-install",
+        component: () => impport("../components/PwaInstallButton.vue")
+    },
+    {
         path: "/login-register",
         name: "LoginRegister",
         component: () => import("../components/login/LoginRegisterPanel.vue")

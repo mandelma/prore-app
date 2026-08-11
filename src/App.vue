@@ -122,6 +122,22 @@
                   {{ t("app.logout") }}
                 </MDBDropdownItem>
 
+                <!-- :tag="RouterLink"
+                  to="/"
+                  class="dd-item" -->
+
+                <!-- v-if="canInstall" -->
+
+
+                <!-- <MDBDropdownItem
+                  v-if="canInstall"
+                  class="dd-item pwa-install-item"
+                  @click="installApp"
+                >
+                  <i class="fas fa-download"></i>
+                  Installi rakendus
+                </MDBDropdownItem> -->
+
               </MDBDropdownMenu>
             </MDBDropdown>
           </MDBNavbarItem>
@@ -364,6 +380,7 @@ import {
 import { ref, watch, onMounted, computed, onUnmounted, nextTick } from "vue";
 import { storeToRefs } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
+import { usePwaInstall } from './composables/usePwaInstall.js';
 //import language from './components/LanguageContents.vue'
 //import userService from './service/users.js';
 //import loginService from './service/login.js';
@@ -471,6 +488,16 @@ const widgetAnchor = computed(() =>
     ? openWindowPos.value
     : pos.value
 );
+
+
+//const { initPwaInstall } = usePwaInstall();
+
+/* const {
+  canInstall,
+  initPwaInstall,
+  installApp,
+  
+} = usePwaInstall(); */
 
 const placeWidgetBottomRight = () => {
   const launcherW = 57;
@@ -856,6 +883,9 @@ watch(
 
 onMounted (async () => {
   console.log("Mounted on start!");
+
+  //initPwaInstall();
+  
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
   handleProvider.getAllProviders(),
@@ -1277,6 +1307,46 @@ const sendClientMessage = async () => {
 
 <style>
 html, body { height: 100%; }
+
+.pwa-install-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 6px;
+  padding: 10px 12px !important;
+
+  color: #e2e8f0 !important;
+  background: rgba(14, 116, 144, 0.16);
+
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  border-radius: 8px;
+
+  font-weight: 500;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.pwa-install-item:hover {
+  color: #ffffff !important;
+  background: rgba(14, 116, 144, 0.30);
+
+  border-color: rgba(34, 211, 238, 0.38);
+
+  transform: translateY(-1px);
+}
+
+.pwa-install-icon {
+  width: 18px;
+
+  color: #fb923c;
+
+  font-size: 15px;
+  text-align: center;
+}
 
 .app-shell {
   display: flex;
