@@ -57,7 +57,7 @@ export const usePwaInstall = () => {
     };
 }; */
 
-import { ref } from "vue";
+/* import { ref } from "vue";
 
 const deferredPrompt = ref(null);
 const canInstall = ref(false);
@@ -130,6 +130,88 @@ export const usePwaInstall = () => {
 
     return {
         canInstall,
+        installApp,
+        initPwaInstall
+    };
+}; */
+
+// Ios included
+import { ref, computed } from "vue";
+
+const deferredPrompt = ref(null);
+const canInstall = ref(false);
+
+const isIOS = ref(false);
+const isStandalone = ref(false);
+
+let initialized = false;
+
+export const usePwaInstall = () => {
+
+    const initPwaInstall = () => {
+        if (initialized) return;
+        initialized = true;
+
+        isIOS.value =
+            /iphone|ipad|ipod/i.test(
+                window.navigator.userAgent
+            );
+
+        isStandalone.value =
+            window.matchMedia(
+                "(display-mode: standalone)"
+            ).matches ||
+            window.navigator.standalone === true;
+
+        window.addEventListener(
+            "beforeinstallprompt",
+            (event) => {
+                event.preventDefault();
+
+                deferredPrompt.value = event;
+                canInstall.value = true;
+            }
+        );
+
+        window.addEventListener(
+            "appinstalled",
+            () => {
+                deferredPrompt.value = null;
+                canInstall.value = false;
+                isStandalone.value = true;
+            }
+        );
+    };
+
+    const showInstallOption = computed(() => {
+        if (isStandalone.value) {
+            return false;
+        }
+
+        return canInstall.value || isIOS.value;
+    });
+
+    const installApp = async () => {
+        if (!deferredPrompt.value) {
+            return false;
+        }
+
+        await deferredPrompt.value.prompt();
+
+        const result =
+            await deferredPrompt.value.userChoice;
+
+        deferredPrompt.value = null;
+        canInstall.value = false;
+
+        return result;
+    };
+
+    return {
+        canInstall,
+        isIOS,
+        isStandalone,
+        showInstallOption,
         installApp,
         initPwaInstall
     };

@@ -113,6 +113,31 @@
                   {{ t("app.orders") }}
                 </MDBDropdownItem>
 
+                <!-- <MDBDropdownItem
+                  v-if="showInstallOption"
+                  class="dd-item pwa-install-item"
+                  @click="handleInstall"
+                >
+                  <i class="fas fa-download"></i>
+
+                  Installi DuunHub
+                </MDBDropdownItem> -->
+
+                <MDBDropdownItem
+                  v-if="showInstallOption"
+                  class="dd-item"
+                >
+                  <button
+                    type="button"
+                    class="pwa-install-btn"
+                    @click="handleInstall"
+                  >
+                    <i class="fas fa-download"></i>
+                    <span>{{ t('pwa.install_app') }}</span>
+                  </button>
+                </MDBDropdownItem>
+
+
                 <MDBDropdownItem
                   :tag="RouterLink"
                   to="/"
@@ -148,6 +173,47 @@
         </MDBNavbarNav>
       </div>
     </MDBNavbar>
+
+    <MDBModal
+      v-model="showIOSInstallHelp"
+      tabindex="-1"
+    >
+      <MDBModalHeader>
+        <MDBModalTitle>
+          Installi DuunHub
+        </MDBModalTitle>
+      </MDBModalHeader>
+
+      <MDBModalBody>
+        <p>
+          DuunHubi installimiseks iPhone'i:
+        </p>
+
+        <ol>
+          <li>
+            Vajuta Safari <strong>Jaga</strong> nuppu
+            <i class="fas fa-arrow-up-from-bracket ms-1"></i>
+          </li>
+
+          <li>
+            Vali <strong>Lisa avakuvale</strong>.
+          </li>
+
+          <li>
+            Vajuta <strong>Lisa</strong>.
+          </li>
+        </ol>
+      </MDBModalBody>
+
+      <MDBModalFooter>
+        <MDBBtn
+          color="primary"
+          @click="showIOSInstallHelp = false"
+        >
+          Selge
+        </MDBBtn>
+      </MDBModalFooter>
+    </MDBModal>
 
     <MDBModal
       id="contactModal"
@@ -333,7 +399,7 @@
        </section>
         <!-- Section: CTA -->
          <section>
-          <PwaInstallButton />
+          <!-- <PwaInstallButton /> -->
          </section>
       </MDBContainer>
       
@@ -498,6 +564,29 @@ const widgetAnchor = computed(() =>
   installApp,
   
 } = usePwaInstall(); */
+
+const {
+  canInstall,
+  isIOS,
+  showInstallOption,
+  installApp,
+  initPwaInstall
+} = usePwaInstall();
+
+const showIOSInstallHelp = ref(false);
+
+const handleInstall = async () => {
+  if (isIOS.value) {
+    // iPhone/iPad → näita juhendit
+    showIOSInstallHelp.value = true;
+    return;
+  }
+
+  // Android / Chrome / Edge → brauseri installiaken
+  await installApp();
+};
+
+
 
 const placeWidgetBottomRight = () => {
   const launcherW = 57;
@@ -884,8 +973,8 @@ watch(
 onMounted (async () => {
   console.log("Mounted on start!");
 
-  //initPwaInstall();
-  
+  initPwaInstall();
+
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
   handleProvider.getAllProviders(),
@@ -1308,43 +1397,40 @@ const sendClientMessage = async () => {
 <style>
 html, body { height: 100%; }
 
-.pwa-install-item {
+.pwa-install-btn {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
 
-  margin-top: 6px;
-  padding: 10px 12px !important;
+  padding: 9px 10px;
 
-  color: #e2e8f0 !important;
-  background: rgba(14, 116, 144, 0.16);
-
-  border: 1px solid rgba(34, 211, 238, 0.18);
+  border: 1px solid rgba(34, 211, 238, 0.2);
   border-radius: 8px;
 
-  font-weight: 500;
+  background: rgba(14, 116, 144, 0.16);
+
+  color: #e2e8f0;
+
+  font: inherit;
+  text-align: left;
+
+  cursor: pointer;
 
   transition:
     background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
+    border-color 0.2s ease;
 }
 
-.pwa-install-item:hover {
-  color: #ffffff !important;
-  background: rgba(14, 116, 144, 0.30);
-
-  border-color: rgba(34, 211, 238, 0.38);
-
-  transform: translateY(-1px);
+.pwa-install-btn:hover {
+  background: rgba(14, 116, 144, 0.3);
+  border-color: rgba(34, 211, 238, 0.4);
+  color: #ffffff;
 }
 
-.pwa-install-icon {
-  width: 18px;
-
+.pwa-install-btn i {
   color: #fb923c;
-
-  font-size: 15px;
+  width: 18px;
   text-align: center;
 }
 
