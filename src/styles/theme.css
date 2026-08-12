@@ -182,22 +182,34 @@ body {
 }
 
 /* Surfaces */
-.card,
+/* .card,
 .modal-content,
 .navbar .dropdown-menu {
     background-color: var(--bg-surface-2);
     border-color: var(--nav-dd-border);
     
-    /* color: red; */
+    color: red;
+
+} */
+
+
+.card,
+.modal-content,
+.navbar{
+    background-color: var(--bg-surface-3);
+    border-color: var(--nav-dd-border);
 
 }
+
+
+
 .form-select {
     color: red;
 }
-.navbar .dropdown-menu :hover {
+/* .navbar .dropdown-menu :hover {
     background-color: #447173;
     color: #dddddd;
-}
+} */
 .offcanvas,
 .popover {
     background-color: var(--bg-surface-2);

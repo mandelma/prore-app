@@ -52,7 +52,7 @@
 
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
-              <MDBDropdownMenu class="dropdown-menu" >
+              <MDBDropdownMenu user-dropdown-menu>
 
                 <MDBDropdownItem
                   :tag="RouterLink"
@@ -113,16 +113,6 @@
                   {{ t("app.orders") }}
                 </MDBDropdownItem>
 
-                <!-- <MDBDropdownItem
-                  v-if="showInstallOption"
-                  class="dd-item pwa-install-item"
-                  @click="handleInstall"
-                >
-                  <i class="fas fa-download"></i>
-
-                  Installi DuunHub
-                </MDBDropdownItem> -->
-
                 <MDBDropdownItem
                   v-if="showInstallOption"
                   class="dd-item"
@@ -141,27 +131,11 @@
                 <MDBDropdownItem
                   :tag="RouterLink"
                   to="/"
-                  class="dd-item"
+                  class="dd-item logout-item"
                   @click="logOut"
                 >
                   {{ t("app.logout") }}
                 </MDBDropdownItem>
-
-                <!-- :tag="RouterLink"
-                  to="/"
-                  class="dd-item" -->
-
-                <!-- v-if="canInstall" -->
-
-
-                <!-- <MDBDropdownItem
-                  v-if="canInstall"
-                  class="dd-item pwa-install-item"
-                  @click="installApp"
-                >
-                  <i class="fas fa-download"></i>
-                  Installi rakendus
-                </MDBDropdownItem> -->
 
               </MDBDropdownMenu>
             </MDBDropdown>
@@ -467,6 +441,7 @@ import { useAdminStore } from './stores/adminStore.js';
 
 import PwaUpdate from './components/PwaUpdate.vue';
 import PwaInstallButton from './components/PwaInstallButton.vue'
+import { setAppBadge } from './components/helpers/appBadge.js';
 
 
 import { useI18n } from 'vue-i18n';
@@ -863,6 +838,40 @@ const closeChatWindow = () => {
   restoreLauncherPositionAfterClose();
   conversationStore.closeChatWidget();
 };
+
+const unreadMessagesCount = computed(() => {
+  return conversations.value.reduce(
+    (total, conversation) =>
+      total + (conversation.unread?.[userID.value] || 0),
+    0
+  );
+});
+
+const unreadNotificationsCount = computed(() => {
+  return notifications.value.filter(
+    notification => notification.isNewMsg
+  ).length;
+});
+
+const unreadCount = computed(() => {
+  return (
+    unreadMessagesCount.value +
+    unreadNotificationsCount.value
+  );
+});
+
+watch(
+  unreadCount,
+  async count => {
+    if (count > 0) {
+
+      await navigator.setAppBadge?.(count);
+    } else {
+      await navigator.clearAppBadge?.();
+    }
+  },
+  { immediate: true }
+);
 
 
 const refreshUserData = async (userId) => {
@@ -1394,10 +1403,10 @@ const sendClientMessage = async () => {
 
 </script>
 
-<style>
+<style >
 html, body { height: 100%; }
 
-.pwa-install-btn {
+/* .pwa-install-btn {
   width: 100%;
   display: flex;
   align-items: center;
@@ -1432,6 +1441,33 @@ html, body { height: 100%; }
   color: #fb923c;
   width: 18px;
   text-align: center;
+} */
+
+.pwa-install-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  color: #e5e7eb;
+  background: rgba(14, 116, 144, 0.18);
+
+  border: 1px solid rgba(34, 211, 238, 0.30);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.pwa-install-btn:hover {
+  color: #ffffff;
+  background: rgba(14, 116, 144, 0.32);
+  border-color: rgba(34, 211, 238, 0.50);
+}
+
+.pwa-install-btn i {
+  color: #fb923c;
 }
 
 .app-shell {
@@ -1473,6 +1509,41 @@ html, body { height: 100%; }
   border: 2px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
   object-fit: cover;
+}
+
+.navbar .dropdown-menu {
+  background: #202b3c !important;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+
+  padding: 6px;
+
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.navbar .dropdown-menu .dd-item {
+  color: #e5e7eb !important;
+
+  padding: 9px 10px;
+  border-radius: 7px;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.navbar .dropdown-menu .dd-item:hover {
+  color: #ffffff !important;
+  background: rgba(56, 189, 248, 0.10) !important;
+}
+
+.navbar .dropdown-menu .logout-item {
+  margin-top: 5px;
+  padding-top: 9px !important;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .user-menu-toggle {

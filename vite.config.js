@@ -11,11 +11,21 @@ export default defineConfig({
     vue(),
 
     VitePWA({
+
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "service-worker.js",
       /*
        * Kasutaja saab teate, kui rakenduse uus versioon
        * on saadaval.
        */
       registerType: "prompt",
+
+      injectManifest: {
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"
+        ]
+      },
 
       /*
        * Lisab service worker'i registreerimise
@@ -38,6 +48,7 @@ export default defineConfig({
       ],
 
       manifest: {
+        id: "/",
         name: "DuunHub",
         short_name: "DuunHub",
 
@@ -50,6 +61,9 @@ export default defineConfig({
         scope: "/",
 
         display: "standalone",
+
+        background_color: "#ffffff",
+        theme_color: "#2563eb",
 
         /*
          * Proovitakse kasutada standalone-režiimi.
