@@ -271,6 +271,11 @@
       </button>
     </section>
 
+
+    <MDBBtn color="warning" @click="enablePushNotifications">
+      Luba teavitused
+    </MDBBtn>
+
       
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
@@ -748,6 +753,87 @@ const validateProAddress = () => {
   }
 
   return;
+};
+
+const enablePushNotifications = async () => {
+  try {
+    if (!("serviceWorker" in navigator)) {
+      console.error("Service Worker ei ole toetatud");
+      return;
+    }
+
+    if (!("PushManager" in window)) {
+      console.error("Push API ei ole toetatud");
+      return;
+    }
+
+    if (!("Notification" in window)) {
+      console.error("Notifications API ei ole toetatud");
+      return;
+    }
+
+    console.log(
+      "Standalone:",
+      window.matchMedia("(display-mode: standalone)").matches
+    );
+
+    console.log(
+      "Current permission:",
+      Notification.permission
+    );
+
+    const permission =
+      await Notification.requestPermission();
+
+    console.log(
+      "New permission:",
+      permission
+    );
+
+    if (permission !== "granted") {
+      console.warn("Teavituste luba ei antud");
+      return;
+    }
+
+    const registration =
+      await navigator.serviceWorker.ready;
+
+    console.log(
+      "Service worker:",
+      registration
+    );
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    console.log(
+      "Existing subscription:",
+      subscription
+    );
+
+    if (!subscription) {
+      subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+
+          applicationServerKey:
+            urlBase64ToUint8Array(
+              import.meta.env.VITE_VAPID_PUBLIC_KEY
+            )
+        });
+    }
+
+    console.log(
+      "Push subscription:",
+      subscription
+    );
+
+  } catch (error) {
+    console.error(
+      "Push notification setup failed:",
+      error
+    );
+  }
 };
 
 function onAddressInput(value) {
