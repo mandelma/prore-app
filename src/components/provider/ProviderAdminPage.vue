@@ -276,6 +276,18 @@
       Luba teavitused
     </MDBBtn>
 
+
+
+    <div style="padding: 20px; background: white; color: black;">
+        <button @click="checkPush">
+          Check PWA Push
+        </button>
+
+        <pre style="white-space: pre-wrap;">
+          {{ debug }}
+        </pre>
+      </div>
+
       
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
@@ -753,6 +765,94 @@ const validateProAddress = () => {
   }
 
   return;
+};
+
+const debug = ref("");
+
+const log = (...values) => {
+  const text = values
+    .map(value => {
+      if (typeof value === "object") {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch {
+          return String(value);
+        }
+      }
+
+      return String(value);
+    })
+    .join(" ");
+
+  debug.value += text + "\n";
+
+  console.log(...values);
+};
+
+const checkPush = async () => {
+  debug.value = "";
+
+  try {
+    log(
+      "Standalone:",
+      window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches
+    );
+
+    log(
+      "navigator.standalone:",
+      window.navigator.standalone
+    );
+
+    log(
+      "Notification supported:",
+      "Notification" in window
+    );
+
+    log(
+      "PushManager supported:",
+      "PushManager" in window
+    );
+
+    log(
+      "ServiceWorker supported:",
+      "serviceWorker" in navigator
+    );
+
+    log(
+      "Permission:",
+      Notification.permission
+    );
+
+    const registration =
+      await navigator.serviceWorker.ready;
+
+    log(
+      "Service Worker active:",
+      !!registration.active
+    );
+
+    const subscription =
+      await registration.pushManager.getSubscription();
+
+    log(
+      "Subscription exists:",
+      !!subscription
+    );
+
+    if (subscription) {
+      log(
+        "Endpoint:",
+        subscription.endpoint
+      );
+    }
+  } catch (error) {
+    log(
+      "ERROR:",
+      error?.message || error
+    );
+  }
 };
 
 const enablePushNotifications = async () => {
