@@ -14,6 +14,22 @@ router.post(
 
                 console.log("Subscription - ", subscription);
 
+                
+                console.log(
+                    "SUBSCRIBE DEBUG:",
+                    {
+                        endpoint:
+                            req.body.subscription?.endpoint,
+
+                        standalone:
+                            req.body.debug?.standalone,
+
+                        userAgent:
+                            req.body.debug?.userAgent
+                    }
+                );
+                
+
             if (!subscription?.endpoint) {
                 return res.status(400).json({
                     message: "Invalid subscription"

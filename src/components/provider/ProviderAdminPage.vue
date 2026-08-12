@@ -881,8 +881,42 @@ const enablePushNotifications = async () => {
     let subscription =
       await registration.pushManager.getSubscription();
 
+
+
+      
     debug.value +=
-      `Endpoint: ${subscription?.endpoint}\n`;
+        `Subscription endpoint: ${subscription.endpoint}\n`;
+
+      const response =
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`
+          },
+
+          body: JSON.stringify({
+            subscription
+          })
+        });
+
+      debug.value +=
+        `POST status: ${response.status}\n`;
+
+      const result =
+        await response.text();
+
+      debug.value +=
+        `POST response: ${result}\n`;
+
+
+
+
+
   
     if (!subscription) {
       const vapidPublicKey =
@@ -919,7 +953,20 @@ const enablePushNotifications = async () => {
       },
 
       body: JSON.stringify({
-        subscription
+        subscription,
+
+
+        debug: {
+          standalone:
+            window.matchMedia(
+              "(display-mode: standalone)"
+            ).matches,
+
+          userAgent:
+            navigator.userAgent
+
+
+    }
       })
     });
 
