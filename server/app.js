@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
 
+const pwaPushRouter = require("./routers/pwaPush");
+
 
 const webpush = require('web-push')
 
@@ -86,61 +88,9 @@ app.use((req, res, next) => {
 
 //console.log(keys);
 
-webpush.setVapidDetails(
-    "mailto:info@duunhub.fi",
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-);
-
-
-router.post(
-    "/push/subscribe",
-    auth,
-    async (req, res) => {
-        try {
-            const subscription =
-                req.body.subscription;
-
-            if (!subscription?.endpoint) {
-                return res.status(400).json({
-                    message: "Invalid subscription"
-                });
-            }
-
-            const user = await User.findById(
-                req.user.id
-            );
-
-            const alreadyExists =
-                user.pushSubscriptions.some(
-                    item =>
-                        item.endpoint === subscription.endpoint
-                );
-
-            if (!alreadyExists) {
-                user.pushSubscriptions.push(
-                    subscription
-                );
-
-                await user.save();
-            }
-
-            res.json({
-                success: true
-            });
-
-        } catch (error) {
-            console.error(error);
-
-            res.status(500).json({
-                message:
-                    "Failed to save push subscription"
-            });
-        }
-    }
-);
-
 const offerRouter = require('./routers/offers')
+
+app.use('/api/push', pwaPushRouter);
 
 app.use('/api/users', require('./routers/users'));
 
