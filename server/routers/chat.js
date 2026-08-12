@@ -4,7 +4,7 @@ const { Conversation, Message } = require("../models/chat");
 const User = require("../models/users");
 const Recipient = require("../models/recipients");
 
-const { sendPushToUser } = "../services/pushService.js";
+const { sendPushToUser } = require("../services/pushService.js");
 
 const router = express.Router();
 
@@ -96,7 +96,233 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
 });
 
 // POST send message
-router.post("/conversations/:conversationId/messages", async (req, res) => {
+router.post(
+  "/conversations/:conversationId/messages",
+  async (req, res) => {
+    try {
+      const me = String(req.user.id);
+
+      const conversationId =
+        new mongoose.Types.ObjectId(
+          req.params.conversationId
+        );
+
+      const {
+        text = "",
+        attachments = []
+      } = req.body;
+
+      const convo =
+        await Conversation.findById(
+          conversationId
+        ).lean();
+
+      if (!convo) {
+        return res.status(404).json({
+          error: "Conversation not found"
+        });
+      }
+
+      const isParticipant =
+        convo.participantIds.some(
+          id => String(id) === me
+        );
+
+      if (!isParticipant) {
+        return res.status(403).json({
+          error: "Not allowed"
+        });
+      }
+
+      const now = new Date();
+
+      const msg = await Message.create({
+        conversationId,
+        senderId:
+          new mongoose.Types.ObjectId(me),
+        text,
+        attachments,
+        createdAt: now,
+        updatedAt: now
+      });
+
+      const otherId =
+        convo.participantIds.find(
+          id => String(id) !== me
+        );
+
+      if (!otherId) {
+        return res.status(400).json({
+          error: "Receiver not found"
+        });
+      }
+
+      const otherKey =
+        String(otherId);
+
+      const updatedConvo =
+        await Conversation.findByIdAndUpdate(
+          conversationId,
+          {
+            $set: {
+              updatedAt: now,
+              lastMessageAt: now,
+
+              [`isParticipant.${me}`]:
+                true,
+
+              [`isParticipant.${otherKey}`]:
+                true,
+
+              lastMessageText:
+                text ||
+                (
+                  attachments.length
+                    ? "Attachment"
+                    : ""
+                ),
+
+              lastMessageSenderId:
+                new mongoose.Types.ObjectId(me)
+            },
+
+            $inc: {
+              [`unread.${otherKey}`]: 1
+            }
+          },
+          {
+            new: true
+          }
+        ).lean();
+
+      /*
+       * Socket.IO
+       */
+      const io =
+        req.app.get("io");
+
+      const socketPayload = {
+        message: msg,
+        conversation: updatedConvo
+      };
+
+      if (io) {
+        io
+          .to(`user:${otherKey}`)
+          .emit(
+            "message:new",
+            socketPayload
+          );
+      }
+
+      /*
+       * Vastame frontendile kohe.
+       *
+       * Push ei tohiks chat-sõnumi
+       * õnnestumist blokeerida.
+       */
+      res.json({
+        message: msg,
+        conversation: updatedConvo
+      });
+
+      /*
+       * Web Push
+       *
+       * See on Socket.IO-st sõltumatu.
+       */
+      try {
+        const receiver =
+          await User.findById(otherKey);
+
+        if (!receiver) {
+          console.warn(
+            "Push receiver not found:",
+            otherKey
+          );
+
+          return;
+        }
+
+        const unreadCount =
+          Number(
+            updatedConvo
+              ?.unread
+            ?.[otherKey] || 1
+          );
+
+        console.log(
+          "Sending push to:",
+          otherKey
+        );
+
+        console.log(
+          "Subscriptions:",
+          receiver
+            ?.pushSubscriptions
+            ?.length || 0
+        );
+
+        console.log(
+          "Unread count:",
+          unreadCount
+        );
+
+        await sendPushToUser(
+          receiver,
+          {
+            title: "Uus sõnum",
+            body:
+              text?.trim()
+                ? text
+                : "Sul on DuunHubis uus sõnum.",
+
+            url:
+              `/messages/${conversationId}`,
+
+            unreadCount,
+
+            tag:
+              `message-${msg._id}`
+          }
+        );
+
+      } catch (pushError) {
+        /*
+         * Push võib ebaõnnestuda,
+         * aga sõnum ise on juba edukalt
+         * saadetud.
+         */
+        console.error(
+          "PUSH ERROR:",
+          pushError
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        "SEND MESSAGE ERROR:",
+        error
+      );
+
+      console.error(
+        error.stack
+      );
+
+      if (!res.headersSent) {
+        return res.status(500).json({
+          error:
+            "Failed to send message",
+
+          message:
+            error.message
+        });
+      }
+    }
+  }
+);
+
+/* router.post("/conversations/:conversationId/messages", async (req, res) => {
   const me = String(req.user.id);
   const conversationId = new mongoose.Types.ObjectId(req.params.conversationId);
   const { text = "", attachments = [] } = req.body;
@@ -166,7 +392,7 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
     message: msg,
     conversation: updatedConvo,
   });
-});
+}); */
 
 // POST mark read (reset my unread counter)
 router.post("/conversations/:conversationId/read", async (req, res) => {

@@ -1,4 +1,4 @@
-import webpush from "web-push";
+const webpush = require("web-push")
 
 webpush.setVapidDetails(
     "mailto:mandlimarko@gmail.com",
@@ -6,7 +6,7 @@ webpush.setVapidDetails(
     process.env.VAPID_PRIVATE_KEY
 );
 
-export const sendPushToUser = async (user, payload) => {
+const sendPushToUser = async (user, payload) => {
     if (!user?.pushSubscriptions?.length) {
         return;
     }
@@ -25,4 +25,8 @@ export const sendPushToUser = async (user, payload) => {
             );
         }
     }
+};
+
+module.exports = {
+    sendPushToUser
 };
