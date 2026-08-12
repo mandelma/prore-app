@@ -858,6 +858,135 @@ const checkPush = async () => {
 const enablePushNotifications = async () => {
   try {
     if (!("serviceWorker" in navigator)) {
+      throw new Error("Service Worker not supported");
+    }
+
+    if (!("PushManager" in window)) {
+      throw new Error("PushManager not supported");
+    }
+
+    const permission =
+      await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      return;
+    }
+
+    const registration =
+      await navigator.serviceWorker.ready;
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const vapidPublicKey =
+        import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+      if (!vapidPublicKey) {
+        throw new Error(
+          "VITE_VAPID_PUBLIC_KEY is missing"
+        );
+      }
+
+      subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey:
+            urlBase64ToUint8Array(vapidPublicKey)
+        });
+    }
+
+    console.log("Subscription:", subscription);
+
+    await fetch("/api/push/subscribe", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+
+        // kui kasutad JWT-d:
+        Authorization:
+          `Bearer ${localStorage.getItem("token")}`
+      },
+
+      body: JSON.stringify({
+        subscription
+      })
+    });
+
+    console.log("Push subscription saved");
+
+  } catch (error) {
+    console.error(
+      "Push subscription error:",
+      error
+    );
+  }
+};
+
+const urlBase64ToUint8Array = base64String => {
+  const padding =
+    "=".repeat((4 - (base64String.length % 4)) % 4);
+
+  const base64 =
+    (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+
+  return Uint8Array.from(
+    [...rawData].map(char => char.charCodeAt(0))
+  );
+};
+
+const enablePushNotifications__prev = async () => {
+  debug.value = "";
+
+  try {
+    const permission = await Notification.requestPermission();
+
+    debug.value += `Permission: ${permission}\n`;
+
+    if (permission !== "granted") {
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+
+    debug.value += `SW active: ${!!registration.active}\n`;
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    debug.value += `Existing subscription: ${!!subscription}\n`;
+
+    if (!subscription) {
+      const vapidKey =
+        import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+      debug.value += `VAPID key exists: ${!!vapidKey}\n`;
+
+      subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey:
+            urlBase64ToUint8Array(vapidKey)
+        });
+
+      debug.value += `Subscription created: ${!!subscription}\n`;
+      debug.value += `Endpoint: ${subscription.endpoint}\n`;
+    }
+
+  } catch (error) {
+    debug.value += `ERROR: ${error?.name}\n`;
+    debug.value += `${error?.message}\n`;
+  }
+};
+
+const enablePushNotifications__ = async () => {
+  try {
+    if (!("serviceWorker" in navigator)) {
       console.error("Service Worker ei ole toetatud");
       return;
     }

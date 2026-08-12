@@ -1,7 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { Conversation, Message } = require("../models/chat");
-const Recipient = require("../models/recipients")
+const User = require("../models/users");
+const Recipient = require("../models/recipients");
+
+const { sendPushToUser } = "../services/pushService.js";
 
 const router = express.Router();
 
@@ -117,6 +120,8 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
   const otherId = convo.participantIds.find((id) => String(id) !== me);
   const otherKey = String(otherId);
 
+  const receiver = await User.findById(otherKey);
+
   const updatedConvo = await Conversation.findByIdAndUpdate(
     conversationId,
     {
@@ -146,6 +151,15 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
     };
 
     io.to(`user:${otherKey}`).emit("message:new", payload);
+
+    await sendPushToUser(receiver, {
+      title: "Uus sõnum",
+      body: "Sul on DuunHubis uus sõnum.",
+      url: "/messages",
+      unreadCount: 1,
+      tag: `message-${msg._id}`
+    });
+
   }
 
   res.json({

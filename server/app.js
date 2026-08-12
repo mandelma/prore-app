@@ -8,6 +8,8 @@ const cors = require('cors');
 const history = require('connect-history-api-fallback');
 
 
+const webpush = require('web-push')
+
 require('dotenv').config();
 const handleSocket = require('./utils/socketHandler')
 const handleChatSockets = require('./utils/socketChathandler')
@@ -78,6 +80,11 @@ app.use((req, res, next) => {
     console.log("HIT:", req.method, req.originalUrl);
     next();
 });
+
+
+//const keys = webpush.generateVAPIDKeys();
+
+//console.log(keys);
 
 const offerRouter = require('./routers/offers')
 

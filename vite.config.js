@@ -31,7 +31,7 @@ export default defineConfig({
        * Lisab service worker'i registreerimise
        * automaatselt rakendusse.
        */
-      injectRegister: "auto",
+      /* injectRegister: "null", */
 
       /*
        * Need public-kausta failid lisatakse
@@ -71,7 +71,7 @@ export default defineConfig({
          * minimal-ui režiimi.
          */
 
-        
+
         /* display_override: [
           "standalone",
           "minimal-ui"

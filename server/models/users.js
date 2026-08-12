@@ -21,6 +21,24 @@ const userSchema = new Schema({
     avatar: {
         type: Object
     },
+    pushSubscriptions: [
+        {
+            endpoint: {
+                type: String,
+                required: true
+            },
+
+            expirationTime: {
+                type: Number,
+                default: null
+            },
+
+            keys: {
+                p256dh: String,
+                auth: String
+            }
+        }
+    ],
     passwordHash: {
         type: String
     },

@@ -526,6 +526,8 @@ const isSendingContactMessage = ref(false);
 const preOpenPos = ref(null);
 const wasNormalizedForOpen = ref(false);
 
+
+
 const widgetAnchor = computed(() =>
   conversationStore.openChat && openWindowPos.value
     ? openWindowPos.value
