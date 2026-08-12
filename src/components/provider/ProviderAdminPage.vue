@@ -881,6 +881,9 @@ const enablePushNotifications = async () => {
     let subscription =
       await registration.pushManager.getSubscription();
 
+    debug.value +=
+      `Endpoint: ${subscription?.endpoint}\n`;
+  
     if (!subscription) {
       const vapidPublicKey =
         import.meta.env.VITE_VAPID_PUBLIC_KEY;

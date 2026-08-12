@@ -55,9 +55,9 @@ const {
    * Käivitub siis, kui rakendus on valmis
    * vähemalt põhifailidega offline töötama.
    */
-  onOfflineReady() {
+  /* onOfflineReady() {
     console.info("DuunHub on offline kasutamiseks valmis.");
-  },
+  }, */
 
  onRegisteredSW(swUrl, registration) {
     console.log("SW registered:", swUrl);
