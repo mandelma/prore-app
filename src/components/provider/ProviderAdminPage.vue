@@ -279,14 +279,14 @@
 
 
     <div style="padding: 20px; background: white; color: black;">
-        <button @click="checkPush">
-          Check PWA Push
-        </button>
+      <button @click="checkPush">
+        Check PWA Push
+      </button>
 
-        <pre style="white-space: pre-wrap;">
-          {{ debug }}
-        </pre>
-      </div>
+      <pre style="white-space: pre-wrap;">
+        {{ debug }}
+      </pre>
+    </div>
 
       
     <MDBRow class="g-3">
@@ -861,11 +861,15 @@ const checkPush = async () => {
 const enablePushNotifications = async () => {
   try {
     if (!("serviceWorker" in navigator)) {
-      throw new Error("Service Worker not supported");
+      throw new Error(
+        "Service Worker not supported"
+      );
     }
 
     if (!("PushManager" in window)) {
-      throw new Error("PushManager not supported");
+      throw new Error(
+        "PushManager not supported"
+      );
     }
 
     const permission =
@@ -881,46 +885,13 @@ const enablePushNotifications = async () => {
     let subscription =
       await registration.pushManager.getSubscription();
 
-
-
-      
-    debug.value +=
-        `Subscription endpoint: ${subscription.endpoint}\n`;
-
-      const response =
-        await fetch("/api/push/subscribe", {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Authorization:
-              `Bearer ${token}`
-          },
-
-          body: JSON.stringify({
-            subscription
-          })
-        });
-
-      debug.value +=
-        `POST status: ${response.status}\n`;
-
-      const result =
-        await response.text();
-
-      debug.value +=
-        `POST response: ${result}\n`;
-
-
-
-
-
-  
+    /*
+     * Subscription puudub → loome
+     */
     if (!subscription) {
       const vapidPublicKey =
-        import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        import.meta.env
+          .VITE_VAPID_PUBLIC_KEY;
 
       if (!vapidPublicKey) {
         throw new Error(
@@ -931,48 +902,74 @@ const enablePushNotifications = async () => {
       subscription =
         await registration.pushManager.subscribe({
           userVisibleOnly: true,
+
           applicationServerKey:
-            urlBase64ToUint8Array(vapidPublicKey)
+            urlBase64ToUint8Array(
+              vapidPublicKey
+            )
         });
     }
 
-    console.log("Subscription:", subscription);
+    /*
+     * Siin on subscription kindlasti olemas.
+     */
+    debug.value +=
+      `Endpoint: ${subscription.endpoint}\n`;
 
-    //console.log("TOKEN - ", localStorage.getItem("loggedAppUser"))
-    console.log("TOKEN - " + token.value);
+    /*
+     * Kui token on ref:
+     */
+    const jwt = token.value;
 
-    await fetch("/api/push/subscribe", {
-      method: "POST",
+    const response =
+      await fetch(
+        "/api/push/subscribe",
+        {
+          method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-        // kui kasutad JWT-d:
-        Authorization:
-          `Bearer ${token.value}`
-      },
+            Authorization:
+              `Bearer ${jwt}`
+          },
 
-      body: JSON.stringify({
-        subscription,
+          body: JSON.stringify({
+            subscription,
 
+            debug: {
+              standalone:
+                window.matchMedia(
+                  "(display-mode: standalone)"
+                ).matches,
 
-        debug: {
-          standalone:
-            window.matchMedia(
-              "(display-mode: standalone)"
-            ).matches,
+              userAgent:
+                navigator.userAgent
+            }
+          })
+        }
+      );
 
-          userAgent:
-            navigator.userAgent
+    debug.value +=
+      `POST status: ${response.status}\n`;
 
+    const result =
+      await response.text();
 
+    debug.value +=
+      `POST response: ${result}\n`;
+
+    if (!response.ok) {
+      throw new Error(
+        `Subscription save failed: ${response.status}`
+      );
     }
-      })
-    });
-
-    console.log("Push subscription saved");
 
   } catch (error) {
+    debug.value +=
+      `ERROR: ${error?.message || error}\n`;
+
     console.error(
       "Push subscription error:",
       error

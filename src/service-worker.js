@@ -29,7 +29,7 @@ self.addEventListener("activate", event => {
     event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener(
+/* self.addEventListener(
     "push",
     event => {
         const payload =
@@ -58,7 +58,7 @@ self.addEventListener(
         );
     }
 );
-
+ */
 const navigationHandler =
     createHandlerBoundToURL("/index.html");
 
