@@ -983,10 +983,22 @@ watch(
   { immediate: true } // so it runs right after hydrate sets user
 );
 
+const handleVisibilityChange = async () => {
+  if (document.visibilityState === "visible") {
+    await conversationStore.getConversations();
+  }
+};
+
 onMounted (async () => {
   console.log("Mounted on start!");
 
+  const conversationId = route.params.conversationId;
+
+  console.log("Conversation +++++++++++++ id - " + conversationId)
+
   initPwaInstall();
+
+
 
   //console.log('PROCESS ENV ' + process.env.NODE_ENV)
   //client.orderList(login.user.id);
