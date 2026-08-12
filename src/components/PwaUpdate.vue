@@ -59,12 +59,20 @@ const {
     console.info("DuunHub on offline kasutamiseks valmis.");
   },
 
-  onRegisteredSW(swUrl, registration) {
-    console.info(
-      "DuunHub service worker registreeritud:",
-      swUrl,
-      registration
-    );
+ onRegisteredSW(swUrl, registration) {
+    console.log("SW registered:", swUrl);
+
+    if (!registration) {
+      return;
+    }
+
+    // kontroll kohe äpi avamisel
+    registration.update();
+
+    // ja näiteks iga 30 minuti järel
+    setInterval(() => {
+      registration.update();
+    }, 30 * 60 * 1000);
   },
 
   onRegisterError(error) {

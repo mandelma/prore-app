@@ -70,10 +70,12 @@ export default defineConfig({
          * Toetatud seadmetes võib kasutada ka
          * minimal-ui režiimi.
          */
-        display_override: [
+
+        
+        /* display_override: [
           "standalone",
           "minimal-ui"
-        ],
+        ], */
 
         orientation: "portrait-primary",
 
