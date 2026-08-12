@@ -79,8 +79,7 @@ export default defineConfig({
 
         orientation: "portrait-primary",
 
-        background_color: "#ffffff",
-        theme_color: "#2563eb",
+        
 
         categories: [
           "business",

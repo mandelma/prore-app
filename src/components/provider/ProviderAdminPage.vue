@@ -681,6 +681,7 @@ import { useProStore } from "@/stores/providerStore";
 import { useClientStore } from "@/stores/recipientStore";
 import { useProArchiveStore } from "@/stores/pArchiveStore";
 import { useProfessionStore } from "@/stores/professionStore";
+import { useLoginStore } from "@/stores/login.js";
 import map_image from '@/assets/map.gif'
 import ToastHandler from "../helpers/ToastHandler.vue";
 import Calendar from "../Calendar.vue";
@@ -696,11 +697,13 @@ const providerStore = useProStore();
 const clientStore = useClientStore();
 const providerArchiveStore = useProArchiveStore();
 const professionStore = useProfessionStore();
+const loginStore = useLoginStore();
 const router = useRouter();
 const { incomingOffers, proCalendarEvents, reference, proTimetable } = storeToRefs(providerStore);
 const { isBookings } = storeToRefs(clientStore);
 const { providerHistory } = storeToRefs(providerArchiveStore);
 const { professionCategories, professions } = storeToRefs(professionStore);
+const { token } = storeToRefs(loginStore);
 
 const addressValid = ref(false);
 
@@ -898,7 +901,8 @@ const enablePushNotifications = async () => {
 
     console.log("Subscription:", subscription);
 
-    console.log("TOKEN - ", localStorage.getItem("loggedAppUser"))
+    //console.log("TOKEN - ", localStorage.getItem("loggedAppUser"))
+    console.log("TOKEN - " + token.value);
 
     await fetch("/api/push/subscribe", {
       method: "POST",
@@ -908,7 +912,7 @@ const enablePushNotifications = async () => {
 
         // kui kasutad JWT-d:
         Authorization:
-          `Bearer ${localStorage.getItem("loggedAppUser")}`
+          `Bearer ${token.value}`
       },
 
       body: JSON.stringify({
