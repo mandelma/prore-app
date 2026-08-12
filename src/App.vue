@@ -148,7 +148,7 @@
       </div>
     </MDBNavbar>
 
-    <MDBBtn color="warning" @click="enablePushNotifications">
+    <MDBBtn style="margin-top: 70px;" color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>
 
