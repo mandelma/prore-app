@@ -29,6 +29,36 @@ self.addEventListener("activate", event => {
     event.waitUntil(self.clients.claim());
 });
 
+self.addEventListener(
+    "push",
+    event => {
+        const payload =
+            event.data?.json() || {};
+
+        event.waitUntil(
+            self.registration.showNotification(
+                payload.title || "DuunHub",
+                {
+                    body:
+                        payload.body ||
+                        "Sul on uus teade.",
+
+                    icon:
+                        "/icon-192x192.png",
+
+                    badge:
+                        "/favicon-48x48.png",
+
+                    data: {
+                        url:
+                            payload.url || "/"
+                    }
+                }
+            )
+        );
+    }
+);
+
 const navigationHandler =
     createHandlerBoundToURL("/index.html");
 
