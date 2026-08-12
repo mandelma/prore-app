@@ -898,6 +898,8 @@ const enablePushNotifications = async () => {
 
     console.log("Subscription:", subscription);
 
+    console.log("TOKEN - ", localStorage.getItem("loggedAppUser"))
+
     await fetch("/api/push/subscribe", {
       method: "POST",
 
@@ -906,7 +908,7 @@ const enablePushNotifications = async () => {
 
         // kui kasutad JWT-d:
         Authorization:
-          `Bearer ${localStorage.getItem("token")}`
+          `Bearer ${localStorage.getItem("loggedAppUser")}`
       },
 
       body: JSON.stringify({
