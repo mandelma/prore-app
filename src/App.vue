@@ -991,11 +991,9 @@ const handleVisibilityChange = async () => {
 
 onMounted (async () => {
   console.log("Mounted on start!");
-
-  const conversationId = route.params.conversationId;
-
-  console.log("Conversation +++++++++++++ id - " + conversationId)
-
+  
+  handleVisibilityChange();
+  
   initPwaInstall();
 
 
