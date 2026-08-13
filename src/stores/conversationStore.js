@@ -105,6 +105,47 @@ export const useConversationStore = defineStore("conversation", () => {
     }
   };
 
+  const refreshMessages = async (conversationId) => {
+    if (!conversationId) {
+      return;
+    }
+
+    try {
+      const convoId =
+        String(conversationId);
+
+      console.log(
+        "[conversationStore] refreshing messages:",
+        convoId
+      );
+
+      const msgs =
+        await chatService.listMessages(
+          convoId
+        );
+
+      messagesById.value = {
+        ...messagesById.value,
+
+        [convoId]:
+          Array.isArray(msgs)
+            ? msgs
+            : (msgs.items || [])
+      };
+
+      console.log(
+        "[conversationStore] messages refreshed:",
+        messagesById.value[convoId].length
+      );
+
+    } catch (error) {
+      console.error(
+        "[conversationStore] refreshMessages failed:",
+        error
+      );
+    }
+  };
+
   // ---- Select a conversation (join socket room + load messages)
   const selectConversation = async (convoId) => {
     activeConversationId.value = convoId;
@@ -321,6 +362,16 @@ export const useConversationStore = defineStore("conversation", () => {
    
   }
 
+  const reconnectSocket = () => {
+    if (!socket.connected) {
+      console.log(
+        "[conversationStore] reconnecting socket"
+      );
+
+      socket.connect();
+    }
+  };
+
   // ---- Socket listeners (call this once from App.vue after login)
   const initSocket = () => {
     if (socketInited.value) return;
@@ -366,12 +417,14 @@ export const useConversationStore = defineStore("conversation", () => {
     openChatWidget,
     closeChatWidget,
     getConversations,
+    refreshMessages,
     selectConversation,
     openCreateRoom,
     upsertConversation,
     sendMessage,
     addMessageLocal,
     setConversationState,
+    reconnectSocket,
     initSocket,
     disconnect,
     reset

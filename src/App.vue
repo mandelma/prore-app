@@ -992,32 +992,6 @@ watch(
   { immediate: true } // so it runs right after hydrate sets user
 );
 
-const syncConversations = async () => {
-  try {
-    console.log("Synchronizing conversations...");
-
-    await conversationStore.getConversations();
-
-    /*
-     * Kui sul on hetkel avatud vestlus,
-     * lae ka selle sõnumid uuesti.
-     */
-    const conversationId =
-      conversationStore.activeConversationId;
-
-    /* if (conversationId) {
-      await conversationStore.selectConversation(
-        conversationId
-      );
-    } */
-
-  } catch (error) {
-    console.error(
-      "Conversation sync failed:",
-      error
-    );
-  }
-};
 
 /* const unreadMessagesCount = computed(() => {
   return conversationStore.conversations.reduce(
@@ -1034,14 +1008,64 @@ const syncConversations = async () => {
   );
 }); */
 
-const handleVisibilityChange = async () => {
-  if (document.visibilityState === "visible") {
-    console.log("App became visible");
 
-    conversationStore.initSocket();
-    
-    await syncConversations();
+
+const syncConversations = async () => {
+  try {
+    console.log(
+      "Synchronizing conversations..."
+    );
+
+    /*
+     * 1. Uuenda conversation summary'd
+     *    ja unread arve.
+     */
+    await conversationStore.getConversations();
+
+    /*
+     * 2. Kui kasutajal oli chat avatud,
+     *    küsi selle tegelikud sõnumid
+     *    uuesti serverist.
+     */
+    const conversationId =
+      conversationStore.activeConversationId;
+
+    if (conversationId) {
+      console.log(
+        "Refreshing active conversation:",
+        conversationId
+      );
+
+      await conversationStore.refreshMessages(
+        conversationId
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      "Conversation sync failed:",
+      error
+    );
   }
+};
+
+
+
+const handleVisibilityChange = async () => {
+  if (
+    document.visibilityState !== "visible"
+  ) {
+    return;
+  }
+
+  console.log(
+    "App became visible"
+  );
+
+  conversationStore.initSocket();
+  conversationStore.reconnectSocket();
+
+  await syncConversations();
 };
 
 

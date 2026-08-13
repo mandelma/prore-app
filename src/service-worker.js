@@ -75,32 +75,32 @@ self.addEventListener("push", event => {
     let payload = {};
 
     try {
-        payload = event.data?.json() || {};
+        payload =
+            event.data?.json() || {};
     } catch {
-        payload = {
-            title: "DuunHub",
-            body: event.data?.text() || "Sul on uus teade."
-        };
+        payload = {};
     }
 
-    const title =
-        payload.title || "DuunHub";
-
     const unreadCount =
-        Number(payload.unreadCount || 1);
+        Number(
+            payload.unreadCount || 0
+        );
 
     const options = {
         body:
             payload.body ||
             "Sul on uus teade.",
 
-        icon: "/icon-192x192.png",
-        badge: "/favicon-48x48.png",
+        icon:
+            "/icon-192x192.png",
 
         data: {
-            url: payload.url || "/",
-            notificationId:
-                payload.notificationId || null
+            url:
+                payload.url || "/",
+
+            conversationId:
+                payload.conversationId ||
+                null
         },
 
         tag:
@@ -112,21 +112,26 @@ self.addEventListener("push", event => {
 
     event.waitUntil(
         Promise.all([
-            self.registration.showNotification(
-                title,
-                options
-            ),
+            self.registration
+                .showNotification(
+                    payload.title ||
+                    "DuunHub",
+                    options
+                ),
 
-            typeof self.registration.setAppBadge ===
-                "function"
-                ? self.registration.setAppBadge(
-                    unreadCount
-                )
+            unreadCount > 0 &&
+                typeof self.navigator
+                    .setAppBadge === "function"
+
+                ? self.navigator
+                    .setAppBadge(
+                        unreadCount
+                    )
+
                 : Promise.resolve()
         ])
     );
 });
-
 self.addEventListener(
     "notificationclick",
     event => {

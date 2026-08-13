@@ -309,7 +309,7 @@ router.post(
                 : "Sul on DuunHubis uus sõnum.",
 
             url:
-              `/messages/${conversationId}`,
+              '/',
 
             unreadCount: totalUnread,
 
