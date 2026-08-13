@@ -5,6 +5,15 @@ const hs = (socket) => {
     socket.on("join-user-room", (userId) => {
         socket.join(userId)
     })
+
+    socket.on(
+        "app:visibility",
+        ({ visible }) => {
+            socket.appVisible =
+                Boolean(visible);
+        }
+    );
+    
     socket.on("user-action", (action) => {
         socket.to(action.userId).emit("user-action", action);
     })

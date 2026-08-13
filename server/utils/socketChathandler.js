@@ -7,6 +7,21 @@ const hsc = (io, socket) => {
         socket.join(`convo:${conversationId}`);
     });
 
+    socket.on("conversation:active", ({ conversationId }) => {
+        socket.activeConversationId = String(conversationId);
+    });
+
+    socket.on("conversation:inactive", () => {
+        socket.activeConversationId = null;
+    });
+
+    socket.on("disconnect", () => {
+        socket.activeConversationId = null;
+    });
+
+
+    
+
     // For display users online - offline
     const userId = String(socket.userId);
     socket.join(`user:${userId}`);

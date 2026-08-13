@@ -44,7 +44,17 @@ export const useConversationStore = defineStore("conversation", () => {
 
   const openChatWidget = () => { openChat.value = true; };
 
-  const closeChatWidget = () => { openChat.value = false; activeConversationId.value = null;};
+  const closeChatWidget = () => {
+    openChat.value = false;
+
+    if (activeConversationId.value) {
+      socket.emit("conversation:inactive", {
+        conversationId: activeConversationId.value
+      });
+    }
+
+    activeConversationId.value = null;
+  };
 
   // ---- API: list conversations
   const ensureOtherUserLoaded = async (convo) => {
@@ -179,6 +189,9 @@ export const useConversationStore = defineStore("conversation", () => {
   const selectConversation = async (convoId) => {
     activeConversationId.value = convoId;
     
+    socket.emit("conversation:active", {
+      convoId
+    });
 
     socket.emit("join-conversation", { conversationId: convoId });
 
@@ -195,6 +208,7 @@ export const useConversationStore = defineStore("conversation", () => {
     const meId = me_id.value; //String(user.value?.id ?? user.value?._id ?? "");
     conversations.value = conversations.value.map(c => {
       if (String(c._id) !== String(convoId)) return c;
+
       return {
         ...c,
         unread: { ...(c.unread || {}), [meId]: 0 }
@@ -226,6 +240,10 @@ export const useConversationStore = defineStore("conversation", () => {
     ensureOtherUserLoaded(conversation);
 
     socket.emit('upsert-convo', otherUserId, conversation);
+
+    /* socket.emit("conversation:active", {
+      convoId
+    }); */
 
     upsertConversation(conversation);
     await selectConversation(convoId);
@@ -403,6 +421,58 @@ export const useConversationStore = defineStore("conversation", () => {
 
   // ---- Socket listeners (call this once from App.vue after login)
   const initSocket = () => {
+    if (socketInited.value) {
+      return;
+    }
+
+    socketInited.value = true;
+
+    socket.on(
+      "conversation-upsert",
+      onConversationUpsert
+    );
+
+    socket.on(
+      "message:new",
+      onMessageNew
+    );
+
+    socket.on(
+      "conversation:list:refresh",
+      onConversationRefresh
+    );
+
+    /*
+     * Väga oluline:
+     * iga reconnect = uus server-side socket.
+     */
+    socket.on("connect", () => {
+      console.log(
+        "[socket] connected:",
+        socket.id
+      );
+
+      socket.emit("app:visibility", {
+        visible:
+          document.visibilityState ===
+          "visible"
+      });
+
+      if (
+        document.visibilityState === "visible" &&
+        activeConversationId.value
+      ) {
+        socket.emit(
+          "conversation:active",
+          {
+            conversationId:
+              activeConversationId.value
+          }
+        );
+      }
+    });
+  };
+  const initSocket__ = () => {
     if (socketInited.value) return;
     socketInited.value = true;
 

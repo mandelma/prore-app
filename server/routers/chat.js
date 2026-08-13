@@ -95,6 +95,8 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
   res.json({ items, nextCursor });
 });
 
+
+
 // POST send message
 router.post(
   "/conversations/:conversationId/messages",
@@ -157,10 +159,71 @@ router.post(
         });
       }
 
+      const io =
+        req.app.get("io");
+
+      let receiverSockets = [];
+
       const otherKey =
         String(otherId);
 
+      if (io) {
+        receiverSockets =
+          await io
+            .in(`user:${otherKey}`)
+            .fetchSockets();
+      }
+
+      /* const receiverIsViewingConversation =
+        receiverSockets.some(socket =>
+          String(socket.activeConversationId) ===
+          String(conversationId)
+        ); */
+
+      const receiverIsViewingConversation =
+        receiverSockets.some(
+          receiverSocket =>
+            receiverSocket.appVisible === true &&
+            String(
+              receiverSocket.activeConversationId
+            ) === String(conversationId)
+        );
+
+      const conversationUpdate = {
+        $set: {
+          updatedAt: now,
+          lastMessageAt: now,
+
+          [`isParticipant.${me}`]: true,
+          [`isParticipant.${otherKey}`]: true,
+
+          lastMessageText:
+            text ||
+            (attachments.length
+              ? "Attachment"
+              : ""),
+
+          lastMessageSenderId:
+            new mongoose.Types.ObjectId(me)
+        }
+      };
+
+      if (!receiverIsViewingConversation) {
+        conversationUpdate.$inc = {
+          [`unread.${otherKey}`]: 1
+        };
+      }
+
+
       const updatedConvo =
+        await Conversation.findByIdAndUpdate(
+          conversationId,
+          conversationUpdate,
+          { new: true }
+        ).lean();
+
+
+      /* const updatedConvo =
         await Conversation.findByIdAndUpdate(
           conversationId,
           {
@@ -193,13 +256,12 @@ router.post(
           {
             new: true
           }
-        ).lean();
+      ).lean(); */
 
       /*
        * Socket.IO
        */
-      const io =
-        req.app.get("io");
+      
 
       const socketPayload = {
         message: msg,
@@ -248,7 +310,7 @@ router.post(
           Number(
             updatedConvo
               ?.unread
-            ?.[otherKey] || 1
+            ?.[otherKey] ?? 0
           );
 
         console.log(
@@ -298,27 +360,29 @@ router.post(
 
 
 
+        if (!receiverIsViewingConversation) {
+          await sendPushToUser(
+            receiver,
+            {
+              title: "Uus sõnum",
+              body:
+                text?.trim()
+                  ? text
+                  : "Sul on DuunHubis uus sõnum.",
 
-        await sendPushToUser(
-          receiver,
-          {
-            title: "Uus sõnum",
-            body:
-              text?.trim()
-                ? text
-                : "Sul on DuunHubis uus sõnum.",
+              url:
+                '/',
+              conversationId:
+                String(conversationId),
 
-            url:
-              '/',
-            conversationId:
-              String(conversationId),
+              unreadCount: totalUnread,
 
-            unreadCount: totalUnread,
-
-            tag:
-              `message-${msg._id}`
-          }
-        );
+              tag:
+                `message-${msg._id}`
+            }
+          );
+        }
+        
 
       } catch (pushError) {
         /*

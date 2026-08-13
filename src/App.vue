@@ -1149,7 +1149,7 @@ const forceChatSync = async () => {
   }
 };
 
-const handleVisibilityChange = async () => {
+const handleVisibilityChange__ = async () => {
   if (
     document.visibilityState !== "visible"
   ) {
@@ -1160,11 +1160,73 @@ const handleVisibilityChange = async () => {
     "App became visible"
   );
 
+  socket.emit(
+    "app:visibility",
+    {
+      visible:
+        document.visibilityState ===
+        "visible"
+    }
+  );
+
   await checkPwaUpdate();
   await forceChatSync();
   conversationStore.initSocket();
   conversationStore.reconnectSocket();
 
+  await syncConversations();
+};
+
+const handleVisibilityChange = async () => {
+  const visible =
+    document.visibilityState === "visible";
+
+  console.log(
+    "App visibility:",
+    visible
+  );
+
+  /*
+   * Saada serverile ALATI nii true kui false.
+   */
+  socket.emit("app:visibility", {
+    visible
+  });
+
+  /*
+   * Kui läks backgroundi,
+   * pole rohkem midagi vaja teha.
+   */
+  if (!visible) {
+    return;
+  }
+
+  /*
+   * Foregroundi tulles taasta kõigepealt socket.
+   */
+  conversationStore.initSocket();
+  conversationStore.reconnectSocket();
+
+  /*
+   * Seejärel saada serverile uuesti presence,
+   * sest reconnect võib tähendada uut
+   * server-side socket objekti.
+   */
+  socket.emit("app:visibility", {
+    visible: true
+  });
+
+  const conversationId =
+    conversationStore.activeConversationId;
+
+  if (conversationId) {
+    socket.emit("conversation:active", {
+      conversationId
+    });
+  }
+
+  await checkPwaUpdate();
+  await forceChatSync();
   await syncConversations();
 };
 
@@ -1522,12 +1584,12 @@ const enableNotificationsFromModal = async () => {
 };
 
 onMounted(async () => {
+  await login.hydrate();
 
-  if (shouldShowNotificationModal) {
-    showNotificationModal.value = true;
-  }
+  conversationStore.initSocket();
+  conversationStore.reconnectSocket();
 
-  document.addEventListener(
+   document.addEventListener(
     "visibilitychange",
     handleVisibilityChange
   );
@@ -1537,9 +1599,36 @@ onMounted(async () => {
     handleServiceWorkerMessage
   );
 
-  await login.hydrate();
+ 
+  window.addEventListener(
+    "focus",
+    handleFocus
+  );
+
+  window.addEventListener(
+    "pageshow",
+    handlePageShow
+  );
+
+  window.addEventListener(
+    "online",
+    handleOnline
+  );
+
+  
+  socket.emit("app:visibility", {
+    visible:
+      document.visibilityState ===
+      "visible"
+  });
+
+  await syncConversations();
 
   startChatSyncPolling();
+
+  if (shouldShowNotificationModal) {
+    showNotificationModal.value = true;
+  }
 
   /*
    * Kas PWA käivitati notificationist?
@@ -1570,24 +1659,6 @@ onMounted(async () => {
       cleanUrl
     );
   }
-
-  window.addEventListener(
-    "focus",
-    handleFocus
-  );
-
-  window.addEventListener(
-    "pageshow",
-    handlePageShow
-  );
-
-  window.addEventListener(
-    "online",
-    handleOnline
-  );
-
-  await syncConversations();
-
 
   await handleProvider.getAllProviders();
 
