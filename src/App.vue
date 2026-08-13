@@ -1289,7 +1289,17 @@ const shouldShowNotificationModal =
   console.log(...values);
 };
 
-  const checkPush = async () => {
+/* const handleInstall = async () => {
+  const result =
+    await installApp();
+
+  console.log(
+    "Install:",
+    result
+  );
+}; */
+
+const checkPush = async () => {
   debug.value = "";
 
   try {
@@ -1562,7 +1572,6 @@ onMounted(async () => {
 
   await syncConversations();
 
-  initPwaInstall();
 
   await handleProvider.getAllProviders();
 
