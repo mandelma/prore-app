@@ -1120,9 +1120,10 @@ const handlePushConversation = async conversationId => {
    * Ära kasuta selectConversation(),
    * kui see markRead'i tõttu ei sobi.
    */
-  conversationStore.activeConversationId =
-    conversationId;
 
+  /* conversationStore.activeConversationId =
+    conversationId;
+ */
   /*
    * Kui chat widget peab avanema:
    */
