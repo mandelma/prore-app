@@ -148,6 +148,38 @@
       </div>
     </MDBNavbar>
 
+    <MDBModal
+      v-model="showNotificationModal"
+      staticBackdrop
+      tabindex="-1"
+    >
+      <MDBModalHeader>
+        <MDBModalTitle>
+          {{ t("notifications.enable_title") }}
+        </MDBModalTitle>
+      </MDBModalHeader>
+
+      <MDBModalBody>
+        {{ t("notifications.enable_description") }}
+      </MDBModalBody>
+
+      <MDBModalFooter>
+        <MDBBtn
+          color="secondary"
+          @click="showNotificationModal = false"
+        >
+          {{ t("notifications.later") }}
+        </MDBBtn>
+
+        <MDBBtn
+          color="primary"
+          @click="enableNotificationsFromModal"
+        >
+          {{ t("notifications.enable") }}
+        </MDBBtn>
+      </MDBModalFooter>
+    </MDBModal>
+
     
 
     <MDBModal
@@ -1208,7 +1240,147 @@ const stopChatSyncPolling = () => {
   chatSyncTimer = null;
 };
 
+const showNotificationModal = ref(false);
+
+const isStandalone =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+const shouldShowNotificationModal =
+  isStandalone &&
+  Notification.permission === "default" &&
+  login.isAuthenticated;
+
+const enablePushNotifications = async () => {
+  try {
+    if (!("serviceWorker" in navigator)) {
+      throw new Error(
+        "Service Worker not supported"
+      );
+    }
+
+    if (!("PushManager" in window)) {
+      throw new Error(
+        "PushManager not supported"
+      );
+    }
+
+    const permission =
+      await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      return;
+    }
+
+    const registration =
+      await navigator.serviceWorker.ready;
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    /*
+     * Subscription puudub → loome
+     */
+    if (!subscription) {
+      const vapidPublicKey =
+        import.meta.env
+          .VITE_VAPID_PUBLIC_KEY;
+
+      if (!vapidPublicKey) {
+        throw new Error(
+          "VITE_VAPID_PUBLIC_KEY is missing"
+        );
+      }
+
+      subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+
+          applicationServerKey:
+            urlBase64ToUint8Array(
+              vapidPublicKey
+            )
+        });
+    }
+
+    /*
+     * Siin on subscription kindlasti olemas.
+     */
+    debug.value +=
+      `Endpoint: ${subscription.endpoint}\n`;
+
+    /*
+     * Kui token on ref:
+     */
+    const jwt = token.value;
+
+    const response =
+      await fetch(
+        "/api/push/subscribe",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${jwt}`
+          },
+
+          body: JSON.stringify({
+            subscription,
+
+            debug: {
+              standalone:
+                window.matchMedia(
+                  "(display-mode: standalone)"
+                ).matches,
+
+              userAgent:
+                navigator.userAgent
+            }
+          })
+        }
+      );
+
+    debug.value +=
+      `POST status: ${response.status}\n`;
+
+    const result =
+      await response.text();
+
+    debug.value +=
+      `POST response: ${result}\n`;
+
+    if (!response.ok) {
+      throw new Error(
+        `Subscription save failed: ${response.status}`
+      );
+    }
+
+  } catch (error) {
+    debug.value +=
+      `ERROR: ${error?.message || error}\n`;
+
+    console.error(
+      "Push subscription error:",
+      error
+    );
+  }
+};
+
+const enableNotificationsFromModal = async () => {
+  await enablePushNotifications();
+  showNotificationModal.value = false;
+};
+
 onMounted(async () => {
+
+  if (shouldShowNotificationModal) {
+    showNotificationModal.value = true;
+  }
+
   document.addEventListener(
     "visibilitychange",
     handleVisibilityChange
