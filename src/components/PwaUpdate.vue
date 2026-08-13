@@ -127,6 +127,18 @@ const checkForUpdate = async () => {
  * Installi uus versioon
  */
 const installUpdate = async () => {
+  try {
+    console.log("Installing PWA update...");
+
+    await updateServiceWorker(true);
+  } catch (error) {
+    console.error(
+      "PWA update failed:",
+      error
+    );
+  }
+};
+const installUpdate__ = async () => {
   console.log(
     "installUpdate CALLED"
   );
