@@ -77,20 +77,25 @@ registerRoute(
     })
 );
 
+console.log(
+    "Worker setAppBadge:",
+    typeof self.navigator?.setAppBadge
+);
+
 self.addEventListener("push", event => {
     let payload = {};
 
     try {
-        payload =
-            event.data?.json() || {};
+        payload = event.data?.json() || {};
     } catch {
-        payload = {};
+        payload = {
+            title: "DuunHub",
+            body: event.data?.text() || "Sul on uus teade."
+        };
     }
 
     const unreadCount =
-        Number(
-            payload.unreadCount || 0
-        );
+        Number(payload.unreadCount || 0);
 
     const options = {
         body:
@@ -101,12 +106,9 @@ self.addEventListener("push", event => {
             "/icon-192x192.png",
 
         data: {
-            url:
-                payload.url || "/",
-
+            url: payload.url || "/",
             conversationId:
-                payload.conversationId ||
-                null
+                payload.conversationId || null
         },
 
         tag:
@@ -117,25 +119,31 @@ self.addEventListener("push", event => {
     };
 
     event.waitUntil(
-        Promise.all([
-            self.registration
-                .showNotification(
-                    payload.title ||
-                    "DuunHub",
-                    options
-                ),
+        (async () => {
+            await self.registration.showNotification(
+                payload.title || "DuunHub",
+                options
+            );
 
-            unreadCount > 0 &&
-                typeof self.navigator
-                    .setAppBadge === "function"
-
-                ? self.navigator
-                    .setAppBadge(
+            /*
+             * iOS / Windows / muud toetatud platvormid
+             */
+            if (
+                unreadCount > 0 &&
+                typeof self.navigator?.setAppBadge === "function"
+            ) {
+                try {
+                    await self.navigator.setAppBadge(
                         unreadCount
-                    )
-
-                : Promise.resolve()
-        ])
+                    );
+                } catch (error) {
+                    console.warn(
+                        "Worker badge failed:",
+                        error
+                    );
+                }
+            }
+        })()
     );
 });
 
