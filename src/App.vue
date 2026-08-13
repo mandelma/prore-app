@@ -1411,7 +1411,7 @@ const enablePushNotifications = async () => {
       const vapidPublicKey =
         import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
-      debug.value += `VAPID key exists: ${!!vapidKey}\n`;
+      debug.value += `VAPID key exists: ${!!vapidPublicKey}\n`;
 
       if (!vapidPublicKey) {
         throw new Error(
