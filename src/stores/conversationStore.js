@@ -106,6 +106,35 @@ export const useConversationStore = defineStore("conversation", () => {
   };
 
   const refreshMessages = async (conversationId) => {
+    if (!conversationId) return;
+
+    try {
+      const convoId = String(conversationId);
+
+      const msgs =
+        await chatService.listMessages(convoId);
+
+      messagesById.value = {
+        ...messagesById.value,
+        [convoId]: Array.isArray(msgs)
+          ? msgs
+          : (msgs.items || [])
+      };
+
+      console.log(
+        "[chat] refreshed",
+        convoId,
+        messagesById.value[convoId].length
+      );
+    } catch (error) {
+      console.error(
+        "[chat] refresh failed:",
+        error
+      );
+    }
+  };
+
+  const refreshMessages__ = async (conversationId) => {
     if (!conversationId) {
       return;
     }

@@ -1072,6 +1072,35 @@ const checkPwaUpdate = async () => {
   }
 };
 
+const forceChatSync = async () => {
+  try {
+    console.log("FORCE CHAT SYNC");
+
+    // 1. Taasta socket
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    // 2. Küsi conversation list uuesti serverist
+    await conversationStore.getConversations();
+
+    // 3. Kui chat on avatud, küsi sõnumid alati uuesti
+    const conversationId =
+      conversationStore.activeConversationId;
+
+    if (conversationId) {
+      await conversationStore.refreshMessages(
+        conversationId
+      );
+    }
+  } catch (error) {
+    console.error(
+      "forceChatSync failed:",
+      error
+    );
+  }
+};
+
 const handleVisibilityChange = async () => {
   if (
     document.visibilityState !== "visible"
@@ -1084,11 +1113,23 @@ const handleVisibilityChange = async () => {
   );
 
   await checkPwaUpdate();
-
+  await forceChatSync();
   conversationStore.initSocket();
   conversationStore.reconnectSocket();
 
   await syncConversations();
+};
+
+const handleFocus = async () => {
+  await forceChatSync();
+};
+
+const handlePageShow = async () => {
+  await forceChatSync();
+};
+
+const handleOnline = async () => {
+  await forceChatSync();
 };
 
 const handlePushConversation = async conversationId => {
@@ -1145,6 +1186,27 @@ const handleServiceWorkerMessage =
     );
   };
 
+  
+let chatSyncTimer = null;
+
+const startChatSyncPolling = () => {
+  if (chatSyncTimer) return;
+
+  chatSyncTimer = setInterval(async () => {
+    if (
+      document.visibilityState === "visible"
+    ) {
+      await forceChatSync();
+    }
+  }, 5000);
+};
+
+const stopChatSyncPolling = () => {
+  if (!chatSyncTimer) return;
+
+  clearInterval(chatSyncTimer);
+  chatSyncTimer = null;
+};
 
 onMounted(async () => {
   document.addEventListener(
@@ -1158,6 +1220,8 @@ onMounted(async () => {
   );
 
   await login.hydrate();
+
+  startChatSyncPolling();
 
   /*
    * Kas PWA käivitati notificationist?
@@ -1189,6 +1253,21 @@ onMounted(async () => {
     );
   }
 
+  window.addEventListener(
+    "focus",
+    handleFocus
+  );
+
+  window.addEventListener(
+    "pageshow",
+    handlePageShow
+  );
+
+  window.addEventListener(
+    "online",
+    handleOnline
+  );
+
   await syncConversations();
 
   initPwaInstall();
@@ -1211,6 +1290,23 @@ onBeforeUnmount(() => {
   navigator.serviceWorker?.removeEventListener(
     "message",
     handleServiceWorkerMessage
+  );
+
+  stopChatSyncPolling();
+
+  window.removeEventListener(
+    "focus",
+    handleFocus
+  );
+
+  window.removeEventListener(
+    "pageshow",
+    handlePageShow
+  );
+
+  window.removeEventListener(
+    "online",
+    handleOnline
   );
 });
 
