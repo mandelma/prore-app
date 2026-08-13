@@ -1038,6 +1038,8 @@ const handleVisibilityChange = async () => {
   if (document.visibilityState === "visible") {
     console.log("App became visible");
 
+    conversationStore.initSocket();
+    
     await syncConversations();
   }
 };
