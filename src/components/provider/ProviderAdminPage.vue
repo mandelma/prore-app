@@ -286,7 +286,8 @@
       <pre style="white-space: pre-wrap;">
         {{ debug }}
       </pre>
-    </div>
+    </div><br>
+    xxxxxxxxxxx-----------xxxxxxxxxxxxxxxxx
 
       
     <MDBRow class="g-3">
