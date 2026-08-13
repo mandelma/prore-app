@@ -1126,7 +1126,7 @@ const handlePushConversation = async conversationId => {
   /*
    * Kui chat widget peab avanema:
    */
-  conversationStore.openChatWidget();
+  //conversationStore.openChatWidget();
 };
 
 const handleServiceWorkerMessage =
