@@ -1,7 +1,7 @@
 <template>
   <Transition name="pwa-update">
     <aside
-      v-if="needRefresh"
+      v-if="needRefresh || manualRefreshAvailable"
       class="pwa-update"
       role="status"
       aria-live="polite"
@@ -42,73 +42,194 @@
 </template>
 
 <script setup>
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount
+} from "vue";
+
 import { useI18n } from "vue-i18n";
 import { useRegisterSW } from "virtual:pwa-register/vue";
 
 const { t } = useI18n();
 
+const manualRefreshAvailable = ref(false);
+
 const {
   needRefresh,
   updateServiceWorker
 } = useRegisterSW({
-  /*
-   * Käivitub siis, kui rakendus on valmis
-   * vähemalt põhifailidega offline töötama.
-   */
-  /* onOfflineReady() {
-    console.info("DuunHub on offline kasutamiseks valmis.");
-  }, */
+  immediate: true,
 
- immediate: true,
-
- onRegisteredSW(swUrl, registration) {
-    console.log("SW registered:", swUrl);
+  onRegisteredSW(swUrl, registration) {
+    console.log(
+      "SW registered:",
+      swUrl
+    );
 
     if (!registration) {
       return;
     }
 
-    // kontroll kohe äpi avamisel
-    registration.update();
-
-    // ja näiteks iga 30 minuti järel
-    setInterval(() => {
-      registration.update();
-    }, 15 * 60 * 1000);
+    registration.update().catch(
+      console.error
+    );
   },
 
   onRegisterError(error) {
     console.error(
-      "Service worker'i registreerimine ebaõnnestus:",
+      "SW registration failed:",
       error
     );
   }
 });
 
-const installUpdate = async () => {
+
+/*
+ * Uue versiooni kontroll
+ */
+const checkForUpdate = async () => {
   try {
-    /*
-     * true tähendab, et pärast uue service worker'i
-     * aktiveerimist laaditakse leht uuesti.
-     */
+    const registration =
+      await navigator.serviceWorker
+        .getRegistration();
+
+    if (!registration) {
+      return;
+    }
+
+    await registration.update();
 
     console.log(
-      "Installing PWA update..."
+      "waiting:",
+      registration.waiting
     );
 
+    console.log(
+      "installing:",
+      registration.installing
+    );
 
-    await updateServiceWorker(true);
+    if (registration.waiting) {
+      manualRefreshAvailable.value = true;
+    }
 
   } catch (error) {
     console.error(
-      "DuunHubi uuendamine ebaõnnestus:",
+      "PWA update check failed:",
       error
     );
   }
 };
 
+
+/*
+ * Installi uus versioon
+ */
+const installUpdate = async () => {
+  console.log(
+    "installUpdate CALLED"
+  );
+
+  try {
+    const registration =
+      await navigator.serviceWorker
+        .getRegistration();
+
+    /*
+     * Eriti oluline iOS PWA puhul.
+     */
+    if (registration?.waiting) {
+      console.log(
+        "Activating waiting SW"
+      );
+
+      registration.waiting.postMessage({
+        type: "SKIP_WAITING"
+      });
+
+      return;
+    }
+
+    /*
+     * Fallback vite-plugin-pwa jaoks.
+     */
+    await updateServiceWorker(true);
+
+  } catch (error) {
+    console.error(
+      "PWA update failed:",
+      error
+    );
+  }
+};
+
+
+/*
+ * Kui uus SW saab rakenduse controlleriks,
+ * laadime Vue rakenduse uuesti.
+ */
+let refreshing = false;
+
+const handleControllerChange = () => {
+  if (refreshing) {
+    return;
+  }
+
+  refreshing = true;
+
+  console.log(
+    "New service worker activated"
+  );
+
+  window.location.reload();
+};
+
+
+/*
+ * Kui PWA tuuakse iPhone'is uuesti
+ * foreground'i, kontrollime uuendusi.
+ */
+const handleVisibilityChange = () => {
+  if (
+    document.visibilityState === "visible"
+  ) {
+    checkForUpdate();
+  }
+};
+
+
+onMounted(() => {
+  navigator.serviceWorker?.addEventListener(
+    "controllerchange",
+    handleControllerChange
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibilityChange
+  );
+
+  checkForUpdate();
+});
+
+
+onBeforeUnmount(() => {
+  navigator.serviceWorker?.removeEventListener(
+    "controllerchange",
+    handleControllerChange
+  );
+
+  document.removeEventListener(
+    "visibilitychange",
+    handleVisibilityChange
+  );
+});
+
+
 const close = () => {
   needRefresh.value = false;
+  manualRefreshAvailable.value = false;
 };
 </script>
 
