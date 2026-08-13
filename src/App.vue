@@ -1068,62 +1068,125 @@ const handleVisibilityChange = async () => {
   await syncConversations();
 };
 
+const handlePushConversation = async conversationId => {
+  if (!conversationId) {
+    return;
+  }
 
-onMounted (async () => {
-  console.log("Mounted on start!");
-  
+  console.log(
+    "Opening push conversation:",
+    conversationId
+  );
+
+  /*
+   * Kõigepealt vestluste uus seis.
+   */
+  await conversationStore.getConversations();
+
+  /*
+   * Lae selle conversation'i sõnumid
+   * kindlasti serverist uuesti.
+   */
+  await conversationStore.refreshMessages(
+    conversationId
+  );
+
+  /*
+   * Tee conversation aktiivseks.
+   *
+   * Ära kasuta selectConversation(),
+   * kui see markRead'i tõttu ei sobi.
+   */
+  conversationStore.activeConversationId =
+    conversationId;
+
+  /*
+   * Kui chat widget peab avanema:
+   */
+  conversationStore.openChatWidget();
+};
+
+const handleServiceWorkerMessage =
+  async event => {
+
+    if (
+      event.data?.type !==
+      "PUSH_CONVERSATION"
+    ) {
+      return;
+    }
+
+    await handlePushConversation(
+      event.data.conversationId
+    );
+  };
+
+
+onMounted(async () => {
   document.addEventListener(
     "visibilitychange",
     handleVisibilityChange
   );
 
-  /*
-   * Esimene laadimine
-   */
-  await syncConversations();
-  
-  initPwaInstall();
-
-
-
-  //console.log('PROCESS ENV ' + process.env.NODE_ENV)
-  //client.orderList(login.user.id);
-  handleProvider.getAllProviders(),
-  placeWidgetBottomRight();
+  navigator.serviceWorker?.addEventListener(
+    "message",
+    handleServiceWorkerMessage
+  );
 
   await login.hydrate();
 
+  /*
+   * Kas PWA käivitati notificationist?
+   */
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const pushConversation =
+    params.get("pushConversation");
+
+  if (pushConversation) {
+    await handlePushConversation(
+      pushConversation
+    );
+
+    /*
+     * Eemalda parameeter aadressist,
+     * et refresh ei avaks sama chat'i uuesti.
+     */
+    const cleanUrl =
+      window.location.pathname;
+
+    window.history.replaceState(
+      {},
+      "",
+      cleanUrl
+    );
+  }
+
+  await syncConversations();
+
+  initPwaInstall();
+
+  await handleProvider.getAllProviders();
+
+  placeWidgetBottomRight();
+
   await mapStore.init();
-  /* await login.hydrate();
-  if (login.user) {
-    const user = login.user;
-
-    userStore.fetchMe();
-
-    userID.value = user.id;
-    username.value = user.username;
-    await client.orderList(user.id);
-    await handleProvider.getProState(user.id);
-    await notificationStore.handleNotifications(user.id);
-    conversationStore.initSocket();
-    await conversationStore.getConversations();
-  } */
 
   joinServer();
-
-  console.log("IsBookings - " + client.isBookings)
-  console.log("AUTH " + login.isAuthenticated)
-  console.log('Client orders count is', count.value)
-
-  //console.log("ID " + login.user.id)
-
-
-})
+});
 
 onBeforeUnmount(() => {
   document.removeEventListener(
     "visibilitychange",
     handleVisibilityChange
+  );
+
+  navigator.serviceWorker?.removeEventListener(
+    "message",
+    handleServiceWorkerMessage
   );
 });
 

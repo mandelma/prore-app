@@ -132,13 +132,18 @@ self.addEventListener("push", event => {
         ])
     );
 });
+
 self.addEventListener(
     "notificationclick",
     event => {
         event.notification.close();
 
-        const targetUrl =
-            event.notification.data?.url || "/";
+        const conversationId =
+            event.notification.data?.conversationId;
+
+        const targetUrl = conversationId
+            ? `/?pushConversation=${encodeURIComponent(conversationId)}`
+            : "/";
 
         event.waitUntil(
             self.clients
@@ -146,19 +151,31 @@ self.addEventListener(
                     type: "window",
                     includeUncontrolled: true
                 })
-                .then(clientList => {
-                    const matchingClient =
-                        clientList.find(client => {
-                            return (
-                                new URL(client.url).pathname ===
-                                targetUrl
-                            );
+                .then(async clientList => {
+
+                    /*
+                     * Äpp on juba olemas.
+                     */
+                    if (clientList.length > 0) {
+                        const client = clientList[0];
+
+                        await client.focus();
+
+                        client.postMessage({
+                            type: "PUSH_CONVERSATION",
+                            conversationId
                         });
 
-                    if (matchingClient) {
-                        return matchingClient.focus();
+                        return;
                     }
 
+                    /*
+                     * Äpp oli täielikult suletud.
+                     *
+                     * conversationId anname URL-is kaasa,
+                     * sest Vue rakendust pole veel olemas,
+                     * millele postMessage saata.
+                     */
                     return self.clients.openWindow(
                         targetUrl
                     );

@@ -310,6 +310,8 @@ router.post(
 
             url:
               '/',
+            conversationId:
+              String(conversationId),
 
             unreadCount: totalUnread,
 
