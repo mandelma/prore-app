@@ -47,20 +47,6 @@ export const useConversationStore = defineStore("conversation", () => {
   const closeChatWidget = () => { openChat.value = false; activeConversationId.value = null;};
 
   // ---- API: list conversations
-  const getConversations_xxx = async () => {
-    conversations.value = await chatService.listConversations();
-    // fetch missing user data only once
-    for (const convo of conversations.value) {
-      const otherId = convo.participantIds.find(id => id !== me_id.value);
-
-       if (otherId && !otherChatUsers.value[otherId]) {
-      const user = await userService.getUser(otherId);
-      // Stored by ID
-      otherChatUsers.value[otherId] = user;
-    }
-    }
-  };
-
   const ensureOtherUserLoaded = async (convo) => {
     const myId = me_id.value;
     if (!convo?.participantIds) return;

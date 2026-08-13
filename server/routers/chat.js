@@ -297,7 +297,7 @@ router.post(
 
 
 
-        
+
 
         await sendPushToUser(
           receiver,
@@ -311,7 +311,7 @@ router.post(
             url:
               `/messages/${conversationId}`,
 
-            unreadCount,
+            unreadCount: totalUnread,
 
             tag:
               `message-${msg._id}`
