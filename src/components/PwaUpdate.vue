@@ -59,6 +59,8 @@ const {
     console.info("DuunHub on offline kasutamiseks valmis.");
   }, */
 
+ immediate: true,
+
  onRegisteredSW(swUrl, registration) {
     console.log("SW registered:", swUrl);
 
@@ -72,7 +74,7 @@ const {
     // ja näiteks iga 30 minuti järel
     setInterval(() => {
       registration.update();
-    }, 30 * 60 * 1000);
+    }, 15 * 60 * 1000);
   },
 
   onRegisterError(error) {
@@ -89,7 +91,14 @@ const installUpdate = async () => {
      * true tähendab, et pärast uue service worker'i
      * aktiveerimist laaditakse leht uuesti.
      */
+
+    console.log(
+      "Installing PWA update..."
+    );
+
+
     await updateServiceWorker(true);
+
   } catch (error) {
     console.error(
       "DuunHubi uuendamine ebaõnnestus:",

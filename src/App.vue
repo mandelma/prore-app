@@ -1049,7 +1049,28 @@ const syncConversations = async () => {
   }
 };
 
+const checkPwaUpdate = async () => {
+  try {
+    const registration =
+      await navigator.serviceWorker.getRegistration();
 
+    if (!registration) {
+      return;
+    }
+
+    console.log(
+      "Checking for PWA update..."
+    );
+
+    await registration.update();
+
+  } catch (error) {
+    console.error(
+      "PWA update check failed:",
+      error
+    );
+  }
+};
 
 const handleVisibilityChange = async () => {
   if (
@@ -1061,6 +1082,8 @@ const handleVisibilityChange = async () => {
   console.log(
     "App became visible"
   );
+
+  await checkPwaUpdate();
 
   conversationStore.initSocket();
   conversationStore.reconnectSocket();
