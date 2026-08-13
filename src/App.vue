@@ -1433,7 +1433,7 @@ const enablePushNotifications = async () => {
     /*
      * JWT
      */
-    const jwt = token.value;
+    const jwt = login.token;
 
     if (!jwt) {
       throw new Error(
