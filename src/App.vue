@@ -384,6 +384,22 @@
     </div>
 
     <PwaUpdate />
+
+    <MDBBtn color="warning" @click="enablePushNotifications">
+      Luba teavitused
+    </MDBBtn>
+
+
+
+    <div style="padding: 20px; background: white; color: black;">
+      <button @click="checkPush">
+        Check PWA Push
+      </button>
+
+      <pre style="white-space: pre-wrap;">
+        {{ debug }}
+      </pre>
+    </div><br>
     
     <MDBFooter
 
@@ -1203,6 +1219,8 @@ const handlePushConversation = async conversationId => {
   //conversationStore.openChatWidget();
 };
 
+const debug = ref("");
+
 const handleServiceWorkerMessage =
   async event => {
 
@@ -1251,40 +1269,139 @@ const shouldShowNotificationModal =
   Notification.permission === "default" &&
   login.isAuthenticated;
 
+  const log = (...values) => {
+  const text = values
+    .map(value => {
+      if (typeof value === "object") {
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch {
+          return String(value);
+        }
+      }
+
+      return String(value);
+    })
+    .join(" ");
+
+  debug.value += text + "\n";
+
+  console.log(...values);
+};
+
+  const checkPush = async () => {
+  debug.value = "";
+
+  try {
+    log(
+      "Standalone:",
+      window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches
+    );
+
+    log(
+      "navigator.standalone:",
+      window.navigator.standalone
+    );
+
+    log(
+      "Notification supported:",
+      "Notification" in window
+    );
+
+    log(
+      "PushManager supported:",
+      "PushManager" in window
+    );
+
+    log(
+      "ServiceWorker supported:",
+      "serviceWorker" in navigator
+    );
+
+    log(
+      "Permission:",
+      Notification.permission
+    );
+
+    const registration =
+      await navigator.serviceWorker.ready;
+
+    log(
+      "Service Worker active:",
+      !!registration.active
+    );
+
+    const subscription =
+      await registration.pushManager.getSubscription();
+
+    log(
+      "Subscription exists:",
+      !!subscription
+    );
+
+    if (subscription) {
+      log(
+        "Endpoint:",
+        subscription.endpoint
+      );
+    }
+  } catch (error) {
+    log(
+      "ERROR:",
+      error?.message || error
+    );
+  }
+};
+
 const enablePushNotifications = async () => {
   try {
+    if (!("Notification" in window)) {
+      throw new Error("Notifications not supported");
+    }
+
     if (!("serviceWorker" in navigator)) {
-      throw new Error(
-        "Service Worker not supported"
-      );
+      throw new Error("Service Worker not supported");
     }
 
     if (!("PushManager" in window)) {
-      throw new Error(
-        "PushManager not supported"
-      );
+      throw new Error("PushManager not supported");
     }
 
-    const permission =
-      await Notification.requestPermission();
+    /*
+     * Kui luba pole veel küsitud,
+     * küsime kasutaja nupuvajutuse järel.
+     */
+    let permission = Notification.permission;
+
+    debug.value += `Permission: ${permission}\n`;
+
+    if (permission === "default") {
+      permission =
+        await Notification.requestPermission();
+    }
 
     if (permission !== "granted") {
-      return;
+      return false;
     }
 
     const registration =
       await navigator.serviceWorker.ready;
 
+    debug.value += `SW active: ${!!registration.active}\n`;
+
     let subscription =
       await registration.pushManager.getSubscription();
 
     /*
-     * Subscription puudub → loome
+     * Subscription puudub → loome.
      */
     if (!subscription) {
       const vapidPublicKey =
-        import.meta.env
-          .VITE_VAPID_PUBLIC_KEY;
+        import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+      debug.value += `VAPID key exists: ${!!vapidKey}\n`;
 
       if (!vapidPublicKey) {
         throw new Error(
@@ -1304,16 +1421,19 @@ const enablePushNotifications = async () => {
     }
 
     /*
-     * Siin on subscription kindlasti olemas.
-     */
-    debug.value +=
-      `Endpoint: ${subscription.endpoint}\n`;
-
-    /*
-     * Kui token on ref:
+     * JWT
      */
     const jwt = token.value;
 
+    if (!jwt) {
+      throw new Error(
+        "Authentication token missing"
+      );
+    }
+
+    /*
+     * Subscription backendile.
+     */
     const response =
       await fetch(
         "/api/push/subscribe",
@@ -1331,7 +1451,7 @@ const enablePushNotifications = async () => {
           body: JSON.stringify({
             subscription,
 
-            debug: {
+            device: {
               standalone:
                 window.matchMedia(
                   "(display-mode: standalone)"
@@ -1344,29 +1464,29 @@ const enablePushNotifications = async () => {
         }
       );
 
-    debug.value +=
-      `POST status: ${response.status}\n`;
-
-    const result =
-      await response.text();
-
-    debug.value +=
-      `POST response: ${result}\n`;
-
     if (!response.ok) {
       throw new Error(
         `Subscription save failed: ${response.status}`
       );
     }
 
-  } catch (error) {
-    debug.value +=
-      `ERROR: ${error?.message || error}\n`;
+    console.log(
+      "Push notifications enabled:",
+      subscription.endpoint
+    );
 
+    debug.value += `Subscription created: ${!!subscription}\n`;
+    debug.value += `Endpoint: ${subscription.endpoint}\n`;
+
+    return true;
+
+  } catch (error) {
     console.error(
       "Push subscription error:",
       error
     );
+
+    return false;
   }
 };
 

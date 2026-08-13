@@ -287,7 +287,6 @@
         {{ debug }}
       </pre>
     </div><br>
-    xxxxxxxxxxx-----------xxxxxxxxxxxxxxxxx
 
       
     <MDBRow class="g-3">
