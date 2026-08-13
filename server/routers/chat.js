@@ -268,6 +268,37 @@ router.post(
           unreadCount
         );
 
+
+
+        const receiverConversations =
+          await Conversation.find({
+            participantIds:
+              new mongoose.Types.ObjectId(otherKey)
+          }).lean();
+
+        const totalUnread =
+          receiverConversations.reduce(
+            (total, conversation) => {
+              return (
+                total +
+                Number(
+                  conversation.unread?.[otherKey] || 0
+                )
+              );
+            },
+            0
+          );
+
+        console.log(
+          "TOTAL UNREAD:",
+          totalUnread
+        );
+
+
+
+
+        
+
         await sendPushToUser(
           receiver,
           {

@@ -419,7 +419,7 @@ import {
   MDBContainer
 } from 'mdb-vue-ui-kit';
 
-import { ref, watch, onMounted, computed, onUnmounted, nextTick } from "vue";
+import { ref, watch, onMounted, computed, onBeforeUnmount, onUnmounted, nextTick } from "vue";
 import { storeToRefs } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import { usePwaInstall } from './composables/usePwaInstall.js';
@@ -867,11 +867,20 @@ const unreadCount = computed(() => {
 watch(
   unreadCount,
   async count => {
-    if (count > 0) {
 
-      await navigator.setAppBadge?.(count);
-    } else {
-      await navigator.clearAppBadge?.();
+    try {
+      if (count > 0) {
+        await navigator.setAppBadge?.(
+          count
+        );
+      } else {
+        await navigator.clearAppBadge?.();
+      }
+    } catch (error) {
+      console.error(
+        "Badge update failed:",
+        error
+      );
     }
   },
   { immediate: true }
@@ -983,16 +992,69 @@ watch(
   { immediate: true } // so it runs right after hydrate sets user
 );
 
-const handleVisibilityChange = async () => {
-  if (document.visibilityState === "visible") {
+const syncConversations = async () => {
+  try {
+    console.log("Synchronizing conversations...");
+
     await conversationStore.getConversations();
+
+    /*
+     * Kui sul on hetkel avatud vestlus,
+     * lae ka selle sõnumid uuesti.
+     */
+    const conversationId =
+      conversationStore.activeConversationId;
+
+    /* if (conversationId) {
+      await conversationStore.selectConversation(
+        conversationId
+      );
+    } */
+
+  } catch (error) {
+    console.error(
+      "Conversation sync failed:",
+      error
+    );
   }
 };
+
+/* const unreadMessagesCount = computed(() => {
+  return conversationStore.conversations.reduce(
+    (total, conversation) => {
+      return (
+        total +
+        Number(
+          conversation.unread
+            ?.[userID.value] || 0
+        )
+      );
+    },
+    0
+  );
+}); */
+
+const handleVisibilityChange = async () => {
+  if (document.visibilityState === "visible") {
+    console.log("App became visible");
+
+    await syncConversations();
+  }
+};
+
 
 onMounted (async () => {
   console.log("Mounted on start!");
   
-  handleVisibilityChange();
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibilityChange
+  );
+
+  /*
+   * Esimene laadimine
+   */
+  await syncConversations();
   
   initPwaInstall();
 
@@ -1031,6 +1093,13 @@ onMounted (async () => {
 
 
 })
+
+onBeforeUnmount(() => {
+  document.removeEventListener(
+    "visibilitychange",
+    handleVisibilityChange
+  );
+});
 
 onUnmounted(() => {
   stopDrag();
