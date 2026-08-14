@@ -643,7 +643,7 @@ const ensurePushSubscription = async () => {
         headers: {
           "Content-Type": "application/json",
           Authorization:
-            `Bearer ${token.value}`
+            `Bearer ${login.token}`
         },
 
         body: JSON.stringify({
