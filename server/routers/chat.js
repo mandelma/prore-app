@@ -377,28 +377,68 @@ router.post(
 
 
 
-        if (!receiverIsViewingConversation) {
-          await sendPushToUser(
-            receiver,
-            {
-              title: "Uus sõnum",
-              body:
-                text?.trim()
-                  ? text
-                  : "Sul on DuunHubis uus sõnum.",
+        const sendPushToUser = async (
+          user,
+          payload
+        ) => {
+          if (!user?.pushSubscriptions?.length) {
+            return;
+          }
 
-              url:
-                '/',
-              conversationId:
-                String(conversationId),
+          const deadEndpoints = [];
 
-              unreadCount: totalUnread,
+          for (
+            const subscription
+            of user.pushSubscriptions
+          ) {
+            try {
+              await webpush.sendNotification(
+                subscription,
+                JSON.stringify(payload)
+              );
 
-              tag:
-                `message-${msg._id}`
+            } catch (error) {
+              console.error(
+                "Push notification failed:",
+                error.statusCode,
+                error.message
+              );
+
+              /*
+               * 404 / 410 =
+               * subscription pole enam kasutatav.
+               */
+              if (
+                error.statusCode === 404 ||
+                error.statusCode === 410
+              ) {
+                deadEndpoints.push(
+                  subscription.endpoint
+                );
+              }
             }
-          );
-        }
+          }
+
+          /*
+           * Eemalda surnud subscription'id.
+           */
+          if (deadEndpoints.length > 0) {
+            user.pushSubscriptions =
+              user.pushSubscriptions.filter(
+                subscription =>
+                  !deadEndpoints.includes(
+                    subscription.endpoint
+                  )
+              );
+
+            await user.save();
+
+            console.log(
+              "Removed dead push subscriptions:",
+              deadEndpoints.length
+            );
+          }
+        };
         
 
       } catch (pushError) {

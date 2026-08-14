@@ -82,6 +82,28 @@ console.log(
     typeof self.navigator?.setAppBadge
 );
 
+self.addEventListener(
+    "message",
+    event => {
+        if (
+            event.data?.type ===
+            "CLEAR_BADGE"
+        ) {
+            event.waitUntil(
+                self.navigator
+                    .clearAppBadge?.()
+            );
+        }
+
+        if (
+            event.data?.type ===
+            "SKIP_WAITING"
+        ) {
+            self.skipWaiting();
+        }
+    }
+);
+
 self.addEventListener("push", event => {
     let payload = {};
 
