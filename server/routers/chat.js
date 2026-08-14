@@ -97,6 +97,77 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
 
 
 
+
+
+
+
+
+
+const sendPushToUser = async (
+  user,
+  payload
+) => {
+  if (!user?.pushSubscriptions?.length) {
+    return;
+  }
+
+  const deadEndpoints = [];
+
+  for (
+    const subscription
+    of user.pushSubscriptions
+  ) {
+    try {
+      await webpush.sendNotification(
+        subscription,
+        JSON.stringify(payload)
+      );
+
+    } catch (error) {
+      console.error(
+        "Push notification failed:",
+        error.statusCode,
+        error.message
+      );
+
+      /*
+       * 404 / 410 =
+       * subscription pole enam kasutatav.
+       */
+      if (
+        error.statusCode === 404 ||
+        error.statusCode === 410
+      ) {
+        deadEndpoints.push(
+          subscription.endpoint
+        );
+      }
+    }
+  }
+
+  /*
+   * Eemalda surnud subscription'id.
+   */
+  if (deadEndpoints.length > 0) {
+    user.pushSubscriptions =
+      user.pushSubscriptions.filter(
+        subscription =>
+          !deadEndpoints.includes(
+            subscription.endpoint
+          )
+      );
+
+    await user.save();
+
+    console.log(
+      "Removed dead push subscriptions:",
+      deadEndpoints.length
+    );
+  }
+};
+
+
+
 // POST send message
 router.post(
   "/conversations/:conversationId/messages",
@@ -382,7 +453,23 @@ router.post(
 
 
 
+        const payload = {
+          title: "Uus sõnum",
+          body:
+            text?.trim()
+              ? text
+              : "Sul on DuunHubis uus sõnum.",
 
+          url:
+            '/',
+          conversationId:
+            String(conversationId),
+
+          unreadCount: totalUnread,
+
+          tag:
+            `message-${msg._id}`
+        }
 
 
 
@@ -391,68 +478,7 @@ router.post(
 
         if (!receiverIsViewingConversation) {
 
-          const sendPushToUser = async (
-            user,
-            payload
-          ) => {
-            if (!user?.pushSubscriptions?.length) {
-              return;
-            }
-
-            const deadEndpoints = [];
-
-            for (
-              const subscription
-              of user.pushSubscriptions
-            ) {
-              try {
-                await webpush.sendNotification(
-                  subscription,
-                  JSON.stringify(payload)
-                );
-
-              } catch (error) {
-                console.error(
-                  "Push notification failed:",
-                  error.statusCode,
-                  error.message
-                );
-
-                /*
-                 * 404 / 410 =
-                 * subscription pole enam kasutatav.
-                 */
-                if (
-                  error.statusCode === 404 ||
-                  error.statusCode === 410
-                ) {
-                  deadEndpoints.push(
-                    subscription.endpoint
-                  );
-                }
-              }
-            }
-
-            /*
-             * Eemalda surnud subscription'id.
-             */
-            if (deadEndpoints.length > 0) {
-              user.pushSubscriptions =
-                user.pushSubscriptions.filter(
-                  subscription =>
-                    !deadEndpoints.includes(
-                      subscription.endpoint
-                    )
-                );
-
-              await user.save();
-
-              console.log(
-                "Removed dead push subscriptions:",
-                deadEndpoints.length
-              );
-            }
-          };
+          await sendPushToUser(receiver, payload);
 
           
           /* await sendPushToUser(
