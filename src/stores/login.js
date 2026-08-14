@@ -29,7 +29,7 @@ export const useLoginStore = defineStore('login', () => {
         const target = route.query.redirect || "/";
         await router.replace(target);
     }
-    const onLogOut = () => {
+    const onLogOut = async () => {
         user.value = null
         token.value = null
         const conversationStore = useConversationStore();
@@ -37,6 +37,10 @@ export const useLoginStore = defineStore('login', () => {
         localStorage.removeItem('loggedAppUser');
         conversationStore.disconnect();
         conversationStore.reset();
+
+        try {
+            await navigator.clearAppBadge?.();
+        } catch { }
 
         proStore.provider = null;
         router.push('/');

@@ -21,6 +21,8 @@ export const useConversationStore = defineStore("conversation", () => {
 
   const socketInited = ref(false);
 
+  const conversationsLoaded = ref(false);
+
   //const me_id = computed(() => String(user.value?.id ?? user.value?._id ?? ""));
 
   const me_id = computed(() => {
@@ -94,6 +96,8 @@ export const useConversationStore = defineStore("conversation", () => {
       conversations.value = Array.isArray(data)
         ? data
         : (Array.isArray(data.items) ? data.items : []);
+
+      conversationsLoaded.value = true;
 
       console.log(
         "[conversationStore] conversations.length =",
@@ -606,6 +610,7 @@ export const useConversationStore = defineStore("conversation", () => {
     me_id,
     openChat,
     conversations,
+    conversationsLoaded,
     activeConversationId,
     activeConversation,
     messagesById,

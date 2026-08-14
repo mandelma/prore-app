@@ -893,35 +893,58 @@ const closeChatWindow = () => {
 };
 
 const unreadMessagesCount = computed(() => {
-  return conversations.value.reduce(
-    (total, conversation) =>
-      total + (conversation.unread?.[userID.value] || 0),
-    0
-  );
+  if (!conversationStore.conversationsLoaded) {
+    return null;
+  }
+
+  return Number(totalUnread.value || 0);
 });
 
 const unreadNotificationsCount = computed(() => {
-  return notifications.value.filter(
+  if (!notificationStore.isNotificationsLoaded) {
+    return null;
+  }
+  return Number(newNotesCount.value || 0);
+  /* return notifications.value.filter(
     notification => notification.isNewMsg
-  ).length;
+  ).length; */
 });
 
 const unreadCount = computed(() => {
+  /*
+   * Conversation'id pole veel serverist laaditud.
+   * Ära tee badge'iga veel midagi.
+   */
+  if (
+    unreadMessagesCount.value === null ||
+    unreadNotificationsCount.value === null
+
+  ) {
+    return null;
+  }
+
   return (
     unreadMessagesCount.value +
     unreadNotificationsCount.value
   );
 });
 
+
 watch(
   unreadCount,
   async count => {
+    /*
+     * Väga oluline:
+     * null tähendab "andmed pole veel valmis",
+     * mitte "0 lugemata teadet".
+     */
+    if (count === null) {
+      return;
+    }
 
     try {
       if (count > 0) {
-        await navigator.setAppBadge?.(
-          count
-        );
+        await navigator.setAppBadge?.(count);
       } else {
         await navigator.clearAppBadge?.();
       }
@@ -932,7 +955,9 @@ watch(
       );
     }
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 );
 
 

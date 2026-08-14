@@ -14,6 +14,8 @@ export const useNotificationStore = defineStore('notifications', () => {
     //const newNotes = computed(() => notifications.value.filter(note => note.isNewMsg) || []);
     const newNotesCount = computed(() => notifications.value.filter(note => note.isNewMsg).length)
 
+    const isNotificationsLoaded = ref(false);
+
     const handleNotifications = async (id) => {
         isNotesLoading.value = true;
         userId.value = id;
@@ -22,6 +24,9 @@ export const useNotificationStore = defineStore('notifications', () => {
             const notes = await noteService.getUserNotifications(id);
             const notesList = notes ? notes : [];
             notifications.value = notesList;
+
+            isNotificationsLoaded.value = true;
+
         } catch (err) {
             console.log("Error: " + err.message);
         } finally {
@@ -130,6 +135,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         clientConfirmDealNotification,
         userId,
         notifications,
+        isNotificationsLoaded,
         notesCount,
         newNotesCount
     }
