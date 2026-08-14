@@ -1656,7 +1656,7 @@ const urlBase64ToUint8Array = base64String => {
 };
 
 const enableNotificationsFromModal = async () => {
-  await enablePushNotifications();
+  await ensurePushSubscription();
   showNotificationModal.value = false;
 };
 
