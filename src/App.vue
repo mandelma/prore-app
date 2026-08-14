@@ -1191,17 +1191,32 @@ const handleVisibilityChange = async () => {
   conversationStore.syncPresence();
 
   if (!visible) {
+    if (login.isAuthenticated) {
+      conversationStore.syncPresence();
+    }
     return;
   }
 
-  conversationStore.initSocket();
-  conversationStore.reconnectSocket();
-
   await checkPwaUpdate();
-  await forceChatSync();
-  await syncConversations();
 
-  conversationStore.syncPresence();
+  if (login.isAuthenticated) {
+    conversationStore.initSocket();
+    conversationStore.reconnectSocket();
+
+    conversationStore.syncPresence();
+
+    await syncConversations();
+
+    await forceChatSync();
+  }
+
+  
+  
+
+  
+  
+
+  //conversationStore.syncPresence();
 };
 
 const handleFocus = async () => {
@@ -1562,12 +1577,12 @@ const enableNotificationsFromModal = async () => {
 
 onMounted(async () => {
   await login.hydrate();
-  if (!isAuthenticated) return;
 
-  conversationStore.initSocket();
-  conversationStore.reconnectSocket();
-
-   document.addEventListener(
+  /*
+   * Need listenerid võivad olla vajalikud
+   * sõltumata login olekust.
+   */
+  document.addEventListener(
     "visibilitychange",
     handleVisibilityChange
   );
@@ -1577,7 +1592,6 @@ onMounted(async () => {
     handleServiceWorkerMessage
   );
 
- 
   window.addEventListener(
     "focus",
     handleFocus
@@ -1593,58 +1607,54 @@ onMounted(async () => {
     handleOnline
   );
 
-  
-  socket.emit("app:visibility", {
-    visible:
-      document.visibilityState ===
-      "visible"
-  });
+  /*
+   * Ainult autentitud kasutaja chat.
+   */
+  if (login.isAuthenticated) {
+    conversationStore.initSocket();
+    conversationStore.reconnectSocket();
 
-  await syncConversations();
+    conversationStore.syncPresence();
 
-  startChatSyncPolling();
+    await syncConversations();
 
-  if (shouldShowNotificationModal) {
-    showNotificationModal.value = true;
+    startChatSyncPolling();
+
+    if (shouldShowNotificationModal) {
+      showNotificationModal.value = true;
+    }
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const pushConversation =
+      params.get("pushConversation");
+
+    if (pushConversation) {
+      await handlePushConversation(
+        pushConversation
+      );
+
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname
+      );
+    }
+
+    joinServer();
   }
 
   /*
-   * Kas PWA käivitati notificationist?
+   * Ülejäänud äpi init, mis ei sõltu chatist.
    */
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-  const pushConversation =
-    params.get("pushConversation");
-
-  if (pushConversation) {
-    await handlePushConversation(
-      pushConversation
-    );
-
-    /*
-     * Eemalda parameeter aadressist,
-     * et refresh ei avaks sama chat'i uuesti.
-     */
-    const cleanUrl =
-      window.location.pathname;
-
-    window.history.replaceState(
-      {},
-      "",
-      cleanUrl
-    );
-  }
-
   await handleProvider.getAllProviders();
 
   placeWidgetBottomRight();
 
   await mapStore.init();
-
-  joinServer();
 });
 
 onBeforeUnmount(() => {

@@ -97,6 +97,16 @@ self.addEventListener("push", event => {
     const unreadCount =
         Number(payload.unreadCount || 0);
 
+    console.log(
+        "SW PUSH:",
+        {
+            unreadCount,
+            badgeSupported:
+                typeof self.navigator
+                    ?.setAppBadge === "function"
+        }
+    );
+
     const options = {
         body:
             payload.body ||
