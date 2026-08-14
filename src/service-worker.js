@@ -98,7 +98,7 @@ self.addEventListener("push", event => {
         Number(payload.unreadCount || 0);
 
     console.log(
-        "SW PUSH:",
+        "SW ------------------- PUSH:",
         {
             unreadCount,
             badgeSupported:

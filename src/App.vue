@@ -1618,7 +1618,7 @@ onMounted(async () => {
 
     await syncConversations();
 
-    startChatSyncPolling();
+    //startChatSyncPolling();
 
     if (shouldShowNotificationModal) {
       showNotificationModal.value = true;
