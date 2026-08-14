@@ -577,6 +577,91 @@ const wasNormalizedForOpen = ref(false);
 
 
 
+const initPushNotifications = async () => {
+  if (!login.isAuthenticated) return;
+
+  if (
+    !("Notification" in window) ||
+    !("serviceWorker" in navigator) ||
+    !("PushManager" in window)
+  ) {
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    await ensurePushSubscription();
+  } else if (
+    Notification.permission === "default"
+  ) {
+    showNotificationModal.value = true;
+  }
+};
+
+
+watch(
+  () => login.isAuthenticated,
+  async (isAuthenticated, wasAuthenticated) => {
+    if (
+      isAuthenticated &&
+      !wasAuthenticated
+    ) {
+      await initPushNotifications();
+    }
+  }
+);
+
+
+
+const ensurePushSubscription = async () => {
+  const registration =
+    await navigator.serviceWorker.ready;
+
+  let subscription =
+    await registration.pushManager
+      .getSubscription();
+
+  if (!subscription) {
+    const vapidPublicKey =
+      import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+    subscription =
+      await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey:
+          urlBase64ToUint8Array(
+            vapidPublicKey
+          )
+      });
+  }
+
+  const response =
+    await fetch(
+      "/api/push/subscribe",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            `Bearer ${token.value}`
+        },
+
+        body: JSON.stringify({
+          subscription
+        })
+      }
+    );
+
+  if (!response.ok) {
+    throw new Error(
+      `Push subscription save failed: ${response.status}`
+    );
+  }
+
+  return true;
+};
+
+
 const widgetAnchor = computed(() =>
   conversationStore.openChat && openWindowPos.value
     ? openWindowPos.value
@@ -1577,6 +1662,8 @@ const enableNotificationsFromModal = async () => {
 
 onMounted(async () => {
   await login.hydrate();
+
+  await initPushNotifications();
 
   /*
    * Need listenerid võivad olla vajalikud
