@@ -144,9 +144,9 @@ self.addEventListener("push", event => {
             ) {
                 try {
                     await self.navigator.setAppBadge(
-                        7 //unreadCount
+                        unreadCount
                     );
-                    console.log("BADGE 7 SET");
+                    console.log("BADGE SET");
                 } catch (error) {
                     console.warn(
                         "Worker badge failed:",
