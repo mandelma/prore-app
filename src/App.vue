@@ -1154,126 +1154,6 @@ const forceChatSync = async () => {
   }
 };
 
-const handleVisibilityChange__ = async () => {
-  if (
-    document.visibilityState !== "visible"
-  ) {
-    return;
-  }
-
-  console.log(
-    "App became visible"
-  );
-
-  socket.emit(
-    "app:visibility",
-    {
-      visible:
-        document.visibilityState ===
-        "visible"
-    }
-  );
-
-  await checkPwaUpdate();
-  await forceChatSync();
-  conversationStore.initSocket();
-  conversationStore.reconnectSocket();
-
-  await syncConversations();
-};
-
-const handleVisibilityChange_two = async () => {
-  if (!login.isAuthenticated) return;
-
-  const visible =
-    document.visibilityState === "visible";
-
-  console.log(
-    "App visibility:",
-    visible
-  );
-
-  /*
-   * Saada serverile ALATI nii true kui false.
-   */
-  socket.emit("app:visibility", {
-    visible
-  });
-
-  /*
-   * Kui läks backgroundi,
-   * pole rohkem midagi vaja teha.
-   */
-  if (!visible) {
-    return;
-  }
-
-  /*
-   * Foregroundi tulles taasta kõigepealt socket.
-   */
-  conversationStore.initSocket();
-  conversationStore.reconnectSocket();
-
-  /*
-   * Seejärel saada serverile uuesti presence,
-   * sest reconnect võib tähendada uut
-   * server-side socket objekti.
-   */
-  socket.emit("app:visibility", {
-    visible: true
-  });
-
-  const conversationId =
-    conversationStore.activeConversationId;
-
-  if (conversationId) {
-    socket.emit("conversation:active", {
-      conversationId
-    });
-  }
-
-  await checkPwaUpdate();
-  await forceChatSync();
-  await syncConversations();
-};
-
-const handleVisibilityChange_3 = async () => {
-  const visible =
-    document.visibilityState === "visible";
-
-  console.log(
-    "App visibility:",
-    visible
-  );
-
-  /*
-   * Kui socket on ühendatud,
-   * saada kohe current state.
-   */
-  if (socket.connected) {
-    socket.emit("app:visibility", {
-      visible
-    });
-  }
-
-  if (!visible) {
-    return;
-  }
-
-  /*
-   * Vajadusel taasta ühendus.
-   *
-   * connect listener saadab presence
-   * pärast ühenduse taastumist ise.
-   */
-  conversationStore.initSocket();
-  conversationStore.reconnectSocket();
-
-  await checkPwaUpdate();
-  await forceChatSync();
-  await syncConversations();
-};
-
 const handleVisibilityChange = async () => {
   const visible =
     document.visibilityState === "visible";
@@ -1697,7 +1577,7 @@ onMounted(async () => {
 
   await syncConversations();
 
-  //startChatSyncPolling();
+  startChatSyncPolling();
 
   if (shouldShowNotificationModal) {
     showNotificationModal.value = true;
