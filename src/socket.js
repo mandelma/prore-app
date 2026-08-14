@@ -1,48 +1,118 @@
 import { io } from "socket.io-client";
 
-console.log("Socket URL:", import.meta.env.VITE_SOCKET_URL);
+console.log(
+    "Socket URL:",
+    import.meta.env.VITE_SOCKET_URL
+);
 
-const URL = import.meta.env.VITE_SOCKET_URL;
+const URL =
+    import.meta.env.VITE_SOCKET_URL;
+
+const socket = io(URL, {
+    autoConnect: false,
+
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    timeout: 10000,
+
+    transports: [
+        "websocket"
+    ]
+});
 
 
-let token;
-const raw = localStorage.getItem('loggedAppUser');
-if (raw) {
-    const appUser = JSON.parse(raw);
-    token = appUser.token;
+const updateSocketAuth = () => {
+    const raw =
+        localStorage.getItem(
+            "loggedAppUser"
+        );
+
+    if (!raw) {
+        socket.auth = {};
+        return;
+    }
+
+    try {
+        const appUser =
+            JSON.parse(raw);
+
+        socket.auth = {
+            token: appUser?.token
+        };
+
+    } catch (error) {
+        console.error(
+            "Failed to read socket token:",
+            error
+        );
+
+        socket.auth = {};
+    }
+};
+
+
+socket.on("connect", () => {
+    console.log(
+        "Socket connected:",
+        socket.id
+    );
+});
+
+
+socket.on(
+    "connect_error",
+    err => {
+        console.error(
+            "Socket connect error:",
+            err.message
+        );
+    }
+);
+
+
+socket.on(
+    "disconnect",
+    reason => {
+        console.log(
+            "Socket disconnected:",
+            reason
+        );
+    }
+);
+
+
+/*
+ * Ainult üks onAny on piisav.
+ */
+socket.onAny(
+    (event, ...args) => {
+        console.log(
+            "Socket event:",
+            event,
+            args
+        );
+    }
+);
+
+
+/*
+ * Vite HMR:
+ * vana socket tuleb enne mooduli
+ * asendamist sulgeda.
+ */
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        console.log(
+            "HMR: disconnecting old socket"
+        );
+
+        socket.disconnect();
+    });
 }
 
 
-
-const socket = io(URL, {
-    auth: { token },
-    forceNew: true,
-    reconnectionAttempts: Infinity,
-    timeout: 10000,
-    transports: ["websocket"]
-});
-
-
-socket.onAny((event, ...args) => {
-    console.log(event, args);
-});
-
-socket.on("connect", () => {
-    console.log("socket connected", socket.id);
-});
-
-socket.on("connect_error", (err) => {
-    console.log("socket connect_error:", err.message);
-    console.log("details:", err);
-});
-
-socket.on("disconnect", (reason) => {
-    console.log("socket disconnected:", reason);
-});
-
-socket.onAny((event, ...args) => {
-    console.log("socket event:", event, args);
-});
-
+export {
+    updateSocketAuth
+};
 
 export default socket;

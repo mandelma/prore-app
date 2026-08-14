@@ -3,16 +3,27 @@ const Dialog = require('../models/messages');
 
 const hs = (socket) => {
     socket.on("join-user-room", (userId) => {
-        socket.join(userId)
+        //socket.join(userId)
+        socket.join(`user:${socket.userId}`);
     })
 
-    socket.on(
+    /* socket.on(
         "app:visibility",
         ({ visible }) => {
-            socket.appVisible =
+            socket.data.appVisible =
                 Boolean(visible);
+
+            console.log(
+                "APP VISIBILITY:",
+                {
+                    socketId: socket.id,
+                    userId: socket.userId,
+                    appVisible:
+                        socket.data.appVisible
+                }
+            );
         }
-    );
+    ); */
     
     socket.on("user-action", (action) => {
         socket.to(action.userId).emit("user-action", action);

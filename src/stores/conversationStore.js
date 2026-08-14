@@ -3,7 +3,11 @@ import { ref, computed } from "vue";
 import { useLoginStore } from "./login";
 import {chatService} from "@/service/chat";
 import userService from "@/service/users";
-import socket from "@/socket";
+//import socket from "@/socket";
+
+import socket, {
+  updateSocketAuth
+} from "@/socket";
 
 export const useConversationStore = defineStore("conversation", () => {
   const userAuth = useLoginStore();
@@ -47,13 +51,15 @@ export const useConversationStore = defineStore("conversation", () => {
   const closeChatWidget = () => {
     openChat.value = false;
 
-    if (activeConversationId.value) {
+    /* if (activeConversationId.value) {
       socket.emit("conversation:inactive", {
         conversationId: activeConversationId.value
       });
-    }
+    } */
 
     activeConversationId.value = null;
+
+    syncPresence();
   };
 
   // ---- API: list conversations
@@ -186,14 +192,88 @@ export const useConversationStore = defineStore("conversation", () => {
   };
 
   // ---- Select a conversation (join socket room + load messages)
-  const selectConversation = async (convoId) => {
-    activeConversationId.value = convoId;
+  const selectConversation = async convoId => {
+    if (!convoId) {
+      return;
+    }
+
+    activeConversationId.value =
+      String(convoId);
+
+    console.log(
+      "Setting active conversation:",
+      activeConversationId.value
+    );
+
+    socket.emit(
+      "join-conversation",
+      {
+        conversationId:
+          activeConversationId.value
+      }
+    );
+
+    syncPresence();
+
+    
+
+    try {
+      await chatService.markRead(
+        convoId
+      );
+    } catch { }
+
+    if (!messagesById.value[convoId]) {
+      const msgs =
+        await chatService.listMessages(
+          convoId
+        );
+
+      messagesById.value = {
+        ...messagesById.value,
+        [convoId]: msgs.items
+      };
+    }
+
+    const meId =
+      me_id.value;
+
+    conversations.value =
+      conversations.value.map(c => {
+        if (
+          String(c._id) !==
+          String(convoId)
+        ) {
+          return c;
+        }
+
+        return {
+          ...c,
+
+          unread: {
+            ...(c.unread || {}),
+            [meId]: 0
+          }
+        };
+      });
+  };
+  const selectConversation__ = async (convoId) => {
+    if (!convoId) {
+      return;
+    }
+    activeConversationId.value = String(convoId);
+
+    console.log(
+      "Setting active conversation:",
+      activeConversationId.value
+    );
     
     socket.emit("conversation:active", {
-      convoId
+      conversationId:
+        activeConversationId.value
     });
 
-    socket.emit("join-conversation", { conversationId: convoId });
+    socket.emit("join-conversation", { conversationId: activeConversationId.value });
 
     // mark read (optional)
     try { await chatService.markRead(convoId); } catch {}
@@ -409,14 +489,59 @@ export const useConversationStore = defineStore("conversation", () => {
    
   }
 
-  const reconnectSocket = () => {
-    if (!socket.connected) {
-      console.log(
-        "[conversationStore] reconnecting socket"
-      );
+  const sendPresence = () => {
+    const visible =
+      document.visibilityState === "visible";
 
-      socket.connect();
+    socket.emit("app:visibility", {
+      visible
+    });
+
+    if (
+      visible &&
+      activeConversationId.value
+    ) {
+      socket.emit(
+        "conversation:active",
+        {
+          conversationId:
+            activeConversationId.value
+        }
+      );
     }
+  };
+
+  const syncPresence = () => {
+    if (!socket.connected) {
+      return;
+    }
+
+    const visible =
+      document.visibilityState === "visible";
+
+    socket.emit("chat:presence", {
+      visible,
+      conversationId:
+        visible && activeConversationId.value
+          ? String(activeConversationId.value)
+          : null
+    });
+  };
+
+  
+
+  const reconnectSocket = () => {
+    if (socket.connected) {
+      return;
+    }
+
+    updateSocketAuth();
+
+    console.log(
+      "Connecting socket..."
+    );
+
+    socket.connect();
   };
 
   // ---- Socket listeners (call this once from App.vue after login)
@@ -442,34 +567,8 @@ export const useConversationStore = defineStore("conversation", () => {
       onConversationRefresh
     );
 
-    /*
-     * Väga oluline:
-     * iga reconnect = uus server-side socket.
-     */
     socket.on("connect", () => {
-      console.log(
-        "[socket] connected:",
-        socket.id
-      );
-
-      socket.emit("app:visibility", {
-        visible:
-          document.visibilityState ===
-          "visible"
-      });
-
-      if (
-        document.visibilityState === "visible" &&
-        activeConversationId.value
-      ) {
-        socket.emit(
-          "conversation:active",
-          {
-            conversationId:
-              activeConversationId.value
-          }
-        );
-      }
+      syncPresence();
     });
   };
   const initSocket__ = () => {
@@ -523,6 +622,7 @@ export const useConversationStore = defineStore("conversation", () => {
     sendMessage,
     addMessageLocal,
     setConversationState,
+    syncPresence,
     reconnectSocket,
     initSocket,
     disconnect,

@@ -183,11 +183,28 @@ router.post(
       const receiverIsViewingConversation =
         receiverSockets.some(
           receiverSocket =>
-            receiverSocket.appVisible === true &&
+            receiverSocket.data?.appVisible === true &&
             String(
-              receiverSocket.activeConversationId
+              receiverSocket.data?.activeConversationId
             ) === String(conversationId)
         );
+
+      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+
+      console.log(
+        "RECEIVER SOCKETS:",
+        receiverSockets.map(s => ({
+          socketId: s.id,
+          userId: s.userId,
+          connected: s.connected,
+          appVisible:
+            s.data?.appVisible,
+          activeConversationId:
+            s.data?.activeConversationId
+        }))
+      );
+
+      console.log("Is receiver watching chat? : " + receiverIsViewingConversation);
 
       const conversationUpdate = {
         $set: {

@@ -527,6 +527,7 @@ const mapStore = useMapStore();
 const professionStore = useProfessionStore();
 const adminStore = useAdminStore();
 
+const { isAuthenticated } = storeToRefs(login);
 const { profile } = storeToRefs(userStore);
 const { bookings, isBookings, clientNewOffers, clientNewOffersAmount, count, isLoading, error } = storeToRefs(client)
 const { isUserPro, provider, proCredit, isIncomingOffers, incomingOffers, newOffersAmount, incomingOffersCount, isProStateLoading, proError } = storeToRefs(handleProvider);
@@ -1059,6 +1060,8 @@ watch(
 
 
 const syncConversations = async () => {
+  if (!login.isAuthenticated) return;
+
   try {
     console.log(
       "Synchronizing conversations..."
@@ -1122,6 +1125,8 @@ const checkPwaUpdate = async () => {
 
 const forceChatSync = async () => {
   try {
+    if (!login.isAuthenticated) return;
+
     console.log("FORCE CHAT SYNC");
 
     // 1. Taasta socket
@@ -1177,7 +1182,9 @@ const handleVisibilityChange__ = async () => {
   await syncConversations();
 };
 
-const handleVisibilityChange = async () => {
+const handleVisibilityChange_two = async () => {
+  if (!login.isAuthenticated) return;
+
   const visible =
     document.visibilityState === "visible";
 
@@ -1230,15 +1237,80 @@ const handleVisibilityChange = async () => {
   await syncConversations();
 };
 
+const handleVisibilityChange_3 = async () => {
+  const visible =
+    document.visibilityState === "visible";
+
+  console.log(
+    "App visibility:",
+    visible
+  );
+
+  /*
+   * Kui socket on ühendatud,
+   * saada kohe current state.
+   */
+  if (socket.connected) {
+    socket.emit("app:visibility", {
+      visible
+    });
+  }
+
+  if (!visible) {
+    return;
+  }
+
+  /*
+   * Vajadusel taasta ühendus.
+   *
+   * connect listener saadab presence
+   * pärast ühenduse taastumist ise.
+   */
+  conversationStore.initSocket();
+  conversationStore.reconnectSocket();
+
+  await checkPwaUpdate();
+  await forceChatSync();
+  await syncConversations();
+};
+
+const handleVisibilityChange = async () => {
+  const visible =
+    document.visibilityState === "visible";
+
+  console.log(
+    "App visibility:",
+    visible
+  );
+
+  conversationStore.syncPresence();
+
+  if (!visible) {
+    return;
+  }
+
+  conversationStore.initSocket();
+  conversationStore.reconnectSocket();
+
+  await checkPwaUpdate();
+  await forceChatSync();
+  await syncConversations();
+
+  conversationStore.syncPresence();
+};
+
 const handleFocus = async () => {
+  conversationStore.syncPresence();
   await forceChatSync();
 };
 
 const handlePageShow = async () => {
+  conversationStore.syncPresence();
   await forceChatSync();
 };
 
 const handleOnline = async () => {
+  conversationStore.syncPresence();
   await forceChatSync();
 };
 
@@ -1585,6 +1657,7 @@ const enableNotificationsFromModal = async () => {
 
 onMounted(async () => {
   await login.hydrate();
+  if (!isAuthenticated) return;
 
   conversationStore.initSocket();
   conversationStore.reconnectSocket();
@@ -1624,7 +1697,7 @@ onMounted(async () => {
 
   await syncConversations();
 
-  startChatSyncPolling();
+  //startChatSyncPolling();
 
   if (shouldShowNotificationModal) {
     showNotificationModal.value = true;

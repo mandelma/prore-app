@@ -17,21 +17,65 @@ const handleSocket = require('./utils/socketHandler')
 const handleChatSockets = require('./utils/socketChathandler')
 const jwt = require("jsonwebtoken");
 const server = require('http').Server(app);
-const io = require('socket.io')(server, {
-    maxHttpBufferSize: 1e8, // 100 MB
-    cors: {
 
-        //origin: 'http://localhost:8080',
+const io = require('socket.io')(server, {
+    maxHttpBufferSize: 1e8,
+    cors: {
         origin: '*',
         methods: ["GET", "POST"],
         transports: ['websocket'],
-
         credentials: true,
-       
     },
     allowEIO3: true,
 
 });
+
+io.on(
+    "connection",
+    socket => {
+        console.log(
+            "SOCKET CONNECT:",
+            {
+                socketId:
+                    socket.id,
+
+                userId:
+                    socket.userId,
+
+                username:
+                    socket.username
+            }
+        );
+
+        socket.on(
+            "disconnect",
+            reason => {
+                console.log(
+                    "SOCKET DISCONNECT:",
+                    {
+                        socketId:
+                            socket.id,
+
+                        userId:
+                            socket.userId,
+
+                        reason
+                    }
+                );
+            }
+        );
+
+        socket.join(
+            `user:${socket.userId}`
+        );
+
+        handleSocket(socket);
+        handleChatSockets(
+            io,
+            socket
+        );
+    }
+);
 
 mongoose.set('strictQuery', false);
 
@@ -138,7 +182,8 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-    socket.join(socket.userId);
+    //socket.join(socket.userId);
+    socket.join(`user:${socket.userId}`);
 
     socket.emit("test", socket.userId);
 

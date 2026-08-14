@@ -7,13 +7,63 @@ const hsc = (io, socket) => {
         socket.join(`convo:${conversationId}`);
     });
 
-    socket.on("conversation:active", ({ conversationId }) => {
-        socket.activeConversationId = String(conversationId);
-    });
+    socket.on(
+        "chat:presence",
+        ({ visible, conversationId }) => {
+            socket.data.appVisible =
+                Boolean(visible);
 
-    socket.on("conversation:inactive", () => {
-        socket.activeConversationId = null;
-    });
+            socket.data.activeConversationId =
+                visible && conversationId
+                    ? String(conversationId)
+                    : null;
+
+            console.log("CHAT PRESENCE:", {
+                socketId: socket.id,
+                userId: socket.userId,
+                appVisible:
+                    socket.data.appVisible,
+                activeConversationId:
+                    socket.data.activeConversationId
+            });
+        }
+    );
+
+    /* socket.on(
+        "conversation:active",
+        ({ conversationId }) => {
+            if (!conversationId) {
+                console.warn(
+                    "conversation:active without conversationId"
+                );
+                return;
+            }
+
+            socket.data.activeConversationId =
+                String(conversationId);
+
+            console.log(
+                "ACTIVE CONVERSATION:",
+                {
+                    socketId: socket.id,
+                    conversationId:
+                        socket.data.activeConversationId
+                }
+            );
+        }
+    ); */
+
+    /* socket.on(
+        "conversation:inactive",
+        () => {
+            socket.data.activeConversationId = null;
+
+            console.log(
+                "Conversation inactive:",
+                socket.data.userId
+            );
+        }
+    ); */
 
     socket.on("disconnect", () => {
         socket.activeConversationId = null;
@@ -41,13 +91,22 @@ const hsc = (io, socket) => {
     socket.emit("online:list", [...onlineUsers.keys()]);
 
     socket.on("disconnect", () => {
-        const list = onlineUsers.get(userId)?.filter(id => id !== socket.id);
+        const currentSockets =
+            onlineUsers.get(userId) || [];
 
-        if (!list.length) {
+        const remainingSockets =
+            currentSockets.filter(
+                id => id !== socket.id
+            );
+
+        if (remainingSockets.length === 0) {
             onlineUsers.delete(userId);
             io.emit("user:offline", userId);
         } else {
-            onlineUsers.set(userId, list);
+            onlineUsers.set(
+                userId,
+                remainingSockets
+            );
         }
     });
 
