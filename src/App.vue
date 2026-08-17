@@ -430,7 +430,9 @@
       />
     </div>
 
-    <PwaUpdate />
+    <PwaUpdate 
+      :is-authenticated="login.isAuthenticated"
+    />
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused

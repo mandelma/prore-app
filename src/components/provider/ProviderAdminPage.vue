@@ -14,7 +14,7 @@
   >
     
     <!-- Ülemine päis -->
-    <div class="header-stack" ref="headerStackRef">
+    <div class="header-stack" >
       <header class="provider-topbar">
         <div class="provider-identity">
           <div class="provider-avatar" aria-hidden="true">
@@ -78,18 +78,30 @@
       </div>
 
       <div >
-        <NotificationStatusBanner 
-          :is-authenticated="isAuthenticated"
-          :permission="notificationPermission"
-          @show-blocked-modal="$emit('show-notification-help')"
-          @show-notifications-modal="$emit('show-set-notifications')"
-        />
-
-        <AdminMessage 
-          :is-authenticated="isAuthenticated"
-        />
+        
       </div>
     </div>
+
+    <!-- SCROLLITAVAD BANNERID -->
+    <div
+    v-if="hasNotificationBanner"
+      class="notifications-banner"
+      :style="{
+        marginTop: `${headerStackHeight + 60}px`
+      }"
+    >
+      <NotificationStatusBanner
+        :is-authenticated="isAuthenticated"
+        :permission="notificationPermission"
+        @show-blocked-modal="$emit('show-notification-help')"
+        @show-notifications-modal="$emit('show-set-notifications')"
+      />
+
+      <AdminMessage
+        :is-authenticated="isAuthenticated"
+      />
+    </div>
+
 
     <!-- Statistika -->
     <section class="provider-stats page-content">
@@ -805,6 +817,14 @@ const updateHeaderStackHeight = () => {
     headerStackRef.value?.offsetHeight || 0;
 };
 
+const hasNotificationBanner = computed(() => {
+  return (
+    props.isAuthenticated &&
+    props.notificationPermission &&
+    props.notificationPermission !== "granted"
+  );
+});
+
 const validateProAddress = () => {
 
   if (!pmForm.address) return;
@@ -1008,6 +1028,30 @@ watch(
   { immediate: true, deep: false }
 );
 
+watch(
+  headerStackRef,
+  async (el) => {
+    resizeObserver?.disconnect();
+    resizeObserver = null;
+
+    if (!el) {
+      headerStackHeight.value = 0;
+      return;
+    }
+
+    await nextTick();
+
+    updateHeaderStackHeight();
+
+    resizeObserver = new ResizeObserver(() => {
+      updateHeaderStackHeight();
+    });
+
+    resizeObserver.observe(el);
+  },
+  { flush: "post" }
+);
+
 const clients = computed(
   () => incomingOffers.value
 )
@@ -1033,19 +1077,7 @@ onMounted( async() => {
   socket.off("handle-client-report", onClientReport);
   socket.on("handle-client-report", onClientReport);
 
-  await nextTick();
-
-  updateHeaderStackHeight();
-
-  if (headerStackRef.value) {
-    resizeObserver = new ResizeObserver(() => {
-      updateHeaderStackHeight();
-    });
-
-    resizeObserver.observe(
-      headerStackRef.value
-    );
-  }
+  
 })
 
 onBeforeUnmount(() => {
@@ -1691,6 +1723,18 @@ function sleep(ms) {
   background: rgba(18, 27, 40, 0.92);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(14px);
+  
+  
+}
+
+.notifications-banner {
+  width: 100%;
+  margin: 0;
+  padding: 8px, 0;
+}
+
+.page-content {
+  padding-top: 12px;
 }
 
 .provider-topbar {
@@ -1833,11 +1877,7 @@ function sleep(ms) {
   }
 }
 
-.page-content {
-  /* padding-top: 108px; */
-  padding-top:
-    calc(var(--header-stack-height, 0px) + 14px);
-}
+
 
 /* Statistics */
 
@@ -2348,9 +2388,7 @@ button.provider-stat-card {
 }
 
 @media (max-width: 767px) {
-  .header-stack {
-    top: 56px;
-  }
+  
 
   .provider-topbar {
     min-height: 57px;
@@ -2390,12 +2428,15 @@ button.provider-stat-card {
     font-size: 0.62rem;
   }
 
-  .page-content {
-    /* padding-top: 94px; */
-    padding-top:
-    calc(var(--header-stack-height, 0px) + 14px);
+  .notifications-banner {
+    padding: 6px 0;
   }
 
+
+  .page-content {
+    padding-top: 8px;
+    
+  }
   .provider-stats {
     gap: 8px;
   }
@@ -2484,10 +2525,14 @@ button.provider-stat-card {
     background-size: auto;
   }
 
+  .notifications-banner {
+    padding: 6px 0;
+  }
+
+
   .page-content {
-    /* padding-top: 94px; */
-    padding-top:
-    calc(var(--header-stack-height, 0px) + 14px);
+    padding-top: 8px;
+    
   }
 
   .quick-actions {
@@ -2517,10 +2562,14 @@ button.provider-stat-card {
     padding: 5px 6px;
   }
 
+  .notifications-banner {
+    padding: 6px 0;
+  }
+
+
   .page-content {
-    /* padding-top: 94px; */
-    padding-top:
-    calc(var(--header-stack-height, 0px) + 14px);
+    padding-top: 8px;
+    
   }
 
   .availability-pill__dot {

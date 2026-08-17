@@ -1,5 +1,5 @@
 <template>
-  <Transition name="pwa-update">
+  <Transition v-if="isAuthenticated" name="pwa-update">
     <aside
       v-if="needRefresh || manualRefreshAvailable"
       class="pwa-update"
@@ -50,6 +50,12 @@ import {
 
 import { useI18n } from "vue-i18n";
 import { useRegisterSW } from "virtual:pwa-register/vue";
+
+const props = defineProps({
+  isAuthenticated: {
+    type: Boolean
+  }
+})
 
 const { t } = useI18n();
 

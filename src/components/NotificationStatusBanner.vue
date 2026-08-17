@@ -164,6 +164,7 @@ const showNotificationModal = () => {
 
 .notification-warning__button {
   flex: 0 0 auto;
+  text-align: center;
   cursor: pointer;
   min-width: 110px;
   margin: 0 !important;

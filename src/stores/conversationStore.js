@@ -575,14 +575,7 @@ export const useConversationStore = defineStore("conversation", () => {
       syncPresence();
     });
   };
-  const initSocket__ = () => {
-    if (socketInited.value) return;
-    socketInited.value = true;
 
-    socket.on("conversation-upsert", onConversationUpsert);
-    socket.on("message:new", onMessageNew);
-    socket.on("conversation:list:refresh", onConversationRefresh);
-  };
 
   const disconnect = () => {
     // ✅ remove only YOUR listeners (best practice)

@@ -134,7 +134,7 @@ const clientInitial = () => {
 }
 
 const proInitial = async () => {
-  const savedUser = localStorage.getItem('loggedAppUser')
+  const savedUser = localStorage.getItem('loggedAppUser') || sessionStorage.getItem("loggedAppUser");
 
   if (!savedUser) {
     router.push({
@@ -150,6 +150,7 @@ const proInitial = async () => {
     user = JSON.parse(savedUser)
   } catch (error) {
     localStorage.removeItem('loggedAppUser')
+    sessionStorage.removeItem("loggedAppUser")
     router.push({
       path: '/login-panel',
       query: { redirect: '/provider-form' }
