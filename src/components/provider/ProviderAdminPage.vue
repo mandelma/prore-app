@@ -83,12 +83,12 @@
     </div>
 
     <!-- SCROLLITAVAD BANNERID -->
+
+    <!-- :style="{
+        marginTop: `${headerStackHeight + 50}px`
+      }" -->
     <div
-    v-if="hasNotificationBanner"
-      class="notifications-banner"
-      :style="{
-        marginTop: `${headerStackHeight + 60}px`
-      }"
+      class="notifications-banner banner-position"
     >
       <NotificationStatusBanner
         :is-authenticated="isAuthenticated"
@@ -97,9 +97,9 @@
         @show-notifications-modal="$emit('show-set-notifications')"
       />
 
-      <AdminMessage
+      <!-- <AdminMessage
         :is-authenticated="isAuthenticated"
-      />
+      /> -->
     </div>
 
 
@@ -1730,7 +1730,12 @@ function sleep(ms) {
 .notifications-banner {
   width: 100%;
   margin: 0;
-  padding: 8px, 0;
+  padding: 3px 0;
+}
+
+.banner-position {
+  margin-top:
+    calc(var(--header-stack-height) + 60px);
 }
 
 .page-content {
@@ -2432,6 +2437,11 @@ button.provider-stat-card {
     padding: 6px 0;
   }
 
+  .banner-position {
+  margin-top:
+    calc(var(--header-stack-height, 0) + 50px);
+}
+
 
   .page-content {
     padding-top: 8px;
@@ -2528,6 +2538,11 @@ button.provider-stat-card {
   .notifications-banner {
     padding: 6px 0;
   }
+
+  .banner-position {
+  margin-top:
+    calc(var(--header-stack-height) + 47px);
+}
 
 
   .page-content {

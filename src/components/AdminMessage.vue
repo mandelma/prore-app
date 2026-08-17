@@ -33,7 +33,7 @@ const { t } = useI18n();
 <style scoped>
 .admin-info-wrap {
   width: 100%;
-  padding: 10px 16px 0;
+  padding: 3px 14px 0;
 
   box-sizing: border-box;
 

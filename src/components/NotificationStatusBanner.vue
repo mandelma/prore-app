@@ -2,65 +2,65 @@
 
 
   <div
-  v-if="isAuthenticated && permission !== 'granted'"
-  class="notification-warning-wrap"
->
-  <!-- Permission DENIED -->
-  <div
-    v-if="permission === 'denied'"
-    class="notification-warning notification-warning--denied"
+    v-if="isAuthenticated && permission !== 'granted'"
+    class="notification-warning-wrap"
   >
-    <div class="notification-warning__icon">
-      <i class="fas fa-bell-slash"></i>
-    </div>
-
-    <div class="notification-warning__content">
-      <strong class="notification-warning__title">
-        {{ t("notification.disabled") }}
-      </strong>
-
-      <div class="notification-warning__text">
-        {{ t("notification.disabled_description") }}
-      </div>
-    </div>
-
-    <MDBBtn
-      size="sm"
-      class="notification-warning__button"
-      @click="showNotificationsBlockedModal"
+    <!-- Permission DENIED -->
+    <div
+      v-if="permission === 'denied'"
+      class="notification-warning notification-warning--denied"
     >
-      {{ t("notification.how_to_enable") }}
-    </MDBBtn>
-  </div>
-
-  <!-- Permission DEFAULT -->
-  <div
-    v-else-if="permission === 'default'"
-    class="notification-warning notification-warning--default"
-  >
-    <div class="notification-warning__icon">
-      <i class="fas fa-bell"></i>
-    </div>
-
-    <div class="notification-warning__content">
-      <strong class="notification-warning__title">
-        {{ t("notification.not_enabled") }}
-      </strong>
-
-      <div class="notification-warning__text">
-        {{ t("notification.not_enabled_description") }}
+      <div class="notification-warning__icon">
+        <i class="fas fa-bell-slash"></i>
       </div>
+
+      <div class="notification-warning__content">
+        <strong class="notification-warning__title">
+          {{ t("notification.disabled") }}
+        </strong>
+
+        <div class="notification-warning__text">
+          {{ t("notification.disabled_description") }}
+        </div>
+      </div>
+
+      <MDBBtn
+        size="sm"
+        class="notification-warning__button"
+        @click="showNotificationsBlockedModal"
+      >
+        {{ t("notification.how_to_enable") }}
+      </MDBBtn>
     </div>
 
-    <MDBBtn
-      size="sm"
-      class="notification-warning__button"
-      @click="showNotificationModal"
+    <!-- Permission DEFAULT -->
+    <div
+      v-else-if="permission === 'default'"
+      class="notification-warning notification-warning--default"
     >
-      {{ t("notification.enable") }}
-    </MDBBtn>
+      <div class="notification-warning__icon">
+        <i class="fas fa-bell"></i>
+      </div>
+
+      <div class="notification-warning__content">
+        <strong class="notification-warning__title">
+          {{ t("notification.not_enabled") }}
+        </strong>
+
+        <div class="notification-warning__text">
+          {{ t("notification.not_enabled_description") }}
+        </div>
+      </div>
+
+      <MDBBtn
+        size="sm"
+        class="notification-warning__button"
+        @click="showNotificationModal"
+      >
+        {{ t("notification.enable") }}
+      </MDBBtn>
+    </div>
   </div>
-</div>
 
 </template>
 <script setup>
@@ -95,7 +95,7 @@ const showNotificationModal = () => {
 <style scoped>
 .notification-warning-wrap {
   width: 100%;
-  padding: 8px 14px;
+  padding: 3px 14px;
   box-sizing: border-box;
 }
 

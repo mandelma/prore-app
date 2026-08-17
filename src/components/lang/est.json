@@ -61,6 +61,9 @@
     "disabled_description": "Teavitused on brauseri või seadme seadetes blokeeritud. Saad need seadetes uuesti lubada.",
     "how_to_enable": "Näita juhiseid",
 
+    "disable_description": "Teavitused on brauseris blokeeritud. Ava aadressiriba juurest veebilehe seaded ja luba teavitused uuesti.",
+    "close": "Sulge",
+
     "ios_install_title": "Installi DuunHub",
     "ios_install_description": "DuunHubi installimiseks iPhone'i:",
     "ios_install_step_1": "Vajuta Safaris Jaga nuppu.",

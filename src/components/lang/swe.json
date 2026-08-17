@@ -60,6 +60,9 @@
     "disabled": "Notiser är blockerade",
     "disabled_description": "Notiser är blockerade i webbläsarens eller enhetens inställningar. Du kan aktivera dem igen i inställningarna.",
     "how_to_enable": "Visa instruktioner",
+
+    "disable_description": "Notiser är blockerade i webbläsaren. Öppna webbplatsens inställningar från adressfältet och tillåt notiser igen.",
+    "close": "Stäng",
     
     "ios_install_title": "Installera DuunHub",
     "ios_install_description": "Så här installerar du DuunHub på din iPhone:",

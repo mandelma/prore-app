@@ -27,6 +27,9 @@
     "disabled": "Notifications are blocked",
     "disabled_description": "Notifications are blocked in your browser or device settings. You can enable them again in the settings.",
     "how_to_enable": "Show instructions",
+
+    "disable_description": "Notifications are blocked in your browser. Open the site settings from the address bar and allow notifications again.",
+    "close": "Close",
     
     "ios_install_title": "Install DuunHub",
     "ios_install_description": "To install DuunHub on your iPhone:",
@@ -87,7 +90,7 @@
       "auto_login_failed": "Your account was created, but automatic sign-in failed. Please sign in."
     }
   },
-  
+
   "forgotPassword": {
     "title": "Forgot your password?",
     "description": "Enter the email address linked to your account. We will send you a link to create a new password.",

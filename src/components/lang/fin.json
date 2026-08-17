@@ -28,6 +28,9 @@
     "disabled_description": "Ilmoitukset on estetty selaimen tai laitteen asetuksissa. Voit ottaa ne uudelleen käyttöön asetuksista.",
     "how_to_enable": "Näytä ohjeet",
 
+    "disable_description": "Ilmoitukset on estetty selaimessa. Avaa osoiterivin sivuston asetukset ja salli ilmoitukset uudelleen.",
+    "close": "Sulje",
+
     
     "ios_install_title": "Asenna DuunHub",
     "ios_install_description": "Asenna DuunHub iPhoneen seuraavasti:",

@@ -99,19 +99,27 @@ export const useLoginStore = defineStore('login', () => {
 
         await subscription.unsubscribe();
     };
-    
+
     const onLogOut = async () => {
-        /*
-         * Salvesta token enne store'i puhastamist,
-         * sest push unsubscribe vajab seda.
-         */
         const jwt = token.value;
 
-        /*
-         * Proovi push subscription eemaldada,
-         * kuid logout peab õnnestuma ka siis,
-         * kui unsubscribe ebaõnnestub.
-         */
+        const conversationStore = useConversationStore();
+        const proStore = useProStore();
+
+        localStorage.removeItem("loggedAppUser");
+        sessionStorage.removeItem("loggedAppUser");
+
+        user.value = null;
+        token.value = null;
+
+        proStore.provider = null;
+        proStore.isUserPro = false;
+
+        conversationStore.disconnect();
+        conversationStore.reset();
+
+        await router.replace("/home");
+
         try {
             await disablePushForThisDevice(jwt);
         } catch (error) {
@@ -120,66 +128,6 @@ export const useLoginStore = defineStore('login', () => {
                 error
             );
         }
-
-        const conversationStore =
-            useConversationStore();
-
-        const proStore =
-            useProStore();
-
-        /*
-         * Puhasta autentimine
-         */
-        user.value = null;
-        token.value = null;
-
-        localStorage.removeItem(
-            "loggedAppUser"
-        );
-
-        sessionStorage.removeItem(
-            "loggedAppUser"
-        );
-
-        /*
-         * Socket / conversation cleanup
-         */
-        conversationStore.disconnect();
-        conversationStore.reset();
-
-        /*
-         * Provider state tuleb samuti eemaldada,
-         * et vana provider ei jääks store'i.
-         */
-        proStore.provider = null;
-        proStore.isUserPro = false;
-
-        /*
-         * Badge cleanup
-         */
-        try {
-            await navigator.clearAppBadge?.();
-        } catch { }
-
-        try {
-            const registration =
-                await navigator.serviceWorker
-                    .getRegistration();
-
-            registration?.active?.postMessage({
-                type: "CLEAR_BADGE"
-            });
-        } catch (error) {
-            console.warn(
-                "Badge cleanup failed:",
-                error
-            );
-        }
-
-        /*
-         * Ainult üks redirect.
-         */
-        await router.replace("/home");
     };
     
     const hydrate = async () => {

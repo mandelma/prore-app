@@ -168,12 +168,12 @@
     >
       <MDBModalHeader class="modal-header-custom">
         <MDBModalTitle>
-          {{ t("notification.enable_title") }}
+          {{ t("notification.disabled") }}
         </MDBModalTitle>
       </MDBModalHeader>
 
       <MDBModalBody>
-        {{ t('notification.blocked_description') }}
+        {{ t('notification.disable_description') }}
       </MDBModalBody>
 
       <MDBModalFooter class="footer-buttons">
@@ -181,7 +181,7 @@
           color="secondary"
           @click="showNotificationsBlockedModal = false"
         >
-          {{ t("notification.close") }}
+          {{ t("notification.got_it") }}
         </MDBBtn>
 
       </MDBModalFooter>
@@ -2501,7 +2501,7 @@ html, body { height: 100%; }
 }
 
 .below-navbar {
-  padding-top: 58px;
+  padding-top: 63px;
 }
 
 .app-content {
