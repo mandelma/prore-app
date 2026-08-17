@@ -2,10 +2,19 @@
   <MDBContainer v-if="!provider">
     <p>{{ t('providerAdmin.loading') }}</p>
   </MDBContainer>
-  <MDBContainer v-else fluid class="py-3 provider-admin">
+  <MDBContainer 
+    v-else 
+    fluid 
+    class="py-3 
+    provider-admin"
+    :style="{
+    '--header-stack-height':
+      `${headerStackHeight}px`
+  }"
+  >
     
     <!-- Ülemine päis -->
-    <div class="header-stack">
+    <div class="header-stack" ref="headerStackRef">
       <header class="provider-topbar">
         <div class="provider-identity">
           <div class="provider-avatar" aria-hidden="true">
@@ -66,6 +75,19 @@
           <span class="ticker__icon">●</span>
           <span>{{ clientReport }}</span>
         </div>
+      </div>
+
+      <div >
+        <NotificationStatusBanner 
+          :is-authenticated="isAuthenticated"
+          :permission="notificationPermission"
+          @show-blocked-modal="$emit('show-notification-help')"
+          @show-notifications-modal="$emit('show-set-notifications')"
+        />
+
+        <AdminMessage 
+          :is-authenticated="isAuthenticated"
+        />
       </div>
     </div>
 
@@ -687,10 +709,24 @@ import ToastHandler from "../helpers/ToastHandler.vue";
 import Calendar from "../Calendar.vue";
 //import ClientOffer from "./ClientOffer.vue";
 import ClientOffersList from "./ClientOffersList.vue";
+import NotificationStatusBanner from "../NotificationStatusBanner.vue";
+import AdminMessage from "../AdminMessage.vue";
 import providerService from '../../service/providers'
 import socket from "@/socket";
 
-const emit = defineEmits(["handle-user-action", "open-chat"]);
+const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications"]);
+const props = defineProps({
+  providerId: { type: [String, Number], required: true },
+  notificationPermission: {
+    type: String,
+    default: ""
+  },
+
+  isAuthenticated: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const { t, locale } = useI18n();
 const providerStore = useProStore();
@@ -712,6 +748,10 @@ const referenceToShow = computed(() => reference.value);
 const appeared = ref("Asiakas")
 const credit = computed(() => providerStore.proCredit);
 const provider = computed(() => providerStore.provider);
+
+const headerStackRef = ref(null);
+const headerStackHeight = ref(0);
+let resizeObserver = null;
 
 const pro_map = map_image;
 
@@ -758,6 +798,12 @@ const clientReport = ref('');
 
 //const clients = ref([]);
 const clientQuery = ref("");
+
+// For observing head stack height
+const updateHeaderStackHeight = () => {
+  headerStackHeight.value =
+    headerStackRef.value?.offsetHeight || 0;
+};
 
 const validateProAddress = () => {
 
@@ -983,10 +1029,28 @@ function onClientReport(report) {
   tickerKey.value++; // force restart animation
 }
 
-onMounted(() => {
+onMounted( async() => {
   socket.off("handle-client-report", onClientReport);
   socket.on("handle-client-report", onClientReport);
+
+  await nextTick();
+
+  updateHeaderStackHeight();
+
+  if (headerStackRef.value) {
+    resizeObserver = new ResizeObserver(() => {
+      updateHeaderStackHeight();
+    });
+
+    resizeObserver.observe(
+      headerStackRef.value
+    );
+  }
 })
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+});
 
 const handleAvailability = async () => {
   console.log("Availability " + provider.value?.status);
@@ -1177,9 +1241,7 @@ function isValidEmail(email) {
  * Props
  * - providerId: this page should be used only for the selected provider (e.g. route param)
  */
-const props = defineProps({
-  providerId: { type: [String, Number], required: true },
-});
+
 const providerId = computed(() => props.providerId);
 
 // State
@@ -1624,6 +1686,7 @@ function sleep(ms) {
   left: 0;
   z-index: 1000;
   width: 100%;
+  padding-bottom: 7px;
   border-bottom: 1px solid var(--admin-border);
   background: rgba(18, 27, 40, 0.92);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
@@ -1771,7 +1834,9 @@ function sleep(ms) {
 }
 
 .page-content {
-  padding-top: 108px;
+  /* padding-top: 108px; */
+  padding-top:
+    calc(var(--header-stack-height, 0px) + 14px);
 }
 
 /* Statistics */
@@ -2326,7 +2391,9 @@ button.provider-stat-card {
   }
 
   .page-content {
-    padding-top: 94px;
+    /* padding-top: 94px; */
+    padding-top:
+    calc(var(--header-stack-height, 0px) + 14px);
   }
 
   .provider-stats {
@@ -2417,6 +2484,12 @@ button.provider-stat-card {
     background-size: auto;
   }
 
+  .page-content {
+    /* padding-top: 94px; */
+    padding-top:
+    calc(var(--header-stack-height, 0px) + 14px);
+  }
+
   .quick-actions {
     grid-template-columns: 1fr;
   }
@@ -2442,6 +2515,12 @@ button.provider-stat-card {
 
   .availability-pill {
     padding: 5px 6px;
+  }
+
+  .page-content {
+    /* padding-top: 94px; */
+    padding-top:
+    calc(var(--header-stack-height, 0px) + 14px);
   }
 
   .availability-pill__dot {

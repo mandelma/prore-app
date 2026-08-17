@@ -18,45 +18,107 @@
     "install_app": "Install app"
   },
 
+  "notification": {
+    "enable_title": "Enable notifications",
+    "enable_description": "Enable notifications to receive updates about new messages, offers and other important activity.",
+    "enable": "Enable",
+    "not_enabled": "Notifications are not enabled",
+    "not_enabled_description": "Enable notifications so you don't miss new messages and offers.",
+    "disabled": "Notifications are blocked",
+    "disabled_description": "Notifications are blocked in your browser or device settings. You can enable them again in the settings.",
+    "how_to_enable": "Show instructions",
+    
+    "ios_install_title": "Install DuunHub",
+    "ios_install_description": "To install DuunHub on your iPhone:",
+    "ios_install_step_1": "Tap the Share button in Safari.",
+    "ios_install_step_2": "Select “Add to Home Screen”.",
+    "ios_install_step_3": "Tap “Add”.",
+    "got_it": "Got it"
+  },
+
   "install_app": "Install app",
 
   "login": {
+    "title": "Sign in",
+    "description": "Sign in to your DuunHub account to continue.",
     "username": "Username",
     "password": "Password",
     "rememberme": "Remember me",
-    "forgot_password": "Forgot password?",
-    "log_in": "Log in",
-    "no_member": "Not a member?",
-    "register": "Register",
-    "error_title": "ERROR!",
-    "error_invalid_credentials": "Incorrect username or password!",
-    "error_required_fields": "All fields are required!"
+    "forgot_password": "Forgot your password?",
+    "log_in": "Sign in",
+    "logging_in": "Signing in...",
+    "no_member": "Don't have an account yet?",
+    "register": "Create account",
+    "error_title": "Sign in failed",
+    "error_required_fields": "Enter your username and password.",
+    "error_invalid_credentials": "The username or password is incorrect."
   },
 
   "register": {
+    "title": "Create an account",
+    "description": "Create a DuunHub account to find services, professionals and new work opportunities.",
     "firstname": "First name",
     "lastname": "Last name",
     "username": "Username",
-    "email": "Email",
+    "email": "Email address",
     "password_1": "Password",
-    "password_2": "Repeat password",
-    "remember_me": "Remember me",
+    "password_2": "Confirm password",
+    "toggle_password": "Show or hide password",
+    "remember_me": "Keep me signed in",
     "create_account": "Create account",
-    "error_title": "ERROR!",
+    "creating_account": "Creating account...",
+    "already_member": "Already have an account?",
+    "sign_in": "Sign in",
+    "error_title": "Account creation failed",
     "terms": {
-      "accept_prefix": "I have read and accept the",
-      "terms_link": "Terms of Service",
-      "required": "You must accept the Terms of Service to continue."
+      "accept_prefix": "I accept the",
+      "terms_link": "terms of use",
+      "required": "Accept the terms of use to continue."
     },
     "validation": {
-      "password_requirements": "Password must be at least 8 characters long and contain an uppercase letter, a number and a special character.",
-      "username_too_short": "Username must be at least 4 characters long.",
-      "invalid_email": "Please enter a valid email address.",
-      "passwords_not_match": "Passwords must match.",
-      "username_exists": "Username already exists. Please choose another username.",
-      "email_exists": "The email address you entered already exists.",
-      "required_fields": "All fields are required."
+      "required_fields": "Complete all required fields.",
+      "username_too_short": "The username must contain at least 4 characters.",
+      "invalid_email": "Enter a valid email address.",
+      "password_requirements": "The password must contain at least 8 characters, including an uppercase letter, a number and a special character.",
+      "passwords_not_match": "The passwords do not match.",
+      "username_exists": "This username is already in use.",
+      "email_exists": "An account already exists with this email address.",
+      "registration_failed": "The account could not be created. Please try again.",
+      "auto_login_failed": "Your account was created, but automatic sign-in failed. Please sign in."
     }
+  },
+  
+  "forgotPassword": {
+    "title": "Forgot your password?",
+    "description": "Enter the email address linked to your account. We will send you a link to create a new password.",
+    "email_label": "Email address",
+    "email_hint": "The password reset link will be sent to this address.",
+    "send": "Send reset link",
+    "sending": "Sending...",
+    "back_to_login": "Back to sign in",
+    "invalid_email": "Enter a valid email address.",
+    "success": "A password reset link has been sent to your email.",
+    "error": "The reset link could not be sent. Please try again later."
+  },
+
+  "resetPassword": {
+    "title": "Create a new password",
+    "description": "Enter a new password for your account.",
+    "new_password": "New password",
+    "confirm_password": "Confirm new password",
+    "password_hint": "Your password must contain at least 8 characters.",
+    "save": "Save new password",
+    "saving": "Saving...",
+    "back_to_login": "Back to sign in",
+    "checking_link": "Checking reset link...",
+    "invalid_title": "This reset link is no longer valid",
+    "invalid_description": "The password reset link is invalid or has expired. Request a new reset link.",
+    "request_new_link": "Request a new reset link",
+    "required_fields": "Enter the password in both fields.",
+    "password_too_short": "The password must contain at least 8 characters.",
+    "passwords_do_not_match": "The passwords do not match.",
+    "success": "Your password has been changed successfully.",
+    "error": "The password could not be changed. Please try again."
   },
 
   "recipient_panel_confirmed_orders": "Confirmed orders",

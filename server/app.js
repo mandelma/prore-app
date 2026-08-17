@@ -113,9 +113,6 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-
-const distPath = path.join(__dirname, "dist");
-
 app.use((req, res, next) => {
   const auth = req.headers.authorization ? "auth" : "no-auth";
   console.log(req.method, req.originalUrl, auth);
@@ -126,7 +123,6 @@ app.use((req, res, next) => {
     console.log("HIT:", req.method, req.originalUrl);
     next();
 });
-
 
 //const keys = webpush.generateVAPIDKeys();
 
@@ -145,7 +141,7 @@ app.use('/api/timeoffers', require('./routers/timetable'));
 app.use('/api/notifications', require('./routers/notifications'));
 app.use('/api/mail', require('./routers/contact'));
 //app.use('/api/messages', require('./routers/messages'));
-
+app.use('/api/reset_pw', require('./routers/resetAuthPw'));
 app.use('/api/profession', require('./routers/professions'));
 
 app.use('/api/client_history', require('./routers/client_history'));
@@ -158,9 +154,24 @@ const httpAuth = require('./middleware/httpAuth');
 app.use('/api/chat', httpAuth, require('./routers/chat'));
 
 app.use(history());
+
+
+
+
+//const distPath = path.join(__dirname, "dist");
+const distPath = path.join(__dirname, "../dist");
+
+console.log("DIST PATH:", distPath);
+
 app.use("/assets", express.static(path.join(distPath, "assets")));
+
 app.use(express.static(distPath));
 
+
+
+//app.get(/^\/(?!api|assets).*/, (req, res) => {
+//    res.sendFile(path.join(distPath, "index.html"));
+//});
 app.get(/^\/(?!api|assets).*/, (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
 });

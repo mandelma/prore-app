@@ -9,7 +9,7 @@
     :icon="props.iconState"
     :class="`my-toast--${props.toastName}`"
   >
-    <template #title>PROKEIKKATORI</template>
+    <template #title>DuunHub</template>
     {{ props.text }}
   </MDBToast>
 </template>

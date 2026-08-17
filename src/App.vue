@@ -147,38 +147,79 @@
         </MDBNavbarNav>
       </div>
     </MDBNavbar>
+    <div class="below-navbar">
+      <NotificationStatusBanner
+        v-if="canDisplayNotesBanner"
+        :isAuthenticated="login.isAuthenticated"
+        :permission="notificationPermission" 
+        @show-blocked-modal="openNotificationBlockedModal"
+        @show-notifications-modal="openNotificationsModal"
+      />
+
+      <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" />
+    </div>
+
+    
+
+    <MDBModal
+      v-model="showNotificationsBlockedModal"
+      staticBackdrop
+      tabindex="-1"
+    >
+      <MDBModalHeader class="modal-header-custom">
+        <MDBModalTitle>
+          {{ t("notification.enable_title") }}
+        </MDBModalTitle>
+      </MDBModalHeader>
+
+      <MDBModalBody>
+        {{ t('notification.blocked_description') }}
+      </MDBModalBody>
+
+      <MDBModalFooter class="footer-buttons">
+        <MDBBtn
+          color="secondary"
+          @click="showNotificationsBlockedModal = false"
+        >
+          {{ t("notification.close") }}
+        </MDBBtn>
+
+      </MDBModalFooter>
+    </MDBModal>
 
     <MDBModal
       v-model="showNotificationModal"
       staticBackdrop
       tabindex="-1"
     >
-      <MDBModalHeader>
+      <MDBModalHeader class="modal-header-custom">
         <MDBModalTitle>
-          {{ t("notifications.enable_title") }}
+          {{ t("notification.enable_title") }}
         </MDBModalTitle>
       </MDBModalHeader>
 
       <MDBModalBody>
-        {{ t("notifications.enable_description") }}
+        {{ t("notification.enable_description") }}
       </MDBModalBody>
 
-      <MDBModalFooter>
+      <MDBModalFooter class="footer-buttons">
         <MDBBtn
           color="secondary"
-          @click="showNotificationModal = false"
+          @click="closeNotificationModal"
         >
-          {{ t("notifications.later") }}
+          {{ t("pwa.later") }}
         </MDBBtn>
 
         <MDBBtn
           color="primary"
           @click="enableNotificationsFromModal"
         >
-          {{ t("notifications.enable") }}
+          {{ t("notification.enable") }}
         </MDBBtn>
       </MDBModalFooter>
     </MDBModal>
+
+
 
     
 
@@ -186,39 +227,39 @@
       v-model="showIOSInstallHelp"
       tabindex="-1"
     >
-      <MDBModalHeader>
+      <MDBModalHeader class="modal-header-custom">
         <MDBModalTitle>
-          Installi DuunHub
+          {{t('notification.ios_install_title')}}
         </MDBModalTitle>
       </MDBModalHeader>
 
       <MDBModalBody>
         <p>
-          DuunHubi installimiseks iPhone'i:
+          {{ t('notification.ios_install_description') }}
         </p>
 
         <ol>
           <li>
-            Vajuta Safari <strong>Jaga</strong> nuppu
+            {{ t('notification.ios_install_step_1') }}
             <i class="fas fa-arrow-up-from-bracket ms-1"></i>
           </li>
 
           <li>
-            Vali <strong>Lisa avakuvale</strong>.
+            {{ t('notification.ios_install_step_2') }}
           </li>
 
           <li>
-            Vajuta <strong>Lisa</strong>.
+            {{ t('notification.ios_install_step_3') }}
           </li>
         </ol>
       </MDBModalBody>
 
-      <MDBModalFooter>
+      <MDBModalFooter class="footer-buttons">
         <MDBBtn
           color="primary"
           @click="showIOSInstallHelp = false"
         >
-          Selge
+          {{ t('notification.got_it') }}
         </MDBBtn>
       </MDBModalFooter>
     </MDBModal>
@@ -352,6 +393,12 @@
 
             :provider="provider"
 
+            :notification-permission="notificationPermission"
+            :is-authenticated="login.isAuthenticated"
+            @show-notification-help="openNotificationBlockedModal"
+
+            @show-notifications-modal="openNotificationsModal"
+            
             :offers-in="incomingOffers ?? []"
             :is-pro="isUserPro ?? false"
             :credit="provider?.proTime ?? 0"
@@ -385,11 +432,9 @@
 
     <PwaUpdate />
 
-    <MDBBtn color="warning" @click="enablePushNotifications">
+    <!-- <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>
-
-
 
     <div style="padding: 20px; background: white; color: black;">
       <button @click="checkPush">
@@ -399,7 +444,11 @@
       <pre style="white-space: pre-wrap;">
         {{ debug }}
       </pre>
-    </div><br>
+    </div><br><br>
+
+    <pre style="white-space: pre-wrap;">
+      {{ n_debug }}
+    </pre> -->
     
     <MDBFooter
 
@@ -493,6 +542,8 @@ import PwaUpdate from './components/PwaUpdate.vue';
 import PwaInstallButton from './components/PwaInstallButton.vue'
 import { setAppBadge } from './components/helpers/appBadge.js';
 
+import NotificationStatusBanner from './components/NotificationStatusBanner.vue';
+import AdminMessage from './components/AdminMessage.vue';
 
 import { useI18n } from 'vue-i18n';
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
@@ -526,6 +577,7 @@ const proArchiveStore = useProArchiveStore();
 const mapStore = useMapStore();
 const professionStore = useProfessionStore();
 const adminStore = useAdminStore();
+
 
 const { isAuthenticated } = storeToRefs(login);
 const { profile } = storeToRefs(userStore);
@@ -574,10 +626,12 @@ const isSendingContactMessage = ref(false);
 
 const preOpenPos = ref(null);
 const wasNormalizedForOpen = ref(false);
+const showNotificationModal = ref(false);
+const showNotificationsBlockedModal = ref(false);
+const notificationPermission = ref("");
 
 
-
-const initPushNotifications = async () => {
+const initPushNotifications__ = async () => {
   if (!login.isAuthenticated) return;
 
   if (
@@ -596,6 +650,200 @@ const initPushNotifications = async () => {
     showNotificationModal.value = true;
   }
 };
+
+
+const canDisplayNotesBanner = computed(() => {
+  const hiddenRoutes = [
+    "providerAdmin",
+    "client-around",
+    "pro-around"
+  ];
+
+  return !hiddenRoutes.includes(route.name);
+});
+
+const openNotificationBlockedModal = () => {
+  console.log("Open blocked notifications modal");
+  showNotificationsBlockedModal.value = true;
+};
+
+
+const openNotificationsModal = () => {
+  console.log("Open default notifications modal");
+  showNotificationModal.value = true;
+}
+
+
+const n_debug = ref("");
+
+const closeNotificationModal = () => {
+  showNotificationModal.value = false;
+
+  localStorage.setItem(
+    "notificationPermissionPromptDismissed",
+    "true"
+  );
+};
+
+
+
+const initPushNotifications = async () => {
+  console.log("=== initPushNotifications ===");
+
+  const hasNotification =
+    "Notification" in window;
+
+  const hasServiceWorker =
+    "serviceWorker" in navigator;
+
+  const hasPushManager =
+    "PushManager" in window;
+
+  console.table({
+    hasNotification,
+    hasServiceWorker,
+    hasPushManager,
+    secureContext: window.isSecureContext,
+    protocol: window.location.protocol
+  });
+
+  if (!hasNotification) {
+    console.warn(
+      "Push STOP: Notification API missing"
+    );
+    return;
+  }
+
+  if (!hasServiceWorker) {
+    console.warn(
+      "Push STOP: ServiceWorker API missing"
+    );
+    return;
+  }
+
+  if (!hasPushManager) {
+    console.warn(
+      "Push STOP: PushManager API missing"
+    );
+    return;
+  }
+
+  console.log(
+    "Notification permission:",
+    Notification.permission
+  );
+
+
+  console.log("Authenticated:", login.isAuthenticated);
+
+  n_debug.value += `Notification exists: ${!!("Notification" in window)}\n`;
+
+  console.log(
+    "Notification exists:",
+    "Notification" in window
+  );
+  
+  n_debug.value += `ServiceWorker exists: ${!!("serviceWorker" in navigator)}\n`
+
+  console.log(
+    "ServiceWorker exists:",
+    "serviceWorker" in navigator
+  );
+
+  n_debug.value += `PushManager exists: ${"PushManager" in window}\n`
+
+  console.log(
+    "PushManager exists:",
+    "PushManager" in window
+  );
+
+  console.log(
+    "Notification.permission:",
+    "Notification" in window
+      ? Notification.permission
+      : "NOT AVAILABLE"
+  );
+
+  console.log(
+    "showNotificationModal BEFORE:",
+    showNotificationModal.value
+  );
+
+  if (!login.isAuthenticated) {
+    n_debug.value += `"STOP: user is not authenticated"\n`
+    console.warn("STOP: user is not authenticated");
+    return;
+  }
+
+  if (
+    !("Notification" in window) ||
+    !("serviceWorker" in navigator) ||
+    !("PushManager" in window)
+  ) {
+    console.warn("STOP: push notifications not supported");
+
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    console.log("Permission already granted");
+
+    localStorage.removeItem(
+    "notificationDeniedInfoShown"
+  );
+    await ensurePushSubscription();
+  } else if (Notification.permission === "default") {
+    console.log("OPENING NOTIFICATION MODAL");
+    console.log("Notification permission is still default");
+
+    notificationPermission.value = "default";
+
+    localStorage.removeItem(
+    "notificationDeniedInfoShown"
+  );
+
+    const promptDismissed =
+      localStorage.getItem(
+        "notificationPermissionPromptDismissed"
+      );
+
+    if (!promptDismissed) {
+      showNotificationModal.value = true;
+    }
+
+
+    console.log(
+      "showNotificationModal AFTER:",
+      showNotificationModal.value
+    );
+  } else if (Notification.permission === "denied") {
+    console.warn("Notification permission denied");
+
+    const alreadyShown =
+    localStorage.getItem("notificationDeniedInfoShown");
+
+    if (!alreadyShown) {
+      showNotificationsBlockedModal.value = true;
+
+      localStorage.setItem(
+        "notificationDeniedInfoShown",
+        "true"
+      );
+    }
+
+    notificationPermission.value = "denied";
+    
+  }
+};
+
+watch(showNotificationModal, (newValue, oldValue) => {
+  console.log(
+    "showNotificationModal changed:",
+    oldValue,
+    "->",
+    newValue
+  );
+});
 
 
 watch(
@@ -1397,7 +1645,7 @@ const stopChatSyncPolling = () => {
   chatSyncTimer = null;
 };
 
-const showNotificationModal = ref(false);
+
 
 const isStandalone =
   window.matchMedia("(display-mode: standalone)").matches ||
@@ -1656,7 +1904,23 @@ const urlBase64ToUint8Array = base64String => {
 };
 
 const enableNotificationsFromModal = async () => {
-  await ensurePushSubscription();
+
+  if (Notification.permission === "granted") {
+    console.log("Permission already granted");
+
+    localStorage.removeItem(
+      "notificationPermissionPromptDismissed"
+    );
+
+    localStorage.removeItem(
+      "notificationDeniedInfoShown"
+    );
+
+    notificationPermission.value = "granted";
+
+    await ensurePushSubscription();
+  }
+
   showNotificationModal.value = false;
 };
 
@@ -1731,13 +1995,15 @@ onMounted(async () => {
       );
     }
 
+    await handleProvider.getAllProviders();
+
     joinServer();
   }
 
   /*
    * Ülejäänud äpi init, mis ei sõltu chatist.
    */
-  await handleProvider.getAllProviders();
+  
 
   placeWidgetBottomRight();
 
@@ -2232,11 +2498,15 @@ html, body { height: 100%; }
   background: #0f172a;
 }
 
+.below-navbar {
+  padding-top: 58px;
+}
+
 .app-content {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-top: 58px;
+  padding-top: 0;
 }
 
 .page-wrap {
@@ -2358,26 +2628,4 @@ html, body { height: 100%; }
   color: #ddd !important;
   cursor: pointer;
 }
-
-/* Chat widget drag */
-/* .widget-drag {
-  position: fixed;
-  z-index: 9999;
-} */
-
-
-
-/* .drag-handle {
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  padding: 8px 12px;
-  background: #ddd;
-} */
-
-/* Contact modal footer buttons */
-/* .footer-buttons {
-  display: flex;
-  gap: 12px;
-} */
 </style>

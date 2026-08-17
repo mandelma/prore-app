@@ -1,7 +1,7 @@
 <template>
     
-  
-<div id="map-container">
+<!-- id="map-container" -->
+<div >
   <div  style="position: relative; z-index: 1; opacity: 0.8; border-radius: 17px;">
     <div
     v-if="isMainPanel"
@@ -153,13 +153,7 @@
                 count: selectedClientsCount
               }) }}
             </p>
-            <!-- <p class="pro-map-result__title">
-              {{ t("clientAround.found_clients") }}
-            </p>
-
-            <p class="pro-map-result__count">
-              {{ selectedClientsCount }}
-            </p> -->
+            
           </div>
         </div>
 
@@ -820,15 +814,14 @@ const showUserLocationOnTheMap = (latitude, longitude) => {
       });
     }
 
-    const spinner = document.getElementById("spinner");
+    /* const spinner = document.getElementById("spinner");
 
-    // Add listeners only on defined targets
     google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
       console.log('tiles loaded');
       spinner.style.opacity = "0";
       setTimeout(() => spinner.style.display = "none", 400);
         isMapLoaded.value = true;
-      });
+      }); */
   } catch(err) {
     console.log("Error to load map: " + err.message);
   }
@@ -1457,7 +1450,7 @@ const distanceBtw = (originLat, originLng, destLat, destLng) => {
     position: fixed;
     top: auto;
     right: 10px;
-    bottom: calc(10px + env(safe-area-inset-bottom));
+    bottom: calc(120px + env(safe-area-inset-bottom));
     left: 10px;
 
     width: auto;

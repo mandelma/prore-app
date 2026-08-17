@@ -51,43 +51,105 @@
     "install_app": "Paigalda rakendus"
   },
 
+  "notification": {
+    "enable_title": "Luba teavitused",
+    "enable_description": "Luba teavitused, et saada märguandeid uutest sõnumitest, pakkumistest ja muudest olulistest sündmustest.",
+    "enable": "Luba",
+    "not_enabled": "Teavitused ei ole lubatud",
+    "not_enabled_description": "Luba teavitused, et uued sõnumid ja pakkumised ei jääks märkamata.",
+    "disabled": "Teavitused on blokeeritud",
+    "disabled_description": "Teavitused on brauseri või seadme seadetes blokeeritud. Saad need seadetes uuesti lubada.",
+    "how_to_enable": "Näita juhiseid",
+
+    "ios_install_title": "Installi DuunHub",
+    "ios_install_description": "DuunHubi installimiseks iPhone'i:",
+    "ios_install_step_1": "Vajuta Safaris Jaga nuppu.",
+    "ios_install_step_2": "Vali „Lisa avakuvale”.",
+    "ios_install_step_3": "Vajuta „Lisa”.",
+    "got_it": "Selge"
+  },
+
   "login": {
+    "title": "Logi sisse",
+    "description": "Jätkamiseks logi sisse oma DuunHubi kontole.",
     "username": "Kasutajanimi",
-    "password": "Parool",
+    "password": "Salasõna",
     "rememberme": "Jäta mind meelde",
-    "forgot_password": "Unustasid parooli?",
+    "forgot_password": "Unustasid salasõna?",
     "log_in": "Logi sisse",
-    "no_member": "Pole veel liige?",
-    "register": "Registreeru",
-    "error_title": "VIGA!",
-    "error_invalid_credentials": "Vale kasutajanimi või parool!",
-    "error_required_fields": "Kõik väljad peavad olema täidetud!"
+    "logging_in": "Sisselogimine...",
+    "no_member": "Sul ei ole veel kontot?",
+    "register": "Loo konto",
+    "error_title": "Sisselogimine ebaõnnestus",
+    "error_required_fields": "Sisesta kasutajanimi ja salasõna.",
+    "error_invalid_credentials": "Kasutajanimi või salasõna on vale."
   },
 
   "register": {
+    "title": "Loo kasutajakonto",
+    "description": "Loo DuunHubi konto, et leida teenuseid, tegijaid ja uusi töövõimalusi.",
     "firstname": "Eesnimi",
     "lastname": "Perekonnanimi",
     "username": "Kasutajanimi",
-    "email": "E-post",
-    "password_1": "Parool",
-    "password_2": "Korda parooli",
-    "remember_me": "Jäta mind meelde",
+    "email": "E-posti aadress",
+    "password_1": "Salasõna",
+    "password_2": "Korda salasõna",
+    "toggle_password": "Näita või peida salasõna",
+    "remember_me": "Hoia mind sisselogituna",
     "create_account": "Loo konto",
-    "error_title": "VIGA!",
+    "creating_account": "Loon kontot...",
+    "already_member": "Sul on juba konto?",
+    "sign_in": "Logi sisse",
+    "error_title": "Konto loomine ebaõnnestus",
     "terms": {
-      "accept_prefix": "Olen lugenud ja nõustun",
+      "accept_prefix": "Nõustun",
       "terms_link": "kasutustingimustega",
-      "required": "Jätkamiseks pead nõustuma kasutustingimustega."
+      "required": "Jätkamiseks nõustu kasutustingimustega."
     },
     "validation": {
-      "password_requirements": "Parool peab olema vähemalt 8 tähemärki pikk ning sisaldama suurtähte, numbrit ja erimärki.",
-      "username_too_short": "Kasutajanimi peab olema vähemalt 4 tähemärki pikk.",
+      "required_fields": "Täida kõik kohustuslikud väljad.",
+      "username_too_short": "Kasutajanimi peab sisaldama vähemalt 4 tähemärki.",
       "invalid_email": "Sisesta korrektne e-posti aadress.",
-      "passwords_not_match": "Paroolid peavad ühtima.",
-      "username_exists": "See kasutajanimi on juba kasutusel. Palun vali teine kasutajanimi.",
-      "email_exists": "Sisestatud e-posti aadress on juba kasutusel.",
-      "required_fields": "Kõik väljad peavad olema täidetud."
+      "password_requirements": "Salasõna peab sisaldama vähemalt 8 tähemärki, suurt tähte, numbrit ja erimärki.",
+      "passwords_not_match": "Salasõnad ei ühti.",
+      "username_exists": "See kasutajanimi on juba kasutusel.",
+      "email_exists": "Selle e-posti aadressiga konto on juba olemas.",
+      "registration_failed": "Konto loomine ebaõnnestus. Proovi uuesti.",
+      "auto_login_failed": "Konto loodi, kuid automaatne sisselogimine ebaõnnestus. Logi palun sisse."
     }
+  },
+
+  "forgotPassword": {
+    "title": "Unustasid salasõna?",
+    "description": "Sisesta oma kasutajakontoga seotud e-posti aadress. Saadame sulle lingi uue salasõna loomiseks.",
+    "email_label": "E-posti aadress",
+    "email_hint": "Salasõna taastamise link saadetakse sellele aadressile.",
+    "send": "Saada taastamislink",
+    "sending": "Saadan...",
+    "back_to_login": "Tagasi sisselogimisele",
+    "invalid_email": "Sisesta korrektne e-posti aadress.",
+    "success": "Salasõna taastamise link saadeti sinu e-postile.",
+    "error": "Taastamislingi saatmine ebaõnnestus. Proovi hiljem uuesti."
+  },
+
+  "resetPassword": {
+    "title": "Loo uus salasõna",
+    "description": "Sisesta oma kasutajakonto jaoks uus salasõna.",
+    "new_password": "Uus salasõna",
+    "confirm_password": "Korda uut salasõna",
+    "password_hint": "Salasõna peab sisaldama vähemalt 8 tähemärki.",
+    "save": "Kinnita uus salasõna",
+    "saving": "Salvestan...",
+    "back_to_login": "Tagasi sisselogimisele",
+    "checking_link": "Kontrollin taastamislinki...",
+    "invalid_title": "Taastamislink ei ole enam kehtiv",
+    "invalid_description": "Salasõna taastamise link on vigane või aegunud. Küsi uus taastamislink.",
+    "request_new_link": "Küsi uus taastamislink",
+    "required_fields": "Täida mõlemad salasõnaväljad.",
+    "password_too_short": "Salasõna peab sisaldama vähemalt 8 tähemärki.",
+    "passwords_do_not_match": "Salasõnad ei ühti.",
+    "success": "Salasõna muudeti edukalt.",
+    "error": "Salasõna muutmine ebaõnnestus. Proovi uuesti."
   },
 
   "home": {

@@ -61,7 +61,16 @@ const routes = [
         name: "register-form",
         component: () => import("../components/login/RegisterForm.vue")
     },
-
+    {
+        path: "/forgot-password",
+        name: "forgot-password",
+        component: () => import("../components/helpers/ForgotPw.vue")
+    },
+    {
+        path: "/reset_auth/:token",
+        name: "reset-pw",
+        component: () => import("../components/helpers/ResetPw.vue")
+    },
     {
         path: "/client-form",
         name: "recipient-form",

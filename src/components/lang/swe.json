@@ -51,43 +51,105 @@
     "install_app": "Installera appen"
   },
 
+  "notification": {
+    "enable_title": "Aktivera notiser",
+    "enable_description": "Aktivera notiser för att få information om nya meddelanden, erbjudanden och andra viktiga händelser.",
+    "enable": "Aktivera",
+    "not_enabled": "Notiser är inte aktiverade",
+    "not_enabled_description": "Aktivera notiser så att du inte missar nya meddelanden och erbjudanden.",
+    "disabled": "Notiser är blockerade",
+    "disabled_description": "Notiser är blockerade i webbläsarens eller enhetens inställningar. Du kan aktivera dem igen i inställningarna.",
+    "how_to_enable": "Visa instruktioner",
+    
+    "ios_install_title": "Installera DuunHub",
+    "ios_install_description": "Så här installerar du DuunHub på din iPhone:",
+    "ios_install_step_1": "Tryck på Dela-knappen i Safari.",
+    "ios_install_step_2": "Välj ”Lägg till på hemskärmen”.",
+    "ios_install_step_3": "Tryck på ”Lägg till”.",
+    "got_it": "Jag förstår"
+  },
+
   "login": {
+    "title": "Logga in",
+    "description": "Logga in på ditt DuunHub-konto för att fortsätta.",
     "username": "Användarnamn",
     "password": "Lösenord",
     "rememberme": "Kom ihåg mig",
-    "forgot_password": "Glömt lösenordet?",
+    "forgot_password": "Glömt ditt lösenord?",
     "log_in": "Logga in",
-    "no_member": "Inte medlem?",
-    "register": "Registrera dig",
-    "error_title": "FEL!",
-    "error_invalid_credentials": "Fel användarnamn eller lösenord!",
-    "error_required_fields": "Alla fält måste fyllas i!"
+    "logging_in": "Loggar in...",
+    "no_member": "Har du inget konto ännu?",
+    "register": "Skapa konto",
+    "error_title": "Inloggningen misslyckades",
+    "error_required_fields": "Ange användarnamn och lösenord.",
+    "error_invalid_credentials": "Användarnamnet eller lösenordet är felaktigt."
   },
 
   "register": {
+    "title": "Skapa ett konto",
+    "description": "Skapa ett DuunHub-konto för att hitta tjänster, yrkespersoner och nya arbetsmöjligheter.",
     "firstname": "Förnamn",
     "lastname": "Efternamn",
     "username": "Användarnamn",
-    "email": "E-post",
+    "email": "E-postadress",
     "password_1": "Lösenord",
-    "password_2": "Upprepa lösenord",
-    "remember_me": "Kom ihåg mig",
+    "password_2": "Bekräfta lösenord",
+    "toggle_password": "Visa eller dölj lösenordet",
+    "remember_me": "Håll mig inloggad",
     "create_account": "Skapa konto",
-    "error_title": "FEL!",
+    "creating_account": "Skapar konto...",
+    "already_member": "Har du redan ett konto?",
+    "sign_in": "Logga in",
+    "error_title": "Det gick inte att skapa kontot",
     "terms": {
-      "accept_prefix": "Jag har läst och accepterar",
+      "accept_prefix": "Jag accepterar",
       "terms_link": "användarvillkoren",
-      "required": "Du måste acceptera användarvillkoren för att fortsätta."
+      "required": "Acceptera användarvillkoren för att fortsätta."
     },
     "validation": {
-      "password_requirements": "Lösenordet måste vara minst 8 tecken långt och innehålla en versal, en siffra och ett specialtecken.",
-      "username_too_short": "Användarnamnet måste vara minst 4 tecken långt.",
+      "required_fields": "Fyll i alla obligatoriska fält.",
+      "username_too_short": "Användarnamnet måste innehålla minst 4 tecken.",
       "invalid_email": "Ange en giltig e-postadress.",
-      "passwords_not_match": "Lösenorden måste vara identiska.",
-      "username_exists": "Användarnamnet finns redan. Välj ett annat användarnamn.",
-      "email_exists": "Den angivna e-postadressen finns redan.",
-      "required_fields": "Alla fält måste fyllas i."
+      "password_requirements": "Lösenordet måste innehålla minst 8 tecken, en stor bokstav, en siffra och ett specialtecken.",
+      "passwords_not_match": "Lösenorden matchar inte.",
+      "username_exists": "Det här användarnamnet används redan.",
+      "email_exists": "Det finns redan ett konto med den här e-postadressen.",
+      "registration_failed": "Det gick inte att skapa kontot. Försök igen.",
+      "auto_login_failed": "Kontot skapades, men den automatiska inloggningen misslyckades. Logga in."
     }
+  },
+
+  "forgotPassword": {
+    "title": "Glömt ditt lösenord?",
+    "description": "Ange e-postadressen som är kopplad till ditt konto. Vi skickar en länk där du kan skapa ett nytt lösenord.",
+    "email_label": "E-postadress",
+    "email_hint": "Länken för återställning av lösenord skickas till den här adressen.",
+    "send": "Skicka återställningslänk",
+    "sending": "Skickar...",
+    "back_to_login": "Tillbaka till inloggningen",
+    "invalid_email": "Ange en giltig e-postadress.",
+    "success": "En länk för återställning av lösenord har skickats till din e-post.",
+    "error": "Det gick inte att skicka återställningslänken. Försök igen senare."
+  },
+
+  "resetPassword": {
+    "title": "Skapa ett nytt lösenord",
+    "description": "Ange ett nytt lösenord för ditt konto.",
+    "new_password": "Nytt lösenord",
+    "confirm_password": "Bekräfta nytt lösenord",
+    "password_hint": "Lösenordet måste innehålla minst 8 tecken.",
+    "save": "Spara nytt lösenord",
+    "saving": "Sparar...",
+    "back_to_login": "Tillbaka till inloggningen",
+    "checking_link": "Kontrollerar återställningslänken...",
+    "invalid_title": "Återställningslänken är inte längre giltig",
+    "invalid_description": "Länken för återställning av lösenord är ogiltig eller har gått ut. Begär en ny återställningslänk.",
+    "request_new_link": "Begär en ny återställningslänk",
+    "required_fields": "Fyll i båda lösenordsfälten.",
+    "password_too_short": "Lösenordet måste innehålla minst 8 tecken.",
+    "passwords_do_not_match": "Lösenorden matchar inte.",
+    "success": "Ditt lösenord har ändrats.",
+    "error": "Det gick inte att ändra lösenordet. Försök igen."
   },
 
   "home": {

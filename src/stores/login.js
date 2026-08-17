@@ -24,7 +24,26 @@ export const useLoginStore = defineStore('login', () => {
 
         user.value = payload;
         token.value = payload.token ?? null;
-        localStorage.setItem('loggedAppUser', JSON.stringify(payload));
+        //localStorage.setItem('loggedAppUser', JSON.stringify(payload));
+        if (payload.remember) {
+            localStorage.setItem(
+                "loggedAppUser",
+                JSON.stringify(payload)
+            );
+
+            sessionStorage.removeItem(
+                "loggedAppUser"
+            );
+        } else {
+            sessionStorage.setItem(
+                "loggedAppUser",
+                JSON.stringify(payload)
+            );
+
+            localStorage.removeItem(
+                "loggedAppUser"
+            );
+        }
 
         const target = route.query.redirect || "/";
         await router.replace(target);
@@ -84,6 +103,7 @@ export const useLoginStore = defineStore('login', () => {
 
         try {
             await disablePushForThisDevice();
+            router.push("/home")
         } catch (error) {
             console.warn(
                 "Push unsubscribe failed:",
@@ -94,6 +114,7 @@ export const useLoginStore = defineStore('login', () => {
         const conversationStore = useConversationStore();
         const proStore = useProStore();
         localStorage.removeItem('loggedAppUser');
+        sessionStorage.removeItem("loggedAppUser");
         conversationStore.disconnect();
         conversationStore.reset();
 
@@ -114,42 +135,46 @@ export const useLoginStore = defineStore('login', () => {
     }
     
     const hydrate = async () => {
-        const raw = localStorage.getItem("loggedAppUser");
-
-        if (!raw) {
-            user.value = null;
-            token.value = null;
-            return;
-        }
-
-        const appUser = JSON.parse(raw); 
-        const savedToken = appUser?.token;
-
-        if (!savedToken) {
-            onLogOut();
-            return;
-        }
-
-        // decode JWT
         try {
-            const decoded = jwtDecode(savedToken); 
-            
-            const now = Date.now() / 1000;
-            if (decoded.exp < now) { 
-            console.log("Token expired — logging out");
-            onLogOut();
-            return;
+            const raw =
+                localStorage.getItem("loggedAppUser") ||
+                sessionStorage.getItem("loggedAppUser");
+
+            if (!raw) {
+                user.value = null;
+                token.value = null;
+                return;
             }
 
-            hydrated.value = true;
+            const appUser = JSON.parse(raw);
+            const savedToken = appUser?.token;
+
+            if (!savedToken) {
+                onLogOut();
+                return;
+            }
+
+            const decoded = jwtDecode(savedToken);
+
+            const now = Date.now() / 1000;
+
+            if (!decoded.exp || decoded.exp < now) {
+                console.log("Token expired — logging out");
+                onLogOut();
+                return;
+            }
 
             user.value = appUser;
             token.value = savedToken;
+
             console.log("Hydrating from storage:", appUser);
 
         } catch (err) {
-            console.log("Invalid token — logging out");
+            console.log("Invalid stored user/token — logging out", err);
+
             onLogOut();
+        } finally {
+            hydrated.value = true;
         }
     };
 

@@ -18,48 +18,109 @@
     "install_app": "Asenna sovellus"
   },
 
+  "notification": {
+    "enable_title": "Ota ilmoitukset käyttöön",
+    "enable_description": "Ota ilmoitukset käyttöön, jotta saat tiedon uusista viesteistä, tarjouksista ja muista tärkeistä tapahtumista.",
+    "enable": "Ota käyttöön",
+    "not_enabled": "Ilmoitukset eivät ole käytössä",
+    "not_enabled_description": "Ota ilmoitukset käyttöön, jotta et jää paitsi uusista viesteistä ja tarjouksista.",
+    "disabled": "Ilmoitukset on estetty",
+    "disabled_description": "Ilmoitukset on estetty selaimen tai laitteen asetuksissa. Voit ottaa ne uudelleen käyttöön asetuksista.",
+    "how_to_enable": "Näytä ohjeet",
+
+    
+    "ios_install_title": "Asenna DuunHub",
+    "ios_install_description": "Asenna DuunHub iPhoneen seuraavasti:",
+    "ios_install_step_1": "Napauta Safarissa Jaa-painiketta.",
+    "ios_install_step_2": "Valitse ”Lisää Koti-valikkoon”.",
+    "ios_install_step_3": "Napauta ”Lisää”.",
+    "got_it": "Selvä"
+  },
+
   "login": {
+    "title": "Kirjaudu sisään",
+    "description": "Kirjaudu DuunHub-tilillesi jatkaaksesi.",
     "username": "Käyttäjätunnus",
     "password": "Salasana",
     "rememberme": "Muista minut",
-    "forgot_password": "Unohdin salasanani",
+    "forgot_password": "Unohditko salasanasi?",
     "log_in": "Kirjaudu sisään",
-    "no_member": "Etkö ole jäsen?",
-    "register": "Rekisteröidy",
-    "error_title": "VIRHE!",
-    "error_invalid_credentials": "Virheellinen käyttäjätunnus tai salasana!",
-    "error_required_fields": "Kaikki kentät ovat pakollisia!"
+    "logging_in": "Kirjaudutaan...",
+    "no_member": "Eikö sinulla ole vielä tiliä?",
+    "register": "Luo tili",
+    "error_title": "Kirjautuminen epäonnistui",
+    "error_required_fields": "Anna käyttäjätunnus ja salasana.",
+    "error_invalid_credentials": "Käyttäjätunnus tai salasana on virheellinen."
   },
 
   "register": {
+    "title": "Luo käyttäjätili",
+    "description": "Luo DuunHub-tili ja löydä palveluita, tekijöitä ja uusia työmahdollisuuksia.",
     "firstname": "Etunimi",
     "lastname": "Sukunimi",
     "username": "Käyttäjätunnus",
-    "email": "Sähköposti",
+    "email": "Sähköpostiosoite",
     "password_1": "Salasana",
     "password_2": "Toista salasana",
-    "remember_me": "Muista minut",
+    "toggle_password": "Näytä tai piilota salasana",
+    "remember_me": "Pidä minut kirjautuneena",
     "create_account": "Luo tili",
-
-    "error_title": "VIRHE!",
+    "creating_account": "Luodaan tiliä...",
+    "already_member": "Onko sinulla jo tili?",
+    "sign_in": "Kirjaudu sisään",
+    "error_title": "Tilin luominen epäonnistui",
     "terms": {
-      "accept_prefix": "Olen lukenut ja hyväksyn",
+      "accept_prefix": "Hyväksyn",
       "terms_link": "käyttöehdot",
-      "required": "Sinun tulee hyväksyä käyttöehdot jatkaaksesi."
+      "required": "Hyväksy käyttöehdot jatkaaksesi."
     },
     "validation": {
-      "password_requirements": "Salasanan on oltava vähintään 8 merkkiä pitkä ja sen on sisällettävä iso kirjain, numero ja erikoismerkki.",
-      "username_too_short": "Käyttäjätunnuksen on oltava vähintään 4 merkkiä pitkä.",
+      "required_fields": "Täytä kaikki pakolliset kentät.",
+      "username_too_short": "Käyttäjätunnuksen tulee olla vähintään 4 merkkiä pitkä.",
       "invalid_email": "Anna kelvollinen sähköpostiosoite.",
-      "passwords_not_match": "Salasanojen on oltava samat.",
-      "username_exists": "Käyttäjätunnus on jo olemassa! Vaihda käyttäjätunnus.",
-      "email_exists": "Antamasi sähköpostiosoite on jo olemassa.",
-      "required_fields": "Kaikki kentät ovat täytettävä."
+      "password_requirements": "Salasanan tulee olla vähintään 8 merkkiä pitkä ja sisältää iso kirjain, numero ja erikoismerkki.",
+      "passwords_not_match": "Salasanat eivät täsmää.",
+      "username_exists": "Tämä käyttäjätunnus on jo käytössä.",
+      "email_exists": "Tällä sähköpostiosoitteella on jo käyttäjätili.",
+      "registration_failed": "Käyttäjätilin luominen epäonnistui. Yritä uudelleen.",
+      "auto_login_failed": "Tili luotiin, mutta automaattinen kirjautuminen epäonnistui. Kirjaudu sisään."
     }
   },
 
-  
+  "forgotPassword": {
+    "title": "Unohditko salasanasi?",
+    "description": "Anna käyttäjätiliisi liitetty sähköpostiosoite. Lähetämme sinulle linkin uuden salasanan luomista varten.",
+    "email_label": "Sähköpostiosoite",
+    "email_hint": "Salasanan palautuslinkki lähetetään tähän osoitteeseen.",
+    "send": "Lähetä palautuslinkki",
+    "sending": "Lähetetään...",
+    "back_to_login": "Takaisin kirjautumiseen",
+    "invalid_email": "Anna kelvollinen sähköpostiosoite.",
+    "success": "Salasanan palautuslinkki on lähetetty sähköpostiisi.",
+    "error": "Palautuslinkin lähettäminen epäonnistui. Yritä myöhemmin uudelleen."
+  },
 
+  "resetPassword": {
+    "title": "Luo uusi salasana",
+    "description": "Anna uusi salasana käyttäjätilillesi.",
+    "new_password": "Uusi salasana",
+    "confirm_password": "Toista uusi salasana",
+    "password_hint": "Salasanan tulee olla vähintään 8 merkkiä pitkä.",
+    "save": "Vahvista uusi salasana",
+    "saving": "Tallennetaan...",
+    "back_to_login": "Takaisin kirjautumiseen",
+    "checking_link": "Tarkistetaan palautuslinkkiä...",
+    "invalid_title": "Palautuslinkki ei ole enää voimassa",
+    "invalid_description": "Salasanan palautuslinkki on virheellinen tai vanhentunut. Pyydä uusi palautuslinkki.",
+    "request_new_link": "Pyydä uusi palautuslinkki",
+    "required_fields": "Täytä molemmat salasanakentät.",
+    "password_too_short": "Salasanan tulee olla vähintään 8 merkkiä pitkä.",
+    "passwords_do_not_match": "Salasanat eivät täsmää.",
+    "success": "Salasana vaihdettiin onnistuneesti.",
+    "error": "Salasanan vaihtaminen epäonnistui. Yritä uudelleen."
+  },
+
+  
   "recipient_panel_confirmed_orders": "Vahvistetut varaukset",
   "recipient_panel_you_have": "Sinulla on",
   "offerCountNotification": "tarjousta",
