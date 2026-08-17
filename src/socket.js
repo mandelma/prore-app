@@ -16,7 +16,8 @@ const socket = io(URL, {
     timeout: 10000,
 
     transports: [
-        "websocket"
+        "websocket",
+        "polling"
     ]
 });
 

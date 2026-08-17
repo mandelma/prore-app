@@ -434,11 +434,6 @@
     </div>
     
 
-    <p>
-      AUTH DEBUG: {{ login.isAuthenticated }}
-    </p><br>
-    Kas ikka?
-
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>

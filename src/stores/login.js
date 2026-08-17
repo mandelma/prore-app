@@ -49,13 +49,18 @@ export const useLoginStore = defineStore('login', () => {
         await router.replace(target);
     }
 
-    const disablePushForThisDevice = async () => {
-        if (!("serviceWorker" in navigator)) {
+    const disablePushForThisDevice = async (jwt) => {
+        if (!jwt) {
             return;
         }
 
         const registration =
-            await navigator.serviceWorker.ready;
+            await navigator.serviceWorker
+                .getRegistration();
+
+        if (!registration) {
+            return;
+        }
 
         const subscription =
             await registration.pushManager
@@ -64,8 +69,6 @@ export const useLoginStore = defineStore('login', () => {
         if (!subscription) {
             return;
         }
-
-        const jwt = token.value;
 
         const response =
             await fetch(
@@ -96,43 +99,88 @@ export const useLoginStore = defineStore('login', () => {
 
         await subscription.unsubscribe();
     };
-
+    
     const onLogOut = async () => {
-        user.value = null
-        token.value = null
+        /*
+         * Salvesta token enne store'i puhastamist,
+         * sest push unsubscribe vajab seda.
+         */
+        const jwt = token.value;
 
+        /*
+         * Proovi push subscription eemaldada,
+         * kuid logout peab õnnestuma ka siis,
+         * kui unsubscribe ebaõnnestub.
+         */
         try {
-            await disablePushForThisDevice();
-            router.push("/home")
+            await disablePushForThisDevice(jwt);
         } catch (error) {
             console.warn(
                 "Push unsubscribe failed:",
                 error
             );
         }
-        
-        const conversationStore = useConversationStore();
-        const proStore = useProStore();
-        localStorage.removeItem('loggedAppUser');
-        sessionStorage.removeItem("loggedAppUser");
+
+        const conversationStore =
+            useConversationStore();
+
+        const proStore =
+            useProStore();
+
+        /*
+         * Puhasta autentimine
+         */
+        user.value = null;
+        token.value = null;
+
+        localStorage.removeItem(
+            "loggedAppUser"
+        );
+
+        sessionStorage.removeItem(
+            "loggedAppUser"
+        );
+
+        /*
+         * Socket / conversation cleanup
+         */
         conversationStore.disconnect();
         conversationStore.reset();
 
+        /*
+         * Provider state tuleb samuti eemaldada,
+         * et vana provider ei jääks store'i.
+         */
+        proStore.provider = null;
+        proStore.isUserPro = false;
+
+        /*
+         * Badge cleanup
+         */
         try {
             await navigator.clearAppBadge?.();
         } catch { }
 
-        const registration =
-            await navigator.serviceWorker
-                .getRegistration();
+        try {
+            const registration =
+                await navigator.serviceWorker
+                    .getRegistration();
 
-        registration?.active?.postMessage({
-            type: "CLEAR_BADGE"
-        });
+            registration?.active?.postMessage({
+                type: "CLEAR_BADGE"
+            });
+        } catch (error) {
+            console.warn(
+                "Badge cleanup failed:",
+                error
+            );
+        }
 
-        proStore.provider = null;
-        router.push('/');
-    }
+        /*
+         * Ainult üks redirect.
+         */
+        await router.replace("/home");
+    };
     
     const hydrate = async () => {
         try {
