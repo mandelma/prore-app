@@ -25,7 +25,7 @@ const updateSocketAuth = () => {
     const raw =
         localStorage.getItem(
             "loggedAppUser"
-        );
+        ) || sessionStorage.getItem("loggedAppUser");
 
     if (!raw) {
         socket.auth = {};

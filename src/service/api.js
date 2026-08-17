@@ -22,7 +22,7 @@ console.log("Does interceptor works?")
 
 function attachAuth(apiInstance) {
   apiInstance.interceptors.request.use((config) => {
-    const raw = localStorage.getItem("loggedAppUser");
+    const raw = localStorage.getItem("loggedAppUser") || sessionStorage.getItem("loggedAppUser");
     const token = raw ? JSON.parse(raw)?.token : null;
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;

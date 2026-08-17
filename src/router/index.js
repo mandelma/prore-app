@@ -10,7 +10,7 @@ const routes = [
         beforeEnter: async (to, from, next) => {
             const proStore = useProStore();
 
-            const savedUser = localStorage.getItem("loggedAppUser");
+            const savedUser = localStorage.getItem("loggedAppUser") || sessionStorage.getItem("loggedAppUser");
 
             if (!savedUser) {
                 return next({ name: "Home" });
@@ -108,7 +108,7 @@ const routes = [
         component: () => import("../components/provider/ProviderForm.vue"),
         meta: { requiresAuth: true },
         beforeEnter: async (to, from, next) => {
-            const savedUser = localStorage.getItem("loggedAppUser");
+            const savedUser = localStorage.getItem("loggedAppUser") || sessionStorage.getItem("loggedAppUser");
             const user = JSON.parse(savedUser);
             const proStore = useProStore();
 
@@ -214,7 +214,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    const isAuthenticated = localStorage.getItem('loggedAppUser');
+    const isAuthenticated = localStorage.getItem('loggedAppUser') || sessionStorage.getItem("loggedAppUser");
 
     if (isAuthenticated) {
         const user = JSON.parse(isAuthenticated)
