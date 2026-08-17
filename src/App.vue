@@ -429,10 +429,15 @@
         @request-close="closeChatWindow"
       />
     </div>
+    <div v-if="login.isAuthenticated">
+      <PwaUpdate />
+    </div>
+    
 
-    <PwaUpdate 
-      :is-authenticated="login.isAuthenticated"
-    />
+    <p>
+      AUTH DEBUG: {{ login.isAuthenticated }}
+    </p><br>
+    Kas ikka?
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
