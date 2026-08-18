@@ -428,7 +428,7 @@
     </div>
     
 
-    <!-- <MDBBtn color="warning" @click="enablePushNotifications">
+    <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>
 
@@ -444,7 +444,7 @@
 
     <pre style="white-space: pre-wrap;">
       {{ n_debug }}
-    </pre> -->
+    </pre>
     
     <MDBFooter
 
