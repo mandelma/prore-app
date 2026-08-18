@@ -388,6 +388,7 @@
             :provider="provider"
 
             :notification-permission="notificationPermission"
+
             :is-authenticated="login.isAuthenticated"
             @show-notification-help="openNotificationBlockedModal()"
 
@@ -428,6 +429,24 @@
     </div>
     
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>
@@ -446,6 +465,23 @@
       {{ n_debug }}
     </pre>
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <MDBFooter
 
         bg="none"
@@ -1865,6 +1901,8 @@ const enablePushNotifications = async () => {
         `Subscription save failed: ${response.status}`
       );
     }
+
+    notificationPermission.value = "granted";
 
     console.log(
       "Push notifications enabled:",
