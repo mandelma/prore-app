@@ -25,8 +25,25 @@
           type="button"
           class="pwa-update__button pwa-update__button--primary"
           @click="installUpdate"
+          :disabled="isUpdating"
         >
-          {{ t("pwa.update_now") }}
+
+          <span
+              v-if="isUpdating"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+
+            {{
+              isUpdating
+                ? t("pwa.updating")
+                : t("pwa.update_now")
+            }}
+
+
+
+          <!-- {{ t("pwa.update_now") }} -->
         </button>
 
         <button
@@ -52,6 +69,7 @@ import { useI18n } from "vue-i18n";
 import { useRegisterSW } from "virtual:pwa-register/vue";
 
 const { t } = useI18n();
+const isUpdating = ref(false);
 
 const manualRefreshAvailable = ref(false);
 
@@ -127,6 +145,10 @@ const checkForUpdate = async () => {
  * Installi uus versioon
  */
 const installUpdate = async () => {
+  if (isUpdating.value) return;
+
+  isUpdating.value = true;
+
   try {
     console.log("Installing PWA update...");
 
@@ -136,46 +158,10 @@ const installUpdate = async () => {
       "PWA update failed:",
       error
     );
+  } finally {
+    isUpdating.value = false;
   }
 };
-const installUpdate__ = async () => {
-  console.log(
-    "installUpdate CALLED"
-  );
-
-  try {
-    const registration =
-      await navigator.serviceWorker
-        .getRegistration();
-
-    /*
-     * Eriti oluline iOS PWA puhul.
-     */
-    if (registration?.waiting) {
-      console.log(
-        "Activating waiting SW"
-      );
-
-      registration.waiting.postMessage({
-        type: "SKIP_WAITING"
-      });
-
-      return;
-    }
-
-    /*
-     * Fallback vite-plugin-pwa jaoks.
-     */
-    await updateServiceWorker(true);
-
-  } catch (error) {
-    console.error(
-      "PWA update failed:",
-      error
-    );
-  }
-};
-
 
 /*
  * Kui uus SW saab rakenduse controlleriks,

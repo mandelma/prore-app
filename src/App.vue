@@ -451,11 +451,11 @@
     notificationPermission {{ notificationPermission }} -->
     
 
-    <MobileBottomNav v-if="showPwaBottomNav" :unread-count="13" />
+    <!-- <MobileBottomNav v-if="showPwaBottomNav" :unread-count="13" /> -->
 
 
     <MDBFooter
-        v-else
+        
         bg="none"
         :text="['center', 'white']"
         style="background-color: #0F172A; margin-top: auto;"
