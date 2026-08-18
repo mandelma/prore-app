@@ -389,9 +389,9 @@
 
             :notification-permission="notificationPermission"
             :is-authenticated="login.isAuthenticated"
-            @show-notification-help="openNotificationBlockedModal"
+            @show-notification-help="openNotificationBlockedModal()"
 
-            @show-notifications-modal="enablePushNotifications"
+            @show-notifications-modal="enablePushNotifications()"
             
             :offers-in="incomingOffers ?? []"
             :is-pro="isUserPro ?? false"
@@ -1751,6 +1751,7 @@ const checkPush = async () => {
 };
 
 const enablePushNotifications = async () => {
+  console.log("Push notifications...")
   try {
     if (!("Notification" in window)) {
       throw new Error("Notifications not supported");
