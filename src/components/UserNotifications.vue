@@ -59,18 +59,20 @@
               type="button"
               class="notification-dismiss"
               :disabled="removingId === note.id"
-              @click="removeNote(note.id)"
+              @click="removeNote(note.id, note.isLink)"
             >
+              <i v-if="note.isLink" class="fas fa-calendar-alt"></i>
               <span
                 v-if="removingId === note.id"
                 class="notification-spinner"
                 aria-hidden="true"
               />
-
               {{
                 removingId === note.id
                   ? t("notifications.removing")
-                  : t("notifications.dismiss")
+                  : note.isLink
+                    ? t("notifications.open_calendar")
+                    : t("notifications.dismiss")
               }}
             </button>
           </div>
@@ -106,6 +108,7 @@ import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { MDBContainer } from "mdb-vue-ui-kit";
 
+import { useRouter } from "vue-router";
 import { useNotificationStore } from "@/stores/notificationStore";
 import { timeAgo } from "./helpers/timekeeping.js";
 
@@ -115,6 +118,7 @@ defineOptions({
 
 const { t } = useI18n();
 
+const router = useRouter();
 const notificationStore = useNotificationStore();
 const { notifications } = storeToRefs(notificationStore);
 
@@ -124,7 +128,7 @@ const formatTimeAgo = iso => {
   return timeAgo(iso, t);
 };
 
-const removeNote = async id => {
+const removeNote = async (id, isLink) => {
   if (removingId.value !== null) {
     return;
   }
@@ -133,6 +137,9 @@ const removeNote = async id => {
 
   try {
     await notificationStore.removeNotification(id);
+    if (isLink) {
+      await router.push("/calendar");
+    }
   } finally {
     removingId.value = null;
   }

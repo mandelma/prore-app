@@ -28,7 +28,7 @@
     "disabled_description": "Ilmoitukset on estetty selaimen tai laitteen asetuksissa. Voit ottaa ne uudelleen käyttöön asetuksista.",
     "how_to_enable": "Näytä ohjeet",
 
-    "disable_description": "Ilmoitukset on estetty selaimessa. Avaa osoiterivin sivuston asetukset ja salli ilmoitukset uudelleen.",
+    "disable_description": "Ilmoitukset on poistettu käytöstä. Avaa sovelluksen tai sivuston ilmoitusasetukset laitteen asetuksista ja salli ilmoitukset uudelleen.",
     "close": "Sulje",
 
     
@@ -966,6 +966,7 @@
     "description": "Täältä löydät tiliäsi ja palvelupyyntöjäsi koskevat ilmoitukset.",
     "dismiss": "Selvä",
     "removing": "Poistetaan...",
+    "open_calendar": "Avaa kalenteri",
     "emptyTitle": "Ei uusia ilmoituksia",
     "emptyDescription": "Uudet ilmoitukset näkyvät täällä."
   },

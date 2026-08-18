@@ -61,7 +61,7 @@
     "disabled_description": "Notiser är blockerade i webbläsarens eller enhetens inställningar. Du kan aktivera dem igen i inställningarna.",
     "how_to_enable": "Visa instruktioner",
 
-    "disable_description": "Notiser är blockerade i webbläsaren. Öppna webbplatsens inställningar från adressfältet och tillåt notiser igen.",
+    "disable_description": "Aviseringar är avstängda. Öppna appens eller webbplatsens aviseringsinställningar i enhetens inställningar och tillåt aviseringar igen.",
     "close": "Stäng",
     
     "ios_install_title": "Installera DuunHub",
@@ -951,6 +951,7 @@
     "description": "Här hittar du aviseringar om ditt konto och dina tjänsteförfrågningar.",
     "dismiss": "Okej",
     "removing": "Tar bort...",
+    "open_calendar": "Öppna kalendern",
     "emptyTitle": "Inga nya aviseringar",
     "emptyDescription": "Nya aviseringar visas här."
   },

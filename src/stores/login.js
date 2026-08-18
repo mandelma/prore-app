@@ -13,6 +13,7 @@ export const useLoginStore = defineStore('login', () => {
     const route = useRoute();
     const router = useRouter();
     
+    let tokenExpiryTimer = null;
     const hydrated = ref(false);
 
     // --getters--
@@ -22,9 +23,15 @@ export const useLoginStore = defineStore('login', () => {
     const onLogin = async (payload) => {
         console.log("Login payload - ", payload);
 
+        if (!payload?.token) {
+            throw new Error("Login token missing");
+        }
+
         user.value = payload;
-        token.value = payload.token ?? null;
-        //localStorage.setItem('loggedAppUser', JSON.stringify(payload));
+        token.value = payload.token;
+
+        scheduleTokenExpiry(token.value);
+        
         if (payload.remember) {
             localStorage.setItem(
                 "loggedAppUser",
@@ -100,7 +107,45 @@ export const useLoginStore = defineStore('login', () => {
         await subscription.unsubscribe();
     };
 
-    const onLogOut = async () => {
+    const scheduleTokenExpiry = (jwt) => {
+        if (tokenExpiryTimer) {
+            clearTimeout(tokenExpiryTimer);
+            tokenExpiryTimer = null;
+        }
+
+        try {
+            const decoded = jwtDecode(jwt);
+
+            if (!decoded.exp) {
+                console.warn("Token expiration time missing");
+                return;
+            }
+
+            const expiresAt = decoded.exp * 1000;
+            const delay = expiresAt - Date.now();
+
+            if (delay <= 0) {
+                onLogOut();
+                return;
+            }
+
+            console.log(
+                "Token expires in:",
+                Math.round(delay / 1000 / 60),
+                "minutes"
+            );
+
+            tokenExpiryTimer = setTimeout(() => {
+                console.log("Token expired — automatic logout");
+                onLogOut();
+            }, delay);
+
+        } catch (error) {
+            console.error("Could not schedule token expiry:", error);
+        }
+    };
+
+    /* const onLogOut = async () => {
         const jwt = token.value;
 
         const conversationStore = useConversationStore();
@@ -128,6 +173,48 @@ export const useLoginStore = defineStore('login', () => {
                 error
             );
         }
+    }; */
+
+    const onLogOut = async () => {
+        const jwt = token.value;
+
+        const conversationStore = useConversationStore();
+        const proStore = useProStore();
+
+        if (tokenExpiryTimer) {
+            clearTimeout(tokenExpiryTimer);
+            tokenExpiryTimer = null;
+        }
+
+        localStorage.removeItem("loggedAppUser");
+        sessionStorage.removeItem("loggedAppUser");
+
+        user.value = null;
+        token.value = null;
+
+        proStore.provider = null;
+        proStore.isUserPro = false;
+
+        conversationStore.disconnect();
+        conversationStore.reset();
+
+        /*
+         * Jätame selle siia enne push unsubscribe'i,
+         * sest sinu äpis väldib see provider lehele
+         * tagasi suunamist logouti ajal.
+         */
+        await router.replace("/home");
+
+        try {
+            if (jwt) {
+                await disablePushForThisDevice(jwt);
+            }
+        } catch (error) {
+            console.warn(
+                "Push unsubscribe failed:",
+                error
+            );
+        }
     };
     
     const hydrate = async () => {
@@ -146,29 +233,48 @@ export const useLoginStore = defineStore('login', () => {
             const savedToken = appUser?.token;
 
             if (!savedToken) {
-                onLogOut();
+                console.log("Stored user has no token — logging out");
+
+                await onLogOut();
                 return;
             }
 
             const decoded = jwtDecode(savedToken);
-
             const now = Date.now() / 1000;
 
-            if (!decoded.exp || decoded.exp < now) {
+            if (!decoded.exp || decoded.exp <= now) {
                 console.log("Token expired — logging out");
-                onLogOut();
+
+                await onLogOut();
                 return;
             }
 
+            /*
+             * Token on kehtiv.
+             * Taastame kasutaja Pinia store'i.
+             */
             user.value = appUser;
             token.value = savedToken;
 
-            console.log("Hydrating from storage:", appUser);
+            /*
+             * Käivitame timeri, mis logib kasutaja
+             * tokeni aegumisel automaatselt välja.
+             */
+            scheduleTokenExpiry(savedToken);
 
-        } catch (err) {
-            console.log("Invalid stored user/token — logging out", err);
+            console.log(
+                "Hydrating from storage:",
+                appUser
+            );
 
-            onLogOut();
+        } catch (error) {
+            console.log(
+                "Invalid stored user/token — logging out",
+                error
+            );
+
+            await onLogOut();
+
         } finally {
             hydrated.value = true;
         }

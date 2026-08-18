@@ -32,7 +32,7 @@
           <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle 
-                tag="a" class="nav-link" 
+                tag="a" class="nav-link"
                 :aria-label="t('app.openUserMenu')"
                 @click="userDropdown = !userDropdown"
               >
@@ -156,7 +156,7 @@
         @show-notifications-modal="openNotificationsModal"
       />
 
-      <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" />
+      <!-- <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" /> -->
     </div>
 
     <MDBModal
@@ -431,23 +431,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <MDBBtn color="warning" @click="enablePushNotifications">
+    <!-- <MDBBtn color="warning" @click="enablePushNotifications">
       Luba teavitused
     </MDBBtn>
 
@@ -464,27 +448,14 @@
     <pre style="white-space: pre-wrap;">
       {{ n_debug }}
     </pre><br>
-    notificationPermission {{ notificationPermission }}
+    notificationPermission {{ notificationPermission }} -->
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <MobileBottomNav v-if="showPwaBottomNav" :unread-count="13" />
 
 
     <MDBFooter
-
+        v-else
         bg="none"
         :text="['center', 'white']"
         style="background-color: #0F172A; margin-top: auto;"
@@ -576,6 +547,7 @@ import PwaInstallButton from './components/PwaInstallButton.vue'
 import { setAppBadge } from './components/helpers/appBadge.js';
 
 import NotificationStatusBanner from './components/NotificationStatusBanner.vue';
+import MobileBottomNav from './components/MobileBottomNav.vue';
 import AdminMessage from './components/AdminMessage.vue';
 
 import { useI18n } from 'vue-i18n';
@@ -591,6 +563,11 @@ import socket from "@/socket";
 const router = useRouter();
 const route = useRoute();
 const deviceID = ref(null);
+
+const isPwa = ref(false);
+const isMobile = ref(false);
+
+
 const processedActions = ref(new Set());
 const userID = ref('');
 const username = ref('')
@@ -662,6 +639,18 @@ const wasNormalizedForOpen = ref(false);
 const showNotificationModal = ref(false);
 const showNotificationsBlockedModal = ref(false);
 const notificationPermission = ref("");
+
+const checkDisplayMode = () => {
+  isPwa.value =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  isMobile.value = window.innerWidth <= 768;
+};
+
+const showPwaBottomNav = computed(() => {
+  return isPwa.value && isMobile.value;
+});
 
 
 const initPushNotifications__ = async () => {
@@ -2039,6 +2028,13 @@ onMounted(async () => {
       );
     }
 
+    checkDisplayMode();
+
+    window.addEventListener(
+      "resize",
+      checkDisplayMode
+    );
+
     await handleProvider.getAllProviders();
 
     joinServer();
@@ -2066,6 +2062,11 @@ onBeforeUnmount(() => {
   );
 
   stopChatSyncPolling();
+
+  window.removeEventListener(
+    "resize",
+    checkDisplayMode
+  );
 
   window.removeEventListener(
     "focus",
@@ -2671,5 +2672,11 @@ html, body { height: 100%; }
 .dd-item {
   color: #ddd !important;
   cursor: pointer;
+}
+
+.has-bottom-nav {
+  padding-bottom: calc(
+    82px + env(safe-area-inset-bottom)
+  );
 }
 </style>

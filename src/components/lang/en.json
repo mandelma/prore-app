@@ -28,7 +28,7 @@
     "disabled_description": "Notifications are blocked in your browser or device settings. You can enable them again in the settings.",
     "how_to_enable": "Show instructions",
 
-    "disable_description": "Notifications are blocked in your browser. Open the site settings from the address bar and allow notifications again.",
+    "disable_description": "Notifications are disabled. Open the app or website notification settings in your device settings and allow notifications again.",
     "close": "Close",
     
     "ios_install_title": "Install DuunHub",
@@ -945,6 +945,7 @@
     "description": "View notifications related to your account and service requests.",
     "dismiss": "Dismiss",
     "removing": "Removing...",
+    "open_calendar": "Open calendar",
     "emptyTitle": "No new notifications",
     "emptyDescription": "New notifications will appear here."
   },

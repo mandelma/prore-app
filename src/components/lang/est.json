@@ -61,7 +61,7 @@
     "disabled_description": "Teavitused on brauseri või seadme seadetes blokeeritud. Saad need seadetes uuesti lubada.",
     "how_to_enable": "Näita juhiseid",
 
-    "disable_description": "Teavitused on brauseris blokeeritud. Ava aadressiriba juurest veebilehe seaded ja luba teavitused uuesti.",
+    "disable_description": "Teavitused on keelatud. Ava seadme seadetest rakenduse või veebilehe teavituste seaded ja luba teavitused uuesti.",
     "close": "Sulge",
 
     "ios_install_title": "Installi DuunHub",
@@ -951,6 +951,7 @@
     "description": "Siit leiad oma konto ja teenusepäringutega seotud teavitused.",
     "dismiss": "Selge",
     "removing": "Eemaldan...",
+    "open_calendar": "Ava kalender",
     "emptyTitle": "Uusi teavitusi ei ole",
     "emptyDescription": "Uued teavitused ilmuvad siia."
   },
