@@ -212,7 +212,7 @@
 
         <MDBBtn
           color="primary"
-          @click="enableNotificationsFromModal"
+          @click="enablePushNotifications"
         >
           {{ t("notification.enable") }}
         </MDBBtn>
@@ -353,7 +353,7 @@
       icon="fas fa-check fa-lg me-2"
     >
       <button type="button" style="visibility: hidden;" class="btn-close ms-auto" :aria-label="t('app.close')" @click="hideError"></button>
-      <template #title> PROKEIKKATORI </template>
+      <template #title> DuunHub </template>
       <!-- <template #small> 11 mins ago </template> -->
       {{ confirmedOrderMessage }}
     </MDBToast>
@@ -432,6 +432,11 @@
     <div v-if="login.isAuthenticated">
       <PwaUpdate />
     </div>
+
+
+
+
+
     
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
@@ -793,7 +798,9 @@ const initPushNotifications = async () => {
     localStorage.removeItem(
     "notificationDeniedInfoShown"
   );
-    await ensurePushSubscription();
+
+  await ensurePushSubscription();
+
   } else if (Notification.permission === "default") {
     console.log("OPENING NOTIFICATION MODAL");
     console.log("Notification permission is still default");
