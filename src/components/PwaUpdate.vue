@@ -62,7 +62,8 @@
 import {
   ref,
   onMounted,
-  onBeforeUnmount
+  onBeforeUnmount,
+  nextTick
 } from "vue";
 
 import { useI18n } from "vue-i18n";
@@ -149,6 +150,8 @@ const installUpdate = async () => {
 
   isUpdating.value = true;
 
+  await nextTick();
+
   try {
     console.log("Installing PWA update...");
 
@@ -158,7 +161,7 @@ const installUpdate = async () => {
       "PWA update failed:",
       error
     );
-  } finally {
+
     isUpdating.value = false;
   }
 };
