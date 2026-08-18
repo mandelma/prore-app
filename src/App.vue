@@ -463,7 +463,8 @@
 
     <pre style="white-space: pre-wrap;">
       {{ n_debug }}
-    </pre>
+    </pre><br>
+    notificationPermission {{ notificationPermission }}
     
 
 
