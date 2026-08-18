@@ -391,7 +391,7 @@
             :is-authenticated="login.isAuthenticated"
             @show-notification-help="openNotificationBlockedModal()"
 
-            @show-notifications-modal="enablePushNotifications()"
+            @show-set-notifications="enablePushNotifications()"
             
             :offers-in="incomingOffers ?? []"
             :is-pro="isUserPro ?? false"
@@ -1751,7 +1751,7 @@ const checkPush = async () => {
 };
 
 const enablePushNotifications = async () => {
-  console.log("Push notifications...")
+  console.log("Activated push notifications...")
   try {
     if (!("Notification" in window)) {
       throw new Error("Notifications not supported");
