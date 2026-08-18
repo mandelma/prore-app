@@ -159,8 +159,6 @@
       <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" />
     </div>
 
-    
-
     <MDBModal
       v-model="showNotificationsBlockedModal"
       staticBackdrop
@@ -212,16 +210,12 @@
 
         <MDBBtn
           color="primary"
-          @click="enablePushNotifications"
+          @click="enableNotificationsFromModal"
         >
           {{ t("notification.enable") }}
         </MDBBtn>
       </MDBModalFooter>
     </MDBModal>
-
-
-
-    
 
     <MDBModal
       v-model="showIOSInstallHelp"
@@ -368,7 +362,7 @@
       icon="fas fa-check fa-lg me-2"
     >
       <button type="button" style="visibility: hidden;" class="btn-close ms-auto" :aria-label="t('app.close')" @click="hideError"></button>
-      <template #title> PROKEIKKATORI </template>
+      <template #title> DuunHub </template>
       <!-- <template #small> 11 mins ago </template> -->
       {{ contactSentMessage }}
     </MDBToast>
@@ -397,7 +391,7 @@
             :is-authenticated="login.isAuthenticated"
             @show-notification-help="openNotificationBlockedModal"
 
-            @show-notifications-modal="openNotificationsModal"
+            @show-notifications-modal="enablePushNotifications"
             
             :offers-in="incomingOffers ?? []"
             :is-pro="isUserPro ?? false"
@@ -432,11 +426,6 @@
     <div v-if="login.isAuthenticated">
       <PwaUpdate />
     </div>
-
-
-
-
-
     
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
