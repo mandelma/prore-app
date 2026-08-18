@@ -1547,6 +1547,16 @@ const forceChatSync = async () => {
   }
 };
 
+const refreshNotificationPermission = () => {
+  if (!("Notification" in window)) {
+    notificationPermission.value = "unsupported";
+    return;
+  }
+
+  notificationPermission.value =
+    Notification.permission;
+};
+
 const handleVisibilityChange = async () => {
   const visible =
     document.visibilityState === "visible";
@@ -1565,6 +1575,9 @@ const handleVisibilityChange = async () => {
     return;
   }
 
+  // iOS Settingsist tagasi tulles kontrolli luba uuesti
+  refreshNotificationPermission();
+
   await checkPwaUpdate();
 
   if (login.isAuthenticated) {
@@ -1578,13 +1591,6 @@ const handleVisibilityChange = async () => {
     await forceChatSync();
   }
 
-  
-  
-
-  
-  
-
-  //conversationStore.syncPresence();
 };
 
 const handleFocus = async () => {
