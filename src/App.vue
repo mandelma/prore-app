@@ -367,7 +367,8 @@
       {{ contactSentMessage }}
     </MDBToast>
   
-    <main class="app-content" style=" flex: 1;">
+    <!-- :class="{ 'has-bottom-nav': showPwaBottomNav }" -->
+    <main class="app-content" :class="{ 'has-bottom-nav': showPwaBottomNavx }" style=" flex: 1;">
 
       <RouterView
           v-slot="{Component}">
@@ -450,8 +451,9 @@
     </pre><br>
     notificationPermission {{ notificationPermission }} -->
     
+    <!-- v-if="showPwaBottomNav" -->
 
-    <!-- <MobileBottomNav v-if="showPwaBottomNav" :unread-count="13" /> -->
+    <!-- <MobileBottomNav v-if="showPwaBottomNavx" :unread-count="13" /> -->
 
 
     <MDBFooter
@@ -489,6 +491,7 @@
       </div>
       <!-- Copyright -->
     </MDBFooter>
+
   </div>
 
 </template>
@@ -566,6 +569,9 @@ const deviceID = ref(null);
 
 const isPwa = ref(false);
 const isMobile = ref(false);
+
+
+const showPwaBottomNavx = ref(true);
 
 
 const processedActions = ref(new Set());

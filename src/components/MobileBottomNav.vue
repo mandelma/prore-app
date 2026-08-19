@@ -24,6 +24,7 @@
     <button
       type="button"
       class="nav-main-action"
+      style="border: 1px solid red;"
       @click="openMainAction"
     >
       <span class="main-action-circle">
