@@ -966,47 +966,23 @@ const getOffsetPosition = (lat, lng, index, total) => {
     return { lat, lng };
   }
 
-  const radius = 0.00025; // umbes 20–30 m
+  const radius = 0.00025;
   const angle = (2 * Math.PI * index) / total;
 
+  const latOffset = radius * Math.cos(angle);
+  const lngOffset =
+    (radius * Math.sin(angle)) /
+    Math.cos(lat * Math.PI / 180);
+
   return {
-    lat: lat + radius * Math.cos(angle),
-    lng: lng + radius * Math.sin(angle),
+    lat: lat + latOffset,
+    lng: lng + lngOffset,
   };
 };
 
-const addProviderMarker_prev = (provider) => {
-  if (!map) return null;
-
-  const lat = Number(provider.latitude);
-  const lng = Number(provider.longitude);
 
 
-  console.log(
-    "ADDING MARKER:",
-    provider.pName,
-    "lat:", lat,
-    "lng:", lng
-  );
-
-
-  if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    console.log("Invalid provider coordinates", provider);
-    return null;
-  }
-
-  const marker = new google.maps.marker.AdvancedMarkerElement({
-    map,
-    position: { lat, lng },
-    title: provider.pName,
-    content: providerMarkerContent(provider),
-  });
-
-  providerMarkers.push(marker);
-  return marker;
-};
-
-const addProviderMarker = (provider) => {
+const addProviderMarker = (providers, provider) => {
   if (!map) return null;
 
   const lat = Number(provider.latitude);
@@ -1218,20 +1194,20 @@ const otherUserLocations = async (providers, profession, dist) => {
             
             if (providers[pos].status === 'Saatavilla') {
               matching = true;
-              marker = addProviderMarker(providers[pos], 'seagreen', 'darkgreen');
+              marker = addProviderMarker(providers, providers[pos]);
             } else if (providers[pos].isAvailable24_7) {
               matching = true;
-              marker = addProviderMarker(providers[pos], 'seagreen', 'darkgreen');
+              marker = addProviderMarker(providers, providers[pos]);
             } else if (providers[pos].timetable.length > 0) {
               matching = providers[pos].timetable.some(time =>
                 handleMatch.providerMatchingForClient(clientDate, time.start, time.end)
               );
 
               marker = matching
-                ? addProviderMarker(providers[pos], 'seagreen', 'darkgreen')
-                : addProviderMarker(providers[pos], 'orange', 'darkorange');
+                ? addProviderMarker(providers, providers[pos])
+                : addProviderMarker(providers, providers[pos]);
             } else {
-              marker = addProviderMarker(providers[pos], 'orange', 'darkorange');
+              marker = addProviderMarker(providers, providers[pos]);
             }
 
             const feedbackText = providers[pos].feedback
@@ -1457,6 +1433,7 @@ const refreshMapState = async() => {
 const showClientLocationOnTheMap = async(profession, range) => {
 
   console.log("Current distance herexx  ")
+  //TODO hehe need to find matching profession at first
   const providers = await providerService.getProviders()
   if (providers) {
     otherUserLocations(providers, profession, range);
