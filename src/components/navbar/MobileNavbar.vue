@@ -7,8 +7,8 @@
                 
                     :src="navLogo"
                     :alt="t('home.logoAlt')"
-                    width="67"
-                    height="30px"
+                    width="30"
+                    
                     
                 />
             </div>
