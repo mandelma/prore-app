@@ -356,7 +356,7 @@
     <!-- v-if="showPwaBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && showPwaBottomNav" 
+      v-if="login.isAuthenticated && isMobile" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
       :unread-count="13" 
@@ -2504,7 +2504,7 @@ html, body { height: 100%; }
 }
 
 .below-navbar {
-  padding-top: 77px;
+  padding-top: 87px;
 }
 
 .app-content {
@@ -2651,7 +2651,7 @@ html, body { height: 100%; }
 
 .has-bottom-nav {
   padding-bottom: calc(
-    82px + env(safe-area-inset-bottom)
+    92px + env(safe-area-inset-bottom)
   );
 }
 </style>

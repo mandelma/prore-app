@@ -233,8 +233,10 @@ const handleOpenContact = () => {
     0 10px 30px rgba(0, 0, 0, 0.28),
     0 2px 8px rgba(0, 0, 0, 0.18);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  /* backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px); */
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
 
   z-index: 2000;
 }

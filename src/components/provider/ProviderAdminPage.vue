@@ -1715,7 +1715,7 @@ function sleep(ms) {
 
 .header-stack {
   position: fixed;
-  top: 67px;
+  top: 87px;
   left: 0;
   z-index: 1000;
   width: 100%;
