@@ -293,43 +293,15 @@
     openSide.value = fitsRight ? "right" : "left";
   };
 
-  const launcherTouchStart = ref({ x: 0, y: 0 });
-  const launcherTouchDragging = ref(false);
+  //const launcherTouchStart = ref({ x: 0, y: 0 });
+  //const launcherTouchDragging = ref(false);
 
   const onLauncherPointerDown = (e) => {
     emit("start-drag", e);
   };
 
-  const onLauncherClick_old = (e) => {
-    if (props.didDrag) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-
-    if (openChat.value) {
-      convoStore.closeChatWidget();
-    } else {
-      decideOpenSide();
-      emit("request-open");
-    }
-  };
-
-  const onLauncherClick__Prev = (e) => {
-    if (props.didDrag) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-
-    if (openChat.value) {
-      //convoStore.closeChatWidget();
-      emit("request-close");
-    } else {
-      decideOpenSide();
-      emit("request-open", { side: openSide.value });
-    }
-  };
+  
+  
 
   const onLauncherClick = (e) => {
     if (props.didDrag) {
@@ -345,77 +317,6 @@
       emit("request-open", { side: openSide.value });
     }
   };
-
-  const chatWindowStyle___ = computed(() => {
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-
-    const isMobile = viewportW <= 640;
-    const sideMargin = isMobile ? 8 : 10;
-    const topMargin = isMobile ? 8 : 10;
-    const bottomMargin = isMobile ? 20 : 32;
-
-    const winW = Math.min(360, viewportW - sideMargin * 2);
-    const winH = Math.min(isMobile ? 420 : 520, viewportH - topMargin - bottomMargin);
-
-    if (props.isOpenMode) {
-      return {
-        left: "0px",
-        top: "0px",
-        width: `${winW}px`,
-        height: `${winH}px`
-      };
-    }
-
-    // closed mode can still use your old launcher-relative preview logic if needed
-    return {
-      left: "69px",
-      top: "0px",
-      width: `${winW}px`,
-      height: `${winH}px`
-    };
-  });
-
-  /* const chatWindowStyle = computed(() => {
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-    const isMobile = viewportW <= 640;
-
-    if (props.isOpenMode && isMobile) {
-      return {
-        position: "fixed",
-        left: "0",
-        top: "0",
-        width: "100vw",
-        height: "100dvh",
-        borderRadius: "0",
-        maxWidth: "none",
-        maxHeight: "none"
-      };
-    }
-
-    const sideMargin = 10;
-    const topMargin = 10;
-    const bottomMargin = 32;
-    const winW = Math.min(360, viewportW - sideMargin * 2);
-    const winH = Math.min(520, viewportH - topMargin - bottomMargin);
-
-    if (props.isOpenMode) {
-      return {
-        left: "0px",
-        top: "0px",
-        width: `${winW}px`,
-        height: `${winH}px`
-      };
-    }
-
-    return {
-      left: "69px",
-      top: "0px",
-      width: `${winW}px`,
-      height: `${winH}px`
-    };
-  }); */
 
   const teleportedChatWindowStyle = computed(() => {
   if (mobile.value) {

@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    createdAt: {
+        type: Date,
+        default: new Date()
+    },
     username: {
         type: String,
         unique: true,
@@ -20,6 +24,14 @@ const userSchema = new Schema({
     },
     avatar: {
         type: Object
+    },
+    role: {
+        type: String,
+        enum: [
+            "user",
+            "admin"
+        ],
+        default: "user"
     },
     pushSubscriptions: [
         {

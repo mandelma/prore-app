@@ -1,152 +1,49 @@
 <template>
-<!--  style="background-color: #275155"-->
   <div class="app-shell">
-    <MDBNavbar class="dark" position="top" container expand="lg">
-      <div class="d-flex align-items-center w-100">
-        <MDBNavbarBrand class="me-2">
-          <MDBIcon
-              icon="home"
-              class="icon-active"
 
-              style="cursor: pointer; font-size: 26px;"
-              @click="router.push('/')"
-          />
-        </MDBNavbarBrand>
-        <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
-
-          <!-- Client incomed offers -->
-          <MDBNavbarItem  v-if="clientNewOffersAmount > 0 && route.name !== 'recipient-page'" @click="seeClientOffer" class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon  icon="bell" style="color: #0E7490; cursor: pointer;" class="icon"/>
-            <MDBBadge  notification color="danger" pill>{{clientNewOffersAmount}}</MDBBadge>
-          </MDBNavbarItem>
-          <!-- Provider incomed offers-->
-          <MDBNavbarItem  v-if="newOffersAmount > 0" @click="onIconBell" class="me-3 me-lg-5" linkClass="link-secondary">
-            <MDBIcon  icon="bell" style="color: orange; cursor: pointer;" class="icon"/>
-            <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
-          </MDBNavbarItem>
-
-          <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
-            <language-contents />
-          </MDBNavbarItem>
-          <!--User-->
-          <MDBNavbarItem v-if="login.isAuthenticated" class="me-3 me-lg-0 dropdown">
-            <MDBDropdown v-model="userDropdown">
-              <MDBDropdownToggle 
-                tag="a" class="nav-link"
-                :aria-label="t('app.openUserMenu')"
-                @click="userDropdown = !userDropdown"
-              >
-                <template v-if="profileLoaded">
-                  <MDBIcon v-if="!profile?.avatar?.isImage || avatarError" icon="user" class="icon" />
-                
-                  <img
-                    v-else
-                    :src="profile.avatar.imageUrl"
-                    class="rounded-circle"
-                    height="22"
-                    :alt="t('app.profileAvatarAlt')"
-                    loading="lazy"
-                    @error="avatarError = true"
-                  />
-                </template>
-
-                <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
-              </MDBDropdownToggle>
-              <MDBDropdownMenu user-dropdown-menu>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/profile"
-                  class="dd-item"
-                >
-                  {{ t("app.profile") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  v-if="notifications.length"
-                  :tag="RouterLink"
-                  to="/notifications"
-                  class="dd-item"
-                  @click="handleShowNotifications"
-                >
-                  {{ t("app.notifications") }}
-
-                  <MDBBadge
-                    v-if="newNotesCount > 0"
-                    color="danger"
-                    class="ms-2"
-                  >
-                    {{ newNotesCount }}
-                  </MDBBadge>
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/calendar"
-                  class="dd-item"
-                >
-                  {{ t("app.calendar") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/rules"
-                  class="dd-item"
-                >
-                  {{ t("app.rules") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/manual"
-                  class="dd-item"
-                >
-                  {{ t("app.manual") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  v-if="client.isBookings || clientArchiveStore.clientHistory.length"
-                  :tag="RouterLink"
-                  to="/client-panel"
-                  class="dd-item"
-                >
-                  {{ t("app.orders") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  v-if="showInstallOption"
-                  class="dd-item"
-                >
-                  <button
-                    type="button"
-                    class="pwa-install-btn"
-                    @click="handleInstall"
-                  >
-                    <i class="fas fa-download"></i>
-                    <span>{{ t('pwa.install_app') }}</span>
-                  </button>
-                </MDBDropdownItem>
+    <MobileNavbar
+      v-if="showPwaBottomNav"
+      :is-authenticated="login.isAuthenticated"
+      :client-new-offers-amount="clientNewOffersAmount"
+      :new-offers-amount="newOffersAmount"
+      :profile-loaded="profileLoaded"
+      :avatar-is-image="profile?.avatar?.isImage"
+      :image-url="profile?.avatar?.imageUrl"
+      :avatar-error="avatarError"
+      :new-notes-count="newNotesCount"
+      :notifications="notifications"
+      :show-install-option="showInstallOption"
+      :is-bookings="client.isBookings"
+      :client-history="clientArchiveStore.clientHistory"
+      @on-provider-bell="onProviderBell"
+      @on-client-bell="onClientBell"
+      @show-notifications="handleShowNotifications"
+      @handle-install="handleInstall"
+      @log-out="logOut"
+    />
 
 
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/"
-                  class="dd-item logout-item"
-                  @click="logOut"
-                >
-                  {{ t("app.logout") }}
-                </MDBDropdownItem>
+    <DesktopNavbar
+      v-else
+      :is-authenticated="login.isAuthenticated"
+      :client-new-offers-amount="clientNewOffersAmount"
+      :new-offers-amount="newOffersAmount"
+      :profile-loaded="profileLoaded"
+      :avatar-is-image="profile?.avatar?.isImage"
+      :image-url="profile?.avatar?.imageUrl"
+      :avatar-error="avatarError"
+      :new-notes-count="newNotesCount"
+      :notifications="notifications"
+      :show-install-option="showInstallOption"
+      :is-bookings="client.isBookings"
+      :client-history="clientArchiveStore.clientHistory"
+      @on-provider-bell="onProviderBell"
+      @on-client-bell="onClientBell"
+      @show-notifications="handleShowNotifications"
+      @handle-install="handleInstall"
+      @log-out="logOut"
+    />
 
-              </MDBDropdownMenu>
-            </MDBDropdown>
-          </MDBNavbarItem>
-
-          <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
-            <span style="color: #ef8627;">{{t('app.login')}}</span>
-          </MDBNavbarItem>
-        </MDBNavbarNav>
-      </div>
-    </MDBNavbar>
     <div class="below-navbar">
       <NotificationStatusBanner
         v-if="canDisplayNotesBanner"
@@ -284,12 +181,13 @@
           </div>
 
           <div class="mb-3">
-            <label
+            {{ t("app.feedbackLabel") }}
+            <!-- <label
               for="message-text"
               class="col-form-label"
             >
-              {{ t("app.feedbackLabel") }}
-            </label>
+              
+            </label> -->
 
             <textarea
               id="message-text"
@@ -385,7 +283,7 @@
             @handle-user-action="sendUserAction"
 
             @confirm-order-toast="hConfirmOrderToast"
-
+            :is-mobile="isMobile"
             :provider="provider"
 
             :notification-permission="notificationPermission"
@@ -425,11 +323,12 @@
         @request-close="closeChatWindow"
       />
     </div>
+    
     <div v-if="login.isAuthenticated">
       <PwaUpdate />
     </div>
     
-
+    
 
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
@@ -450,14 +349,23 @@
       {{ n_debug }}
     </pre><br>
     notificationPermission {{ notificationPermission }} -->
+
+
+    
     
     <!-- v-if="showPwaBottomNav" -->
 
-    <!-- <MobileBottomNav v-if="showPwaBottomNavx" :unread-count="13" /> -->
+    <MobileBottomNav 
+      v-if="login.isAuthenticated && showPwaBottomNav" 
+      :is-provider="isUserPro ?? null"
+      :show-install-option="showInstallOption"
+      :unread-count="13" 
+      @open-contact="contactModal = true"
+    />
 
 
     <MDBFooter
-        
+        v-else
         bg="none"
         :text="['center', 'white']"
         style="background-color: #0F172A; margin-top: auto;"
@@ -467,13 +375,21 @@
         <!-- Section: CTA -->
        <section v-if="login.isAuthenticated" class="">
         <p class="d-flex justify-content-left align-items-center">
-          <MDBBtn
+          <button
+            class="contact-btn"
+            type="button"
+            @click="contactModal = true"
+        >
+            <i class="fas fa-envelope"></i>
+            <span>{{ t("app.giveFeedback") }}</span>
+          </button>
+          <!-- <MDBBtn
             outline="light"
             rounded
             @click="contactModal = true"
           >
             {{ t("app.giveFeedback") }}
-          </MDBBtn>
+          </MDBBtn> -->
         </p>
        </section>
         <!-- Section: CTA -->
@@ -553,6 +469,9 @@ import NotificationStatusBanner from './components/NotificationStatusBanner.vue'
 import MobileBottomNav from './components/MobileBottomNav.vue';
 import AdminMessage from './components/AdminMessage.vue';
 
+import DesktopNavbar from './components/navbar/DesktopNavbar.vue';
+import MobileNavbar from './components/navbar/MobileNavbar.vue';
+
 import { useI18n } from 'vue-i18n';
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
 import recipientService from './service/recipients.js';
@@ -561,6 +480,7 @@ import { chatService } from './service/chat';
 import clientHistoryService from './service/client_history';
 import proHistoryService from './service/provider_history';
 import onMap from '@/components/controllers/distance';
+import { useRoute, useRouter } from "vue-router";
 import socket from "@/socket";
 
 const router = useRouter();
@@ -579,7 +499,8 @@ const userID = ref('');
 const username = ref('')
 let userDropdown = ref(false);
 const login = useLoginStore();
-import { useRoute, useRouter } from "vue-router";
+
+
 //import ProHistory from '../server/models/provider_history';
 const { t } = useI18n();
 const currentYear = new Date().getFullYear();
@@ -652,6 +573,7 @@ const checkDisplayMode = () => {
     window.navigator.standalone === true;
 
   isMobile.value = window.innerWidth <= 768;
+  //isMobile.value = window.innerWidth <= 640;
 };
 
 const showPwaBottomNav = computed(() => {
@@ -978,12 +900,12 @@ const handleInstall = async () => {
 };
 
 
-
+// Chat widget start position
 const placeWidgetBottomRight = () => {
   const launcherW = 57;
   const launcherH = 67;
   const marginRight = 20;
-  const marginBottom = 20;
+  const marginBottom = isMobile.value ? 80 : 20;
 
   pos.value.x = window.innerWidth - launcherW - marginRight;
   pos.value.y = window.innerHeight - launcherH - marginBottom;
@@ -995,7 +917,8 @@ const getPointerPos = (e) => ({
 });
 
 function getChatWindowGeometry({ x, y, viewportW, viewportH, side }) {
-  const isMobile = viewportW <= 640;
+  // 640
+  const isMobile = viewportW <= 768;
 
   const buttonW = 57;
   const buttonH = 67;
@@ -1162,6 +1085,7 @@ const openChatAtAnchor = async ({ x, y, side = "left" }) => {
   openWindowPos.value = {
     x: Math.max(10, Math.min(x, window.innerWidth - 380)),
     y: Math.max(10, Math.min(y, window.innerHeight - 560)),
+    
   };
 
   await nextTick();
@@ -2403,18 +2327,17 @@ const logOut = () => {
   //router.push('/');
 }
 
-const onIconBell = () => {
+const onProviderBell = () => {
   console.log("Clicked on icon ");
   router.push("/admin/provider");
 }
-const seeClientOffer = () => {
+const onClientBell = () => {
   console.log("opening the offer");
   router.push('/client-panel');
 }
 const handleShowNotifications = async () => {
   if (newNotesCount.value > 0) {
     await notificationStore.upsertNotificationStatus();
-    //router.push('/notifications');
   }
 }
 
@@ -2515,6 +2438,37 @@ html, body { height: 100%; }
   text-align: center;
 } */
 
+.col-form-label {
+  color: ddd;
+}
+
+.contact-btn {
+  width: 290px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  color: #e5e7eb;
+  background: rgba(14, 116, 144, 0.18);
+
+  border: 1px solid rgba(34, 211, 238, 0.30);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.contact-btn:hover {
+  color: #ffffff;
+  background: rgba(14, 116, 144, 0.32);
+  border-color: rgba(34, 211, 238, 0.50);
+}
+
+.contact-btn i {
+  color: #fb923c;
+}
+
 .pwa-install-btn {
   width: 100%;
   display: flex;
@@ -2550,7 +2504,7 @@ html, body { height: 100%; }
 }
 
 .below-navbar {
-  padding-top: 63px;
+  padding-top: 77px;
 }
 
 .app-content {
@@ -2564,6 +2518,13 @@ html, body { height: 100%; }
   width: 100%;
   flex: 1;
 }
+
+
+
+
+
+
+
 
 .icon-active {
   color: #dce7ef;
@@ -2622,7 +2583,7 @@ html, body { height: 100%; }
   border-top: 1px solid rgba(148, 163, 184, 0.15);
 }
 
-.user-menu-toggle {
+/* .user-menu-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2635,11 +2596,19 @@ html, body { height: 100%; }
   padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-}
+} */
 
 .dd-item {
   border-radius: 8px;
 }
+
+
+
+
+
+
+
+
 
 .brand-label {
   color: #fb923c;

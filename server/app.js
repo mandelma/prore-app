@@ -144,6 +144,8 @@ app.use('/api/mail', require('./routers/contact'));
 app.use('/api/reset_pw', require('./routers/resetAuthPw'));
 app.use('/api/profession', require('./routers/professions'));
 
+app.use('/api/admin', require('./routers/admin'))
+
 app.use('/api/client_history', require('./routers/client_history'));
 app.use('/api/pro_history', require('./routers/provider_history'));
 app.use('/api/login', require('./routers/login'));

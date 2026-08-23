@@ -7,24 +7,35 @@
       :class="{ active: route.path === '/' }"
     >
       <i class="fas fa-house"></i>
-      <span>{{ t("mobileNav.home") }}</span>
+      <span>Kotisivu</span>
     </RouterLink>
 
-    <!-- Map -->
+    <!-- Bookings list / calendar -->
     <RouterLink
-      to="/map"
+      v-if="!isProvider"
+      to="/client-panel"
       class="nav-item"
-      :class="{ active: route.path.startsWith('/map') }"
+      :class="{ active: route.path.startsWith('/client-panel') }"
     >
-      <i class="fas fa-location-dot"></i>
-      <span>{{ t("mobileNav.map") }}</span>
+      <i class="fas fa-list-alt"></i>
+      <span>Tilaukset</span>
+    </RouterLink>
+
+    <RouterLink
+      v-else
+      to="/calendar"
+      class="nav-item"
+      :class="{ active: route.path.startsWith('/calendar') }"
+    >
+      <i class="fas fa-calendar-alt"></i>
+      <span>Kalenteri</span>
     </RouterLink>
 
     <!-- Main action -->
     <button
       type="button"
       class="nav-main-action"
-      style="border: 1px solid red;"
+      
       @click="openMainAction"
     >
       <span class="main-action-circle">
@@ -32,19 +43,18 @@
       </span>
 
       <span class="main-action-label">
-        {{ t("mobileNav.create") }}
+        Tee tilaus
       </span>
     </button>
 
     <!-- Chat -->
     <RouterLink
-      to="/chat"
+      to="/notifications"
       class="nav-item nav-item-chat"
-      :class="{ active: route.path.startsWith('/chat') }"
+      :class="{ active: route.path.startsWith('/notifications') }"
     >
       <span class="icon-wrap">
-        <i class="fas fa-comments"></i>
-
+        <i class="fas fa-envelope-open-text"></i>
         <span
           v-if="unreadCount > 0"
           class="unread-badge"
@@ -53,43 +63,151 @@
         </span>
       </span>
 
-      <span>{{ t("mobileNav.messages") }}</span>
+      <span>viestit</span>
     </RouterLink>
 
     <!-- Profile -->
-    <RouterLink
-      to="/profile"
-      class="nav-item"
-      :class="{ active: route.path.startsWith('/profile') }"
-    >
-      <i class="fas fa-user"></i>
-      <span>{{ t("mobileNav.profile") }}</span>
-    </RouterLink>
+     <MDBDropdown v-model="mobileBottomDropdown" class="nav-item" :class="{ active: mobileBottomDropdown === true }">
+        <MDBDropdownToggle 
+          tag="a" class="nav-link"
+          :aria-label="t('app.openUserMenu')"
+          @click="mobileBottomDropdown = !mobileBottomDropdown"
+        >
+          <i class="fas fa-bars"></i>
+          
+          <template >
+            
+          </template>
+
+          <!-- <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge> -->
+        </MDBDropdownToggle>
+        <span>asiointti</span>
+        <MDBDropdownMenu>
+
+          <MDBDropdownItem
+            :tag="RouterLink"
+            to="/profile"
+            class="dd-item"
+          >
+            {{ t("app.profile") }}
+          </MDBDropdownItem>
+
+          <MDBDropdownItem
+            v-if="!isProvider"
+            :tag="RouterLink"
+            to="/calendar"
+            class="dd-item"
+          >
+            {{ t("app.calendar") }}
+          </MDBDropdownItem>
+
+          <MDBDropdownItem
+            :tag="RouterLink"
+            to="/rules"
+            class="dd-item"
+          >
+            {{ t("app.rules") }}
+          </MDBDropdownItem>
+
+          <MDBDropdownItem
+            :tag="RouterLink"
+            to="/manual"
+            class="dd-item"
+          >
+            {{ t("app.manual") }}
+          </MDBDropdownItem>
+
+          <!-- isBookings || clientHistory.length -->
+          <MDBDropdownItem
+            v-if="isProvider"
+            :tag="RouterLink"
+            to="/client-panel"
+            class="dd-item"
+          >
+            {{ t("app.orders") }}
+          </MDBDropdownItem>
+
+          
+          <MDBDropdownItem
+            v-if="showInstallOption"
+            class="dd-item"
+            style="margin-bottom: 20px;"
+          >
+            <button
+              type="button"
+              class="pwa-install-btn"
+              @click="$emit('handle-install')"
+            >
+              <i class="fas fa-download"></i>
+              <span>{{ t('pwa.install_app') }}</span>
+            </button>
+          </MDBDropdownItem>
+
+          <MDBDropdownItem
+            class="dd-item contact-item"
+          >
+            <button
+              type="button"
+              class="contact-btn"
+              @click="handleOpenContact"
+            >
+              <i class="fas fa-envelope"></i>
+              <span>Anna palautteetta</span>
+            </button>
+          </MDBDropdownItem>
+
+        </MDBDropdownMenu>
+      </MDBDropdown>
   </nav>
 </template>
 
 <script setup>
+import { ref } from "vue";
+import {
+  MDBDropdown,
+  MDBDropdownToggle,
+  MDBDropdownItem,
+  MDBDropdownMenu
+} from "mdb-vue-ui-kit";
+
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+
+defineProps({
+  unreadCount: {
+    type: Number,
+    default: 0
+  },
+  isProvider: {
+    type: Boolean
+  },
+  showInstallOption: {
+    type: Boolean
+  }
+});
+
+const emit = defineEmits(['open-contact']);
 
 const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
 
-defineProps({
-  unreadCount: {
-    type: Number,
-    default: 0
-  }
-});
+
+
+const mobileBottomDropdown = ref(false);
 
 const openMainAction = () => {
-  router.push("/create-request");
+  router.push("/client-form");
 };
+
+const handleOpenContact = () => {
+  emit('open-contact');
+  mobileBottomDropdown.value = false;
+}
 </script>
 
-<style scoped>
+<style>
 .mobile-bottom-nav {
   position: fixed;
   left: 0;
@@ -262,4 +380,116 @@ const openMainAction = () => {
 
   line-height: 1;
 }
+
+.mobile-bottom-nav .pwa-install-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+  margin-bottom: 9px;
+  color: #e5e7eb;
+  background: rgba(14, 116, 144, 0.18);
+
+  border: 1px solid rgba(34, 211, 238, 0.30);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.mobile-bottom-nav .pwa-install-btn:hover {
+  color: #ffffff;
+  background: rgba(14, 116, 144, 0.32);
+  border-color: rgba(34, 211, 238, 0.50);
+}
+
+.mobile-bottom-nav .pwa-install-btn i {
+  color: #fb923c;
+}
+
+
+.mobile-bottom-nav .dropdown-menu .dropdown-item.dd-item {
+  color: #e5e7eb !important;
+
+  padding: 9px 10px !important;
+
+  border-radius: 7px;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+
+
+.mobile-bottom-nav .dropdown-menu {
+  background: #202b3c !important;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+
+  padding: 6px 6px;
+
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.mobile-bottom-nav .dropdown-menu .dd-item {
+  color: #e5e7eb !important;
+
+  /* padding: 9px 10px; */
+  padding: 9px 10px;
+  border-radius: 7px;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.mobile-bottom-nav .dropdown-menu .dd-item:hover {
+  color: #ffffff !important;
+  background: rgba(56, 189, 248, 0.10) !important;
+}
+
+.mobile-bottom-nav .dropdown-menu .contact-item {
+  margin-top: 5px;
+  padding-top: 9px !important;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.mobile-bottom-nav .contact-item {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.mobile-bottom-nav .contact-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  color: #e5e7eb;
+  background: rgba(14, 116, 144, 0.18);
+
+  border: 1px solid rgba(34, 211, 238, 0.30);
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.mobile-bottom-nav .contact-btn:hover {
+  color: #ffffff;
+  background: rgba(14, 116, 144, 0.32);
+  border-color: rgba(34, 211, 238, 0.50);
+}
+
+.mobile-bottom-nav .contact-btn i {
+  color: #fb923c;
+}
+
 </style>

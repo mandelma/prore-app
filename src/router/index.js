@@ -37,6 +37,14 @@ const routes = [
         component: () => import("../components/Home.vue"),
     },
     {
+        path: "/admin",
+        name: "admin",
+        component: () => import("../components/AdminControl.vue"),
+        meta: {
+            requiresAdmin: true
+        }
+    },
+    {
         path: "/terms",
         name: "Terms",
         component: () => import("../components/Terms.vue")
@@ -204,7 +212,7 @@ const protectedRoutes = [
 
 
 const router = createRouter({
-    //history: createWebHashHistory(),
+    //history: createWebHashHistory(), #
     history: createWebHistory(),
 
     routes,
@@ -213,7 +221,7 @@ const router = createRouter({
     // ]
 });
 
-router.beforeEach(async (to, from, next) => {
+/* router.beforeEach(async (to, from, next) => {
     const isAuthenticated = localStorage.getItem('loggedAppUser') || sessionStorage.getItem("loggedAppUser");
 
     if (isAuthenticated) {
@@ -222,7 +230,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     const isProtected = protectedRoutes.includes(to.name);
-    // isAuthenticated
+    
     if(isProtected && !isAuthenticated){
         next({
             path: '/login-panel',
@@ -230,6 +238,46 @@ router.beforeEach(async (to, from, next) => {
         })
     } else next()
 
-})
+}) */
+
+router.beforeEach(async (to, from, next) => {
+    const savedUser =
+        localStorage.getItem("loggedAppUser") ||
+        sessionStorage.getItem("loggedAppUser");
+
+    const isAuthenticated = !!savedUser;
+
+    let user = null;
+
+    if (savedUser) {
+        try {
+            user = JSON.parse(savedUser);
+        } catch (error) {
+            console.error("Invalid stored user:", error);
+        }
+    }
+
+    const isProtected = protectedRoutes.includes(to.name);
+
+    // Pole sisse logitud
+    if (isProtected && !isAuthenticated) {
+        return next({
+            path: "/login-panel",
+            query: {
+                redirect: to.fullPath
+            }
+        });
+    }
+
+    // Admin leht, aga kasutaja pole admin
+    if (
+        to.meta.requiresAdmin &&
+        user?.role !== "admin"
+    ) {
+        return next("/");
+    }
+
+    next();
+});
 
 export default router;

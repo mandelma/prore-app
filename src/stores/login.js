@@ -52,7 +52,17 @@ export const useLoginStore = defineStore('login', () => {
             );
         }
 
-        const target = route.query.redirect || "/";
+        let target;
+
+        if (route.query.redirect) {
+            target = route.query.redirect;
+        } else if (payload.role === 'admin') {
+            target = "/admin";
+        } else {
+            target = '/';
+        }
+
+        //const target = route.query.redirect || "/";
         await router.replace(target);
     }
 

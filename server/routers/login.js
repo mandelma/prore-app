@@ -28,6 +28,8 @@ loginRouter.post('/', async (request, response) => {
         userForToken,
         process.env.SECRET,
         {expiresIn})
+
+        console.log("User role: " + user.role);
     response
         .status(200)
         .send({
@@ -38,8 +40,8 @@ loginRouter.post('/', async (request, response) => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            remember: !!body.remember
-
+            remember: !!body.remember,
+            role: user.role
         })
 })
 

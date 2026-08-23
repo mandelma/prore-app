@@ -559,7 +559,7 @@
         
 
         <!-- Extras: schedule + alerts + billing snapshot -->
-        <MDBRow class="g-3 extras-row">
+        <MDBRow v-if="!isMobile" class="g-3 extras-row">
           <MDBCol class="extras-col" col="12">
             <MDBCard v-if="isCalendar">
               <MDBCardBody>
@@ -728,6 +728,7 @@ import socket from "@/socket";
 
 const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications"]);
 const props = defineProps({
+  isMobile: {type: Boolean},
   providerId: { type: [String, Number], required: true },
   notificationPermission: {
     type: String,
@@ -1714,7 +1715,7 @@ function sleep(ms) {
 
 .header-stack {
   position: fixed;
-  top: 60px;
+  top: 67px;
   left: 0;
   z-index: 1000;
   width: 100%;
@@ -1730,7 +1731,7 @@ function sleep(ms) {
 .notifications-banner {
   width: 100%;
   margin: 0;
-  padding: 3px 0;
+  padding: 0;
 }
 
 .banner-position {
