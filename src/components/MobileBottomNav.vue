@@ -210,6 +210,36 @@ const handleOpenContact = () => {
 <style>
 .mobile-bottom-nav {
   position: fixed;
+  
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+
+  height: 64px;
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+
+  padding: 6px 8px;
+
+  /* background: rgba(15, 23, 42, 0.88); */
+  background: rgba(30, 41, 59, 0.82);
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 22px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  z-index: 2000;
+}
+.mobile-bottom-nav-prev {
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
@@ -237,11 +267,11 @@ const handleOpenContact = () => {
 
 /* Normal navigation item */
 
-.nav-item {
+.nav-item-prev {
   position: relative;
 
   height: 54px;
-
+ 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -261,20 +291,62 @@ const handleOpenContact = () => {
     transform 0.18s ease;
 }
 
-.nav-item i {
+.nav-item-prev i {
   font-size: 20px;
+  
 }
 
-.nav-item.active {
+.nav-item-prev.active {
   color: #22d3ee;
+  
 }
 
-.nav-item.active i {
+.nav-item-prev.active i {
   transform: translateY(-1px);
 }
 
-.nav-item:active {
+.nav-item-prev:active {
   transform: scale(0.94);
+}
+
+
+.nav-item {
+  height: 52px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  color: #94a3b8;
+  text-decoration: none;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  border-radius: 16px;
+
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.nav-item i {
+  font-size: 20px;
+  
+}
+
+.nav-item.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.10);
+  
+}
+
+.nav-item:active {
+  transform: scale(0.92);
 }
 
 
@@ -325,13 +397,15 @@ const handleOpenContact = () => {
     box-shadow 0.18s ease;
 }
 
-.main-action-circle i {
+.main-action-prev-circle i {
   font-size: 23px;
 }
 
 .nav-main-action:active .main-action-circle {
   transform: scale(0.91);
 }
+
+
 
 .main-action-label {
   margin-top: 2px;
