@@ -966,6 +966,15 @@ const addProviderMarker = (provider) => {
   const lat = Number(provider.latitude);
   const lng = Number(provider.longitude);
 
+
+  console.log(
+    "ADDING MARKER:",
+    provider.pName,
+    "lat:", lat,
+    "lng:", lng
+  );
+
+
   if (Number.isNaN(lat) || Number.isNaN(lng)) {
     console.log("Invalid provider coordinates", provider);
     return null;
@@ -1355,6 +1364,11 @@ const otherUserLocations = async (providers, profession, dist) => {
       })
 
     }
+
+
+
+
+
 
 
     visibleProCount.value = count;
