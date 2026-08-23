@@ -960,7 +960,22 @@ const clearProviderMarkers = () => {
   providerMarkers = [];
 };
 
-const addProviderMarker = (provider) => {
+// If coords are same
+const getOffsetPosition = (lat, lng, index, total) => {
+  if (total <= 1) {
+    return { lat, lng };
+  }
+
+  const radius = 0.00025; // umbes 20–30 m
+  const angle = (2 * Math.PI * index) / total;
+
+  return {
+    lat: lat + radius * Math.cos(angle),
+    lng: lng + radius * Math.sin(angle),
+  };
+};
+
+const addProviderMarker_prev = (provider) => {
   if (!map) return null;
 
   const lat = Number(provider.latitude);
@@ -988,6 +1003,46 @@ const addProviderMarker = (provider) => {
   });
 
   providerMarkers.push(marker);
+  return marker;
+};
+
+const addProviderMarker = (provider) => {
+  if (!map) return null;
+
+  const lat = Number(provider.latitude);
+  const lng = Number(provider.longitude);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    console.log("Invalid provider coordinates", provider);
+    return null;
+  }
+
+  const sameLocationProviders = providers.filter(
+    p =>
+      Number(p.latitude) === lat &&
+      Number(p.longitude) === lng
+  );
+
+  const index = sameLocationProviders.findIndex(
+    p => p.id === provider.id
+  );
+
+  const position = getOffsetPosition(
+    lat,
+    lng,
+    index,
+    sameLocationProviders.length
+  );
+
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position,
+    title: provider.pName,
+    content: providerMarkerContent(provider),
+  });
+
+  providerMarkers.push(marker);
+
   return marker;
 };
 
