@@ -23,7 +23,7 @@
               @click="router.push('/')"
           /> -->
         </MDBNavbarBrand>
-        <MDBNavbarNav v-if="!isAuthenticated" right class="ms-auto d-flex flex-row align-items-center gap-2">
+        <!-- <MDBNavbarNav v-if="!isAuthenticated" right class="ms-auto d-flex flex-row align-items-center gap-2">
             <MDBNavbarItem>
             <button
                 type="button"
@@ -34,7 +34,7 @@
                 <span>{{ t('pwa.install_app') }}</span>
             </button>
           </MDBNavbarItem>
-        </MDBNavbarNav>
+        </MDBNavbarNav> -->
         <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
           
           <!-- Client incomed offers -->

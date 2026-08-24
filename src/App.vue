@@ -359,7 +359,7 @@
     <!-- v-if="showPwaTopBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && isMobile" 
+      v-if="login.isAuthenticated && showPwaTopBottomNav" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
       :unread-count="newNotesCount" 
@@ -395,6 +395,17 @@
             {{ t("app.giveFeedback") }}
           </MDBBtn> -->
         </p>
+       </section>
+       <section v-else>
+          <button
+            v-if="showInstallOption"
+            type="button"
+            class="pwa-install-btn"
+            @click="$emit('handle-install')"
+          >
+            <i class="fas fa-download"></i>
+            <span>{{ t('pwa.install_app') }}</span>
+          </button>
        </section>
         <!-- Section: CTA -->
          <section>
@@ -2405,7 +2416,7 @@ const sendClientMessage = async () => {
 <style >
 html, body { height: 100%; }
 
-.pwa-install-btn:hover {
+/* .pwa-install-btn:hover {
   background: rgba(14, 116, 144, 0.3);
   border-color: rgba(34, 211, 238, 0.4);
   color: #ffffff;
@@ -2415,7 +2426,7 @@ html, body { height: 100%; }
   color: #fb923c;
   width: 18px;
   text-align: center;
-} */
+}  */
 
 .col-form-label {
   color: ddd;
@@ -2449,7 +2460,7 @@ html, body { height: 100%; }
 }
 
 .pwa-install-btn {
-  width: 100%;
+  max-width: 290px;
   display: flex;
   align-items: center;
   gap: 10px;
