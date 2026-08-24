@@ -3,14 +3,14 @@
       <div class="d-flex align-items-center w-100">
         <MDBNavbarBrand class="me-2">
             <div style="cursor: pointer;" @click="router.push('/')">
-                <img
+                <!-- <img
                 
                     :src="navLogo"
                     :alt="t('home.logoAlt')"
                     width="30"
                     
                     
-                />
+                /> -->
             </div>
             
 

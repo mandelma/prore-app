@@ -2,7 +2,7 @@
   <div class="app-shell">
 
     <MobileNavbar
-      v-if="showPwaBottomNav"
+      v-if="showPwaTopBottomNav"
       :is-authenticated="login.isAuthenticated"
       :client-new-offers-amount="clientNewOffersAmount"
       :new-offers-amount="newOffersAmount"
@@ -265,8 +265,8 @@
       {{ contactSentMessage }}
     </MDBToast>
   
-    <!-- :class="{ 'has-bottom-nav': showPwaBottomNav }" -->
-    <main class="app-content" :class="{ 'has-bottom-nav': showPwaBottomNavx }" style=" flex: 1;">
+    <!-- :class="{ 'has-bottom-nav': showPwaTopBottomNav }" -->
+    <main class="app-content" :class="{ 'has-bottom-nav': showPwaTopBottomNav }" style=" flex: 1;">
 
       <RouterView
           v-slot="{Component}">
@@ -353,10 +353,10 @@
 
     
     
-    <!-- v-if="showPwaBottomNav" -->
+    <!-- v-if="showPwaTopBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && isMobile" 
+      v-if="login.isAuthenticated && showPwaTopBottomNav" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
       :unread-count="13" 
@@ -576,7 +576,7 @@ const checkDisplayMode = () => {
   //isMobile.value = window.innerWidth <= 640;
 };
 
-const showPwaBottomNav = computed(() => {
+const showPwaTopBottomNav = computed(() => {
   return isPwa.value && isMobile.value;
 });
 

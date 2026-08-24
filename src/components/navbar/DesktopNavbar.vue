@@ -10,7 +10,7 @@
               @click="router.push('/')"
           />
         </MDBNavbarBrand>
-        <MDMNavbarNav v-if="!isAuthenticated" right class="ms-auto d-flex flex-row align-items-center gap-2">
+        <MDMNavbarNav v-if="!isAuthenticated && showInstallOption" right class="ms-auto d-flex flex-row align-items-center gap-2">
           <MDBNavbarItem>
             <button
                 type="button"

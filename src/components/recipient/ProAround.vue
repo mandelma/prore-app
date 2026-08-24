@@ -981,7 +981,7 @@ const getOffsetPosition = (lat, lng, index, total) => {
 };
 
 
-
+// Later if hundreds providers probably will needed - Marker Clustering
 const addProviderMarker = (providers, provider) => {
   if (!map) return null;
 

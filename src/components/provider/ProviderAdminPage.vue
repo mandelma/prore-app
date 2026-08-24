@@ -365,7 +365,7 @@
             </div>
           </MDBCardBody>
           <MDBCardBody v-else>
-            
+            // Provider data edit section
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="mb-0 no-edit-panel" @click="isPanelInfoEditSection = false">{{ t('providerAdmin.exit') }}</h6>
               <div class="d-flex gap-2">
@@ -1206,6 +1206,14 @@ async function saveProvider() {
 
     payload.profession = normalizeProfessions(payload.profession)
     payload.updatedAt = new Date();
+
+    payload.latitude = pmForm.lat;
+    payload.longitude = pmForm.lng;
+
+    // enne
+    //latitude 60.27661508694686
+    //longitude 24.858802483640037
+
     
     // Save via store -> store updates provider.value with DB result
     const updatedMain = await providerStore.updateProviderPanel(pro.id, payload);
