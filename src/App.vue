@@ -1,8 +1,8 @@
 <template>
   <div class="app-shell">
-
+    <!-- showPwaTopBottomNav -->
     <MobileNavbar
-      v-if="showPwaTopBottomNav"
+      v-if="isMobile"
       :is-authenticated="login.isAuthenticated"
       :client-new-offers-amount="clientNewOffersAmount"
       :new-offers-amount="newOffersAmount"
@@ -266,7 +266,7 @@
     </MDBToast>
   
     <!-- :class="{ 'has-bottom-nav': showPwaTopBottomNav }" -->
-    <main class="app-content" :class="{ 'has-bottom-nav': showPwaTopBottomNav }" style=" flex: 1;">
+    <main class="app-content" :class="{ 'has-bottom-nav': isMobile }" style=" flex: 1;">
 
       <RouterView
           v-slot="{Component}">
@@ -285,6 +285,9 @@
             @confirm-order-toast="hConfirmOrderToast"
             :is-mobile="isMobile"
             :provider="provider"
+
+            :profile-loaded="profileLoaded"
+            :avatar-error="avatarError"
 
             :notification-permission="notificationPermission"
 
@@ -356,11 +359,12 @@
     <!-- v-if="showPwaTopBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && showPwaTopBottomNav" 
+      v-if="login.isAuthenticated && isMobile" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
-      :unread-count="13" 
+      :unread-count="newNotesCount" 
       @open-contact="contactModal = true"
+      @log-out="logOut"
     />
 
 
@@ -2401,31 +2405,6 @@ const sendClientMessage = async () => {
 <style >
 html, body { height: 100%; }
 
-/* .pwa-install-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 9px 10px;
-
-  border: 1px solid rgba(34, 211, 238, 0.2);
-  border-radius: 8px;
-
-  background: rgba(14, 116, 144, 0.16);
-
-  color: #e2e8f0;
-
-  font: inherit;
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
-}
-
 .pwa-install-btn:hover {
   background: rgba(14, 116, 144, 0.3);
   border-color: rgba(34, 211, 238, 0.4);
@@ -2526,6 +2505,9 @@ html, body { height: 100%; }
 
 
 
+
+
+
 .icon-active {
   color: #dce7ef;
   font-size: 1.625rem;
@@ -2598,9 +2580,9 @@ html, body { height: 100%; }
   border-radius: 12px;
 } */
 
-.dd-item {
+/* .dd-item {
   border-radius: 8px;
-}
+} */
 
 
 
@@ -2649,9 +2631,10 @@ html, body { height: 100%; }
   cursor: pointer;
 }
 
+/* 92 */
 .has-bottom-nav {
   padding-bottom: calc(
-    92px + env(safe-area-inset-bottom)
+    83px + env(safe-area-inset-bottom)
   );
 }
 </style>

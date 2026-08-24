@@ -3,14 +3,14 @@
       <div class="d-flex align-items-center w-100">
         <MDBNavbarBrand class="me-2">
             <div style="cursor: pointer;" @click="router.push('/')">
-                <!-- <img
+                <img
                 
                     :src="navLogo"
                     :alt="t('home.logoAlt')"
-                    width="30"
+                    width="59"
                     
                     
-                /> -->
+                />
             </div>
             
 
@@ -23,7 +23,7 @@
               @click="router.push('/')"
           /> -->
         </MDBNavbarBrand>
-        <MDMNavbarNav v-if="!isAuthenticated" right class="ms-auto d-flex flex-row align-items-center gap-2">
+        <MDBNavbarNav v-if="!isAuthenticated" right class="ms-auto d-flex flex-row align-items-center gap-2">
             <MDBNavbarItem>
             <button
                 type="button"
@@ -34,7 +34,7 @@
                 <span>{{ t('pwa.install_app') }}</span>
             </button>
           </MDBNavbarItem>
-        </MDMNavbarNav>
+        </MDBNavbarNav>
         <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
           
           <!-- Client incomed offers -->
@@ -52,7 +52,7 @@
             <language-contents />
           </MDBNavbarItem>
           <!--User-->
-          <MDBNavbarItem v-if="isAuthenticated" class="me-3 me-lg-0 dropdown">
+          <!-- <MDBNavbarItem v-if="isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle 
                 tag="a" class="nav-link"
@@ -76,66 +76,6 @@
                 <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu >
-
-                <!-- <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/profile"
-                  class="dd-item"
-                >
-                  {{ t("app.profile") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  v-if="notifications.length"
-                  :tag="RouterLink"
-                  to="/notifications"
-                  class="dd-item"
-                  @click="$emit('show-notifications')"
-                >
-                  {{ t("app.notifications") }}
-
-                  <MDBBadge
-                    v-if="newNotesCount > 0"
-                    color="danger"
-                    class="ms-2"
-                  >
-                    {{ newNotesCount }}
-                  </MDBBadge>
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/calendar"
-                  class="dd-item"
-                >
-                  {{ t("app.calendar") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/rules"
-                  class="dd-item"
-                >
-                  {{ t("app.rules") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/manual"
-                  class="dd-item"
-                >
-                  {{ t("app.manual") }}
-                </MDBDropdownItem>
-
-                <MDBDropdownItem
-                  v-if="isBookings || clientHistory.length"
-                  :tag="RouterLink"
-                  to="/client-panel"
-                  class="dd-item"
-                >
-                  {{ t("app.orders") }}
-                </MDBDropdownItem> -->
-
                 <MDBDropdownItem
                   v-if="showInstallOption"
                   class="dd-item"
@@ -162,9 +102,9 @@
 
               </MDBDropdownMenu>
             </MDBDropdown>
-          </MDBNavbarItem>
+          </MDBNavbarItem> -->
 
-          <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
+          <MDBNavbarItem v-if="!isAuthenticated" :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
             <span style="color: #ef8627;">{{t('app.login')}}</span>
           </MDBNavbarItem>
         </MDBNavbarNav>
@@ -199,9 +139,6 @@ const props = defineProps({
     },
     newOffersAmount: {
         type: Number
-    },
-    isAuthenticated: {
-        type: Boolean
     },
     profileLoaded: {
         type: Boolean,

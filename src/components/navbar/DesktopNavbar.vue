@@ -1,5 +1,5 @@
 <template>
-    <MDBNavbar class="dark" position="top" container expand="lg">
+    <MDBNavbar class="dark"  position="top" container expand="lg">
       <div class="d-flex align-items-center w-100">
         <MDBNavbarBrand class="me-2">
           <MDBIcon
@@ -10,7 +10,7 @@
               @click="router.push('/')"
           />
         </MDBNavbarBrand>
-        <MDMNavbarNav v-if="!isAuthenticated && showInstallOption" right class="ms-auto d-flex flex-row align-items-center gap-2">
+        <MDBNavbarNav v-if="!isAuthenticated && showInstallOption" right class="ms-auto d-flex flex-row align-items-center gap-2">
           <MDBNavbarItem>
             <button
                 type="button"
@@ -21,7 +21,7 @@
                 <span>{{ t('pwa.install_app') }}</span>
             </button>
           </MDBNavbarItem>
-        </MDMNavbarNav>
+        </MDBNavbarNav>
         <MDBNavbarNav right class="ms-auto d-flex flex-row align-items-center gap-2">
 
           <!-- Client incomed offers -->
@@ -232,3 +232,6 @@ const { t } = useI18n();
 const userDropdown = ref(false);
 
 </script>
+<style scoped>
+
+</style>

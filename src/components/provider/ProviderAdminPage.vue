@@ -18,12 +18,31 @@
       <header class="provider-topbar">
         <div class="provider-identity">
           <div class="provider-avatar" aria-hidden="true">
-            {{
-              (provider.pName ||
-                t("providerAdmin.providerFallback"))
-                .charAt(0)
-                .toUpperCase()
-            }}
+
+            <template v-if="profileLoaded">
+              <!-- <MDBIcon v-if="!profile?.avatar?.isImage || avatarError" icon="user" class="icon" /> -->
+              <span v-if="!profile?.avatar?.isImage || avatarError">
+                {{
+                  (provider.pName ||
+                    t("providerAdmin.providerFallback"))
+                    .charAt(0)
+                    .toUpperCase()
+                }}
+              </span>
+              <img
+                v-else
+                :src="profile?.avatar?.imageUrl"
+                class="rounded-circle"
+                height="47"
+                :alt="t('app.profileAvatarAlt')"
+                loading="lazy"
+                @error="avatarError = true"
+              />
+            </template>
+
+
+
+            
           </div>
 
           <div class="provider-identity__content">
@@ -365,7 +384,7 @@
             </div>
           </MDBCardBody>
           <MDBCardBody v-else>
-            // Provider data edit section
+            <!-- Provider data edit section -->
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="mb-0 no-edit-panel" @click="isPanelInfoEditSection = false">{{ t('providerAdmin.exit') }}</h6>
               <div class="d-flex gap-2">
@@ -711,6 +730,7 @@ import AddressAutocomplete from "../AddressAutocomplete.vue";
 import Stars from "../Stars.vue";
 import { loadGoogleMaps } from "../controllers/loadGoogleMap";
 import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/userStore.js";
 import { useProStore } from "@/stores/providerStore";
 import { useClientStore } from "@/stores/recipientStore";
 import { useProArchiveStore } from "@/stores/pArchiveStore";
@@ -734,7 +754,12 @@ const props = defineProps({
     type: String,
     default: ""
   },
-
+  profileLoaded: {
+    type: Boolean
+  },
+  avatarError: {
+    type: Boolean
+  },
   isAuthenticated: {
     type: Boolean,
     default: false
@@ -742,12 +767,14 @@ const props = defineProps({
 });
 
 const { t, locale } = useI18n();
+const userStore = useUserStore();
 const providerStore = useProStore();
 const clientStore = useClientStore();
 const providerArchiveStore = useProArchiveStore();
 const professionStore = useProfessionStore();
 const loginStore = useLoginStore();
 const router = useRouter();
+const { profile } = storeToRefs(userStore);
 const { incomingOffers, proCalendarEvents, reference, proTimetable } = storeToRefs(providerStore);
 const { isBookings } = storeToRefs(clientStore);
 const { providerHistory } = storeToRefs(providerArchiveStore);
@@ -1213,7 +1240,8 @@ async function saveProvider() {
     // enne
     //latitude 60.27661508694686
     //longitude 24.858802483640037
-
+    //60.2699724
+    //24.843255
     
     // Save via store -> store updates provider.value with DB result
     const updatedMain = await providerStore.updateProviderPanel(pro.id, payload);
@@ -1723,7 +1751,7 @@ function sleep(ms) {
 
 .header-stack {
   position: fixed;
-  top: 87px;
+  top: 60px;
   left: 0;
   z-index: 1000;
   width: 100%;
@@ -1744,11 +1772,11 @@ function sleep(ms) {
 
 .banner-position {
   margin-top:
-    calc(var(--header-stack-height) + 60px);
+    calc(var(--header-stack-height) + 43px);
 }
 
 .page-content {
-  padding-top: 12px;
+  padding-top: 13px;
 }
 
 .provider-topbar {
@@ -2448,12 +2476,12 @@ button.provider-stat-card {
 
   .banner-position {
   margin-top:
-    calc(var(--header-stack-height, 0) + 50px);
+    calc(var(--header-stack-height, 0) + 33px);
 }
 
 
   .page-content {
-    padding-top: 8px;
+    padding-top: 13px;
     
   }
   .provider-stats {
@@ -2550,12 +2578,12 @@ button.provider-stat-card {
 
   .banner-position {
   margin-top:
-    calc(var(--header-stack-height) + 47px);
+    calc(var(--header-stack-height) + 27px);
 }
 
 
   .page-content {
-    padding-top: 8px;
+    padding-top: 13px;
     
   }
 

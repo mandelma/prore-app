@@ -3,7 +3,7 @@
     <!-- Home -->
     <RouterLink
       to="/"
-      class="nav-item"
+      class="mobile-nav-item"
       :class="{ active: route.path === '/' }"
     >
       <i class="fas fa-house"></i>
@@ -14,7 +14,7 @@
     <RouterLink
       v-if="!isProvider"
       to="/client-panel"
-      class="nav-item"
+      class="mobile-nav-item"
       :class="{ active: route.path.startsWith('/client-panel') }"
     >
       <i class="fas fa-list-alt"></i>
@@ -24,7 +24,7 @@
     <RouterLink
       v-else
       to="/calendar"
-      class="nav-item"
+      class="mobile-nav-item"
       :class="{ active: route.path.startsWith('/calendar') }"
     >
       <i class="fas fa-calendar-alt"></i>
@@ -34,7 +34,7 @@
     <!-- Main action -->
     <button
       type="button"
-      class="nav-main-action"
+      class="mobile-nav-main-action"
       
       @click="openMainAction"
     >
@@ -50,7 +50,8 @@
     <!-- Chat -->
     <RouterLink
       to="/notifications"
-      class="nav-item nav-item-chat"
+      class="mobile-nav-item 
+      nav-item-chat"
       :class="{ active: route.path.startsWith('/notifications') }"
     >
       <span class="icon-wrap">
@@ -67,7 +68,7 @@
     </RouterLink>
 
     <!-- Profile -->
-     <MDBDropdown v-model="mobileBottomDropdown" class="nav-item" :class="{ active: mobileBottomDropdown === true }">
+     <MDBDropdown v-model="mobileBottomDropdown" class="mobile-nav-item" :class="{ active: mobileBottomDropdown === true }">
         <MDBDropdownToggle 
           tag="a" class="nav-link"
           :aria-label="t('app.openUserMenu')"
@@ -156,6 +157,15 @@
             </button>
           </MDBDropdownItem>
 
+          <MDBDropdownItem
+            :tag="RouterLink"
+            to="/"
+            class="dd-item logout-item"
+            @click="$emit('log-out')"
+          >
+            {{ t("app.logout") }}
+          </MDBDropdownItem>
+
         </MDBDropdownMenu>
       </MDBDropdown>
   </nav>
@@ -186,7 +196,7 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['open-contact']);
+const emit = defineEmits(['open-contact', 'log-out']);
 
 const route = useRoute();
 const router = useRouter();
@@ -207,7 +217,7 @@ const handleOpenContact = () => {
 }
 </script>
 
-<style>
+<style scoped>
 .mobile-bottom-nav {
   position: fixed;
   
@@ -312,7 +322,11 @@ const handleOpenContact = () => {
 }
 
 
-.nav-item {
+
+
+
+
+.mobile-nav-item {
   height: 52px;
   margin-bottom: 20px;
   display: flex;
@@ -336,25 +350,25 @@ const handleOpenContact = () => {
     transform 0.18s ease;
 }
 
-.nav-item i {
+.mobile-nav-item i {
   font-size: 20px;
   
 }
 
-.nav-item.active {
+.mobile-nav-item.active {
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.10);
   
 }
 
-.nav-item:active {
+.mobile-nav-item:active {
   transform: scale(0.92);
 }
 
 
 /* Center button */
 
-.nav-main-action {
+.mobile-nav-main-action {
   position: relative;
   top: -22px;
 
@@ -485,11 +499,12 @@ const handleOpenContact = () => {
 }
 
 
-.mobile-bottom-nav .dropdown-menu .dropdown-item.dd-item {
+
+
+
+.mobile-bottom-nav :deep(.dropdown-item.dd-item) {
   color: #e5e7eb !important;
-
   padding: 9px 10px !important;
-
   border-radius: 7px;
 
   transition:
@@ -499,12 +514,11 @@ const handleOpenContact = () => {
 
 
 
-.mobile-bottom-nav .dropdown-menu {
+.mobile-bottom-nav :deep(.dropdown-menu) {
   background: #202b3c !important;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 10px;
-
-  padding: 6px 6px;
+  padding: 6px;
 
   box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.35),
@@ -523,17 +537,29 @@ const handleOpenContact = () => {
     color 0.15s ease;
 }
 
-.mobile-bottom-nav .dropdown-menu .dd-item:hover {
-  color: #ffffff !important;
-  background: rgba(56, 189, 248, 0.10) !important;
-}
-
-.mobile-bottom-nav .dropdown-menu .contact-item {
+.mobile-bottom-nav :deep(.dd-item.logout-item) {
   margin-top: 5px;
   padding-top: 9px !important;
-
   border-top: 1px solid rgba(148, 163, 184, 0.15);
 }
+
+.mobile-bottom-nav :deep(.dropdown-item.dd-item:hover) {
+  color: #ffffff !important;
+  background-color: rgba(56, 189, 248, 0.12) !important;
+}
+
+.mobile-bottom-nav :deep(.dropdown-item.dd-item:focus) {
+  color: #ffffff !important;
+  background-color: rgba(56, 189, 248, 0.12) !important;
+}
+
+.mobile-bottom-nav :deep(.dd-item.contact-item) {
+  margin-top: 5px;
+  padding-top: 9px !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+
 
 .mobile-bottom-nav .contact-item {
   margin-top: 5px;
