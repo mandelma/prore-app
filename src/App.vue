@@ -359,7 +359,7 @@
     <!-- v-if="showPwaTopBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && showPwaTopBottomNav" 
+      v-if="login.isAuthenticated && isMobile" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
       :unread-count="newNotesCount" 
@@ -615,6 +615,8 @@ const initPushNotifications__ = async () => {
     showNotificationModal.value = true;
   }
 };
+
+const sideNotifications = computed(() => newOffersAmount.value)
 
 
 const canDisplayNotesBanner = computed(() => {
@@ -1202,6 +1204,18 @@ const unreadMessagesCount = computed(() => {
   return Number(totalUnread.value || 0);
 });
 
+const unreadProBellNotifications = computed(() => {
+  return newOffersAmount > 0
+    ? newOffersAmount.value
+    : 0
+})
+
+const unreadClientBellNotifications = computed(() => {
+  return clientNewOffersAmount.value > 0
+    ? clientNewOffersAmount.value
+    : 0
+})
+
 const unreadNotificationsCount = computed(() => {
   if (!notificationStore.isNotificationsLoaded) {
     return null;
@@ -1227,7 +1241,10 @@ const unreadCount = computed(() => {
 
   return (
     unreadMessagesCount.value +
-    unreadNotificationsCount.value
+    unreadNotificationsCount.value +
+    unreadProBellNotifications.value +
+    unreadClientBellNotifications.value
+
   );
 });
 

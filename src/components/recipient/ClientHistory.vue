@@ -143,7 +143,7 @@
           </div>
 
           <div class="historySection__actions">
-            <MDBBtn outline="info" @click="goToProvider(selectedBooking?.deal)">
+            <MDBBtn outline="info" @click="goToProvider(selectedBooking?.deal, selectedBooking)">
               {{ t('clientHistory.buttons.show_profile') }}
             </MDBBtn>
           </div>
@@ -186,7 +186,12 @@
           </p>
         </div>
       </div>
-      <offer-content :offerId="null" :bookingId="dealID" @open-chat="$emit('open-chat', $event)"/>
+      <offer-content 
+        :offerId="null" 
+        :bookingId="dealID"
+        :booking="bookingData"
+        @open-chat="$emit('open-chat', $event)"
+      />
     </MDBModalBody>
     <MDBModalFooter>
       <div style="display: flex; justify-content: right;">
@@ -267,7 +272,7 @@
   />
 </template>
 <script setup>
-import { ref, computed, watch, nextTick } from "vue"
+import { ref, reactive, computed, watch, nextTick } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { useClientArchiveStore } from "@/stores/cArchiveStore"
@@ -317,6 +322,8 @@ const bookingQuery = ref("");
 const selectedProvider = ref(null);
 const dealID = ref(null);
 
+const bookingData = ref(null);
+
 const requestFormRef = ref(null)
 
 const rowId = ref(null);
@@ -354,15 +361,9 @@ const filteredBookingHistory = computed(() => {
 
   return clientHistory.value.filter((b) => {
     const provider = (b?.company ?? "").toLowerCase();
-    /* const last  = (c?.user?.lastName ?? "").toLowerCase();
-    const status = (c?.status ?? "").toLowerCase();
-    const email  = (c?.user?.email ?? c?.email ?? "").toLowerCase(); */
 
     return (
       provider.includes(q) 
-      /* last.includes(q) ||
-      email.includes(q) ||
-      status.includes(q) */
     );
   });
 });
@@ -370,6 +371,7 @@ const filteredBookingHistory = computed(() => {
 function openDetails(b) {
   console.log("Opened booking value ", b);
   selectedBooking.value = b
+  bookingData.value = b;
   showDetails.value = true
 }
 
@@ -378,21 +380,33 @@ function closeDetails() {
   selectedBooking.value = null
 }
 
-const bookAgain =  async (b) => {
-  if (!b) return
-  // Adjust route to your app
-  const id = b?.deal?.provider;
-  console.log("BBB ID ", id);
-  const pro = await providerService.getProvByProvId(id);
+const getProviderId = (provider) => {
+  if (!provider) return null;
 
-  if (!pro) return;
+  if (typeof provider === "string") {
+    return provider;
+  }
 
-  console.log("PRO - ", pro);
+  return provider._id ?? provider.id ?? null;
+};
 
-  selectedProvider.value = pro;  // b?.deal?.provider;
-  
+const bookAgain = async (booking) => {
+  if (!booking) return;
+
+  const providerId =
+    getProviderId(booking.deal?.provider);
+
+  if (!providerId) return;
+
+  const provider =
+    await providerService.getProvByProvId(providerId);
+
+  if (!provider) return;
+
+  selectedProvider.value = provider;
+  bookingData.value = booking;
   orderProviderModal.value = true;
-}
+};
 
 const delChRow = (id) => {
   rowId.value = id;
@@ -415,30 +429,25 @@ const handleCancelRemoving = () => {
   console.log("Cancelled")
 }
 
-const goToProvider = async (deal) => {
-  if (!deal) return
 
-  const providerId = deal?.provider;
-  try {
-    console.log("Provider id got - " + providerId)
-    const providerUp = await providerService.getProvByProvId(providerId);
-    console.log("PPP ", providerUp)
-    if (providerUp) selectedProvider.value = providerUp;
+const goToProvider = async (deal, booking) => {
+  if (!deal || !booking) return;
 
-  } catch (err) {
-    console.log("Error happens when loading provider's data!" + err.message)
-  }
+  const providerId =
+    getProviderId(deal.provider);
 
-  if (!selectedProvider.value) return;
+  if (!providerId) return;
 
-  console.log("Provider - ", selectedProvider.value);
+  const provider =
+    await providerService.getProvByProvId(providerId);
+
+  if (!provider) return;
+
+  selectedProvider.value = provider;
+  bookingData.value = booking;
   dealID.value = deal.bookingID;
-  console.log("Deal id - " + deal.id);
-
   providerProfileModal.value = true;
-  
-  //router.push({ name: "provider-profile", params: { id: providerId } })
-}
+};
 
 const parseDmyTime = (str) => {
   const m = str?.match(/^(\d{2})\/(\d{2})\/(\d{4}),?\s+(\d{2}):(\d{2})$/);

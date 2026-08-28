@@ -541,6 +541,11 @@ export const useConversationStore = defineStore("conversation", () => {
 
     updateSocketAuth();
 
+    if (!socket.auth?.token) {
+      console.log("Socket connect skipped: no token");
+      return;
+    }
+
     console.log(
       "Connecting socket..."
     );

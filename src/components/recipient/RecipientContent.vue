@@ -118,6 +118,7 @@
         
         <offer-content 
           :offerId="offerId"
+          :providerId="activeProvider.id"
           @open-chat="emit('open-chat', $event)"
         />
       </MDBModalBody>

@@ -8,7 +8,6 @@
             <MDBBtn v-else-if="isFeedback" outline="light" size="sm" style="margin-bottom: 13px;" @click="isFeedback = false">← {{ t('offerContent.back') }}</MDBBtn>
         </div>
         
-        
         <!-- <MDBContainer> -->
             <div v-if="isFeedback" v-html="feedbackHtml"></div>
             <MDBTable v-else borderless class="client-content" style="">
@@ -157,6 +156,10 @@
         offerId: {
             type: String,
             default: null
+        },
+        booking: {
+            type: Object,
+            default: null
         }
     });
 
@@ -164,13 +167,53 @@
     const isOfferLoading = ref(false);
     const offerError = ref(null);
 
+    const caseArchivedBooking = async () => {
+        if (!props.booking) return;
+
+        const deal = props.booking.deal;
+
+        const providerId = deal.provider;
+
+        console.log("PRO ID ", providerId);
+
+        const provider =
+                await providerService.getProvByProvId(providerId);
+
+        if (!provider) return;
+
+        deal.provider = provider;
+
+        offerContent.value = deal;
+
+    }
+    
+
+    watch (() => props.booking,
+        (value) => {
+            console.log("JJJ ", value)
+        },
+        {immediate: true}
+    )
+
     const loadOfferContent = async () => {
         offerContent.value = null;
         offerError.value = null;
         isOfferLoading.value = true;
 
         try {
+            
+            if (props.booking) {
+                /* console.log("DEAL ", props.booking)
+                offerContent.value = props.booking; */
+
+                caseArchivedBooking()
+                
+                return;
+            }
+
             let offer = null;
+
+            console.log("Opening OC " + props.bookingId)
 
             if (props.bookingId) {
             const booking = clientStore.getBookingById(props.bookingId);
