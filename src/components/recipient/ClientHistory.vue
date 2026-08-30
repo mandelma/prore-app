@@ -136,7 +136,7 @@
                   :key="i"
                   class="chip"
                 >
-                  {{ pro }}
+                  {{ localProfessionName(pro) }}
                 </span>
               </div>
             </div>
@@ -276,6 +276,7 @@ import { ref, reactive, computed, watch, nextTick } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { useClientArchiveStore } from "@/stores/cArchiveStore"
+import { useProfessionStore } from "@/stores/professionStore"
 import { storeToRefs } from "pinia"
 import providerService from '../../service/providers'
 import Stars from "../Stars.vue"
@@ -306,6 +307,7 @@ const auth = useLoginStore();
 const { user } = storeToRefs(auth);
 
 const clientStore = useClientStore();
+const professionStore = useProfessionStore();
 
 const cArchiveStore = useClientArchiveStore();
 const showDetails = ref(false)
@@ -313,7 +315,9 @@ const selectedBooking = ref(null)
 
 const { clientHistory } = storeToRefs(cArchiveStore);
 
-const { t } = useI18n();
+const { professions } = storeToRefs(professionStore);
+
+const { t, locale } = useI18n();
 
 const providerProfileModal = ref(false);
 const orderProviderModal = ref(false);
@@ -340,6 +344,27 @@ watch(() => orderProviderModal.value, async (open) => {
     }, 100) */
   }
 })
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
+
+const localProfessionName = (code) => {
+  const professionObj = professions.value.find(
+    profession => profession.code === code
+  );
+  return getLocalizedValue(professionObj?.name) || code;
+};
 
 const formatDateTime = (iso) => {
   if (!iso) return "—";

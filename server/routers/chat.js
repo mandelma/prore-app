@@ -187,6 +187,12 @@ router.post(
             ) === String(conversationId)
         );
 
+
+      /* console.log("===== MESSAGE DEBUG =====");
+      console.log("REQ.USER / SENDER:", req.user?.id);
+      console.log("RECEIVER:", receiverId);
+      console.log("CONVERSATION:", conversationId); */
+
       console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
       console.log(
@@ -237,46 +243,6 @@ router.post(
           { new: true }
         ).lean();
 
-
-      /* const updatedConvo =
-        await Conversation.findByIdAndUpdate(
-          conversationId,
-          {
-            $set: {
-              updatedAt: now,
-              lastMessageAt: now,
-
-              [`isParticipant.${me}`]:
-                true,
-
-              [`isParticipant.${otherKey}`]:
-                true,
-
-              lastMessageText:
-                text ||
-                (
-                  attachments.length
-                    ? "Attachment"
-                    : ""
-                ),
-
-              lastMessageSenderId:
-                new mongoose.Types.ObjectId(me)
-            },
-
-            $inc: {
-              [`unread.${otherKey}`]: 1
-            }
-          },
-          {
-            new: true
-          }
-      ).lean(); */
-
-      /*
-       * Socket.IO
-       */
-      
 
       const socketPayload = {
         message: msg,
@@ -371,15 +337,6 @@ router.post(
           totalUnread
         );
 
-
-
-
-
-        
-
-
-
-
         const payload = {
           title: "Uus sõnum",
           body:
@@ -465,78 +422,6 @@ router.post(
     }
   }
 );
-
-/* router.post("/conversations/:conversationId/messages", async (req, res) => {
-  const me = String(req.user.id);
-  const conversationId = new mongoose.Types.ObjectId(req.params.conversationId);
-  const { text = "", attachments = [] } = req.body;
-
-  const convo = await Conversation.findById(conversationId).lean();
-  if (!convo) return res.status(404).json({ error: "Conversation not found" });
-
-  const isParticipant = convo.participantIds.some((id) => String(id) === me);
-  if (!isParticipant) return res.status(403).json({ error: "Not allowed" });
-
-  const now = new Date();
-  const msg = await Message.create({
-    conversationId,
-    senderId: new mongoose.Types.ObjectId(me),
-    text,
-    attachments,
-    createdAt: now,
-    updatedAt: now,
-  });
-
-  const otherId = convo.participantIds.find((id) => String(id) !== me);
-  const otherKey = String(otherId);
-
-  const receiver = await User.findById(otherKey);
-
-  const updatedConvo = await Conversation.findByIdAndUpdate(
-    conversationId,
-    {
-      $set: {
-        updatedAt: now,
-        lastMessageAt: now,
-        [`isParticipant.${me}`]: true,
-        [`isParticipant.${otherKey}`]: true,
-        lastMessageText: text || (attachments.length ? "Attachment" : ""),
-        lastMessageSenderId: new mongoose.Types.ObjectId(me),
-      },
-      $inc: {
-        [`unread.${otherKey}`]: 1,
-      },
-    },
-    { new: true }
-  ).lean();
-
-  console.log("updatedConvo.isParticipant:", updatedConvo.isParticipant);
-
-  const io = req.app.get("io");
-
-  if (io) {
-    const payload = {
-      message: msg,
-      conversation: updatedConvo,
-    };
-
-    io.to(`user:${otherKey}`).emit("message:new", payload);
-
-    await sendPushToUser(receiver, {
-      title: "Uus sõnum",
-      body: "Sul on DuunHubis uus sõnum.",
-      url: "/messages",
-      unreadCount: 1,
-      tag: `message-${msg._id}`
-    });
-
-  }
-
-  res.json({
-    message: msg,
-    conversation: updatedConvo,
-  });
-}); */
 
 // POST mark read (reset my unread counter)
 router.post("/conversations/:conversationId/read", async (req, res) => {

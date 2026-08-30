@@ -61,7 +61,7 @@ export const useConversationStore = defineStore("conversation", () => {
 
     activeConversationId.value = null;
 
-    syncPresence();
+    syncPresence("closeChatWidget");
   };
 
   // ---- API: list conversations
@@ -217,7 +217,7 @@ export const useConversationStore = defineStore("conversation", () => {
       }
     );
 
-    syncPresence();
+    syncPresence("selectConversation");
 
     
 
@@ -261,6 +261,8 @@ export const useConversationStore = defineStore("conversation", () => {
         };
       });
   };
+
+
   const selectConversation__ = async (convoId) => {
     if (!convoId) {
       return;
@@ -436,7 +438,6 @@ export const useConversationStore = defineStore("conversation", () => {
   };
 
   const onMessageNew = ({message, conversation}) => {
-    //addMessageLocal(message);
     const meId = me_id.value;
 
     if (String(message.senderId) === String(meId)) {
@@ -515,7 +516,7 @@ export const useConversationStore = defineStore("conversation", () => {
     }
   };
 
-  const syncPresence = () => {
+  const syncPresence__prev = () => {
     if (!socket.connected) {
       return;
     }
@@ -523,15 +524,207 @@ export const useConversationStore = defineStore("conversation", () => {
     const visible =
       document.visibilityState === "visible";
 
-    socket.emit("chat:presence", {
+    const payload = {
       visible,
+
       conversationId:
-        visible && activeConversationId.value
-          ? String(activeConversationId.value)
+        visible &&
+          activeConversationId.value
+          ? String(
+            activeConversationId.value
+          )
           : null
-    });
+    };
+
+    console.log(
+      "EMIT CHAT PRESENCE",
+      {
+        socketId: socket.id,
+        ...payload
+      }
+    );
+
+    socket.emit(
+      "chat:presence",
+      payload,
+      response => {
+        console.log(
+          "PRESENCE ACK:",
+          response
+        );
+      }
+    );
   };
 
+  const syncPresence_correct = (source = "unknown") => {
+    if (!socket.connected) {
+      return;
+    }
+
+    const pageVisible =
+      document.visibilityState === "visible";
+
+    const isViewing =
+      pageVisible &&
+      openChat.value &&
+      Boolean(activeConversationId.value);
+
+    const payload = {
+      visible: isViewing,
+      conversationId:
+        isViewing
+          ? String(activeConversationId.value)
+          : null
+    };
+
+    console.log(
+      "EMIT CHAT PRESENCE",
+      {
+        source,
+        socketId: socket.id,
+        pageVisible,
+        openChat: openChat.value,
+        activeConversationId:
+          activeConversationId.value,
+        payload
+      }
+    );
+
+    socket.emit(
+      "chat:presence",
+      payload
+    );
+  };
+
+  const syncPresence__oige = (source = "unknown") => {
+    if (!socket.connected) {
+      return;
+    }
+
+    const visible =
+      document.visibilityState === "visible";
+
+    const payload = {
+      visible,
+      conversationId:
+        visible &&
+          activeConversationId.value
+          ? String(activeConversationId.value)
+          : null
+    };
+
+    /* console.log(
+      "EMIT CHAT PRESENCE",
+      {
+        source,
+        socketId: socket.id,
+        openChat: openChat.value,
+        activeConversationId:
+          activeConversationId.value,
+        documentVisibility:
+          document.visibilityState,
+        payload
+      }
+    ); */
+
+    socket.emit(
+      "chat:presence",
+      payload,
+      response => {
+        console.log(
+          "PRESENCE ACK:",
+          response
+        );
+      }
+    );
+  };
+
+
+  // For test
+  const syncPresence = (
+    source = "unknown"
+  ) => {
+    if (!socket.connected) {
+      console.log(
+        "PRESENCE SKIPPED",
+        {
+          source,
+          connected:
+            socket.connected
+        }
+      );
+
+      return;
+    }
+
+    const pageVisible =
+      document.visibilityState ===
+      "visible";
+
+    const isViewing =
+      pageVisible &&
+      openChat.value &&
+      Boolean(
+        activeConversationId.value
+      );
+
+    const payload = {
+      visible: isViewing,
+
+      conversationId:
+        isViewing
+          ? String(
+            activeConversationId.value
+          )
+          : null
+    };
+
+    console.log(
+      "PRESENCE SEND",
+      {
+        time:
+          new Date().toISOString(),
+        source,
+        socketId: socket.id,
+        payload
+      }
+    );
+
+    socket
+      .timeout(3000)
+      .emit(
+        "chat:presence",
+        payload,
+
+        (err, response) => {
+
+          if (err) {
+            console.error(
+              "❌ PRESENCE ACK TIMEOUT",
+              {
+                source,
+                socketId:
+                  socket.id,
+                payload
+              }
+            );
+
+            return;
+          }
+
+          console.log(
+            "✅ PRESENCE ACK",
+            {
+              time:
+                new Date()
+                  .toISOString(),
+              source,
+              response
+            }
+          );
+        }
+      );
+  };
   
 
   const reconnectSocket = () => {
@@ -542,7 +735,9 @@ export const useConversationStore = defineStore("conversation", () => {
     updateSocketAuth();
 
     if (!socket.auth?.token) {
-      console.log("Socket connect skipped: no token");
+      console.log(
+        "Socket connect skipped: no token"
+      );
       return;
     }
 
@@ -551,6 +746,24 @@ export const useConversationStore = defineStore("conversation", () => {
     );
 
     socket.connect();
+  };
+  const onSocketConnect = () => {
+    console.log(
+      "🟢 SOCKET CONNECTED:",
+      socket.id
+    );
+
+    const userId = me_id.value;
+
+    if (userId) {
+      socket.emit(
+        "join-user-room",
+        userId
+      );
+    }
+
+    // reconnecti järel taastame presence
+    syncPresence("socket-connect");
   };
 
   // ---- Socket listeners (call this once from App.vue after login)
@@ -576,13 +789,14 @@ export const useConversationStore = defineStore("conversation", () => {
       onConversationRefresh
     );
 
-    socket.on("connect", () => {
-      syncPresence();
-    });
+    socket.on(
+      "connect",
+      onSocketConnect
+    );
   };
 
 
-  const disconnect = () => {
+  const disconnect_prev = () => {
     // ✅ remove only YOUR listeners (best practice)
     socket.off("conversation-upsert", onConversationUpsert);
     socket.off("message:new", onMessageNew);
@@ -594,6 +808,34 @@ export const useConversationStore = defineStore("conversation", () => {
     if (activeConversationId.value) {
       socket.emit("leave-conversation", { conversationId: activeConversationId.value });
     }
+  };
+
+  const disconnect = () => {
+    socket.off(
+      "conversation-upsert",
+      onConversationUpsert
+    );
+
+    socket.off(
+      "message:new",
+      onMessageNew
+    );
+
+    socket.off(
+      "conversation:list:refresh",
+      onConversationRefresh
+    );
+
+    socket.off(
+      "connect",
+      onSocketConnect
+    );
+
+    if (socket.connected) {
+      socket.disconnect();
+    }
+
+    socketInited.value = false;
   };
 
   const reset = () => {

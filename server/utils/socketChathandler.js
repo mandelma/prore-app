@@ -7,9 +7,9 @@ const hsc = (io, socket) => {
         socket.join(`convo:${conversationId}`);
     });
 
-    socket.on(
+    /* socket.on(
         "chat:presence",
-        ({ visible, conversationId }) => {
+        ({ visible, conversationId }, callback) => {
             socket.data.appVisible =
                 Boolean(visible);
 
@@ -19,6 +19,66 @@ const hsc = (io, socket) => {
                     : null;
 
             console.log("CHAT PRESENCE:", {
+                socketId: socket.id,
+                userId: socket.userId,
+                appVisible:
+                    socket.data.appVisible,
+                activeConversationId:
+                    socket.data.activeConversationId
+            });
+
+            callback?.({
+                success: true,
+                socketId: socket.id,
+                userId: socket.userId,
+                appVisible: socket.data.appVisible,
+                activeConversationId:
+                    socket.data.activeConversationId
+            });
+        }
+    ); */
+
+    socket.on(
+        "chat:presence",
+        ({ visible, conversationId }, callback) => {
+
+            console.log(
+                ">>> CHAT PRESENCE RECEIVED <<<",
+                {
+                    time: new Date().toISOString(),
+                    socketId: socket.id,
+                    userId: socket.userId,
+                    visible,
+                    conversationId,
+                    previous: {
+                        appVisible: socket.data?.appVisible,
+                        activeConversationId:
+                            socket.data?.activeConversationId
+                    }
+                }
+            );
+
+            socket.data.appVisible =
+                Boolean(visible);
+
+            socket.data.activeConversationId =
+                visible && conversationId
+                    ? String(conversationId)
+                    : null;
+
+            console.log(
+                ">>> CHAT PRESENCE STORED <<<",
+                {
+                    socketId: socket.id,
+                    appVisible:
+                        socket.data.appVisible,
+                    activeConversationId:
+                        socket.data.activeConversationId
+                }
+            );
+
+            callback?.({
+                success: true,
                 socketId: socket.id,
                 userId: socket.userId,
                 appVisible:

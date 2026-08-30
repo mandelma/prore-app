@@ -1299,108 +1299,56 @@ watch(() => profile.value?.avatar?.imageUrl, () => {
 
 watch(
   () => login.isAuthenticated,
+
   async (isAuth) => {
     if (!isAuth) {
       if (login.hydrated) {
-        conversationStore.disconnect?.();
+        conversationStore.disconnect();
       }
+
       bootstrappedForUserId = null;
-      // IMPORTANT: cleanup stuff that must stop on logout
-      //conversationStore.disconnect?.(); // if you have it
-      //notificationStore.reset?.();
+
       return;
     }
 
     const u = login.user;
-    if (!u?.id) return;
 
-    // Prevent re-running everything if watcher fires again
-    if (bootstrappedForUserId === u.id) return;
+    if (!u?.id) {
+      return;
+    }
+
+    if (
+      bootstrappedForUserId === u.id
+    ) {
+      return;
+    }
+
     bootstrappedForUserId = u.id;
 
     userID.value = u.id;
     username.value = u.username;
 
-    
-    /* await Promise.all([
-      userStore.fetchMe(),
-      clientHistoryService.setToken(login.token),
-      proHistoryService.setProSideToken(login.token),
-      client.orderList(u.id),
-      
-      handleProvider.getProState(u.id),
-      notificationStore.handleNotifications(u.id),
-      clientArchiveStore.initClientArchive(),
-      proArchiveStore.initProviderArchive()
-    ]);
-
-    if (handleProvider.isUserPro) {
-      await Promise.all([
-        proHistoryService.setProSideToken(login.token),
-        proArchiveStore.initProviderArchive()
-      ]);
-    } */
-
-
     identifyUserDevice();
 
-    clientHistoryService.setToken(login.token)
-    proHistoryService.setProSideToken(login.token)
+    clientHistoryService.setToken(
+      login.token
+    );
 
-    conversationStore.initSocket()
-    socket.emit("join-user-room", u.id)
+    proHistoryService.setProSideToken(
+      login.token
+    );
 
-    await refreshUserData(u.id)
+    conversationStore.initSocket();
+    conversationStore.reconnectSocket();
 
-
-
-    /* const promises = [
-      userStore.fetchMe(),
-      clientHistoryService.setToken(login.token),
-      proHistoryService.setProSideToken(login.token),
-      client.orderList(u.id),
-      notificationStore.handleNotifications(u.id),
-      clientArchiveStore.initClientArchive(),
-      proArchiveStore.initProviderArchive()
-    ];
-
-  
-    if (u.isProvider) {
-      promises.push(handleProvider.getProState(u.id));
-    }
-
-    await Promise.all(promises);
- */
-    
+    await refreshUserData(u.id);
 
     profileLoaded.value = true;
-
-    /* if (login.isAuthenticated) {
-      conversationStore.initSocket();
-      await conversationStore.getConversations();
-    } */
-
   },
-  { immediate: true } // so it runs right after hydrate sets user
+  {
+    immediate: true
+  }
 );
-
-
-/* const unreadMessagesCount = computed(() => {
-  return conversationStore.conversations.reduce(
-    (total, conversation) => {
-      return (
-        total +
-        Number(
-          conversation.unread
-            ?.[userID.value] || 0
-        )
-      );
-    },
-    0
-  );
-}); */
-
-
 
 const syncConversations = async () => {
   if (!login.isAuthenticated) return;
@@ -1507,25 +1455,26 @@ const refreshNotificationPermission = () => {
     Notification.permission;
 };
 
-const handleVisibilityChange = async () => {
+const handleVisibilityChange =
+  async () => {
+
   const visible =
-    document.visibilityState === "visible";
+    document.visibilityState ===
+    "visible";
 
   console.log(
     "App visibility:",
     visible
   );
 
-  conversationStore.syncPresence();
+  if (login.isAuthenticated) {
+    conversationStore.syncPresence("visibilitychange");
+  }
 
   if (!visible) {
-    if (login.isAuthenticated) {
-      conversationStore.syncPresence();
-    }
     return;
   }
 
-  // iOS Settingsist tagasi tulles kontrolli luba uuesti
   refreshNotificationPermission();
 
   await checkPwaUpdate();
@@ -1534,27 +1483,23 @@ const handleVisibilityChange = async () => {
     conversationStore.initSocket();
     conversationStore.reconnectSocket();
 
-    conversationStore.syncPresence();
-
     await syncConversations();
-
     await forceChatSync();
   }
-
 };
 
 const handleFocus = async () => {
-  conversationStore.syncPresence();
+  conversationStore.syncPresence("window-focus");
   await forceChatSync();
 };
 
 const handlePageShow = async () => {
-  conversationStore.syncPresence();
+  conversationStore.syncPresence("pageshow");
   await forceChatSync();
 };
 
 const handleOnline = async () => {
-  conversationStore.syncPresence();
+  conversationStore.syncPresence("handle-online");
   await forceChatSync();
 };
 
@@ -1964,6 +1909,7 @@ onMounted(async () => {
 
     await syncConversations();
 
+    // ???
     //startChatSyncPolling();
 
     if (shouldShowNotificationModal) {
@@ -2201,16 +2147,13 @@ const listen = async() => {
     //conversationStore.localMessage(message);
   })
 
-  socket.on('message:new', async (msg) => {
-    //conversationStore.addMessageLocal(msg);
+  /* socket.on('message:new', async (msg) => {
     const convoId = String(msg.conversationId);
-    const myId = conversationStore.me_id;       // computed
+    const myId = conversationStore.me_id;
     const isFromMe = String(msg.senderId) === myId;
     const isActive = String(conversationStore.activeConversationId) === convoId;
     const isOpen = openChat.value;  // ref
 
-    // If message is from someone else, and I'm currently viewing this convo,
-    // tell the server "I have read it"
     if (!isFromMe && isActive && isOpen) {
       try {
         await chatService.markRead(convoId);
@@ -2218,7 +2161,7 @@ const listen = async() => {
         console.error("markRead failed", e);
       }
     }
-  })
+  }) */
 
   
 
