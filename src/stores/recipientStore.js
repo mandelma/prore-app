@@ -198,9 +198,12 @@ export const useClientStore = defineStore('client', () => {
 
     const removeProRejectedMapOffer_ls = async (offerId) => {
         bookings.value = bookings.value.filter(item => item.id !== offerId);
-        await clientService.removeBooking(offerId);
+        const result = await clientService.removeBooking(offerId);
+
         //socket.emit("client remove map booking", booking.id);
         //if (bookings.value.length < 1) router.push('/');
+
+        return result.ok;
     }
 
     // Client removing map booking and expired bookings as well
@@ -211,10 +214,11 @@ export const useClientStore = defineStore('client', () => {
 
         if (removed.ok && removed.deleted) {
             bookings.value = bookings.value.filter(item => item.id !== booking.id);
+            return true;
         }
 
-        if (bookings.value.length < 1) router.push('/');
-
+        //if (bookings.value.length < 1) router.push('/');
+        return false;
     }
 
     // Remove expired booking
@@ -281,12 +285,120 @@ export const useClientStore = defineStore('client', () => {
     }
 
     // Client sending request to the provider via map
-    const onRequest = async(receiver, userId, pro, user, request, localPhotos) => {
+    const onRequest = async (
+        receiver,
+        userId,
+        pro,
+        user,
+        request,
+        localPhotos,
+        onSuccess,
+        onError
+    ) => {
+        try {
+            console.log("Data in rec store", receiver);
+            console.log("#################");
+            console.log("User id", userId);
+            console.log("REQUEST", request);
+
+            console.log("BEFORE addRecipient");
+
+            const newRequest = await clientService.addRecipient(
+                userId,
+                request
+            );
+
+            console.log("AFTER addRecipient", newRequest);
+
+            if (!newRequest) {
+                console.log("❌ newRequest is missing");
+                throw new Error("Recipient creation failed");
+            }
+
+            const bookingId = newRequest.id;
+
+            console.log("bookingId:", bookingId);
+
+            const handleClient =
+                await clientService.addProviderData(
+                    bookingId,
+                    pro.id
+                );
+
+            console.log("handleClient:", handleClient);
+
+            const handlePro =
+                await providerService.addProviderBooking(
+                    pro.id,
+                    bookingId
+                );
+
+            console.log("handlePro:", handlePro);
+
+            console.log("USER --", user.username);
+
+            newRequest.ordered.push(pro);
+            newRequest.user = user;
+
+            if (!handleClient || !handlePro) {
+                console.log(
+                    "❌ handleClient or handlePro missing",
+                    handleClient,
+                    handlePro
+                );
+                throw new Error("Provider booking update failed");
+            }
+
+            console.log("Created request id:", bookingId);
+
+            socket.emit(
+                "client made request",
+                receiver,
+                bookingId
+            );
+
+            newRequest.photos = localPhotos || [];
+
+            bookings.value.push(newRequest);
+            count.value = bookings.value.length;
+
+            onSuccess?.(newRequest);
+
+            router.push("client-panel");
+
+        } catch (err) {
+            console.error("❌ onRequest failed:", err);
+
+            onError?.(err);
+
+            if (err.response) {
+                console.error(
+                    "STATUS:",
+                    err.response.status
+                );
+
+                console.error(
+                    "SERVER RESPONSE:",
+                    err.response.data
+                );
+            }
+        }
+    };
+
+
+    const onRequest__ = async(receiver, userId, pro, user, request, localPhotos) => {
         console.log("Data in rec store " + receiver)
+        console.log("#################")
+        console.log("User id " + userId);
+        console.log("REQUEST ", request);
         const newRequest = await clientService.addRecipient(userId, request);
+
+        console.log("REQ  , newRequest")
 
         if (!newRequest) return;
         
+        
+
         const bookingId = newRequest.id;
         const handleClient = await clientService.addProviderData(bookingId, pro.id);
         const handlePro = await providerService.addProviderBooking(pro.id, bookingId);
@@ -301,7 +413,7 @@ export const useClientStore = defineStore('client', () => {
         console.log("Created request id: " + bookingId);
         
 
-        socket.emit("client made request", receiver, bookingId);
+        
 
         newRequest.photos = localPhotos || [];
 
@@ -309,6 +421,22 @@ export const useClientStore = defineStore('client', () => {
         count.value = bookings.value.length;
 
         router.push('client-panel');
+    }
+
+    const disableMapBooking = async (id) => {
+        console.log("Disabled booking id " + id);
+        const targetId = String(id);
+        const getId = (b) => String(b?.id ?? b?._id);
+        
+        //const next = bookings.value.map(item => getId(item) === targetId ? { ...item, disabled: true } : { ...item, disabled: false });
+        const removedBooking = await clientService.removeBooking(id);
+
+        console.log("Removed Map Booking: ", removedBooking);
+
+        if (!removedBooking) return;
+
+        const next = bookings.value.filter(item => getId(item) !== targetId);
+        bookings.value = next;
     }
 
     const updateClientMain = async (bookingId, payload) => {
@@ -418,6 +546,7 @@ export const useClientStore = defineStore('client', () => {
         removeProRejectedMapOffer_ls,
         onRequest,
         handleConfirmedOffer,
+        disableMapBooking,
         removeMapOffer,
         removeExpiredBooking,
         onRemovePublicBooking,

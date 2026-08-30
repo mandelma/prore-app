@@ -16,7 +16,7 @@
       />
 
       <template #title>
-        PROKEIKKATORI
+        DuunHub
       </template>
 
       {{ confirmedMessage }}
@@ -782,14 +782,16 @@ const deleteMapBooking = async () => {
 
   const booking = myBooking.value;
   console.log("Quit bbb " + booking.header);
-  console.log("Selected booking pro user - " + booking.ordered[0].user.id);
-  const addressaat = booking.ordered[0].user.id;
+  console.log("Selected booking pro user - " + booking?.ordered[0]?.user?.id);
+  const addressaat = booking?.ordered[0]?.user?.id;
   const reason = clientQuitBookingReason.value;
   const sender = booking.user.username;
-  try {
-    await clientStore.removeMapOffer(booking);
 
-    const noteText = t(
+  console.log("Addressaat - " + addressaat)
+  try {
+    const isRemoved = await clientStore.removeMapOffer(booking);
+
+    const noteContent = t(
       "recipientPage.bookingCancelledNotification",
       {
         client: booking.user.username,
@@ -797,6 +799,29 @@ const deleteMapBooking = async () => {
         reason
       }
     );
+
+    const note = {
+      bookingId: bookingId,
+      isNewMsg: true,
+      isLink: false,
+      title: booking?.header,
+      content: noteContent,
+      reason: reason,
+      sender: booking?.user?.username
+    }
+
+    
+    
+    // Action to delete on pro map booking what is deleted by client
+    if (isRemoved) {
+      const saved = await notificationStore.notificationUp(addressaat, note);
+      console.log("SAVED -- ", saved);
+      if (saved) {
+        socket.emit('client-del-map-booking', addressaat, booking.id, note);
+      }
+      
+    }
+    
     //onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
   } catch (err) {
     console.log("Error status:", err.response?.status);

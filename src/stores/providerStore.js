@@ -245,40 +245,53 @@ export const useProStore = defineStore("pro", () => {
     const removeLocalBooking = async (id) => {
         console.log("Pro id " + providerId.value);
         console.log("Booking id " + id);
-        await providerService.removeProviderBooking(providerId.value, id);
+        const removed = await providerService.removeProviderBooking(providerId.value, id);
         // Here probably local state to delete booking??
+        let removeResult;
+        if (!removed) {
+            removeResult = false;
+            return;
+        }
+        removeResult = true;
         const targetId = String(id);
         const getId = (b) => String(b?.id ?? b?._id);
         const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         incomingOffers.value = next;
         //incomingOffersCount.value = next.length;
+
+        return removeResult
     }
+
     const disableLocalBooking = async (id) => {
         console.log("Disabled booking id " + id);
         const targetId = String(id);
         const getId = (b) => String(b?.id ?? b?._id);
         //const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         //incomingOffers.value = next;
+
+        const result = await providerService.removeProviderBooking(providerId.value, id);
+
+        if (!result) {
+            return false;
+        }
         const next = incomingOffers.value.map(item => getId(item) === targetId ? {...item, disabled: true} : {...item, disabled: false});
         incomingOffers.value = next;
         //incomingOffersCount.value = next.length;
-        await providerService.removeProviderBooking(providerId.value, id);
+
+        return true;
+        
     }
+
+
     // Provider side form nulty booking removing
     const removeBookingPublicOffer = async (id, receiver) => {
 
         console.log("Does proStore remove works?" + id);
         //await providerService.removeProviderBooking(providerId.value, id);
 
-
         //await clientService.removeBooking(id);
 
         await removeLocalBooking(id);
-
-        /* const targetId = String(id);
-        const getId = (b) => String(b?.id ?? b?._id);
-        const next = incomingOffers.value.filter(b => getId(b) !== targetId);
-        incomingOffers.value = next; */
         
 
         console.log("Receiver ID - " + receiver);
@@ -294,11 +307,15 @@ export const useProStore = defineStore("pro", () => {
         console.log("REM " + id)
         //await clientService.removeBooking(id);
         console.log("IS DEL???")
-        await removeLocalBooking(id);
-        socket.emit('del pro-side map booking', addressaat, id);
-        
-        
+        const isRemoved = await removeLocalBooking(id);
+
+        if (!isRemoved) return;
+
+        //socket.emit('del pro-side map booking', addressaat, id);
+         
         if (!incomingOffers.value.length) router.push('/');
+
+        return isRemoved;
         
     }
     // Confirmed by client multi offer

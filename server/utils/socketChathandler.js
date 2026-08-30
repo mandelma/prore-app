@@ -29,48 +29,11 @@ const hsc = (io, socket) => {
         }
     );
 
-    /* socket.on(
-        "conversation:active",
-        ({ conversationId }) => {
-            if (!conversationId) {
-                console.warn(
-                    "conversation:active without conversationId"
-                );
-                return;
-            }
-
-            socket.data.activeConversationId =
-                String(conversationId);
-
-            console.log(
-                "ACTIVE CONVERSATION:",
-                {
-                    socketId: socket.id,
-                    conversationId:
-                        socket.data.activeConversationId
-                }
-            );
-        }
-    ); */
-
-    /* socket.on(
-        "conversation:inactive",
-        () => {
-            socket.data.activeConversationId = null;
-
-            console.log(
-                "Conversation inactive:",
-                socket.data.userId
-            );
-        }
-    ); */
 
     socket.on("disconnect", () => {
         socket.activeConversationId = null;
     });
 
-
-    
 
     // For display users online - offline
     const userId = String(socket.userId);

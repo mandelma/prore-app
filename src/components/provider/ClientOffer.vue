@@ -379,7 +379,7 @@
     v-model="showDeleteModal"
     :title="cTitle"
     :message="cMessage"
-    :confirm-text="t('clientOffer.deal_cancel_button')"
+    :confirm-text="t('clientOffer.delete_order')"
     :cancel-text="t('clientOffer.keep_button')"
     :danger="true"
     @confirm="handleConfirmRemoveClientBooking"
@@ -1099,7 +1099,7 @@ const cancelDeal = () => {
 const confirmRejectMapBooking = async () => {
   showDeleteModal.value = true;
   cTitle.value = t('clientOffer.delete_title');
-  cMessage.value = t(clientOffer.delete_message);
+  cMessage.value = t('clientOffer.delete_message');
   
 }
 
@@ -1111,7 +1111,7 @@ const rejectFormBooking = async () => {
  
 }
 
-// Removing booking after confirmation done
+// Removing map ( form ) booking after confirmation done
 const handleConfirmRemoveClientBooking = async () => {
   console.log("Tilaus poisto confirmed!!!");
   const clientName = client.value?.user?.firstName || 'asiakkaan';
@@ -1120,6 +1120,7 @@ const handleConfirmRemoveClientBooking = async () => {
   });
   // Removing form booking
   if (client.value.isIncludeOffers) {
+    console.log("FORM REMOVING --------")
     isQuitClientBooking.value = true;
     console.log("Reject form booking--");
     const receiver = client.value.author_id;
@@ -1138,8 +1139,8 @@ const handleConfirmRemoveClientBooking = async () => {
     
   } else {
     // removing map booking
-    console.log("Quit offer user - " + client.value.author_id);
-    console.log(Object.keys(client.value.user));
+    console.log("-------MAP REMOVING CLIENT - " + client.value.author_id);
+    console.log("##################", Object.keys(client.value.user));
     const bookingId = client.value.id;
     const addressaat = client.value.author_id;
     const header = t('clientOffer.notifications.order_rejected_title');
@@ -1149,21 +1150,32 @@ const handleConfirmRemoveClientBooking = async () => {
       reason: reason.value
     });
     
-    console.log("111 - quit map offer")
+    console.log("111 - quit map offer ")
     
-    emit('toast', {
-      state: "info",
-      message: toastMessage,
-      icon: "fas fa-info-circle fa-lg me-2",
-      color: "info"
+    
 
-    })
-    console.log('grandchild emitted')
+    const done = await proStore.removeMapOffer(bookingId, addressaat);
 
-    await proStore.removeMapOffer(bookingId, addressaat);
-    emit('handle-user-action');
-  
-    await notificationStore.addNotification(bookingId, provider.value.pName, header, noteContent, addressaat);
+    console.log("#### REMOVE IS DONE? ##### - ", done);
+
+    if (done) {
+      console.log("REALLY DONE-------------")
+      emit('toast', {
+        state: "info",
+        message: toastMessage,
+        icon: "fas fa-info-circle fa-lg me-2",
+        color: "info"
+
+      })
+      console.log('grandchild emitted');
+
+      emit('handle-user-action');
+    
+      await notificationStore.addNotification(bookingId, provider.value.pName, reason.value, noteContent, addressaat);
+
+    }
+
+    
     //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
     
   }

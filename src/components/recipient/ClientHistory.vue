@@ -484,6 +484,7 @@ const handleRequest = async (payload) => {
     latitude: payload.myLat,
     longitude: payload.myLng,
     zone: 0,
+    professionCode: selectedProvider.value?.profession[0],
     professional: selectedProvider.value?.profession[0],
     isIncludeOffers: false,
     description: payload.content,

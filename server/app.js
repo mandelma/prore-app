@@ -69,7 +69,7 @@ io.on(
             `user:${socket.userId}`
         );
 
-        handleSocket(socket);
+        handleSocket(io, socket);
         handleChatSockets(
             io,
             socket
@@ -194,14 +194,22 @@ io.use((socket, next) => {
     }
 });
 
-io.on("connection", (socket) => {
-    //socket.join(socket.userId);
+/* io.on("connection", (socket) => {
+    
     socket.join(`user:${socket.userId}`);
 
     socket.emit("test", socket.userId);
 
-    handleSocket(socket);
+    handleSocket(io, socket);
     handleChatSockets(io, socket);
+}); */
+
+app.use((err, req, res, next) => {
+    console.error(err);
+
+    res.status(500).json({
+        error: err.message
+    });
 });
 
 

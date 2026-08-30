@@ -33,24 +33,34 @@ export const useNotificationStore = defineStore('notifications', () => {
             isNotesLoading.value = false;
         }
     }
-    //bookingId, provider.value.pName, header, noteContent, addressaat
-    // Client rejects own booking - notification to pro
-    const addNotification = async (booking_id, author, text, receiver) => {
+    
+    // Need to redone, adding notification only
+    const addNotification = async (booking_id, author, reasonText,  text, receiver) => {
         const newNote = await noteService.createMessage(receiver, {
             bookingId: booking_id,
             isNewMsg: true,
             isLink: false,
             title: "Tiedot",
             content: text,
-            reason: '',
+            reason: reasonText,
             sender: author,
         });
 
+        console.log("CREATED MESSAGE --- ", newNote);
+
         //await notificationStore.addNotification(booking.id, sender, noteText, addressaat);
         if (newNote) {
-            socket.emit("client del map booking", booking_id, receiver, newNote);
+            console.log("SEND NEW MESSAGE");
+            console.log("DELETE BOOKING EMIT", {
+                booking_id,
+                receiver,
+                newNote
+            });
             
+            socket.emit("pro-del-map-booking", booking_id, receiver, newNote);
         }
+
+        
     }
 
     const onProRejectClientMapOrderNote = async (booking_id, author, header, text, receiver) => {
@@ -100,6 +110,21 @@ export const useNotificationStore = defineStore('notifications', () => {
         ];
         //const confirmNote = await noteService.createMessage()
     }
+
+    const notificationUp = async(userId, note) => {
+        
+        console.log("NOTE IN STORE-- ", note);
+
+        const addNote = await noteService.createMessage(userId, note);
+
+        if (!addNote) return false;
+
+        //localStateAddNotification(note);
+
+        return true;
+    }
+
+
     const upsertNotificationStatus = async () => {
         for (const note of notifications.value) {
             if (note.isNewMsg) {
@@ -133,6 +158,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         removeNotification,
         clientPublicBookingDelNotification,
         clientConfirmDealNotification,
+        notificationUp,
         userId,
         notifications,
         isNotificationsLoaded,

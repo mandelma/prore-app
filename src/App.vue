@@ -653,7 +653,6 @@ const closeNotificationModal = () => {
 };
 
 
-
 const initPushNotifications = async () => {
   console.log("=== initPushNotifications ===");
 
@@ -1920,6 +1919,7 @@ const enableNotificationsFromModal = async () => {
 };
 
 onMounted(async () => {
+  
   await login.hydrate();
 
   await initPushNotifications();
@@ -2125,22 +2125,24 @@ const listen = async() => {
     handleProvider.handleConfirmed(orderId);
   })
   socket.on('handle client request', async ({bookingId}) => {
-    console.log("Requested booking id is " + bookingId);
+    console.log("Requested booking id is xxxxxxxxxxxxxx " + bookingId);
     const request = await recipientService.getBookingById(bookingId);
     if (!request) return;
     handleProvider.upsertBooking(request);
   })
+
   socket.on('handle client request confirm', async ({receiver, bId, _providerId, _offer}) => {
     console.log("XXXXX " + bId);
 
 
     await client.handleConfirmedOffer(bId, _providerId, _offer);
   })
-  socket.on('handle client del map booking', async (receiver, bookingId, note) => {
+  socket.on('handle-pro-del-map-booking', async (receiver, bookingId, note) => {
     console.log("Del map booking " + bookingId);
     console.log("Note  " + note.id);
     //await handleProvider.removeBookingOffer(bookingId);
-    await handleProvider.disableLocalBooking(bookingId);
+    //await handleProvider.disableLocalBooking(bookingId);
+    await client.disableMapBooking(bookingId);
     await notificationStore.localStateAddNotification(note);
   })
 
@@ -2151,9 +2153,15 @@ const listen = async() => {
   })
 
 
-  socket.on('handle pro-side del map booking', async (receiver, bookingId) => {
-    console.log("Pro-side remove booking " + bookingId);
-    await client.removeProRejectedMapOffer_ls(bookingId);
+  socket.on('handle-client-del-map-booking', async (receiver, bookingId, note) => {
+    console.log("Pro removed map booking " + bookingId);
+    console.log("Pro removed map b note - ", note)
+    //const isRemoved = await client.removeProRejectedMapOffer_ls(bookingId);
+    const isRemoved = await handleProvider.disableLocalBooking(bookingId);
+    console.log("IS REMOVED?? ", isRemoved);
+    if (isRemoved) {
+      await notificationStore.localStateAddNotification(note);
+    }
   })
 
   socket.on('on pro del client map order note', async (receiver, bookingId, note) => {

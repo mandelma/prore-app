@@ -34,33 +34,43 @@
             <MDBIcon  icon="bell" style="color: orange; cursor: pointer;" class="icon"/>
             <MDBBadge v-if="newOffersAmount > 0" notification color="danger" pill>{{newOffersAmount}}</MDBBadge>
           </MDBNavbarItem>
-
+          
           <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
             <language-contents />
           </MDBNavbarItem>
           <!--User-->
           <MDBNavbarItem v-if="isAuthenticated" class="me-3 me-lg-0 dropdown">
             <MDBDropdown v-model="userDropdown">
-              <MDBDropdownToggle 
-                tag="a" class="nav-link"
+              <MDBDropdownToggle
+                tag="a"
+                class="nav-link"
                 :aria-label="t('app.openUserMenu')"
                 @click="userDropdown = !userDropdown"
               >
-                <template v-if="profileLoaded">
-                  <MDBIcon v-if="!avatarIsImage || avatarError" icon="user" class="icon" />
-                
-                  <img
-                    v-else
-                    :src="imageUrl"
-                    class="rounded-circle"
-                    height="22"
-                    :alt="t('app.profileAvatarAlt')"
-                    loading="lazy"
-                    @error="avatarError = true"
-                  />
-                </template>
+                <MDBIcon
+                  v-if="!profileLoaded || !avatarIsImage || avatarError"
+                  icon="user"
+                  class="icon"
+                />
 
-                <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
+                <img
+                  v-else
+                  :src="imageUrl"
+                  class="rounded-circle"
+                  height="22"
+                  :alt="t('app.profileAvatarAlt')"
+                  loading="lazy"
+                  @error="avatarError = true"
+                />
+
+                <MDBBadge
+                  v-if="newNotesCount > 0"
+                  notification
+                  color="danger"
+                  pill
+                >
+                  {{ newNotesCount }}
+                </MDBBadge>
               </MDBDropdownToggle>
               <MDBDropdownMenu user-dropdown-menu>
 

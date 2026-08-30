@@ -93,7 +93,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
 
-const t = useI18n();
+const { t } = useI18n();
 
 const modalTitle = computed(() => props.title || t('confirmModal.title'))
 const modalMessage = computed(() => props.message || t('confirmModal.message'))

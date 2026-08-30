@@ -125,6 +125,10 @@ module.exports = (io) => {
             //res.json(savedRecipient)
         } catch (err) {
             console.log("Error: " + err.message);
+            next(err);
+            /* return res.status(500).json({
+                error: err.message
+            }); */
         }
     })
 

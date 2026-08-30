@@ -7,7 +7,7 @@
             </MDBBtn>
           
           </div>
-        
+          xxx
           <div class="field-wrapper">
             <p>{{ props.target?.profession.map(profession => localProfessionName(profession)).join(', ') }}</p>
           </div>

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import loginService from '@/service/login'
 import { useRoute, useRouter } from 'vue-router'
 import { jwtDecode } from "jwt-decode"; // npm install jwt-decode
@@ -29,6 +29,9 @@ export const useLoginStore = defineStore('login', () => {
 
         user.value = payload;
         token.value = payload.token;
+
+        console.log("---------------LOGIN user:", user.value);
+        console.log("-----------LOGIN authenticated:", isAuthenticated.value);
 
         scheduleTokenExpiry(token.value);
         
@@ -117,6 +120,8 @@ export const useLoginStore = defineStore('login', () => {
         await subscription.unsubscribe();
     };
 
+    const MAX_TIMEOUT = 2_147_483_647;
+
     const scheduleTokenExpiry = (jwt) => {
         if (tokenExpiryTimer) {
             clearTimeout(tokenExpiryTimer);
@@ -145,45 +150,33 @@ export const useLoginStore = defineStore('login', () => {
                 "minutes"
             );
 
+            /*
+             * setTimeout cannot safely handle delays
+             * greater than approximately 24.8 days.
+             */
+            const timeoutDelay = Math.min(delay, MAX_TIMEOUT);
+
             tokenExpiryTimer = setTimeout(() => {
+                /*
+                 * If the real expiration time has not yet
+                 * arrived, schedule the remaining time again.
+                 */
+                if (Date.now() < expiresAt) {
+                    scheduleTokenExpiry(jwt);
+                    return;
+                }
+
                 console.log("Token expired — automatic logout");
                 onLogOut();
-            }, delay);
+            }, timeoutDelay);
 
         } catch (error) {
-            console.error("Could not schedule token expiry:", error);
-        }
-    };
-
-    /* const onLogOut = async () => {
-        const jwt = token.value;
-
-        const conversationStore = useConversationStore();
-        const proStore = useProStore();
-
-        localStorage.removeItem("loggedAppUser");
-        sessionStorage.removeItem("loggedAppUser");
-
-        user.value = null;
-        token.value = null;
-
-        proStore.provider = null;
-        proStore.isUserPro = false;
-
-        conversationStore.disconnect();
-        conversationStore.reset();
-
-        await router.replace("/home");
-
-        try {
-            await disablePushForThisDevice(jwt);
-        } catch (error) {
-            console.warn(
-                "Push unsubscribe failed:",
+            console.error(
+                "Could not schedule token expiry:",
                 error
             );
         }
-    }; */
+    };
 
     const onLogOut = async () => {
         const jwt = token.value;

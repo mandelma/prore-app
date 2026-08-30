@@ -188,12 +188,12 @@
     }
     
 
-    watch (() => props.booking,
+    /* watch (() => props.booking,
         (value) => {
-            console.log("JJJ ", value)
+            console.log(value)
         },
         {immediate: true}
-    )
+    ) */
 
     const loadOfferContent = async () => {
         offerContent.value = null;
@@ -203,8 +203,6 @@
         try {
             
             if (props.booking) {
-                /* console.log("DEAL ", props.booking)
-                offerContent.value = props.booking; */
 
                 caseArchivedBooking()
                 

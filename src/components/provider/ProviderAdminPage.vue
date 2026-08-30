@@ -14,7 +14,7 @@
   >
     
     <!-- Ülemine päis -->
-    <div class="header-stack" >
+    <div class="header-stack" :class="{ 'header-stack--hidden': navbarHidden }">
       <header class="provider-topbar">
         <div class="provider-identity">
           <div class="provider-avatar" aria-hidden="true">
@@ -73,7 +73,7 @@
               provider.status !== 'Saatavilla'
           }"
         >
-          <span class="availability-pill__dot" />
+          <span class="availability-pill__dot"></span>
 
           {{
             provider.status === "Saatavilla"
@@ -82,19 +82,6 @@
           }}
         </span>
       </header>
-
-      <div
-        v-if="clientReport"
-        class="ticker"
-      >
-        <div
-          :key="tickerKey"
-          class="ticker__row"
-        >
-          <span class="ticker__icon">●</span>
-          <span>{{ clientReport }}</span>
-        </div>
-      </div>
 
       <div >
         
@@ -141,6 +128,19 @@
           <span class="provider-stat-card__label">
             {{ t("providerAdmin.mapManagement") }}
           </span>
+        </div>
+
+        <div
+        v-if="clientReport"
+        class="ticker"
+        >
+          <div
+            :key="tickerKey"
+            class="ticker__row"
+          >
+            <span class="ticker__icon">●</span>
+            <span>{{ clientReport }}</span>
+          </div>
         </div>
 
         <button
@@ -700,7 +700,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onBeforeUnmount, reactive, ref, watch, nextTick } from "vue";
+import { computed, onMounted, onBeforeUnmount, onUnmounted, reactive, ref, watch, nextTick } from "vue";
 import {
   MDBContainer,
   MDBRow,
@@ -838,6 +838,33 @@ const clientReport = ref('');
 
 //const clients = ref([]);
 const clientQuery = ref("");
+
+const navbarHidden = ref(false);
+
+let lastScrollY = 0;
+
+const handleScroll = () => {
+  const currentScrollY = window.scrollY;
+
+  // Lehe ülaosas näita navbarit alati
+  if (currentScrollY <= 10) {
+    navbarHidden.value = false;
+    lastScrollY = currentScrollY;
+    return;
+  }
+
+  // Kerime alla -> peida navbar
+  if (currentScrollY > lastScrollY) {
+    navbarHidden.value = true;
+  }
+
+  // Kerime üles -> näita navbarit
+  else if (currentScrollY < lastScrollY) {
+    navbarHidden.value = false;
+  }
+
+  lastScrollY = currentScrollY;
+};
 
 // For observing head stack height
 const updateHeaderStackHeight = () => {
@@ -1102,15 +1129,24 @@ function onClientReport(report) {
 }
 
 onMounted( async() => {
+  lastScrollY = window.scrollY;
+
+  window.addEventListener("scroll", handleScroll, {
+    passive: true
+  });
+
   socket.off("handle-client-report", onClientReport);
   socket.on("handle-client-report", onClientReport);
 
-  
 })
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
 });
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+})
 
 const handleAvailability = async () => {
   console.log("Availability " + provider.value?.status);
@@ -1761,7 +1797,13 @@ function sleep(ms) {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(14px);
   
-  
+  transform: translateY(0);
+
+  transition: transform 0.25s ease;
+}
+
+.header-stack--hidden {
+  transform: translateY(-100%);
 }
 
 .notifications-banner {
@@ -1891,7 +1933,7 @@ function sleep(ms) {
   font-size: 0.7rem;
   white-space: nowrap;
   will-change: transform, opacity;
-  animation: provider-ticker 12s linear forwards;
+  animation: provider-ticker 16s linear forwards;
 }
 
 .ticker__icon {

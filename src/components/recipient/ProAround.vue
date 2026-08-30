@@ -9,6 +9,7 @@
         class="client-map-panel"
       >
         <!-- Paneeli päis -->
+
         <div class="map-panel-header">
           <div class="map-panel-heading">
             <div class="map-panel-heading__icon">
@@ -498,6 +499,11 @@ const initMap = (lat, lng) => {
 
 const getAddressFromCoords = async (lat, lng) => {
   try {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      console.log("Invalid coordinates:", lat, lng);
+      return null;
+    }
+
     if (!geocoder.value) {
       geocoder.value = new google.maps.Geocoder()
     }
@@ -751,26 +757,26 @@ watch(
 
     if (!map) return
 
-    centerMap(pos.lat, pos.lng)
+    //centerMap(pos.lat, pos.lng)
     showUserMarker(pos.lat, pos.lng)
   },
   { immediate: true }
 )
 
 
-const hasProfession = computed(() => {
+/* const hasProfession = computed(() => {
   if (!profession.value) return false;
 
-  // PrimeVue object case
+  
   if (typeof profession.value === "object")
     return !!profession.value.label;
 
-  // string case
+  
   if (typeof profession.value === "string")
     return profession.value.trim() !== "";
 
   return false;
-});
+}); */
 
 /* watch(hasProfession, (ok) => {
   if (!ok) {
@@ -797,6 +803,20 @@ const changedProfession = () => {
       currentProfession.value = profession.value;
       isDistSelection.value = true;
 }
+
+
+watch(myLat,
+  (newValue, oldValue) => {
+    console.log("LAT OLD AND NEW " + oldValue + " " + newValue)
+  }
+)
+
+
+watch(displayProPanel, (isOpen) => {
+  console.log("ORDER PANEL:", isOpen);
+  console.log("MAP ZOOM:", map?.getZoom());
+  console.log("MAP CENTER:", map?.getCenter()?.toJSON());
+});
 
 
 function toPickerString(d = new Date()) {
@@ -845,6 +865,7 @@ const onGetProviders = () => {
   
    
 }
+
 
 const centerMap = (lat, lng, zoom = 13) => {
   if (!map) return;
@@ -1174,8 +1195,9 @@ const otherUserLocations = async (providers, profession, dist) => {
       let myLatLong = [myLat.value, myLng.value];
 
       providers[pos].profession.forEach(prof => {
+    
         if (prof === profession) {
-
+          
           const proClientDist = distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude);
           notifyProvidersAboutInterest(providers[pos], profession, proClientDist);
 
@@ -1396,12 +1418,6 @@ const otherUserLocations = async (providers, profession, dist) => {
 
     }
 
-
-
-
-
-
-
     visibleProCount.value = count;
 
     if (count > 0) {
@@ -1530,7 +1546,8 @@ const handleSendRequest = async (_form) => {
     latitude: _form.myLat,
     longitude: _form.myLng,
     zone: 0,
-    professional: profession.value.label,
+    professionCode: profession.value,
+    professional: profession.value,
     isIncludeOffers: false,
     description: _form.content,
     photos: _form.serverPhotos || [],
@@ -1548,12 +1565,12 @@ const handleSendRequest = async (_form) => {
   clientStore.onRequest(receiverId, userId, target.value, user.value, request, _form.localPhotos, () => {
     // success callback
     console.log("Request sent successfully");
-    rs_success_msg.value = tr("proAround.requestSent");
+    rs_success_msg.value = t("proAround.requestSent");
     isRequestSent.value = true;
   }, (err) => {
     // error callback
     console.error("Failed to send request:", err);
-    rs_error_msg.value = tr("proAround.requestFailed");
+    rs_error_msg.value = t("proAround.requestFailed");
     isRequestSent.value = false;
   });
 
