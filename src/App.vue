@@ -359,7 +359,7 @@
     <!-- v-if="showPwaTopBottomNav" -->
 
     <MobileBottomNav 
-      v-if="login.isAuthenticated && isMobile" 
+      v-if="login.isAuthenticated && showPwaTopBottomNav" 
       :is-provider="isUserPro ?? null"
       :show-install-option="showInstallOption"
       :unread-count="newNotesCount" 
