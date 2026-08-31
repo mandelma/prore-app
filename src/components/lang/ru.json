@@ -224,7 +224,7 @@
     "clientAround": {
         "refresh": "Обновить",
         "address": "Мой адрес",
-        "select_profession": "Выберите профессию *",
+        "select_profession": "Выберите профессию",
         "search_distance": "Расстояние поиска",
         "found_clients": "Найденные клиенты",
         "panel": "Панель",
@@ -522,7 +522,7 @@
     "proAround": {
         "refresh": "Обновить",
         "addressLabel": "Введите адрес",
-        "professionalPlaceholder": "Выберите специалиста *",
+        "professionalPlaceholder": "Выберите специалиста",
         "professionRequired": "Необходимо выбрать профессию!",
         "selectDateOrNow": "Выберите подходящее время или прямо сейчас!",
         "dateTimeLabel": "Выберите дату и время выполнения работы",

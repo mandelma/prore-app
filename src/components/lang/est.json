@@ -263,7 +263,7 @@
   "clientAround": {
     "refresh": "Uuenda",
     "address": "Minu aadress",
-    "select_profession": "Vali oma amet *",
+    "select_profession": "Vali oma amet",
     "search_distance": "Otsi kaugust",
     "found_clients": "Leitud kliendid",
     "panel": "Paneel",
@@ -562,7 +562,7 @@
   "proAround": {
     "refresh": "Värskenda",
     "addressLabel": "Sisesta aadress",
-    "professionalPlaceholder": "Vali spetsialist *",
+    "professionalPlaceholder": "Vali spetsialist",
     "professionRequired": "Ameti valimine on kohustuslik!",
     "selectDateOrNow": "Vali sobiv aeg või kohe!",
     "dateTimeLabel": "Vali töö kuupäev ja kellaaeg",

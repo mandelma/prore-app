@@ -252,7 +252,7 @@
   "clientAround": {
     "refresh": "Refresh",
     "address": "My address",
-    "select_profession": "Select your profession *",
+    "select_profession": "Select your profession",
     "search_distance": "Search distance",
     "found_clients": "Found clients",
     "panel": "Panel",
@@ -554,7 +554,7 @@
   "proAround": {
     "refresh": "Refresh",
     "addressLabel": "Enter an address",
-    "professionalPlaceholder": "Select a professional *",
+    "professionalPlaceholder": "Select a professional",
     "professionRequired": "A profession is required!",
     "selectDateOrNow": "Select a suitable time or choose now!",
     "dateTimeLabel": "Select the task date and time",

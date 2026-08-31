@@ -120,7 +120,8 @@ export const useLoginStore = defineStore('login', () => {
         await subscription.unsubscribe();
     };
 
-    const MAX_TIMEOUT = 2_147_483_647;
+    //const MAX_TIMEOUT = 2_147_483_647;
+    const MAX_TIMEOUT = 24 * 60 * 60 * 1000;
 
     const scheduleTokenExpiry = (jwt) => {
         if (tokenExpiryTimer) {
@@ -128,11 +129,20 @@ export const useLoginStore = defineStore('login', () => {
             tokenExpiryTimer = null;
         }
 
+        if (!jwt) {
+            console.warn(
+                "Cannot schedule token expiry: token missing"
+            );
+            return;
+        }
+
         try {
             const decoded = jwtDecode(jwt);
 
-            if (!decoded.exp) {
-                console.warn("Token expiration time missing");
+            if (!decoded?.exp) {
+                console.warn(
+                    "Token expiration time missing"
+                );
                 return;
             }
 
@@ -140,7 +150,12 @@ export const useLoginStore = defineStore('login', () => {
             const delay = expiresAt - Date.now();
 
             if (delay <= 0) {
-                onLogOut();
+                onLogOut().catch(error => {
+                    console.error(
+                        "Automatic logout failed:",
+                        error
+                    );
+                });
                 return;
             }
 
@@ -150,25 +165,33 @@ export const useLoginStore = defineStore('login', () => {
                 "minutes"
             );
 
-            /*
-             * setTimeout cannot safely handle delays
-             * greater than approximately 24.8 days.
-             */
-            const timeoutDelay = Math.min(delay, MAX_TIMEOUT);
+            const timeoutDelay =
+                Math.min(delay, MAX_TIMEOUT);
 
-            tokenExpiryTimer = setTimeout(() => {
-                /*
-                 * If the real expiration time has not yet
-                 * arrived, schedule the remaining time again.
-                 */
-                if (Date.now() < expiresAt) {
-                    scheduleTokenExpiry(jwt);
-                    return;
-                }
+            tokenExpiryTimer = setTimeout(
+                async () => {
+                    tokenExpiryTimer = null;
 
-                console.log("Token expired — automatic logout");
-                onLogOut();
-            }, timeoutDelay);
+                    if (Date.now() < expiresAt) {
+                        scheduleTokenExpiry(jwt);
+                        return;
+                    }
+
+                    console.log(
+                        "Token expired — automatic logout"
+                    );
+
+                    try {
+                        await onLogOut();
+                    } catch (error) {
+                        console.error(
+                            "Automatic logout failed:",
+                            error
+                        );
+                    }
+                },
+                timeoutDelay
+            );
 
         } catch (error) {
             console.error(

@@ -1322,8 +1322,8 @@ const otherUserLocations = async (providers, profession, dist) => {
                   </div>
                 `)
                 .join("");
-            
-              const orderButton = provider.id !== providerId.value && otherChatUsers.value[provider?.user?.id]
+              // && otherChatUsers.value[provider?.user?.id]
+              const orderButton = provider.id !== providerId.value
                 ? `<button class="order-btn" onclick="myGlobalFunction(${p})">${t("proAround.order")}</button>`
                 : `<div class="order-btn-placeholder"></div>`;
 

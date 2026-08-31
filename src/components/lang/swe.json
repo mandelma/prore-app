@@ -263,7 +263,7 @@
   "clientAround": {
     "refresh": "Uppdatera",
     "address": "Min adress",
-    "select_profession": "Välj ditt yrke *",
+    "select_profession": "Välj ditt yrke",
     "search_distance": "Sök avstånd",
     "found_clients": "Hittade kunder",
     "panel": "Panel",
@@ -561,7 +561,7 @@
   "proAround": {
     "refresh": "Uppdatera",
     "addressLabel": "Ange en adress",
-    "professionalPlaceholder": "Välj en yrkesperson *",
+    "professionalPlaceholder": "Välj en yrkesperson",
     "professionRequired": "Yrke måste väljas!",
     "selectDateOrNow": "Välj en lämplig tid eller direkt!",
     "dateTimeLabel": "Välj datum och tid för uppdraget",

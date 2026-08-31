@@ -470,11 +470,11 @@
                         <div class="profession-option">
                           <i style="color: orange;" :class="option.icon" />
                           <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
-                          <div>
+                          <!-- <div>
                             <small v-if="option.localizedDescription">
                               {{ option.localizedDescription }}
                             </small>
-                          </div>
+                          </div> -->
                         </div>
                       </template>
                     </Select>
@@ -841,9 +841,9 @@ const clientQuery = ref("");
 
 const navbarHidden = ref(false);
 
-let lastScrollY = 0;
+let lastScrollY__ = 0;
 
-const handleScroll = () => {
+const handleScroll__ = () => {
   const currentScrollY = window.scrollY;
 
   // Lehe ülaosas näita navbarit alati
@@ -860,6 +860,53 @@ const handleScroll = () => {
 
   // Kerime üles -> näita navbarit
   else if (currentScrollY < lastScrollY) {
+    navbarHidden.value = false;
+  }
+
+  lastScrollY = currentScrollY;
+};
+
+
+let lastScrollY = 0;
+
+const handleScroll = () => {
+  const currentScrollY = Math.max(
+    0,
+    window.scrollY
+  );
+
+  const maxScrollY =
+    document.documentElement.scrollHeight -
+    window.innerHeight;
+
+  // Lehe ülaosas näita navbarit alati
+  if (currentScrollY <= 10) {
+    navbarHidden.value = false;
+    lastScrollY = currentScrollY;
+    return;
+  }
+
+  // Alumises servas ignoreeri overscroll'i
+  if (currentScrollY >= maxScrollY) {
+    lastScrollY = currentScrollY;
+    return;
+  }
+
+  const diff =
+    currentScrollY - lastScrollY;
+
+  // Ignoreeri väga väikest scrollimist
+  if (Math.abs(diff) < 8) {
+    return;
+  }
+
+  // Kerime alla -> peida navbar
+  if (diff > 0) {
+    navbarHidden.value = true;
+  }
+
+  // Kerime üles -> näita navbarit
+  else {
     navbarHidden.value = false;
   }
 
@@ -1920,8 +1967,9 @@ function sleep(ms) {
   height: 31px;
   align-items: center;
   overflow: hidden;
-  border-top: 1px solid var(--admin-border);
-  background: rgba(8, 14, 24, 0.72);
+  /* border-top: 1px solid var(--admin-border); */
+  /* background: rgba(8, 14, 24, 0.72); */
+  background: transparent;
 }
 
 .ticker__row {
@@ -1933,7 +1981,7 @@ function sleep(ms) {
   font-size: 0.7rem;
   white-space: nowrap;
   will-change: transform, opacity;
-  animation: provider-ticker 16s linear forwards;
+  animation: provider-ticker 18s linear forwards;
 }
 
 .ticker__icon {
@@ -2358,6 +2406,11 @@ button.provider-stat-card {
 
 .search-wrap :deep(.form-outline) {
   min-width: 180px;
+}
+
+.profession-description {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Orders */

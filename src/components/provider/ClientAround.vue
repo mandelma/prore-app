@@ -80,11 +80,12 @@
 
             <span class="pro-map-panel__required">*</span>
           </label>
-
+      
           <SelectProfession
             v-model="profession"
             :label="t('clientAround.select_profession')"
             :errors="{}"
+            
             @change="changedProfession"
           />
         </div>
@@ -270,12 +271,15 @@ import { useMapStore } from '@/stores/mapStore';
 import AddressAutocomplete from '@/components/AddressAutocomplete.vue';
 import SelectProfession from '@/components/helpers/SelectProfession.vue';
 
+import { useRoute } from "vue-router"
+
 defineOptions({
   name: "client-around"
 })
 
 const mapStore = useMapStore();
 const {t} = useI18n();
+const route = useRoute();
 const clientStore = useClientStore();
 const auth = useLoginStore();
 const providerStore = useProStore();

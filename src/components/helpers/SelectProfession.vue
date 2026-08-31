@@ -25,9 +25,9 @@
                 <div class="profession-option">
                     <i style="color: orange;" :class="option.icon" />
                     <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
-                    <div>
+                    <div v-if="route.name !== 'client-around'" class="profession-description">
                         <small v-if="option.localizedDescription">
-                        {{ option.localizedDescription }}
+                          {{ option.localizedDescription }}
                         </small>
                     </div>
                 </div>
@@ -48,6 +48,7 @@ import { useI18n } from 'vue-i18n';
 import Select from 'primevue/select';
 import { storeToRefs } from 'pinia';
 import { useProfessionStore } from '@/stores/professionStore';
+import { useRoute } from "vue-router"
 
 import '@/styles/form.css';
 
@@ -71,6 +72,10 @@ const props = defineProps({
     professions: {
         type: Array,
         required: true
+    },
+    route: {
+      type: String,
+      default: ""
     }
 });
 
@@ -81,6 +86,7 @@ const emit = defineEmits([
 
 const { t, locale } = useI18n();
 
+const route = useRoute();
 const professionStore = useProfessionStore();
 const { professionCategories, professions } = storeToRefs(professionStore);
 
@@ -165,5 +171,8 @@ const groupedProfessions = computed(() => {
 
 </script>
 <style scoped>
-
+.profession-description {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 </style>

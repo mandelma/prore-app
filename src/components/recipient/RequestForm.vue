@@ -4,10 +4,8 @@
           <div style="display: flex; justify-content: right;">
             <MDBBtn type="button" outline="info" @click="handleOpenChat">
               <i class="far fa-comments fa-2x"></i>
-            </MDBBtn>
-          
+            </MDBBtn>  
           </div>
-          xxx
           <div class="field-wrapper">
             <p>{{ props.target?.profession.map(profession => localProfessionName(profession)).join(', ') }}</p>
           </div>

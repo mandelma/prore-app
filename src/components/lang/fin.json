@@ -279,7 +279,7 @@
   "clientAround": {
     "refresh": "Päivitä",
     "address": "Osoitteeni",
-    "select_profession": "Valitse ammattisi *",
+    "select_profession": "Valitse ammattisi",
     "search_distance": "Etsi etäisyys",
     "found_clients": "Löydetyt asiakkaat",
     "panel": "Paneeli",
@@ -574,7 +574,7 @@
   "proAround": {
     "refresh": "Päivitä",
     "addressLabel": "Anna osoite",
-    "professionalPlaceholder": "Valitse ammattilainen *",
+    "professionalPlaceholder": "Valitse ammattilainen",
     "professionRequired": "Ammatti on pakollinen!",
     "selectDateOrNow": "Valitse sopiva ajankohta tai heti!",
     "dateTimeLabel": "Valitse tehtävän päivämäärä ja aika",
