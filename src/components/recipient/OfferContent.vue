@@ -168,32 +168,58 @@
     const offerError = ref(null);
 
     const caseArchivedBooking = async () => {
-        if (!props.booking) return;
+        if (!props.booking?.deal) {
+            return;
+        }
 
         const deal = props.booking.deal;
 
-        const providerId = deal.provider;
+        const normalizedDeal = {
+            ...deal
+        };
 
-        console.log("PRO ID ", providerId);
+        const providerId =
+            typeof deal.provider === "string"
+            ? deal.provider
+            : deal.provider?._id;
+
+        console.log("PRO ID:", providerId);
+
+        if (!providerId) {
+            normalizedDeal.provider =
+            deal.provider ?? null;
+
+            offerContent.value =
+            normalizedDeal;
+
+            return;
+        }
+
+        // Kui provider on juba objekt,
+        // pole vaja uuesti serverist küsida
+        if (
+            typeof deal.provider === "object"
+        ) {
+            normalizedDeal.provider =
+            deal.provider;
+
+            offerContent.value =
+            normalizedDeal;
+
+            return;
+        }
 
         const provider =
-                await providerService.getProvByProvId(providerId);
+            await providerService.getProvByProvId(
+            providerId
+            );
 
-        if (!provider) return;
+        normalizedDeal.provider =
+            provider ?? null;
 
-        deal.provider = provider;
-
-        offerContent.value = deal;
-
-    }
-    
-
-    /* watch (() => props.booking,
-        (value) => {
-            console.log(value)
-        },
-        {immediate: true}
-    ) */
+        offerContent.value =
+            normalizedDeal;
+    };
 
     const loadOfferContent = async () => {
         offerContent.value = null;
@@ -204,7 +230,7 @@
             
             if (props.booking) {
 
-                caseArchivedBooking()
+                await caseArchivedBooking()
                 
                 return;
             }
@@ -234,7 +260,7 @@
             }
 
             /*
-            * Tee koopia, et mitte muuta kogemata Pinia store'is
+            * Koopia, et mitte muuta kogemata Pinia store'is
             * olevat algset offer-objekti.
             */
             const normalizedOffer = {
@@ -275,15 +301,31 @@
         } finally {
             isOfferLoading.value = false;
         }
-        };
+    };
 
-        watch(
+    /* watch(
         () => [props.bookingId, props.offerId],
         loadOfferContent,
         {
             immediate: true
         }
+    ); */
+
+    watch(
+        [
+            () => props.bookingId,
+            () => props.offerId,
+            () => props.booking
+        ],
+        loadOfferContent,
+        {
+            immediate: true
+        }
     );
+
+
+
+
 
     const emit = defineEmits(['quit-content', 'quit-content-confirmed', 'open-chat']);
     const back = () => {

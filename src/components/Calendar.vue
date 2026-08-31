@@ -1,10 +1,14 @@
 <template>
+  <div style="display: flex; justify-content: flex-end; padding: 7px 12px;">
+    <MDBBtnClose white @click="router.go(-1)"/>
+  </div>
+  
   <div >
     <!-- height="auto" contentHeight="auto" -->
     <FullCalendar ref="calendarRef"  :options="options" />
 
   </div>
-
+  
   <!-- Creating event modal in day view-->
   <MDBModal
     v-model="showCreate"
@@ -1285,7 +1289,7 @@
 </template>
 
 <script setup>
-import { MDBModal, MDBModalHeader, MDBModalTitle, MDBBtn, MDBModalBody, MDBModalFooter, MDBInput, MDBTextarea, MDBDateTimepicker, MDBSelect } from 'mdb-vue-ui-kit';
+import { MDBModal, MDBModalHeader, MDBModalTitle, MDBBtn, MDBBtnClose, MDBModalBody, MDBModalFooter, MDBInput, MDBTextarea, MDBDateTimepicker, MDBSelect } from 'mdb-vue-ui-kit';
 
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -1307,6 +1311,8 @@ import enLocale from '@fullcalendar/core/locales/en-gb'
 import ruLocale from '@fullcalendar/core/locales/ru'
 import { getBottomRightAnchor } from './helpers/chatGeometry.js';
 
+import { useRouter } from "vue-router"
+
 import { storeToRefs } from 'pinia';
 import { useLoginStore } from '@/stores/login';
 import { useClientStore } from '@/stores/recipientStore';
@@ -1322,6 +1328,7 @@ defineProps({
 const { t, locale } = useI18n()
 const emit = defineEmits(['over', 'open-chat'])
 
+const router = useRouter();
 const auth = useLoginStore();
 const clientStore = useClientStore();
 const proStore = useProStore();
@@ -1397,10 +1404,10 @@ const events = computed(() => [
       /* budget: cc.isIncludeOffers ? cc?.offer?.price : cc?.budget.min + " - " + cc?.budget.max, */
       budget: cc.isIncludeOffers ? cc?.confirmedOffer?.price : 'Sovitaan erikseen',
       location: 
-        cc?.confirmedOffer.placeOrGo !== '' 
+        cc?.isIncludeOffers && cc?.confirmedOffer.placeOrGo !== '' 
         ? 
         (
-          cc?.confirmedOffer?.placeOrGo === 'go' 
+          cc?.confirmedOffer?.place === 'go' 
           ?  
           t('calendar.providerComing', {provider: cc.confirmedOffer.name})
           : 

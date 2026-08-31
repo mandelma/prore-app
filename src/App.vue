@@ -2,7 +2,7 @@
   <div class="app-shell">
     <!-- showPwaTopBottomNav -->
     <MobileNavbar
-      v-if="isMobile"
+      v-if="showPwaTopBottomNav"
       :is-authenticated="login.isAuthenticated"
       :client-new-offers-amount="clientNewOffersAmount"
       :new-offers-amount="newOffersAmount"
