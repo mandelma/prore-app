@@ -989,6 +989,44 @@
     "loading": "Laddar omdömen",
     "no_written_reviews": "Inga skriftliga omdömen",
     "no_written_reviews_description": "Det finns ännu inga skriftliga omdömen om denna tjänsteleverantör."
+  },
+
+  "providerHistory": {
+    "history": "Historik",
+    "title": "Utförda tjänster",
+    "subtitle": "Visa slutförda beställningar och deras information.",
+    "search": "Sök...",
+    "empty_title": "Ingen historik ännu",
+    "empty_text": "Slutförda beställningar visas här.",
+    "date": "Datum",
+    "client": "Kund",
+    "task": "Uppdrag",
+    "status": "Status",
+    "actions": "Åtgärder",
+    "completed": "Slutförd",
+    "details": "Detaljer",
+    "delete": "Ta bort",
+    "back": "Tillbaka",
+    "booking": "Beställningsuppgifter",
+    "description": "Beskrivning",
+    "distance": "Avstånd",
+    "duration": "Varaktighet",
+    "price": "Pris",
+    "additional_info": "Ytterligare information",
+    "delete_title": "Ta bort historikpost",
+    "delete_message": "Är du säker på att du vill ta bort denna beställning från historiken?",
+    "cancel": "Avbryt",
+    "duration_hours": "{count} h",
+    "duration_minutes": "{count} min"
+  },
+
+  "errors": {
+    "network_error": "Nätverksfel. Kontrollera internetanslutningen.",
+    "server_error": "Serverfel. Försök igen senare.",
+    "not_found": "Den begärda resursen hittades inte.",
+    "unauthorized": "Du är inte behörig att utföra denna åtgärd.",
+    "forbidden": "Du har inte tillstånd att komma åt denna resurs.",
+    "bad_request": "Felaktig begäran. Kontrollera data och försök igen."
   }
 
 }

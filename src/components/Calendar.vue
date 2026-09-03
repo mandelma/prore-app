@@ -1,5 +1,6 @@
 <template>
-  <div style="display: flex; justify-content: flex-end; padding: 7px 12px;">
+
+  <div v-if="route.name === 'calendar'" style="display: flex; justify-content: flex-end; padding: 7px 12px;">
     <MDBBtnClose white @click="router.go(-1)"/>
   </div>
   
@@ -1311,7 +1312,7 @@ import enLocale from '@fullcalendar/core/locales/en-gb'
 import ruLocale from '@fullcalendar/core/locales/ru'
 import { getBottomRightAnchor } from './helpers/chatGeometry.js';
 
-import { useRouter } from "vue-router"
+import { useRouter, useRoute } from "vue-router"
 
 import { storeToRefs } from 'pinia';
 import { useLoginStore } from '@/stores/login';
@@ -1329,6 +1330,7 @@ const { t, locale } = useI18n()
 const emit = defineEmits(['over', 'open-chat'])
 
 const router = useRouter();
+const route = useRoute();
 const auth = useLoginStore();
 const clientStore = useClientStore();
 const proStore = useProStore();

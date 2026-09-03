@@ -33,7 +33,7 @@ const hs = (io, socket) => {
     socket.on('client get offer', (addressee, clientID, offer) => {
         const room = `user:${addressee}`
         console.log("Offer to client " + offer.name);
-        socket.to(addressee).emit('client use offer', clientID, offer);
+        socket.to(room).emit('client use offer', clientID, offer);
     })
 
     socket.on('client-handle-offer', (sender, orderId, offerId) => {
@@ -41,6 +41,7 @@ const hs = (io, socket) => {
         console.log("Sender - " + sender);
         socket.to(room).emit('pro-handle-confirmed', {sender, orderId, offerId})
     })
+
 
 
 
@@ -79,12 +80,76 @@ const hs = (io, socket) => {
 
 
 
-    socket.on('on client request confirm', (receiver, bookingId, providerId, offer) => {
+    /* socket.on('pro-confirm-map-client', (eventId, receiver, bookingId, providerId, offer, note) => {
+
         const room = `user:${receiver}`
-        console.log("TEST")
+
+        console.log(
+            "📡 SERVER RECEIVED",
+            eventId,
+            "socket:",
+            socket.id
+        );
+
+
+
+        console.log("TEST receiver - ", receiver);
         console.log("Receiver id " + receiver + " ja booking id " + bookingId);
-        socket.to(receiver).emit('handle client request confirm', {receiver, bId: bookingId, _providerId: providerId,  _offer: offer})
-    })
+        socket.to(room).emit('handle-pro-confirm-map-client', {ei: eventId, bId: bookingId, _providerId: providerId,  _offer: offer, _note: note})
+    }) */
+
+    socket.on(
+        "pro-confirm-map-client",
+        (
+            receiver,
+            bookingId,
+            providerId,
+            offer,
+            note,
+            eventId
+        ) => {
+            console.log(
+                "📡 SERVER RECEIVED",
+                eventId,
+                Date.now()
+            );
+
+            const room = `user:${receiver}`;
+
+            console.log(
+                "🚨 BEFORE SERVER EMIT",
+                eventId,
+                room,
+                Date.now()
+            );
+
+            socket.to(room).emit(
+                "handle-pro-confirm-map-client",
+                {
+                    eventId,
+                    bId: bookingId,
+                    _providerId: providerId,
+                    _offer: offer,
+                    _note: note
+                }
+            );
+
+            console.log(
+                "✅ AFTER SERVER EMIT",
+                eventId,
+                Date.now()
+            );
+        }
+    );
+
+
+
+
+
+
+
+
+    
 
     /* socket.on('client remove map booking', (bookingId) => {
 
@@ -153,8 +218,7 @@ const hs = (io, socket) => {
     socket.on('client-report', (receiverId, profession, distance) => {
         const room = `user:${receiverId}`
         console.log("Report receiver id - ", receiverId);
-        const report = `Etsitaan ammattilaista - ${profession} etäisyydeltä - ${distance} km`;
-        socket.to(room).emit('handle-client-report', report);
+        socket.to(room).emit('handle-client-report', profession, distance);
     })
 
 

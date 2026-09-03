@@ -727,8 +727,17 @@ export const useConversationStore = defineStore("conversation", () => {
   };
   
 
+  let socketConnecting = false;
+
   const reconnectSocket = () => {
     if (socket.connected) {
+      return;
+    }
+
+    if (socketConnecting) {
+      console.log(
+        "Socket connection already in progress"
+      );
       return;
     }
 
@@ -741,13 +750,21 @@ export const useConversationStore = defineStore("conversation", () => {
       return;
     }
 
+    socketConnecting = true;
+
     console.log(
       "Connecting socket..."
     );
 
     socket.connect();
   };
+
+
+
+
   const onSocketConnect = () => {
+    socketConnecting = false;
+
     console.log(
       "🟢 SOCKET CONNECTED:",
       socket.id
@@ -762,8 +779,16 @@ export const useConversationStore = defineStore("conversation", () => {
       );
     }
 
-    // reconnecti järel taastame presence
     syncPresence("socket-connect");
+  };
+
+  const onSocketDisconnect = reason => {
+    socketConnecting = false;
+
+    console.log(
+      "🔴 SOCKET DISCONNECTED:",
+      reason
+    );
   };
 
   // ---- Socket listeners (call this once from App.vue after login)
@@ -793,8 +818,12 @@ export const useConversationStore = defineStore("conversation", () => {
       "connect",
       onSocketConnect
     );
-  };
 
+    socket.on(
+      "disconnect",
+      onSocketDisconnect
+    );
+  };
 
   const disconnect_prev = () => {
     // ✅ remove only YOUR listeners (best practice)
@@ -829,6 +858,11 @@ export const useConversationStore = defineStore("conversation", () => {
     socket.off(
       "connect",
       onSocketConnect
+    );
+
+    socket.off(
+      "disconnect",
+      onSocketDisconnect
     );
 
     if (socket.connected) {

@@ -78,17 +78,16 @@ export const useNotificationStore = defineStore('notifications', () => {
         }
     }
     // Pro orders, pro confirms client deal
-    const localConfirmDealNotification = async (booking_id, proId, clientId, notes) => {
+    /* const localConfirmDealNotification = async (booking_id, proId, clientId, notes) => {
         const clientSide = await noteService.createMessage(clientId, notes.cNote);
-        //const proSide = await noteService.createMessage(proId, notes.pNote);
+        
         if (!clientSide) return;
         //notes.pNote = proSide;
         notes.cNote = clientSide;
 
         socket.emit('on-confirmed-deal-notification', booking_id, proId, clientId, notes);
 
-        //localStateAddNotification(notes.pNote);
-    } 
+    }  */
 
     const clientConfirmDealNotification = async (bookingId, receiver, note) => {
         // --Tegemisel--
@@ -108,7 +107,6 @@ export const useNotificationStore = defineStore('notifications', () => {
             ...notifications.value,
             newNote
         ];
-        //const confirmNote = await noteService.createMessage()
     }
 
     const notificationUp = async(userId, note) => {
@@ -118,8 +116,6 @@ export const useNotificationStore = defineStore('notifications', () => {
         const addNote = await noteService.createMessage(userId, note);
 
         if (!addNote) return false;
-
-        //localStateAddNotification(note);
 
         return true;
     }
@@ -151,7 +147,7 @@ export const useNotificationStore = defineStore('notifications', () => {
         handleNotifications,
         addNotification,
         onProRejectClientMapOrderNote,
-        localConfirmDealNotification,
+        //localConfirmDealNotification,
         localStateAddNotification,
         upsertNotificationStatus,
         setLocalNote,

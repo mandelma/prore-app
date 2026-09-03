@@ -1004,7 +1004,45 @@
     "loading": "Ladataan arvosteluja",
     "no_written_reviews": "Ei kirjallisia arvosteluja",
     "no_written_reviews_description": "Palveluntarjoajalle ei ole vielä jätetty kirjallisia arvosteluja."
-  }
+  },
 
+  "providerHistory": {
+    "history": "Historia",
+    "title": "Tarjotut palvelut",
+    "subtitle": "Tarkastele päättyneitä tilauksia ja niiden tietoja.",
+    "search": "Hae...",
+    "empty_title": "Ei historiatietoja",
+    "empty_text": "Päättyneet tilaukset näkyvät täällä.",
+    "date": "Päivä",
+    "client": "Asiakas",
+    "task": "Tehtävä",
+    "status": "Tila",
+    "actions": "Toiminnot",
+    "completed": "Valmis",
+    "details": "Tiedot",
+    "delete": "Poista",
+    "back": "Takaisin",
+    "booking": "Tilaustiedot",
+    "description": "Kuvaus",
+    "distance": "Etäisyys",
+    "duration": "Kesto",
+    "price": "Hinta",
+    "additional_info": "Lisätiedot",
+    "delete_title": "Poista historiatieto",
+    "delete_message": "Haluatko varmasti poistaa tämän tilauksen historiasta?",
+    "cancel": "Peruuta",
+    "duration_hours": "{count} h",
+    "duration_minutes": "{count} min"
+  },
+
+  "errors": {
+    "network_error": "Verkkovirhe. Tarkista verkkoyhteys ja yritä uudelleen.",
+    "server_error": "Palvelinvirhe. Yritä myöhemmin uudelleen.",
+    "not_found": "Pyydettyä resurssia ei löytynyt.",
+    "unauthorized": "Sinulla ei ole oikeuksia tähän toimintaan.",
+    "forbidden": "Pääsy estetty.",
+    "bad_request": "Virheellinen pyyntö. Tarkista syötetyt tiedot.",
+    "validation_error": "Syötteessä on virheitä. Tarkista lomake ja yritä uudelleen."
+  }
 }
 

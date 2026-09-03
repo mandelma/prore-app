@@ -331,27 +331,28 @@ export const useProStore = defineStore("pro", () => {
     // Confirming client offer sended from map
     const onClientBooking = async(bookingId, offer, myself, clientId, providerId, notes) => {
         console.log("CLIENT id is " + bookingId)
+        console.log("Offer is ", offer);
+        console.log("Myself is ", myself);
+        console.log("Client id is ", clientId);
+        console.log("Provider id is ", providerId);
+        console.log("Notes are ", notes);
 
         const offerId = Date.now().toString(36) + Math.random().toString(36).slice(2);
         offer.id = offerId;
         
-        await notificationStore.localConfirmDealNotification(bookingId, myself, clientId, notes);
-
-
         const confirmed = incomingOffers.value.find(item => item.id === bookingId);
         const currentList = incomingOffers.value.filter(confirmed => confirmed.id !== bookingId);
         incomingOffers.value = currentList;
-        //incomingOffersCount.value = incomingOffers.value.length;
+
+        confirmed.confirmed_provider_user_id = myself;
+        confirmed.status = 'confirmed';
 
         proCalendarEvents.value = proCalendarEvents.value.concat(confirmed);
 
-        socket.emit('on client request confirm', clientId, bookingId, providerId, offer);
-
-        
-        if (incomingOffersCount.value < 1) {
-            //router.push('/');
-        }
+        return true;
     }
+
+
     const updateStatus = async (payload) => {
         if (provider.value) {
             const edited = await providerService.setAvailability(provider.value.id, payload);

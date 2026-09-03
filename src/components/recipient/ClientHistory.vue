@@ -48,7 +48,8 @@
       </div>
 
       <!-- DESKTOP: table -->
-      <MDBTable borderless class="historyTable d-none d-md-table">
+      <div class="historyCard">
+        <MDBTable borderless class="historyTable d-none d-md-table">
         <thead>
           <tr>
             <th>{{ t('clientHistory.table.date') }}</th>
@@ -70,6 +71,8 @@
           </tr>
         </tbody>
       </MDBTable>
+      </div>
+      
     </div>
 
     <!-- DETAILS VIEW -->
@@ -83,6 +86,7 @@
       </div>
 
       <div class="history__grid">
+        
         <!-- Booking details -->
         <section class="historySection">
           <h4 class="historySection__title">{{ t('clientHistory.details.booking') }}</h4>

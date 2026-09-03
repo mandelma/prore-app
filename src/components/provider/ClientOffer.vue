@@ -39,7 +39,7 @@
             {{ t('clientOffer.professional_needed') }}
           </td>
           <td>
-            {{client?.professional?.[0]}}
+            {{localProfession(client?.professional?.[0])}}
 
           </td>
         </tr>
@@ -398,9 +398,9 @@
   />
 
   <!-- Overlay -->
-    <div v-if="loading" class="on-overlay">
-      <div class="on-spinner"></div>
-    </div>
+  <div v-if="loading" class="on-overlay">
+    <div class="on-spinner"></div>
+  </div>
 </template>
 
 <script setup>
@@ -428,6 +428,7 @@ import ConfirmDealModal from '../helpers/ConfirmDealModal.vue';
 import { useI18n } from 'vue-i18n';
 
 import { formatDateTime } from '../helpers/datei18n.js';
+import { useLocalProfession } from '@/composables/useLocalProfession.js';
 
 import handleLocation from '../controllers/distance.js';
 import { useNotificationStore } from '@/stores/notificationStore.js';
@@ -453,7 +454,7 @@ const _props = defineProps({
 })
 
 
-const emit = defineEmits(['toast', 'just-test', 'parent-open', 'handle-user-action', "open-chat"])
+const emit = defineEmits(['toast', 'just-test', 'parent-open', 'handle-user-action', "open-chat"]);
 
 const { client, open } = toRefs(_props)
 const { t, locale } = useI18n();
@@ -534,6 +535,9 @@ watch(
   },
   { immediate: true}
 )
+
+const { localProfession
+} = useLocalProfession();
 
 function handleImageLoaded(idx) {
   loadingImages.value[idx] = false
@@ -966,9 +970,9 @@ const confirmClientBooking = async () => {
 
 const confirmDeal = async () => {
   loading.value = true;
-  const bookingId = client.value.id;
-  const receiver = client.value.author_id;
-  const myself = user.value.id;
+  const bookingId = client.value?.id;
+  const receiver = client.value?.author_id;
+  const myself = user.value?.id;
   
   const header = t('clientOffer.notifications.deal_created_title');
   const clientContent = t('clientOffer.notifications.deal_created_client', {
@@ -992,6 +996,7 @@ const confirmDeal = async () => {
     description: offerAbout.value,
     place: offerPlace.value,
     budget: client.value.budget,
+    provider: provider.value.id
   }    
 
   const notificationForClient = {
@@ -1027,10 +1032,33 @@ const confirmDeal = async () => {
       });
 
     if (!confirmation?.success) {
-      return;
+      throw new Error("Confirmation failed");
     }
 
-    emit("handle-user-action");
+    const addedNotification = await notificationStore.notificationUp(receiver, notes.cNote);
+
+    if (!addedNotification) {
+      console.log("Notification about confirmation to client not added");
+      throw new Error("Notification failed");
+      
+    }
+    const eventId = crypto.randomUUID();
+
+    console.log(
+      "🚀 SENDING pro-confirm-map-client",
+      eventId
+    );
+    //socket.emit('pro-confirm-map-client', eventId, receiver, bookingId, myself, offer, notes.cNote);
+
+    socket.emit(
+      "pro-confirm-map-client",
+      receiver,
+      bookingId,
+      myself,
+      offer,
+      notes.cNote,
+      eventId
+    );
 
     emit("toast", {
       state: "success",
@@ -1041,7 +1069,7 @@ const confirmDeal = async () => {
       color: "success"
     });
 
-    await proStore.onClientBooking(
+    const isDone = await proStore.onClientBooking(
       client.value.id,
       offer,
       myself,
@@ -1050,11 +1078,12 @@ const confirmDeal = async () => {
       notes
     );
 
-    socket.emit(
-      "pro-confirm-client",
-      receiver,
-      providerId.value
-    );
+    if (!isDone) {
+      throw new Error("Failed to update local store after confirmation.");
+    }
+
+    emit("handle-user-action");
+
   } catch (error) {
     const status = error.response?.status;
     const code = error.response?.data?.code;
@@ -1073,6 +1102,7 @@ const confirmDeal = async () => {
       });
 
       emit("handle-user-action");
+
       return;
     }
 

@@ -178,9 +178,14 @@ const handleArchiveClient = async (booking, provider) => {
     address: booking.address,
     distance: booking.confirmedOffer.distance,
     date: booking.created,
+    start: booking.created,
+    end: booking.estimatedFinish,
+    wage: booking.confirmedOffer.price || null,
     //userID: provider.user.id
     userID: props.target
   }
+
+  //const _deal = booking.confirmedOffer
 
   const clientHistory = {
       status: "",

@@ -30,9 +30,16 @@ const io = require('socket.io')(server, {
 
 });
 
-io.on(
+/* io.on(
     "connection",
     socket => {
+        console.log(
+            "### CONNECTION HANDLER ###",
+            socket.id
+        );
+
+
+
         console.log(
             "SOCKET CONNECT:",
             {
@@ -70,12 +77,60 @@ io.on(
         );
 
         handleSocket(io, socket);
+        console.log(
+            "pro-confirm listeners AFTER handleSocket:",
+            socket.listenerCount(
+                "pro-confirm-map-client"
+            )
+        );
         handleChatSockets(
             io,
             socket
         );
+
+        console.log(
+            "pro-confirm listeners AFTER handleChatSockets:",
+            socket.listenerCount(
+                "pro-confirm-map-client"
+            )
+        );
     }
-);
+); */
+
+io.on("connection", socket => {
+    console.log("========== SOCKET CONNECT ==========");
+
+    console.log({
+        socketId: socket.id,
+        userId: socket.userId,
+        username: socket.username,
+
+        origin:
+            socket.handshake.headers.origin,
+
+        referer:
+            socket.handshake.headers.referer,
+
+        userAgent:
+            socket.handshake.headers["user-agent"],
+
+        address:
+            socket.handshake.address,
+
+        transport:
+            socket.conn.transport.name,
+
+        auth:
+            socket.handshake.auth
+    });
+
+    console.log("====================================");
+
+    socket.join(`user:${socket.userId}`);
+
+    handleSocket(io, socket);
+    handleChatSockets(io, socket);
+});
 
 mongoose.set('strictQuery', false);
 
@@ -194,15 +249,6 @@ io.use((socket, next) => {
     }
 });
 
-/* io.on("connection", (socket) => {
-    
-    socket.join(`user:${socket.userId}`);
-
-    socket.emit("test", socket.userId);
-
-    handleSocket(io, socket);
-    handleChatSockets(io, socket);
-}); */
 
 app.use((err, req, res, next) => {
     console.error(err);

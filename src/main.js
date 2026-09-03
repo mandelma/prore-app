@@ -1,9 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-//import 'mdb-vue-ui-kit/css/mdb.min.css'
 
 import { initPwaInstall } from "@/composables/usePwaInstall.js"
-
 
 import 'mdb-vue-ui-kit/css/mdb.min.css';
 
@@ -12,15 +10,6 @@ import PrimeVue from 'primevue/config'
 import 'primeicons/primeicons.css'   // icons, if you use them
 
 import Aura from '@primevue/themes/aura'
-
-//import Select from 'primevue/dropdown'
-
-//import '@/styles/pro-select.styles'
-
-
-
-
-
 
 
 //import '@/styles/date-timepicker.css'
@@ -31,11 +20,6 @@ const pinia = createPinia();
 
 initPwaInstall();
 
-//console.log('Aura preset:', Aura);
-
-//createApp(App).use(PrimeVue);
-//createApp(App).component('Dropdown', Select);
-//, {theme: {preset: Aura}}
 createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {
     zIndex: {
         overlay: 3000 // make sure it's higher than your navbar

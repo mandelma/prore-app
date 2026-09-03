@@ -17,8 +17,14 @@ const proHistorySchema = new Schema({
     distance: {
         type: Number
     },
-    date: {
+    start: {
         type: Date
+    },
+    end: {
+        type: Date
+    },
+    wage: {
+        type: Number
     },
     user: {
         type: String

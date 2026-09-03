@@ -1,5 +1,20 @@
 import { io } from "socket.io-client";
 
+
+const SOCKET_INSTANCE =
+    crypto.randomUUID();
+
+/* console.log(
+    "🧩 SOCKET.JS INSTANCE CREATED:",
+    SOCKET_INSTANCE,
+    "window:",
+    window.location.href,
+    "top window:",
+    window === window.top
+); */
+
+
+
 console.log(
     "Socket URL:",
     import.meta.env.VITE_SOCKET_URL
@@ -82,6 +97,8 @@ socket.on(
 );
 
 
+socket.offAny();
+
 /*
  * Ainult üks onAny on piisav.
  */
@@ -92,6 +109,7 @@ socket.onAny(
             event,
             args
         );
+
     }
 );
 

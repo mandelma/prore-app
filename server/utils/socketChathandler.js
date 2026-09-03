@@ -7,37 +7,6 @@ const hsc = (io, socket) => {
         socket.join(`convo:${conversationId}`);
     });
 
-    /* socket.on(
-        "chat:presence",
-        ({ visible, conversationId }, callback) => {
-            socket.data.appVisible =
-                Boolean(visible);
-
-            socket.data.activeConversationId =
-                visible && conversationId
-                    ? String(conversationId)
-                    : null;
-
-            console.log("CHAT PRESENCE:", {
-                socketId: socket.id,
-                userId: socket.userId,
-                appVisible:
-                    socket.data.appVisible,
-                activeConversationId:
-                    socket.data.activeConversationId
-            });
-
-            callback?.({
-                success: true,
-                socketId: socket.id,
-                userId: socket.userId,
-                appVisible: socket.data.appVisible,
-                activeConversationId:
-                    socket.data.activeConversationId
-            });
-        }
-    ); */
-
     socket.on(
         "chat:presence",
         ({ visible, conversationId }, callback) => {
@@ -99,10 +68,10 @@ const hsc = (io, socket) => {
     const userId = String(socket.userId);
     socket.join(`user:${userId}`);
 
-    socket.on("join-conversation", ({ conversationId }) => {
+    /* socket.on("join-conversation", ({ conversationId }) => {
         socket.join(`convo:${conversationId}`);
         console.log("joined room", `convo:${conversationId}`);
-    });
+    }); */
 
     if (!onlineUsers.has(userId)) onlineUsers.set(userId, []);
     onlineUsers.get(userId).push(socket.id);

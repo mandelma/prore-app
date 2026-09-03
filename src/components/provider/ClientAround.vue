@@ -169,36 +169,7 @@
             {{ t("clientAround.refresh") }}
           </button>
         </div>
-
-        <!-- <div class="pro-map-panel__footer">
-          <button
-            type="button"
-            class="pro-map-panel__reset"
-            @click="refreshMapState"
-          >
-            <i class="fa-solid fa-arrow-rotate-left" />
-
-            {{ t("clientAround.refresh") }}
-          </button>
-
-          <MDBBtn
-            color="primary"
-            class="pro-map-panel__search"
-            :disabled="
-              !addressValid ||
-              !hasProfession ||
-              selectedRange === null
-            "
-            @click="showClientsOnMap"
-          >
-            <i class="fa-solid fa-magnifying-glass-location" />
-
-            {{ t("clientAround.search") }}
-          </MDBBtn>
-        </div> -->
       </div>
-
-
     
     <MDBBtn
       v-else
@@ -211,9 +182,6 @@
     
   </div>
 
-
-
-
   <div style="padding: 13px 0 20px 0;">
     <MDBToast
         v-model="isRequestSent"
@@ -224,7 +192,7 @@
         toast="success"
         icon="fas fa-check fa-lg me-2"
     >
-      <template #title>PROKEIKKATORI</template>
+      <template #title>DuunHub</template>
       <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
       <template #small></template>
       <p>{{ rs_success_msg }}</p>
@@ -553,60 +521,6 @@ const circleMarker = (color) => ({
   scale: 8
 });
 
-const handleMaps = async() => {
-  try {
-    await loadGoogleMaps();
-
-
-    console.log("Map is inited in client around! ✅");
-    userCurrentLocation();
-
-    const input = document.getElementById("pro-input");
-
-    console.log("pro-input element:", input, input?.tagName);
-
-    const center = { lat: 50.064192, lng: -130.605469 };
-    const defaultBounds = {
-      north: center.lat + 0.1,
-      south: center.lat - 0.1,
-      east: center.lng + 0.1,
-      west: center.lng - 0.1,
-    };
-    const options = {
-      bounds: defaultBounds,
-      componentRestrictions: { country: "fi" },
-      fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
-      strictBounds: false,
-    };
-    const autocomplete = new google.maps.places.Autocomplete(input, options);
-
-    autocomplete.addListener("place_changed", () => {
-      let place = autocomplete.getPlace()
-      myLat.value = place.geometry.location.lat();
-      myLng.value = place.geometry.location.lng();
-
-      console.log("Address xxxx " + place.formatted_address)
-      console.log("place-----lat------" + myLat.value)
-    });
-
-    try {
-      new google.maps.Map(document.getElementById("map"), {
-        zoom: 13,
-        center: new google.maps.LatLng(myLat.value, myLng.value),
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        accuracy: 50,
-
-      });
-    } catch(err) {
-      console.log("Error to load map: " + err.message);
-    }
-
-  } catch (err) {
-    console.error('Google Maps failed to load ❌', err);
-    mapsError.value = true;
-  }
-}
-
 const initMap = (lat, lng) => {
   if (map) return map
 
@@ -754,7 +668,7 @@ const addClientMarker = (client, inner_color, outer_color) => {
       lng: Number(client.longitude)
     },
     map,
-    title: ""/* t('clientAround.client_marker_title') + client.professional[0] */,
+    title: "" /* t('clientAround.client_marker_title') + client.professional[0] */,
     /* icon: pinSymbol(inner_color, outer_color) */
     icon: starMarker('#E23C89')
   });

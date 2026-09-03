@@ -345,6 +345,7 @@
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
         <MDBCard class="h-100">
+        
           <MDBCardBody v-if="!isPanelInfoEditSection">
             
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -368,7 +369,7 @@
                     range: draftProvider.range ? draftProvider.range : 0
                   }) }}
                 </div>
-                <div class="text-muted info-panel">{{ draftProvider.profession.map(p => localProfessionName(p)).join(", ") }}</div>
+                <div class="text-muted info-panel">{{ draftProvider.profession.map(p => localProfession(p)).join(", ") }}</div>
                 <div class="text-muted info-panel">
                   {{ t('providerAdmin.hourlyRateValue', {
                     price: draftProvider.priceByHour
@@ -744,6 +745,8 @@ import ClientOffersList from "./ClientOffersList.vue";
 import NotificationStatusBanner from "../NotificationStatusBanner.vue";
 import AdminMessage from "../AdminMessage.vue";
 import providerService from '../../service/providers'
+
+import { useLocalProfession } from '@/composables/useLocalProfession.js';
 import socket from "@/socket";
 
 const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications"]);
@@ -835,6 +838,8 @@ const isCalendar = ref(false);
 const clientOpen = ref(false);
 
 const clientReport = ref('');
+
+const { localProfession } = useLocalProfession();
 
 //const clients = ref([]);
 const clientQuery = ref("");
@@ -965,6 +970,8 @@ function onPlaceSelected(place) {
   pmForm.lng = place.lng;
 
   draftProvider.address = place.address;
+  draftProvider.latitude = place.lat;
+  draftProvider.longitude = place.lng;
 
   addressValid.value = true;
   pmError.address = "";
@@ -1118,8 +1125,8 @@ watch(
     }
     Object.assign(draftProvider, mapProviderToDraft(pro));
     pmForm.address = draftProvider.address;
-    pmForm.lat = pro?.lat ?? null;
-    pmForm.lng = pro?.lng ?? null;
+    pmForm.lat = pro?.lat ?? draftProvider.latitude ?? null;
+    pmForm.lng = pro?.lng ?? draftProvider.longitude ?? null;
 
     selectedPlace.value = null;
     addressValid.value = true;
@@ -1160,18 +1167,17 @@ const clients = computed(
 
 const confirmedClients = computed(() => proCalendarEvents.value);
 
-
-
 const handleToast = (payload) => {
-  console.log("Toast payload - " + payload.state + " " + payload.message);
+  console.log("Toast payload in parent - " + payload.state + " " + payload.message);
   onToast(payload.icon, payload.message, payload.color);
 
 }
 
 const tickerKey = ref(0);
 
-function onClientReport(report) {
-  clientReport.value = String(report);
+function onClientReport(profession, distance) {
+  //clientReport.value = String(report);
+  clientReport.value = `Etsitaan ammattilaista - ${localProfessionName(profession)} etäisyydeltä - ${distance} km`
   tickerKey.value++; // force restart animation
 }
 
@@ -1293,8 +1299,8 @@ function resetProvider() {
   );
 
   pmForm.address = draftProvider.address;
-  pmForm.lat = pro?.lat ?? null;
-  pmForm.lng = pro?.lng ?? null;
+  pmForm.lat = pro?.lat ?? draftProvider.latitude ?? null;
+  pmForm.lng = pro?.lng ?? draftProvider.longitude ?? null;
 
   selectedPlace.value = null;
   addressValid.value = true;
@@ -1345,7 +1351,8 @@ async function saveProvider() {
 function emptyProviderDraft() {
   return {
     name: "",
-    
+    latitude: null,
+    longitude: null,
     address: "",
     profession: [],
     status: "xx",
@@ -1670,35 +1677,6 @@ function completeAlert(t) {
   notify("Done", "Task completed.");
 }
 
-// Helpers
-/* function assignProvider(p) {
-  provider.id = p.id ?? providerId.value;
-  provider.name = p.name ?? "";
-  provider.email = p.email ?? "";
-  provider.phone = p.phone ?? "";
-  provider.address = p.address ?? "";
-  provider.status = p.status ?? "Active";
-  provider.timezone = p.timezone ?? "Europe/Helsinki";
-  provider.notes = p.notes ?? "";
-  provider.portalEnabled = !!p.portalEnabled;
-  provider.updatedAt = p.updatedAt ?? null;
-} */
-
-/* function assignDraftProvider(p) {
-  draftProvider.name = p.name ?? "";
-  draftProvider.email = p.email ?? "";
-  draftProvider.phone = p.phone ?? "";
-  draftProvider.address = p.address ?? "";
-  draftProvider.status = p.status ?? "Active";
-  draftProvider.timezone = p.timezone ?? "Europe/Helsinki";
-  draftProvider.notes = p.notes ?? "";
-  draftProvider.portalEnabled = !!p.portalEnabled;
-} */
-
-/* function toPlain(obj) {
-  return JSON.parse(JSON.stringify(obj));
-} */
-
 function formatDate(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -1724,15 +1702,16 @@ function formatDateTime(iso) {
 } */
 
 
-const onToast = (icon, content, color) => {
+const onToast = async (icon, content, color) => {
   console.log("Toast work?")
-  toastModel.value = true;
+  toastModel.value = false;
+
   toastState.value = color;
   toastIcon.value = icon;
   toastContent.value = content;
-  nextTick(() => {
-    toastModel.value = true
-  })
+  await nextTick();
+
+  toastModel.value = true;
 }
 
 function notify(title, message) {
@@ -1977,7 +1956,7 @@ function sleep(ms) {
   align-items: center;
   gap: 9px;
   padding-left: 18px;
-  color: var(--admin-text-secondary);
+  color: var(--admin-warning);
   font-size: 0.7rem;
   white-space: nowrap;
   will-change: transform, opacity;

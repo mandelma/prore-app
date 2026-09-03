@@ -989,5 +989,43 @@
     "loading": "Arvustuste laadimine",
     "no_written_reviews": "Kirjalikud arvustused puuduvad",
     "no_written_reviews_description": "Sellele teenusepakkujale ei ole veel ühtegi kirjalikku arvustust jäetud."
+  },
+
+  "providerHistory": {
+    "history": "Ajalugu",
+    "title": "Tehtud tööd",
+    "subtitle": "Vaata lõpetatud tellimusi ja nende andmeid.",
+    "search": "Otsi...",
+    "empty_title": "Ajalugu on tühi",
+    "empty_text": "Lõpetatud tellimused ilmuvad siia.",
+    "date": "Kuupäev",
+    "client": "Klient",
+    "task": "Töö",
+    "status": "Olek",
+    "actions": "Toimingud",
+    "completed": "Lõpetatud",
+    "details": "Andmed",
+    "delete": "Kustuta",
+    "back": "Tagasi",
+    "booking": "Tellimuse andmed",
+    "description": "Kirjeldus",
+    "distance": "Kaugus",
+    "duration": "Kestus",
+    "price": "Hind",
+    "additional_info": "Lisainfo",
+    "delete_title": "Kustuta ajalookirje",
+    "delete_message": "Kas oled kindel, et soovid selle tellimuse ajaloost kustutada?",
+    "cancel": "Loobu",
+    "duration_hours": "{count} h",
+    "duration_minutes": "{count} min"
+  },
+
+  "errors": {
+    "network_error": "Võrgus esines viga. Kontrolli oma internetiühendust.",
+    "server_error": "Serveris esines viga. Proovi uuesti.",
+    "not_found": "Lehte ei leitud.",
+    "unauthorized": "Sul pole selleks õigusi.",
+    "forbidden": "Sul pole selleks õigusi.",
+    "bad_request": "Vigane päring. Kontrolli andmeid ja proovi uuesti."
   }
 }

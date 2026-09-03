@@ -70,6 +70,7 @@
                 :ref="setCollapseRoot"
                 v-model="parentOpen"
             >
+              <!-- @just-test="hJustTest" -->
               <div ref="collapseEl" class="card-body mt-3">
                 <client-offer
                     :open="childOpen"
@@ -78,7 +79,7 @@
                     :is-disabled="booking?.disabled"
                     :client="client"
                     @open-chat="$emit('open-chat', $event)"
-                    @just-test="hJustTest"
+                    
                     @toast="payload => {console.log('child received', payload); emit('toast', payload)}"
                 />
                 
@@ -225,7 +226,7 @@ const _props = defineProps({
   offersIn: {type: Array, default: () => []}
 })
 
-const emit = defineEmits(['toast', 'confirm-order-toast', 'handle-user-action', "open-chat"])
+const emit = defineEmits(['toast', 'handle-user-action', "open-chat"]);
 
 const { offersIn, isPro } = toRefs(_props);
 
@@ -313,17 +314,17 @@ onMounted(() => {
 onBeforeUnmount(() => { ro && ro.disconnect() })
 
 const toastForward = (payload) => {
-  console.log("Payload in co - ", payload);
+  console.log("Payload in COOOOOOOOOOO - ", payload);
   emit('toast', payload);
 }
 
-const hJustTest = () => {
+/* const hJustTest = () => {
   console.log("JUST TEST");
-  //emit('confirm-order-toast')
+  
   isOrderConfirmed.value = true;
   confirmedOrderMessage.value = confirmedOrderMessage.value =
   t('clientOfferList.order_confirmed_by_you')
-}
+} */
 
 const handleConfirmedOrderToast = () => {
   console.log('Parent received confirmed-order-toast')

@@ -2,7 +2,7 @@
   <MDBToast
     v-model="model"
     :autohide="true"
-    :delay="3000"
+    :delay="3500"
     :stacking="false"
     position="top-center"
     

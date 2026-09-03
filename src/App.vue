@@ -1420,15 +1420,8 @@ const forceChatSync = async () => {
 
     console.log("FORCE CHAT SYNC");
 
-    // 1. Taasta socket
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    // 2. Küsi conversation list uuesti serverist
     await conversationStore.getConversations();
 
-    // 3. Kui chat on avatud, küsi sõnumid alati uuesti
     const conversationId =
       conversationStore.activeConversationId;
 
@@ -1455,21 +1448,14 @@ const refreshNotificationPermission = () => {
     Notification.permission;
 };
 
-const handleVisibilityChange =
-  async () => {
-
+const handleVisibilityChange = async () => {
   const visible =
-    document.visibilityState ===
-    "visible";
+    document.visibilityState === "visible";
 
   console.log(
     "App visibility:",
     visible
   );
-
-  if (login.isAuthenticated) {
-    conversationStore.syncPresence("visibilitychange");
-  }
 
   if (!visible) {
     return;
@@ -1483,7 +1469,10 @@ const handleVisibilityChange =
     conversationStore.initSocket();
     conversationStore.reconnectSocket();
 
-    await syncConversations();
+    conversationStore.syncPresence(
+      "visibilitychange"
+    );
+
     await forceChatSync();
   }
 };
@@ -1498,8 +1487,14 @@ const handlePageShow = async () => {
   await forceChatSync();
 };
 
-const handleOnline = async () => {
+const handleOnline__ = async () => {
   conversationStore.syncPresence("handle-online");
+  await forceChatSync();
+};
+
+const handleOnline = async () => {
+  conversationStore.reconnectSocket();
+
   await forceChatSync();
 };
 
@@ -2016,6 +2011,35 @@ const handleConversationRefresh = async () => {
   await conversationStore.getConversations();
 };
 
+const handleProConfirmMapClient = async ({
+  eventId,
+  bId,
+  _providerId,
+  _offer,
+  _note
+}) => {
+  console.log(
+    "🔥 SOCKET handle-pro-confirm-map-client",
+    bId,
+    "EVENT:",
+    eventId,
+    "SOCKET:",
+    socket.id
+  );
+
+  await client.handleConfirmedOffer(
+    bId,
+    _providerId,
+    _offer
+  );
+
+  await notificationStore.localStateAddNotification(
+    _note
+  );
+};
+
+
+
 const listen = async() => {
   if (isListening) return;
   isListening = true;
@@ -2047,7 +2071,10 @@ const listen = async() => {
   );
 
 
-
+  socket.on(
+    "handle-pro-confirm-map-client",
+    handleProConfirmMapClient
+  );
 
   socket.on('create booking mtp', async(id, bookingId, proIdArr) => {
     console.log("GOT THE BOOKING " + bookingId + ": ");
@@ -2077,12 +2104,26 @@ const listen = async() => {
     handleProvider.upsertBooking(request);
   })
 
-  socket.on('handle client request confirm', async ({receiver, bId, _providerId, _offer}) => {
-    console.log("XXXXX " + bId);
+  /* socket.on('handle-pro-confirm-map-client', async ({ei, bId, _providerId, _offer, _note}) => {
+    console.log(
+      "🔥 SOCKET handle-pro-confirm-map-client",
+      bId,
+      Date.now(),
+      "SOCKET ID:",
+      socket.id,
+      Date.now()
+    );
 
+    console.log(
+      "📥 CLIENT RECEIVED",
+      ei,
+      Date.now()
+    );
 
     await client.handleConfirmedOffer(bId, _providerId, _offer);
-  })
+    await notificationStore.localStateAddNotification(_note);
+  }) */
+  
   socket.on('handle-pro-del-map-booking', async (receiver, bookingId, note) => {
     console.log("Del map booking " + bookingId);
     console.log("Note  " + note.id);
@@ -2197,6 +2238,11 @@ const stopListening = () => {
   socket.off(
     "conversation:list:refresh",
     handleConversationRefresh
+  );
+
+  socket.off(
+    "handle-pro-confirm-map-client",
+    handleProConfirmMapClient
   );
 
   isListening = false;

@@ -184,12 +184,16 @@ export const useClientStore = defineStore('client', () => {
     }
 
     const handleConfirmedOffer = async (bookingId, _providerId, _offer) => {
-       // const _Offer = await offerService.addOffer(newContent);
-        const provider = await  providerService.getProvByProvId(_providerId);
-        if (provider) {
-            _offer.provider = provider;
-        }
-        const bookingsEdited = bookings.value.map(booking => booking.id === bookingId ? {...booking, status: 'confirmed', offer: _offer} : booking);
+        console.log("COME HERE " + bookingId + " provider id " + _providerId + " offer - " + _offer.name);
+
+        console.log("OFFER ", _offer)
+       
+        _offer.provider = _providerId;
+        const bookingsEdited = bookings.value.map(
+            booking => booking.id === bookingId 
+            ? {...booking, status: 'confirmed', offer: _offer, confirmed_provider_user_id: _providerId} 
+            : booking
+        );
         bookings.value = bookingsEdited;
         
     }

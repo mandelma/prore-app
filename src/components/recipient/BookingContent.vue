@@ -147,7 +147,7 @@
             </dt>
 
             <dd>
-              {{ booking.professional.join() }}
+              {{ booking.professional.map(p => localProfessionName(p)).join(", ") }}
             </dd>
           </div>
         </dl>
@@ -487,7 +487,11 @@ import { MDBDateTimepicker, MDBIcon, MDBBtn } from 'mdb-vue-ui-kit';
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from 'vue-i18n';
 import { useClientStore } from '@/stores/recipientStore';
+import { useProfessionStore } from '@/stores/professionStore';
 import uploadService from "@/service/awsUploads";
+import {storeToRefs} from "pinia";
+
+
 
 /**
  * Assumptions:
@@ -514,6 +518,9 @@ const replaceIndex = ref(null);
 const replaceInput = ref(null);
 
 const clientStore = useClientStore();
+const professionStore = useProfessionStore();
+
+const { professions } = storeToRefs(professionStore);
 
 const removedPhotoIds = ref([]);
 
@@ -535,6 +542,27 @@ watch(
   },
   { immediate: true}
 )
+
+const localProfessionName = (code) => {
+  const professionObj = professions.value.find(
+    profession => profession.code === code
+  );
+  return getLocalizedValue(professionObj?.name) || code;
+};
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
 
 // --- Helpers ---
 function clonePhotos(photos) {
@@ -597,20 +625,6 @@ const getCustomFieldDisplayValue = field => {
 
       return String(value ?? '');
   }
-};
-
-const getLocalizedValue = translations => {
-  if (!translations) {
-    return "";
-  }
-
-  return (
-    translations[locale.value] ||
-    translations.en ||
-    translations.fi ||
-    Object.values(translations).find(Boolean) ||
-    ""
-  );
 };
 
 const localeMap = {

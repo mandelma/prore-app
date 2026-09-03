@@ -1199,6 +1199,8 @@ const otherUserLocations = async (providers, profession, dist) => {
         if (prof === profession) {
           
           const proClientDist = distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude);
+
+          // Running message to matced providers
           notifyProvidersAboutInterest(providers[pos], profession, proClientDist);
 
           console.log("Pro " + prof)

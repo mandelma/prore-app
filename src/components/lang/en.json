@@ -985,6 +985,44 @@
     "no_written_reviews_description": "No written reviews have been left for this service provider yet."
   },
 
+  "providerHistory": {
+    "history": "History",
+    "title": "Completed services",
+    "subtitle": "View completed orders and their details.",
+    "search": "Search...",
+    "empty_title": "No history yet",
+    "empty_text": "Completed orders will appear here.",
+    "date": "Date",
+    "client": "Client",
+    "task": "Task",
+    "status": "Status",
+    "actions": "Actions",
+    "completed": "Completed",
+    "details": "Details",
+    "delete": "Delete",
+    "back": "Back",
+    "booking": "Order details",
+    "description": "Description",
+    "distance": "Distance",
+    "duration": "Duration",
+    "price": "Price",
+    "additional_info": "Additional information",
+    "delete_title": "Delete history entry",
+    "delete_message": "Are you sure you want to remove this order from your history?",
+    "cancel": "Cancel",
+    "duration_hours": "{count} h",
+    "duration_minutes": "{count} min"
+  },
+
+  "errors": {
+    "network_error": "Network error. Please check your internet connection.",
+    "server_error": "Server error. Please try again later.",
+    "not_found": "The requested resource was not found.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "forbidden": "You do not have permission to access this resource.",
+    "bad_request": "Bad request. Please check the data and try again."
+  },
+
   "recipient_result_need_a_pro": "I need a pro",
   "recipient_result_order_is_expired": "Order is expired. Edit order's date / time or quit a order!",
   "recipient_result_edit_description": "Edit order description...",

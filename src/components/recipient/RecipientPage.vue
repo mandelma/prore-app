@@ -355,9 +355,8 @@
 
                           {{ t("recipientPage.profession") }}
                         </dt>
-
                         <dd>
-                          {{ booking.professional.join() }}
+                          {{ booking.professional.map(p => localProfessionName(p)).join(", ") }}
                         </dd>
                       </div>
                     </dl>
@@ -653,6 +652,7 @@ import { useClientStore } from '@/stores/recipientStore';
 import { useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notificationStore';
 import { useClientArchiveStore } from '@/stores/cArchiveStore';
+import { useProfessionStore } from '@/stores/professionStore';
 import ToastHandler from '../helpers/ToastHandler.vue';
 import ClientHistory from './ClientHistory.vue';
 import BookingPhotos from './BookingPhotos.vue';
@@ -678,6 +678,7 @@ const selectedBooking = ref(null);
 const clientStore = useClientStore();
 const notificationStore = useNotificationStore();
 const cArchiveStore = useClientArchiveStore();
+const professionStore = useProfessionStore();
 
 
 const _world = world
@@ -696,7 +697,7 @@ const { bookings, clientConfirmed } = storeToRefs(clientStore);
 const { userId } = storeToRefs(notificationStore);
 
 const { clientHistory } = storeToRefs(cArchiveStore);
-
+const { professions } = storeToRefs(professionStore);
 
 
 //const singleBookings = computed(() => bookings.value.filter(sb => sb.status !== 'confirmed' && !sb.isIncludeOffers));
@@ -727,6 +728,27 @@ watch(loading, (val) => {
   document.body.style.overflow = val ? 'hidden' : '';
   document.documentElement.style.overflow = val ? 'hidden' : '';
 });
+
+const localProfessionName = (code) => {
+  const professionObj = professions.value.find(
+    profession => profession.code === code
+  );
+  return getLocalizedValue(professionObj?.name) || code;
+};
+
+const getLocalizedValue = translations => {
+  if (!translations) {
+    return "";
+  }
+
+  return (
+    translations[locale.value] ||
+    translations.en ||
+    translations.fi ||
+    Object.values(translations).find(Boolean) ||
+    ""
+  );
+};
 
 // Acting if confirmed booking is overtime / done
 const handleDone = async (bookingId, target) => {
