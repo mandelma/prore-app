@@ -232,7 +232,9 @@
     "commentMobileList": "Mobile list",
     "commentTableOnMd": "Table on medium and larger screens",
     "commentExtrasScheduleAlertsBillingSnapshot": "Extras schedule alerts and billing snapshot",
-    "commentSimpleToast": "Simple toast"
+    "commentSimpleToast": "Simple toast",
+    "serviceAreaRequired": "You cannot receive customer quote requests while your service area is set to 0 km. Set a service area to receive quote requests sent to providers in your area.",
+    "serviceAreaSelected": "You can receive customer quote requests within a radius of up to {range} km. Your service area is also shown to customers, but customers can still place a direct booking with you from the map."
   },
 
   "dealConfirm": {
@@ -586,6 +588,9 @@
     "requestSent": "The order was sent successfully!",
     "requestFailed": "Failed to send the order. Please try again.",
     "close": "Close",
+    "distance": "Distance from you",
+    "serviceRadius": "Service radius",
+    "serviceRadiusHint": "Applies when the provider travels to the customer's location.",
 
     "searchTitle": "Find a service provider",
     "searchHelp": "Select the address, service, preferred time, and search area.",
@@ -664,7 +669,8 @@
     "professionRequired": "Select a profession or service.",
     "requiredField": "This field is required.",
     "formFieldsRequired": "Check the form and complete all required fields.",
-    "formErrorTitle": "The form contains errors"
+    "formErrorTitle": "The form contains errors",
+    "search_radius_required": "Search radius must be greater than 0."
   },
 
   "recipientPage": {
@@ -706,7 +712,9 @@
     "address": "Address",
     "profession": "Service",
     "orderPhotos": "Order photos",
-    "orderPhotoAlt": "Order photo"
+    "orderPhotoAlt": "Order photo",
+    "searchRadius": "Search radius",
+    "searchRadiusValue": "{range} km"
   },
 
   "requestForm": {

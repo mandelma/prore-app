@@ -54,7 +54,7 @@
                             {{ offerContent?.provider?.priceByHour }} eur
                         </td>
                     </tr>
-                    <tr>
+                    <tr v-if="offerContent?.price">
                         <td class="c-td">
                             {{ t('offerContent.offer_price') }}
                         </td>

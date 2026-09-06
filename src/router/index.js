@@ -45,6 +45,15 @@ const routes = [
         }
     },
     {
+        path: "/portfolio",
+        name: "Portfolio",
+        component: () => import("../components/views/Portfolio.vue"),
+        meta: {
+            requiresAuth: false,
+            standalone: true
+        }
+    },
+    {
         path: "/terms",
         name: "Terms",
         component: () => import("../components/Terms.vue")
@@ -52,7 +61,7 @@ const routes = [
     {
         path: "/pwa-install",
         name: "pwa-install",
-        component: () => impport("../components/PwaInstallButton.vue")
+        component: () => import("../components/PwaInstallButton.vue")
     },
     {
         path: "/login-register",

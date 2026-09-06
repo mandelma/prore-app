@@ -247,7 +247,7 @@
     "myOrders": "Omat tilaukset",
     "lookingForService": "ETSIN PALVELUA",
     "closeToast": "✕",
-    "commentTopHeaderStickyMobile": "Yläotsikko, joka pysyy mobiilissa näkyvissä",
+    "commentTopHeaderStickyMobile": "Yläotetäisyyssikko, joka pysyy mobiilissa näkyvissä",
     "commentProviderDatabaseUpdatedAtField": "Lisää palveluntarjoajan tietokannan updatedAt-kenttä",
     "commentClientActionOnMap": "Asiakkaan toiminto kartalla",
     "commentQuickStats": "Pikatilastot",
@@ -259,7 +259,9 @@
     "commentMobileList": "Mobiililista",
     "commentTableOnMd": "Taulukko keskikokoisilla ja suuremmilla näytöillä",
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisäosiot: aikataulu, ilmoitukset ja laskutuksen yhteenveto",
-    "commentSimpleToast": "Yksinkertainen ilmoitus"
+    "commentSimpleToast": "Yksinkertainen ilmoitus",
+    "serviceAreaRequired": "Et voi vastaanottaa asiakkaiden tarjouspyyntöjä, jos toiminta-alue on 0 km. Määritä toiminta-alue, jotta voit vastaanottaa alueellesi lähetettyjä tarjouspyyntöjä.",
+    "serviceAreaSelected": "Voit vastaanottaa asiakkaiden tarjouspyyntöjä enintään {range} km:n säteellä. Toiminta-alue näkyy myös asiakkaille, mutta asiakas voi silti tehdä sinulle suoran tilauksen kartalta."
   },
 
   "dealConfirm": {
@@ -606,7 +608,9 @@
     "requestSent": "Tilaus lähetetty onnistuneesti!",
     "requestFailed": "Tilauksen lähettäminen epäonnistui. Yritä uudestaan.",
     "close": "Sulje",
-
+    "distance": "Etäisyys sinusta",
+    "serviceRadius": "Palvelusäde",
+    "serviceRadiusHint": "Koskee tilanteita, joissa palveluntarjoaja tulee asiakkaan luo.",
     "searchTitle": "Etsi palveluntarjoaja",
     "searchHelp": "Valitse osoite, palvelu, ajankohta ja hakualue.",
     "dateTimeHelp": "Valitse ajankohta tai merkitse palvelu tarvittavaksi heti.",
@@ -684,7 +688,8 @@
     "professionRequired": "Valitse ammatti tai palvelu.",
     "requiredField": "Tämä kenttä on pakollinen.",
     "formFieldsRequired": "Tarkista lomake ja täytä kaikki pakolliset kentät.",
-    "formErrorTitle": "Lomakkeen tiedoissa on virheitä"
+    "formErrorTitle": "Lomakkeen tiedoissa on virheitä",
+    "search_radius_required": "Hakusäteen on oltava suurempi kuin 0."
   },
 
   "recipientPage": {
@@ -726,7 +731,9 @@
     "address": "Osoite",
     "profession": "Palvelu",
     "orderPhotos": "Tilauksen kuvat",
-    "orderPhotoAlt": "Tilauksen kuva"
+    "orderPhotoAlt": "Tilauksen kuva",
+    "searchRadius": "Hakusäde",
+    "searchRadiusValue": "{range} km"
   },
 
   "requestForm": {

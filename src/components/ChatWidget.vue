@@ -966,6 +966,9 @@
   overflow: auto;
   background: #ddd;
   font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* backdrop-filter: none !important;
+  opacity: 1 !important; */
 }
 
 .message-wrap {

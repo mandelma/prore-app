@@ -338,7 +338,7 @@ import ToastHandler from '../helpers/ToastHandler.vue';
 import RequestForm from './RequestForm.vue';
 import AddressAutocomplete from '../AddressAutocomplete.vue';
 import SelectProfession from '../helpers/SelectProfession.vue';
-
+import { useLocalProfession } from '@/composables/useLocalProfession.js';
 
 import { getChatWindowGeometry, getBottomRightAnchor } from '../helpers/chatGeometry.js';
 
@@ -407,6 +407,8 @@ const providerStore = useProStore();
 
 const { user } = storeToRefs(auth);
 const { providerId } = storeToRefs(providerStore);
+
+const { localProfession } = useLocalProfession();
 
 
 /* const toastModel = ref(false)
@@ -1377,8 +1379,44 @@ const otherUserLocations = async (providers, profession, dist) => {
                       <td>${currentMatching || providers[p].status === 'Saatavilla' ? t("proAround.available") : t("proAround.negotiable")}</td>
                     </tr>
                     <tr>
+                      <th>
+                        ${t("proAround.distance")}
+                      </th>
+
+                      <td>
+                        ${distanceBtw(
+                          myLat.value,
+                          myLng.value,
+                          providers[p].latitude,
+                          providers[p].longitude
+                        )} km
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th>
+                        ${t("proAround.serviceRadius")}
+                      </th>
+
+                      <td>
+                        ${providers[p].range} km
+                        <div class="provider-range-note">
+                          ${t("proAround.serviceRadiusHint")}
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
                       <th>${t("proAround.profession")}</th>
-                      <td>${providers[p].profession.join(', ')}</td>
+                      <td>
+                        ${
+                          providers[p].profession?.length
+                            ? providers[p].profession
+                                .map(prof => localProfession(prof))
+                                .join(", ")
+                            : "—"
+                        }
+                      </td>
                     </tr>
                     <tr>
                       <th>${t("proAround.information")}</th>
@@ -2827,6 +2865,14 @@ body.modal-open .navbar) { padding-right: 0 !important; }
 
 .info-table td:last-child {
   word-break: break-word;
+}
+
+:deep(.provider-range-note) {
+  margin-top: 3px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.55);
+  
 }
 
 </style>

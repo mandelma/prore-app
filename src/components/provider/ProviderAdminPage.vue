@@ -345,7 +345,7 @@
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
         <MDBCard class="h-100">
-        
+          <!-- draftProvider: {{ draftProvider }} -->
           <MDBCardBody v-if="!isPanelInfoEditSection">
             
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -364,10 +364,30 @@
                 <!-- <div class="text-muted info-panel" >{{ draftProvider.name }}</div> -->
                 <div class="text-muted info-panel">{{ draftProvider.description }}</div>
                 <div class="text-muted info-panel">{{ draftProvider.address }}</div>
-                <div class="text-muted info-panel">
-                  {{ t('providerAdmin.serviceAreaValue', {
-                    range: draftProvider.range ? draftProvider.range : 0
-                  }) }}
+                <div
+                  v-if="draftProvider.range < 1"
+                  class="service-area-hint service-area-hint--warning"
+                >
+                  <i class="fas fa-circle-exclamation"></i>
+
+                  <span>
+                    {{ t('providerAdmin.serviceAreaRequired') }}
+                  </span>
+                </div>
+
+                <div
+                  v-else
+                  class="service-area-hint service-area-hint--success"
+                >
+                  <i class="fas fa-circle-check"></i>
+
+                  <span>
+                    {{
+                      t('providerAdmin.serviceAreaSelected', {
+                        range: draftProvider.range
+                      })
+                    }}
+                  </span>
                 </div>
                 <div class="text-muted info-panel">{{ draftProvider.profession.map(p => localProfession(p)).join(", ") }}</div>
                 <div class="text-muted info-panel">
@@ -1125,8 +1145,8 @@ watch(
     }
     Object.assign(draftProvider, mapProviderToDraft(pro));
     pmForm.address = draftProvider.address;
-    pmForm.lat = pro?.lat ?? draftProvider.latitude ?? null;
-    pmForm.lng = pro?.lng ?? draftProvider.longitude ?? null;
+    pmForm.lat = pro?.latitude || draftProvider.latitude;
+    pmForm.lng = pro?.longitude || draftProvider.longitude;
 
     selectedPlace.value = null;
     addressValid.value = true;
@@ -1299,8 +1319,8 @@ function resetProvider() {
   );
 
   pmForm.address = draftProvider.address;
-  pmForm.lat = pro?.lat ?? draftProvider.latitude ?? null;
-  pmForm.lng = pro?.lng ?? draftProvider.longitude ?? null;
+  pmForm.lat = pro?.latitude ?? draftProvider.latitude ?? null;
+  pmForm.lng = pro?.longitude ?? draftProvider.longitude ?? null;
 
   selectedPlace.value = null;
   addressValid.value = true;
@@ -1323,8 +1343,8 @@ async function saveProvider() {
     payload.profession = normalizeProfessions(payload.profession)
     payload.updatedAt = new Date();
 
-    payload.latitude = pmForm.lat;
-    payload.longitude = pmForm.lng;
+    //payload.latitude = pmForm.lat;
+    //payload.longitude = pmForm.lng;
 
     // enne
     //latitude 60.27661508694686
@@ -1380,6 +1400,9 @@ function mapProviderToDraft(pro) {
     
     
     address: pro?.address ?? "",
+    latitude: pro?.latitude ?? null,
+    longitude: pro?.longitude ?? null,
+
     isAvailable24_7: pro?.isAvailable24_7 ?? "Active",
     
     notes: pro?.notes ?? "",
@@ -1800,6 +1823,9 @@ function sleep(ms) {
   --admin-purple: #a78bfa;
   --admin-radius: 16px;
   --admin-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+  --admin-success-border: rgba(52, 211, 153, 0.25);
+  --admin-warning-border: rgba(251, 191, 36, 0.25);
+  --admin-danger-border: rgba(251, 113, 133, 0.25);
 
   width: 100%;
   max-width: 1240px;
@@ -2320,6 +2346,49 @@ button.provider-stat-card {
 .no-edit-panel:hover,
 .no-calendar:hover {
   color: var(--admin-danger);
+}
+
+.service-area-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  margin-top: 8px;
+  padding: 10px 12px;
+
+  border-radius: 10px;
+
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.service-area-hint i {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Toiminta-alue on määramata */
+.service-area-hint--warning {
+  color: var(--admin-warning);
+  background: var(--admin-warning-soft);
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--admin-warning) 28%,
+      transparent
+    );
+}
+
+/* Toiminta-alue on määratud */
+.service-area-hint--success {
+  color: var(--admin-success);
+  background: var(--admin-success-soft);
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--admin-success) 25%,
+      transparent
+    );
 }
 
 /* Fieldsets */

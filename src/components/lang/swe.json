@@ -243,7 +243,9 @@
     "commentMobileList": "Mobil lista",
     "commentTableOnMd": "Tabell på medelstora och större skärmar",
     "commentExtrasScheduleAlertsBillingSnapshot": "Extra schema varningar och faktureringsöversikt",
-    "commentSimpleToast": "Enkel toast"
+    "commentSimpleToast": "Enkel toast",
+    "serviceAreaRequired": "Du kan inte ta emot kundernas offertförfrågningar när ditt verksamhetsområde är inställt på 0 km. Ange ett verksamhetsområde för att kunna ta emot offertförfrågningar som skickas till leverantörer i ditt område.",
+    "serviceAreaSelected": "Du kan ta emot kundernas offertförfrågningar inom en radie på upp till {range} km. Verksamhetsområdet visas även för kunderna, men kunden kan fortfarande göra en direktbokning hos dig via kartan."
   },
 
   "dealConfirm": {
@@ -597,7 +599,10 @@
     "searchHelp": "Välj adress, tjänst, önskad tid och sökområde.",
     "dateTimeHelp": "Välj önskad tid eller ange att tjänsten behövs omedelbart.",
     "collapsePanel": "Minimera sökpanelen",
-    "expandPanel": "Expandera sökpanelen"
+    "expandPanel": "Expandera sökpanelen",
+    "distance": "Avstånd från dig",
+    "serviceRadius": "Serviceområde",
+    "serviceRadiusHint": "Gäller när tjänsteleverantören åker till kundens plats."
   },
 
   "recipientContent": {
@@ -670,7 +675,8 @@
     "professionRequired": "Välj ett yrke eller en tjänst.",
     "requiredField": "Detta fält är obligatoriskt.",
     "formFieldsRequired": "Kontrollera formuläret och fyll i alla obligatoriska fält.",
-    "formErrorTitle": "Formuläret innehåller fel"
+    "formErrorTitle": "Formuläret innehåller fel",
+    "search_radius_required": "Sökradien måste vara större än 0."
   },
 
   "recipientPage": {
@@ -712,7 +718,9 @@
     "address": "Adress",
     "profession": "Tjänst",
     "orderPhotos": "Bilder för uppdraget",
-    "orderPhotoAlt": "Bild för uppdraget"
+    "orderPhotoAlt": "Bild för uppdraget",
+    "searchRadius": "Sökradie",
+    "searchRadiusValue": "{range} km"
   },
 
   "requestForm": {

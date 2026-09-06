@@ -55,26 +55,50 @@
           </p>
 
           <div class="notification-actions">
+
             <button
+              v-if="note.isLink"
               type="button"
-              class="notification-dismiss"
+              class="notification-dismiss notification-dismiss--calendar"
               :disabled="removingId === note.id"
-              @click="removeNote(note.id, note.isLink)"
+              @click="removeNote(note.id, true)"
             >
-              <i v-if="note.isLink" class="fas fa-calendar-alt"></i>
+              <i class="fas fa-calendar-alt"></i>
+
               <span
                 v-if="removingId === note.id"
                 class="notification-spinner"
                 aria-hidden="true"
-              />
+              ></span>
+
               {{
                 removingId === note.id
                   ? t("notifications.removing")
-                  : note.isLink
-                    ? t("notifications.open_calendar")
-                    : t("notifications.dismiss")
+                  : t("notifications.open_calendar") + " →"
               }}
             </button>
+
+            <button
+              type="button"
+              class="notification-dismiss"
+              :disabled="removingId === note.id"
+              @click="removeNote(note.id, false)"
+            >
+              <i class="fas fa-times"></i>
+
+              <span
+                v-if="removingId === note.id"
+                class="notification-spinner"
+                aria-hidden="true"
+              ></span>
+
+              {{
+                removingId === note.id
+                  ? t("notifications.removing")
+                  : t("notifications.dismiss")
+              }}
+            </button>
+
           </div>
         </div>
       </article>
@@ -273,43 +297,85 @@ const removeNote = async (id, isLink) => {
   overflow-wrap: anywhere;
 }
 
+
+
+
 .notification-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+
+  flex-shrink: 0;
 }
 
 .notification-dismiss {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  padding: 7px 12px;
-  border: 0;
+
+  min-width: 105px;
+  padding: 6px 11px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: transparent;
-  color: #63ddeb;
-  font-size: 0.86rem;
-  font-weight: 650;
+
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-text-secondary, rgba(255, 255, 255, 0.72));
+
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+
   cursor: pointer;
+
   transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .notification-dismiss:hover:not(:disabled) {
-  background: rgba(13, 202, 240, 0.1);
-  color: #9af1fb;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.95);
 }
 
-.notification-dismiss:focus-visible {
-  outline: 2px solid #0dcaf0;
-  outline-offset: 2px;
+.notification-dismiss:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .notification-dismiss:disabled {
-  cursor: wait;
-  opacity: 0.65;
+  opacity: 0.55;
+  cursor: default;
 }
+
+
+/* Calendar action */
+.notification-dismiss--calendar {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.notification-dismiss--calendar:hover:not(:disabled) {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.28);
+}
+
+
+/* Icons */
+.notification-dismiss i {
+  width: 13px;
+  text-align: center;
+  font-size: 0.72rem;
+}
+
+
+
 
 .notification-spinner {
   width: 13px;

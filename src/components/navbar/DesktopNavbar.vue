@@ -135,6 +135,7 @@
 
                 <MDBDropdownItem
                   v-if="showInstallOption"
+                  
                   class="dd-item"
                 >
                   <button

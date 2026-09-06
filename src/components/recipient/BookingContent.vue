@@ -6,7 +6,7 @@
         <span class="booking-panel__eyebrow">
           {{ t("bookingContent.sections.booking") }}
         </span>
-
+        
         <h2 class="booking-panel__title">
           {{ booking.header || t("bookingContent.sections.booking") }}
         </h2>
@@ -133,6 +133,24 @@
 
             <dd>
               {{ booking.address }}
+            </dd>
+          </div>
+          <div
+            v-if="booking.zone"
+            class="direct-booking-info__row"
+          >
+            <dt>
+              <MDBIcon icon="bullseye" />
+
+              {{ t("recipientPage.searchRadius") }}
+            </dt>
+
+            <dd>
+              {{
+                t("recipientPage.searchRadiusValue", {
+                  range: booking.zone
+                })
+              }}
             </dd>
           </div>
 

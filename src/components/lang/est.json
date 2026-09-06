@@ -243,7 +243,9 @@
     "commentMobileList": "Mobiilinimekiri",
     "commentTableOnMd": "Tabel keskmistel ja suurematel ekraanidel",
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisa ajakava teavitused ja arvelduse ülevaade",
-    "commentSimpleToast": "Lihtne teavitus"
+    "commentSimpleToast": "Lihtne teavitus",
+    "serviceAreaRequired": "Sa ei saa vastu võtta klientide hinnapakkumise päringuid, kui sinu tegevuspiirkond on 0 km. Määra tegevuspiirkond, et saada sinu piirkonna teenusepakkujatele saadetud hinnapäringuid.",
+    "serviceAreaSelected": "Sa saad vastu võtta klientide hinnapakkumise päringuid kuni {range} km raadiuses. Tegevuspiirkonda kuvatakse ka klientidele, kuid klient saab sulle kaardilt siiski otsetellimuse teha."
   },
 
   "dealConfirm": {
@@ -598,7 +600,10 @@
     "searchHelp": "Vali aadress, teenus, soovitud aeg ja otsingupiirkond.",
     "dateTimeHelp": "Vali soovitud aeg või märgi, et vajad teenust kohe.",
     "collapsePanel": "Minimeeri otsingupaneel",
-    "expandPanel": "Laienda otsingupaneel"
+    "expandPanel": "Laienda otsingupaneel",
+    "distance": "Kaugus sinust",
+    "serviceRadius": "Teenindusraadius",
+    "serviceRadiusHint": "Kehtib juhul, kui teenusepakkuja tuleb kliendi asukohta."
   },
 
   "recipientContent": {
@@ -671,7 +676,8 @@
     "professionRequired": "Vali amet või teenus.",
     "requiredField": "See väli on kohustuslik.",
     "formFieldsRequired": "Kontrolli vormi ja täida kõik kohustuslikud väljad.",
-    "formErrorTitle": "Vorm sisaldab vigu"
+    "formErrorTitle": "Vorm sisaldab vigu",
+    "search_radius_required": "Otsinguraadius peab olema suurem kui 0."
   },
 
   "recipientPage": {
@@ -713,7 +719,9 @@
     "address": "Aadress",
     "profession": "Teenus",
     "orderPhotos": "Tellimuse pildid",
-    "orderPhotoAlt": "Tellimuse pilt"
+    "orderPhotoAlt": "Tellimuse pilt",
+    "searchRadius": "Otsinguraadius",
+    "searchRadiusValue": "{range} km"
   },
 
   "requestForm": {

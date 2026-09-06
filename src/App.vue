@@ -1,59 +1,61 @@
 <template>
   <div class="app-shell">
     <!-- showPwaTopBottomNav -->
-    <MobileNavbar
-      v-if="showPwaTopBottomNav"
-      :is-authenticated="login.isAuthenticated"
-      :client-new-offers-amount="clientNewOffersAmount"
-      :new-offers-amount="newOffersAmount"
-      :profile-loaded="profileLoaded"
-      :avatar-is-image="profile?.avatar?.isImage"
-      :image-url="profile?.avatar?.imageUrl"
-      :avatar-error="avatarError"
-      :new-notes-count="newNotesCount"
-      :notifications="notifications"
-      :show-install-option="showInstallOption"
-      :is-bookings="client.isBookings"
-      :client-history="clientArchiveStore.clientHistory"
-      @on-provider-bell="onProviderBell"
-      @on-client-bell="onClientBell"
-      @show-notifications="handleShowNotifications"
-      @handle-install="handleInstall"
-      @log-out="logOut"
-    />
-
-
-    <DesktopNavbar
-      v-else
-      :is-authenticated="login.isAuthenticated"
-      :client-new-offers-amount="clientNewOffersAmount"
-      :new-offers-amount="newOffersAmount"
-      :profile-loaded="profileLoaded"
-      :avatar-is-image="profile?.avatar?.isImage"
-      :image-url="profile?.avatar?.imageUrl"
-      :avatar-error="avatarError"
-      :new-notes-count="newNotesCount"
-      :notifications="notifications"
-      :show-install-option="showInstallOption"
-      :is-bookings="client.isBookings"
-      :client-history="clientArchiveStore.clientHistory"
-      @on-provider-bell="onProviderBell"
-      @on-client-bell="onClientBell"
-      @show-notifications="handleShowNotifications"
-      @handle-install="handleInstall"
-      @log-out="logOut"
-    />
-
-    <div class="below-navbar">
-      <NotificationStatusBanner
-        v-if="canDisplayNotesBanner"
-        :isAuthenticated="login.isAuthenticated"
-        :permission="notificationPermission" 
-        @show-blocked-modal="openNotificationBlockedModal"
-        @show-notifications-modal="openNotificationsModal"
+    <div v-if="!isPageStandalone">
+      <MobileNavbar
+        v-if="showPwaTopBottomNav"
+        :is-authenticated="login.isAuthenticated"
+        :client-new-offers-amount="clientNewOffersAmount"
+        :new-offers-amount="newOffersAmount"
+        :profile-loaded="profileLoaded"
+        :avatar-is-image="profile?.avatar?.isImage"
+        :image-url="profile?.avatar?.imageUrl"
+        :avatar-error="avatarError"
+        :new-notes-count="newNotesCount"
+        :notifications="notifications"
+        :show-install-option="showInstallOption"
+        :is-bookings="client.isBookings"
+        :client-history="clientArchiveStore.clientHistory"
+        @on-provider-bell="onProviderBell"
+        @on-client-bell="onClientBell"
+        @show-notifications="handleShowNotifications"
+        @handle-install="handleInstall"
+        @log-out="logOut"
       />
 
-      <!-- <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" /> -->
+
+      <DesktopNavbar
+        v-else
+        :is-authenticated="login.isAuthenticated"
+        :client-new-offers-amount="clientNewOffersAmount"
+        :new-offers-amount="newOffersAmount"
+        :profile-loaded="profileLoaded"
+        :avatar-is-image="profile?.avatar?.isImage"
+        :image-url="profile?.avatar?.imageUrl"
+        :avatar-error="avatarError"
+        :new-notes-count="newNotesCount"
+        :notifications="notifications"
+        :show-install-option="showInstallOption"
+        :is-bookings="client.isBookings"
+        :client-history="clientArchiveStore.clientHistory"
+        @on-provider-bell="onProviderBell"
+        @on-client-bell="onClientBell"
+        @show-notifications="handleShowNotifications"
+        @handle-install="handleInstall"
+        @log-out="logOut"
+      />
+
+      <div class="below-navbar">
+        <NotificationStatusBanner
+          v-if="canDisplayNotesBanner"
+          :isAuthenticated="login.isAuthenticated"
+          :permission="notificationPermission" 
+          @show-blocked-modal="openNotificationBlockedModal"
+          @show-notifications-modal="openNotificationsModal"
+        />
+
+        <!-- <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" /> -->
+      </div>
     </div>
 
     <MDBModal
@@ -316,20 +318,7 @@
     >
     <!-- && conversations.length -->
      
-      <chat-widget 
-        v-if="login.isAuthenticated && conversations.length"
-        :did-drag="didDrag"
-        :launcher-pos="widgetAnchor"
-        :is-open-mode="conversationStore.openChat"
-        @start-drag="startDrag"
-        @request-open="openChatFromLauncher"
-        @request-close="closeChatWindow"
-      />
-    </div>
-    
-    <div v-if="login.isAuthenticated">
-      <PwaUpdate />
-    </div>
+      
     
     
 
@@ -357,71 +346,89 @@
     
     
     <!-- v-if="showPwaTopBottomNav" -->
-
-    <MobileBottomNav 
-      v-if="login.isAuthenticated && showPwaTopBottomNav" 
-      :is-provider="isUserPro ?? null"
-      :show-install-option="showInstallOption"
-      :unread-count="newNotesCount" 
-      @open-contact="contactModal = true"
-      @log-out="logOut"
-    />
-
-
-    <MDBFooter
-        v-else
-        bg="none"
-        :text="['center', 'white']"
-        style="background-color: #0F172A; margin-top: auto;"
-      >
-      <!-- Grid container -->
-      <MDBContainer class="p-4 pb-0">
-        <!-- Section: CTA -->
-       <section v-if="login.isAuthenticated" class="">
-        <p class="d-flex justify-content-left align-items-center">
-          <button
-            class="contact-btn"
-            type="button"
-            @click="contactModal = true"
-        >
-            <i class="fas fa-envelope"></i>
-            <span>{{ t("app.giveFeedback") }}</span>
-          </button>
-          <!-- <MDBBtn
-            outline="light"
-            rounded
-            @click="contactModal = true"
-          >
-            {{ t("app.giveFeedback") }}
-          </MDBBtn> -->
-        </p>
-       </section>
-       <section v-else>
-          <button
-            v-if="showInstallOption"
-            type="button"
-            class="pwa-install-btn"
-            @click="$emit('handle-install')"
-          >
-            <i class="fas fa-download"></i>
-            <span>{{ t('pwa.install_app') }}</span>
-          </button>
-       </section>
-        <!-- Section: CTA -->
-         <section>
-          <!-- <PwaInstallButton /> -->
-         </section>
-      </MDBContainer>
-      
-      <!-- Copyright -->
-      <div
-          class="text-center p-3"
-          style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
-      >
-        © {{ currentYear }} DuunHub
+    <div v-if="!isPageStandalone">
+      <chat-widget 
+        v-if="login.isAuthenticated && conversations.length"
+        :did-drag="didDrag"
+        :launcher-pos="widgetAnchor"
+        :is-open-mode="conversationStore.openChat"
+        @start-drag="startDrag"
+        @request-open="openChatFromLauncher"
+        @request-close="closeChatWindow"
+      />
       </div>
-      <!-- Copyright -->
-    </MDBFooter>
+      
+      <div v-if="login.isAuthenticated">
+        <PwaUpdate />
+      </div>
+
+      <MobileBottomNav 
+        v-if="login.isAuthenticated && showPwaTopBottomNav" 
+        :is-provider="isUserPro ?? null"
+        :show-install-option="showInstallOption"
+        :unread-count="newNotesCount" 
+        @open-contact="contactModal = true"
+        @log-out="logOut"
+      />
+
+
+      <MDBFooter
+          v-else
+          bg="none"
+          :text="['center', 'white']"
+          style="background-color: #0F172A; margin-top: auto;"
+        >
+        <!-- Grid container -->
+        <MDBContainer v-if="!isPageStandalone" class="p-4 pb-0">
+          <!-- Section: CTA -->
+          <section v-if="login.isAuthenticated" class="">
+            <p class="d-flex justify-content-left align-items-center">
+              <button
+                class="contact-btn"
+                type="button"
+                @click="contactModal = true"
+            >
+                <i class="fas fa-envelope"></i>
+                <span>{{ t("app.giveFeedback") }}</span>
+              </button>
+              <!-- <MDBBtn
+                outline="light"
+                rounded
+                @click="contactModal = true"
+              >
+                {{ t("app.giveFeedback") }}
+              </MDBBtn> -->
+            </p>
+          </section>
+          <section v-else>
+              <button
+                v-if="showInstallOption"
+                type="button"
+                class="pwa-install-btn"
+                @click="$emit('handle-install')"
+              >
+                <i class="fas fa-download"></i>
+                <span>{{ t('pwa.install_app') }}</span>
+              </button>
+          </section>
+          <!-- Section: CTA -->
+          <section>
+            <!-- <PwaInstallButton /> -->
+          </section>
+        </MDBContainer>
+        
+        <!-- Copyright -->
+        <div
+            v-if="!isPageStandalone"
+            class="text-center p-3"
+            style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
+        >
+          © {{ currentYear }} DuunHub
+        </div>
+        <!-- Copyright -->
+      </MDBFooter>
+    </div>
+    
 
   </div>
 
@@ -590,6 +597,15 @@ const checkDisplayMode = () => {
   isMobile.value = window.innerWidth <= 768;
   //isMobile.value = window.innerWidth <= 640;
 };
+
+/* const isPageStandalone = () => {
+  return window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+}; */
+
+const isPageStandalone = computed(() => {
+  return route.meta.standalone === true || window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+});
 
 const showPwaTopBottomNav = computed(() => {
   return isPwa.value && isMobile.value;
@@ -2254,6 +2270,55 @@ const hConfirmOrderToast = () => {
   confirmedOrderMessage.value = t("app.orderConfirmed");
 }
 
+// Helper function to check if a provider is within the booking zone
+const isProviderWithinZone = async (provider, booking) => {
+  if (booking.zone <= 0) return false;
+
+  const origin = [booking.latitude, booking.longitude];
+  const destination = [provider.latitude, provider.longitude];
+
+  // Function to calculate distance
+  const distanceData = await onMap.findDistance(origin, destination);
+  const distance = Number.parseFloat(distanceData.distance);
+
+  if (!Number.isFinite(distance)) {
+    console.warn(
+      "Invalid provider distance:",
+      distanceData.distance
+    );
+
+    return false;
+  }
+
+  console.log("Is provider within zone:", distance < Number(booking.zone));
+
+  return distance < Number(booking.zone);
+};
+
+const isBookingWithinZone = async (booking, provider) => {
+  if (provider.range < 0) return false;
+
+  const origin = [booking.latitude, booking.longitude];
+  const destination = [provider.latitude, provider.longitude];
+
+  // Function to calculate distance
+  const distanceData = await onMap.findDistance(origin, destination);
+  const distance = Number.parseFloat(distanceData.distance);
+
+  if (!Number.isFinite(distance)) {
+    console.warn(
+      "Invalid booking distance:",
+      distanceData.distance
+    );
+
+    return false;
+  }
+
+  console.log("Is booking within zone:", distance < Number(provider.range));
+
+  return distance < Number(provider.range);
+};
+
 // Client created booking and finding matching providers to send this booking to
 const handleCreateBookingMultiple = async booking => {
   sendUserAction();
@@ -2286,7 +2351,27 @@ const handleCreateBookingMultiple = async booking => {
       continue;
     }
 
-    let isWithinZone = booking.zone === 0;
+
+
+
+    const isProWithinZone = await isProviderWithinZone(providerItem, booking);
+    const isBookingWithinProRange = await isBookingWithinZone(booking, providerItem);
+
+    if (!isProWithinZone) {
+      console.log(
+        `Provider ${providerUserId} is outside the booking zone. Skipping.`
+      );
+      continue;
+    }
+
+    if (!isBookingWithinProRange) {
+      console.log(
+        `Booking is outside the provider ${providerUserId}'s range. Skipping.`
+      );
+      continue;
+    }
+
+    /* let isWithinZone = booking.zone === 0;
 
     if (!isWithinZone) {
       const destination = [
@@ -2317,7 +2402,7 @@ const handleCreateBookingMultiple = async booking => {
 
     if (!isWithinZone) {
       continue;
-    }
+    } */
 
     orderedBookings.push(providerItem);
     proIdArr.push(providerUserId);
@@ -2333,7 +2418,7 @@ const handleCreateBookingMultiple = async booking => {
     );
   }
 
-  booking.ordered = orderedBookings;
+  //booking.ordered = orderedBookings;
 
   console.log(
     "Matching provider count:",
@@ -2478,7 +2563,7 @@ html, body { height: 100%; }
   display: flex;
   align-items: center;
   gap: 10px;
-
+  margin-top: 7px;
   padding: 9px 10px;
 
   color: #e5e7eb;
@@ -2653,6 +2738,7 @@ html, body { height: 100%; }
 } */
 .dd-item {
   color: #ddd !important;
+  
   cursor: pointer;
 }
 

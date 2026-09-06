@@ -304,7 +304,7 @@
 
               <div class="input-with-unit">
                 <input
-                  v-model.number="desiredRange"
+                  v-model.number="form.desiredRange"
                   class="booking-input"
                   type="number"
                   min="1"
@@ -313,6 +313,13 @@
 
                 <span>km</span>
               </div>
+              <small
+                v-if="errors.desiredRange"
+                class="profession-field__error"
+              >
+                <i class="fa-solid fa-circle-exclamation" />
+                {{ errors.desiredRange }}
+              </small>
             </div>
 
             <div class="booking-field booking-field--full">
@@ -438,7 +445,7 @@
             </div>
 
             <div class="booking-field">
-              <!-- sinu olemasolev fotode lisamise osa -->
+              <!-- Olemasolev fotode lisamise osa -->
               <div v-if="!isAddPhotos">
                 <div>
                   <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">{{ t('recipientForm.addOptionalPhotos')}}</MDBBtn>
@@ -607,6 +614,7 @@ const form = reactive({
   profession: "",
   orderHeader: "",
   address: "",
+  desiredRange: "",
   lat: null,
   lng: null,
   dateTime: "",
@@ -629,6 +637,7 @@ const errors = reactive({
   profession: "",
   orderHeader: "",
   address: "",
+  desiredRange: "",
   dateTime: "",
   explanation: "",
   budgetMin: "",
@@ -674,7 +683,7 @@ const validateForm = () => {
   errors.profession = form.profession ? "" : t('recipientForm.professionRequired');
   errors.orderHeader = form.orderHeader ? "" : t('recipientForm.orderKeywordInvalid');
   errors.address = form.address ? "" : t('recipientForm.addressRequired');
-
+  //errors.desiredRange = form.desiredRange ? "" : t('recipientForm.search_radius_required');
   errors.dateTime = form.dateTime ? "" : t('recipientForm.dateRequired');
   errors.explanation = form.explanation ? "" : t('recipientForm.descriptionRequired');
   //errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
@@ -687,6 +696,12 @@ const validateForm = () => {
   } else {
       errors.address = "";
   } */
+
+  if (!form.desiredRange || form.desiredRange < 1) {
+      errors.desiredRange = t('recipientForm.search_radius_required');
+  } else {
+      errors.desiredRange = "";
+  }
 
   if (
       form.budgetMin != null &&
@@ -709,7 +724,8 @@ const validateForm = () => {
     !errors.explanation && 
     !errors.budgetMin && 
     !errors.budgetMax &&
-    customFieldsValid
+    customFieldsValid &&
+    !errors.desiredRange
   )
 }
 
@@ -747,6 +763,7 @@ watch(() => form.orderHeader, () => (errors.orderHeader = ""));
 //watch(() => form.address, () => (errors.address = ""));
 watch(() => form.dateTime, () => (errors.dateTime = ""));
 watch(() => form.explanation, () => (errors.explanation = ""));
+watch(() => form.desiredRange, () => (errors.desiredRange = ""));
 
 // Invalid key check in budget fields
 const preventInvalidKeys = (e) => {
@@ -790,7 +807,9 @@ const isClientContactAgreement = ref(false);
 //const professions = proList;
 const mapImage = map_image;
 const mapError = ref(false);
-const desiredRange = ref("")
+
+//const desiredRange = ref("")
+
 //const range = ref(null);
 
 //const lat = ref(null);
@@ -1382,14 +1401,14 @@ const createClient = async() => {
     const customFieldsSnapshot =
       buildCustomFieldsSnapshot();
 
-    console.log(
+    /* console.log(
       "customFieldsSnapshot:",
       JSON.stringify(
         customFieldsSnapshot,
         null,
         2
       )
-    );
+    ); */
 
 
     //console.log("Header - " + form.orderHeader);
@@ -1442,29 +1461,6 @@ const createClient = async() => {
     })
     .filter(p => p.imageId || p.previewUrl);
 
-    /* const client = {
-      author_id: userAuth.user.id,
-      created: dateObj,
-      created_ms: ms,
-      dateStr: form.dateTime,
-      header: form.orderHeader,
-      agreement: isClientContactAgreement.value,
-      address: form.address,
-      latitude: lat.value,
-      longitude: lng.value,
-      zone: desiredRange.value !== "" ? desiredRange.value : 0,
-      professional: form.profession.label,
-      isIncludeOffers: true,
-      description: form.explanation,
-      isBudget: isBudget.value,
-      budget: {
-        min: form.budgetMin,
-        max: form.budgetMax
-      },  
-      photos: photosForBackend,
-      status: "active",
-    } */
-
     // selectedProfessionName.value
     const client = {
       author_id: userAuth.user.id,
@@ -1496,7 +1492,7 @@ const createClient = async() => {
       latitude: form.lat,
       longitude: form.lng,
 
-      zone: Number(desiredRange.value) || 0,
+      zone: Number(form.desiredRange) || 0,
 
       description: form.explanation.trim(),
 
