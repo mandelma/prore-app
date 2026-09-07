@@ -270,7 +270,7 @@
     </MDBToast>
   
     <!-- :class="{ 'has-bottom-nav': showPwaTopBottomNav }" -->
-    <main class="app-content" :class="{ 'has-bottom-nav': isMobile }" style=" flex: 1;">
+    <main class="app-content" :class="{ 'has-bottom-nav': showPwaTopBottomNav }" style=" flex: 1;">
 
       <RouterView
           v-slot="{Component}">
@@ -601,7 +601,14 @@ const checkDisplayMode = () => {
 }; */
 
 const isPageStandalone = computed(() => {
-  return route.meta.standalone === true || window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  return route.meta.standalone === true;
+});
+
+const isPwaStandalone = computed(() => {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
 });
 
 const showPwaTopBottomNav = computed(() => {
