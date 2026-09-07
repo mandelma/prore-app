@@ -1,7 +1,7 @@
 <template>
   <div class="app-shell">
     <!-- showPwaTopBottomNav -->
-    <div v-if="!isPageStandalone">
+    <template v-if="!isPageStandalone">
       <MobileNavbar
         v-if="showPwaTopBottomNav"
         :is-authenticated="login.isAuthenticated"
@@ -56,7 +56,9 @@
 
         <!-- <AdminMessage v-if="canDisplayNotesBanner" :is-authenticated="login.isAuthenticated" /> -->
       </div>
-    </div>
+    </template>
+
+
 
     <MDBModal
       v-model="showNotificationsBlockedModal"
@@ -310,15 +312,7 @@
       </RouterView>
     </main>
 
-    <div
-      id="widget-drag"
-      class="widget-drag"
-      :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
-      
-    >
-    <!-- && conversations.length -->
-     
-      
+    
     
     
 
@@ -346,17 +340,27 @@
     
     
     <!-- v-if="showPwaTopBottomNav" -->
-    <div v-if="!isPageStandalone">
-      <chat-widget 
-        v-if="login.isAuthenticated && conversations.length"
-        :did-drag="didDrag"
-        :launcher-pos="widgetAnchor"
-        :is-open-mode="conversationStore.openChat"
-        @start-drag="startDrag"
-        @request-open="openChatFromLauncher"
-        @request-close="closeChatWindow"
-      />
+    <template v-if="!isPageStandalone">
+
+      <div
+        id="widget-drag"
+        class="widget-drag"
+        :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
+        
+      >
+        <chat-widget 
+          v-if="login.isAuthenticated && conversations.length"
+          :did-drag="didDrag"
+          :launcher-pos="widgetAnchor"
+          :is-open-mode="conversationStore.openChat"
+          @start-drag="startDrag"
+          @request-open="openChatFromLauncher"
+          @request-close="closeChatWindow"
+        />
+      
       </div>
+      
+    
       
       <div v-if="login.isAuthenticated">
         <PwaUpdate />
@@ -379,7 +383,7 @@
           style="background-color: #0F172A; margin-top: auto;"
         >
         <!-- Grid container -->
-        <MDBContainer v-if="!isPageStandalone" class="p-4 pb-0">
+        <MDBContainer class="p-4 pb-0">
           <!-- Section: CTA -->
           <section v-if="login.isAuthenticated" class="">
             <p class="d-flex justify-content-left align-items-center">
@@ -391,13 +395,7 @@
                 <i class="fas fa-envelope"></i>
                 <span>{{ t("app.giveFeedback") }}</span>
               </button>
-              <!-- <MDBBtn
-                outline="light"
-                rounded
-                @click="contactModal = true"
-              >
-                {{ t("app.giveFeedback") }}
-              </MDBBtn> -->
+              
             </p>
           </section>
           <section v-else>
@@ -419,7 +417,6 @@
         
         <!-- Copyright -->
         <div
-            v-if="!isPageStandalone"
             class="text-center p-3"
             style="background-color: rgba(0, 0, 0, 0.2); color: #7F8A9A;"
         >
@@ -427,7 +424,7 @@
         </div>
         <!-- Copyright -->
       </MDBFooter>
-    </div>
+    </template>
     
 
   </div>
