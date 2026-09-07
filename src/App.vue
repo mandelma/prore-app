@@ -595,11 +595,6 @@ const checkDisplayMode = () => {
   //isMobile.value = window.innerWidth <= 640;
 };
 
-/* const isPageStandalone = () => {
-  return window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true;
-}; */
-
 const isPageStandalone = computed(() => {
   return route.meta.standalone === true;
 });
