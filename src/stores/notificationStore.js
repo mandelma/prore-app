@@ -89,14 +89,23 @@ export const useNotificationStore = defineStore('notifications', () => {
 
     }  */
 
-    const clientConfirmDealNotification = async (bookingId, receiver, note) => {
+    const clientConfirmDealNotification = async (bookingId, receiver, note, sideNotes) => {
         // --Tegemisel--
-        const dealNotification = await noteService.createMessage(receiver, note);
+        const dealNotification = await noteService.createMessage(null, note);
         if (!dealNotification) return;
         note.id = dealNotification.id;
-        socket.emit('on-client-confirmed-deal-motification', receiver, bookingId, note);
-    }
 
+        sideNotes.forEach(async (sideNote) => {
+            const sideNoteCreated = await noteService.createMessage(null, sideNote);
+            if (!sideNoteCreated) return;
+            sideNote.id = sideNoteCreated.id;
+        });
+        socket.emit('on-client-confirmed-deal-notification', receiver, bookingId, note, sideNotes);
+
+        return true;
+    }
+    
+    // Ei kehti hetkel
     const clientPublicBookingDelNotification = async (receiver, bookingId, note) => {
         // Notificatio to providers who had done offer
         socket.emit('on-client-del-public-booking-notification', receiver, bookingId, note);

@@ -176,8 +176,12 @@ const recipientSchema = new Schema({
             ref: "offer"
         }
     ],
-    confirmedOffer: {
+    /* confirmedOffer: {
         type: Object
+    }, */
+    confirmedOffer: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
     },
     confirmedAt: {
         type: Date

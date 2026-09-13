@@ -208,7 +208,7 @@ const props = defineProps({
   bIndex: {type: Number}
 })
 
-const emit = defineEmits(['cancelRecipientContent', 'canselRecipientContentConfirmed', 'out-here', 'updateOfferState', 'open-chat'])
+const emit = defineEmits(['cancelRecipientContent', 'cancelRecipientContentConfirmed', 'out-here', 'updateOfferState', 'open-chat'])
 
 const {t} = useI18n({
   useScope: 'global'
@@ -291,7 +291,87 @@ const orderProvider = async() => {
   showDealConfirm.value = true;
 }
 
+
 const confirmProvider = async () => {
+  try {
+    const result =
+      await clientService.confirmProviderOffer(
+        activeOffer.value.bookingID,
+        {
+          offerId: offerId.value,
+          confirmed_provider_user_id: activeOffer.value.sender,
+          clientName: user.value.firstName,
+        }
+      );
+
+    if (!result?.success) {
+      return;
+    }
+
+    console.log("BOOKING??? ", result.booking);
+
+    clientStore.applyConfirmedBooking(
+      result.booking
+    );
+
+    const confirmedOffer =
+      result.booking.confirmedOffer;
+
+
+    emit(
+      "cancelRecipientContentConfirmed",
+      confirmedOffer.name
+    );
+
+    emit("handle-user-action");
+
+    emit("toast", {
+      state: "success",
+      message: t(
+        "clientOffer.notifications.order_confirmed"
+      ),
+      icon: "fas fa-check fa-lg me-2",
+      color: "success"
+    });
+
+  } catch (error) {
+    const status =
+      error.response?.status;
+
+    const code =
+      error.response?.data?.code;
+
+    if (
+      status === 409 &&
+      code === "BOOKING_ALREADY_CONFIRMED"
+    ) {
+      return;
+    }
+
+    console.error(
+      "Confirm offer failed:",
+      error
+    );
+
+    emit("toast", {
+      state: "danger",
+      message: t(
+        "clientOffer.notifications.confirmation_failed"
+      ),
+      icon: "fas fa-times fa-lg me-2",
+      color: "danger"
+    });
+
+  } finally {
+    openProModal.value = false;
+    showDealConfirm.value = false;
+  }
+};
+
+
+
+
+const confirmProvider__ = async () => {
   console.log("-- Confirming provider --");
 
   const _offer = activeOffer.value;
@@ -343,9 +423,22 @@ const confirmProvider = async () => {
       return;
     }
 
+    /* const sideProviders = booking.offers
+    .filter(o => o.sender !== activeOffer.value.sender)
+    .map(o => o.sender); */
+
+    let sideProviders = booking.offers.reduce((acc, o) => {
+      if (o.sender !== activeOffer.value.sender) {
+        acc.push(o.sender);
+      }
+      return acc;
+    }, []);
+
+    console.log("Side providers - ", sideProviders);
+
     emit("handle-user-action");
 
-    onToast("fas fa-check fa-lg me-2", "Tellimus kinnitatud!", "success");
+    //onToast("fas fa-check fa-lg me-2", "Tellimus kinnitatud!", "success");
 
     emit("toast", {
       state: "success",
@@ -356,7 +449,7 @@ const confirmProvider = async () => {
       color: "success"
     });
 
-    const proContent = tr("providerNotification", {
+    const mainContent = tr("providerNotification", {
       client: user.value.firstName,
       booking: booking.header
     });
@@ -367,27 +460,45 @@ const confirmProvider = async () => {
     const receiver = activeOffer.value.sender;
     const myId = user.value.id;
     const bookingId = activeOffer.value.bookingID;
-    const header = tr("dealCreatedTitle");;
+    const header = tr("dealCreatedTitle");
 
+    const sideNotifications = sideProviders.map(providerId => {
+      return {
+        receiver: providerId,
+        bookingId: bookingId,
+        isNewMsg: true,
+        isLink: true,
+        title: header,
+        content: `${user.value.firstName} has confirmed the order "${booking.header}" with another provider.`,
+        reason: '',
+        sender: user.value.firstName,
+      };
+    });
 
-    
+    console.log("Side --- notifications - ", sideNotifications);
 
-
-
-    const notification = {
+    const mainNotification = {
       bookingId: bookingId,
       isNewMsg: true,
       isLink: true,
       title: header,
-      content: proContent,
+      content: mainContent,
       reason: '',
       sender: user.value.firstName,
     }
 
     await clientStore.confirmOffer(offer);
     
-    await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
-    emit('canselRecipientContentConfirmed', activeOffer.value.name);
+    
+    const noteAdded = await notificationStore.clientConfirmDealNotification(bookingId, _offer.sender, mainNotification, sideNotifications);
+
+    if (noteAdded) {
+      console.log("Notification added successfully");
+    } else {
+      console.error("Failed to add notification");
+    } 
+
+    emit('cancelRecipientContentConfirmed', activeOffer.value.name);
 
     
 
@@ -432,7 +543,7 @@ const confirmProvider = async () => {
 
     console.error("API error in child:", error);
 
-    onToast("fas fa-times fa-lg me-2", "Tilause kinnitamine ei õnnestunud!", "danger");
+    //onToast("fas fa-times fa-lg me-2", "Tilause kinnitamine ei õnnestunud!", "danger");
 
     /* emit("toast", {
       state: "danger",
@@ -493,7 +604,7 @@ const confirmProvider = async () => {
   await clientStore.confirmOffer(offer);
   
   await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
-  emit('canselRecipientContentConfirmed', selectedProvider.value.name);
+  emit('cancelRecipientContentConfirmed', selectedProvider.value.name);
 
   
 
@@ -517,7 +628,7 @@ const handleQuitOfferContentConfirmed = (pro) => {
   openProModal.value = false;
   //selectedProvider.value = false;
   
-  emit('canselRecipientContentConfirmed', pro);
+  emit('cancelRecipientContentConfirmed', pro);
 }
 
 

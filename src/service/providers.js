@@ -34,8 +34,12 @@ const getProvidersMatchingByProfession = async (profession) => {
     return result.data;
 }
 
-const addProvider = async (id, newProvider) => {
-    const provider = await axios.post(`${baseUrl}/${id}`, newProvider);
+const addProvider = async (id, token, newProvider) => {
+    const provider = await axios.post(`${baseUrl}/${id}`, newProvider, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return provider.data;
 }
 

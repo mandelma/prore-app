@@ -262,8 +262,11 @@ export const useProStore = defineStore("pro", () => {
         return removeResult
     }
 
-    const disableLocalBooking = async (id) => {
+    const disableLocalBooking = async (id, isRemoved = false) => {
         console.log("Disabled booking id " + id);
+
+        console.log("Is removed:", isRemoved);
+        
         const targetId = String(id);
         const getId = (b) => String(b?.id ?? b?._id);
         //const next = incomingOffers.value.filter(b => getId(b) !== targetId);
@@ -271,22 +274,66 @@ export const useProStore = defineStore("pro", () => {
 
         const result = await providerService.removeProviderBooking(providerId.value, id);
 
+        console.log("Result to remove disabled booking -- ", result);
+
         if (!result) {
             return false;
         }
-        const next = incomingOffers.value.map(item => getId(item) === targetId ? {...item, disabled: true} : {...item, disabled: false});
-        incomingOffers.value = next;
-        //incomingOffersCount.value = next.length;
+
+        incomingOffers.value = incomingOffers.value.map(booking => {
+            if (getId(booking) !== targetId) {
+                return booking;
+            }
+
+            return {
+                ...booking,
+                disabled: true,
+                removed: Boolean(isRemoved)
+            }
+        })
+
+        /* if (isRemoved) {
+            const next = incomingOffers.value.map(item =>
+                getId(item) === targetId ? { ...item, disabled: true, removed: true } : { ...item, disabled: false, removed: false });
+
+            incomingOffers.value = next;
+        } else {
+            console.log("HERE IS NOT REMOVED")
+            const next = incomingOffers.value.map(item =>
+                getId(item) === targetId ? { ...item, disabled: true, removed: false } : { ...item, disabled: false, removed: false });
+
+            incomingOffers.value = next;
+        } */
+
+
+        console.log(
+            "Updated booking:",
+            incomingOffers.value.find(
+                booking => getId(booking) === targetId
+            )
+        );
+       
 
         return true;
         
     }
 
+    const handleWinnerdOffer = async (bookingId) => {
+        console.log("Does winner remove works?" + bookingId);
+        
+        const winner = await removeLocalBooking(bookingId);
 
-    // Provider side form nulty booking removing
+        
+        return winner;
+
+    }
+
+
+    // Provider side form multy booking removing
     const removeBookingPublicOffer = async (id, receiver) => {
 
         console.log("Does proStore remove works?" + id);
+
         //await providerService.removeProviderBooking(providerId.value, id);
 
         //await clientService.removeBooking(id);
@@ -297,9 +344,9 @@ export const useProStore = defineStore("pro", () => {
         console.log("Receiver ID - " + receiver);
         socket.emit('on-pro-remove-public-offer', id, receiver);
 
-        if (incomingOffersCount.value < 1) {
+        /* if (incomingOffersCount.value < 1) {
             router.push('/');
-        }
+        } */
     }
 
     // In provider side
@@ -573,6 +620,7 @@ export const useProStore = defineStore("pro", () => {
         removeBookingMapOffer,
         removeBookingPublicOffer,
         removeLocalBooking,
+        handleWinnerdOffer,
         disableLocalBooking,
         removeMapOffer,
         updateAddress,

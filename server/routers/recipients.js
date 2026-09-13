@@ -7,6 +7,7 @@ const User = require("../models/users");
 const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const Upload = require("../models/awsUploads");
 const Offer = require("../models/offers");
+const Notification = require("../models/notifications");
 const { Conversation, Message } = require("../models/chat");
 //const Provider = require("../models/providers");
 
@@ -125,10 +126,10 @@ module.exports = (io) => {
             //res.json(savedRecipient)
         } catch (err) {
             console.log("Error: " + err.message);
-            next(err);
-            /* return res.status(500).json({
+            //next(err);
+            return res.status(500).json({
                 error: err.message
-            }); */
+            });
         }
     })
 
@@ -289,31 +290,202 @@ module.exports = (io) => {
         }
     })
 
-    // Add confirmed offer
+    // Add client side confirmed offer
     recipientRouter.post('/:bookingId/confirm-provider-offer', async (req, res) => {
-        const { bookingId } = req.params;
-        const body = req.body;
-        console.log("Offer body - ", body);
-        try {
-            const confirmed = await Recipient.findByIdAndUpdate(
-                bookingId,
-                body,
-                {new: true}
-            )
 
-            if (!confirmed) {
-                return res.status(404).json({ error: 'Recipient not found' });
+        console.error(
+            "🔥🔥🔥 CONFIRM ROUTE V3 HIT 🔥🔥🔥",
+            req.params.bookingId,
+            new Date().toISOString(),
+            "PID:",
+            process.pid
+        );
+        
+        try {
+            
+            const { bookingId } = req.params;
+            const {
+                offerId,
+                confirmed_provider_user_id,
+                clientName
+            } = req.body;
+
+            console.log("Client - confirmed offer id  - ", offerId);
+
+            const booking = await Recipient
+                .findById(bookingId)
+                .populate("offers");
+
+            if (!booking) {
+                return res.status(404).json({
+                    success: false,
+                    message: "The booking is not found"
+                });
             }
 
-            return res.status(200).json(confirmed);
+            const selectedOffer = booking.offers.find(offer => String(offer._id) === String(offerId));
+
+            if (!selectedOffer) {
+                return res.status(404).json({
+                    success: false,
+                    message: "The booking offer is not found"
+                });
+            }
+
+            console.log(("Offer ----- ", selectedOffer))
+
+            /* const confirmed = await Recipient.findOneAndUpdate(
+                {
+                    _id: bookingId
+                },
+                {
+                    $set: {
+                        status: "confirmed",
+                        confirmed_provider_user_id,
+                        confirmedOffer: selectedOffer,
+                        confirmedAt: new Date()
+                    }
+                },
+                {
+                    new: true,
+                    runValidators: true
+                }
+            );
+
+            if (!confirmed) {
+                return res.status(404).json({ success: false, booking: "Booking is not confirmed!" });
+            } */
+
+            booking.status = "confirmed";
+            booking.confirmed_provider_user_id =
+                confirmed_provider_user_id;
+            booking.confirmedOffer = selectedOffer.toObject();
+            booking.confirmedAt = new Date();
+
+            await booking.save();
+
+            const winnerId =
+                String(selectedOffer.sender);
+
+
+            console.log(
+                "ALL OFFERS:",
+                booking.offers.map(o => ({
+                    id: String(o._id),
+                    sender: String(o.sender),
+                    name: o.name
+                }))
+            );
+
+            console.log("WINNER ID:", winnerId)
+
+
+
+
+            const sideProviders = [
+                ...new Set(
+                    booking.offers
+                        .filter(
+                            offer =>
+                                String(offer.sender) !== winnerId
+                        )
+                        .map(
+                            offer => String(offer.sender)
+                        )
+                )
+            ];
+
+            console.log(
+                "SIDE PROVIDERS:",
+                sideProviders
+            );
+
+
+            const winnerNotification = await Notification.create({
+                receiver: selectedOffer.sender,
+                bookingId: booking._id,
+                isNewMsg: true,
+                isLink: true,
+                title: "Deal confirmed",
+                content:
+                    `${clientName} confirmed your offer for "${booking.header}".`,
+                sender: clientName
+            });
+
+            
+
+
+            const sideNotifications =
+                await Notification.insertMany(
+                    sideProviders.map(providerId => ({
+                        receiver: providerId,
+                        bookingId: booking._id,
+                        isNewMsg: true,
+                        isLink: false,
+                        title: "Offer closed",
+                        content:
+                            `${clientName} confirmed another provider for "${booking.header}".`,
+                        sender: clientName
+                    }))
+                );
+
+            console.log(
+                "SIDE NOTIFICATIONS:",
+                sideNotifications.map(n => ({
+                    receiver: String(n.receiver),
+                    id: String(n._id)
+                }))
+            );
+            
+
+            io
+                .to(`user:${winnerId}`)
+                .emit(
+                    "booking-offer-confirmed",
+                    {
+                        bookingId: booking._id,
+                        notification: winnerNotification
+                    }
+                );
+
+            for (const notification of sideNotifications) {
+                const receiverId = String(notification.receiver);
+                const room = `user:${receiverId}`;
+
+                console.log(
+                    "EMITTING SIDE SOCKET TO:",
+                    room
+                );
+
+                io
+                    .to(room)
+                    .emit(
+                        "booking-offer-closed",
+                        {
+                            bookingId: booking._id,
+                            notification,
+                            removed: false
+                        }
+                    );
+            }
+
+            res.status(200).json({
+                success: true,
+                booking: booking,
+                debugVersion: "CONFIRM_ROUTE_V3"
+            });
+
+            
+
+        
         } catch (e) {
             console.log("Error - " + e.message);
-            return res.status(500).json({ error: e.message });
+            return res.status(500).json({ success: false, booking: "Booking confirming not succeeded"});
         }
     })
 
     // Uuendatud provider jaoks
-    recipientRouter.post("/:bookingId/confirm-client-offer", async (req, res) => {
+    recipientRouter.post("/:bookingId/confirm-offer", async (req, res) => {
         try {
             const { bookingId } = req.params;
             const {

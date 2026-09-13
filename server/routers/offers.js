@@ -82,7 +82,7 @@ router.post("/", async (req, res) => {
                     status: "active",
 
                     // Maksimaalselt 10 pakkumist
-                    "offers.0": { $exists: false }
+                    "offers.10": { $exists: false }
                 },
                 {
                     $push: {

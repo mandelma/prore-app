@@ -6,6 +6,12 @@ const providerSchema = new Schema({
     pName: {
         type: String
     },
+    personId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+        unique: true
+    },
     created: {
         type: Date
     },

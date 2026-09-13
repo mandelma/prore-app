@@ -16,6 +16,8 @@ const s3 = new S3Client({
     },
 });
 
+const httpAuth = require('../middleware/httpAuth');
+
 router.get('/', async(req, res) => {
     const providers = await Provider.find({})
     .populate('user')
@@ -79,13 +81,13 @@ router.post('/profession',async (req, res) => {
 
 })
 
-router.post('/:id', async(req, res) =>{
+router.post('/:id', httpAuth, async(req, res) =>{
+    console.log("USER ID in provider post: " + req.user.id)
     try {
         const body = req.body;
-        //const user = await User.findById(req.params.id)
-        // proTime: new Date().getTime() + (30 * 86400000),
         const provider = new Provider({
             pName: body.pName,
+            personId: req.user.id,
             created: new Date(),
             ide: body.ide,
             description: body.description,
@@ -99,16 +101,12 @@ router.post('/:id', async(req, res) =>{
             //timeoffer: body.timeId,
             proTime: new Date().getTime() + (3 * 86400000),
             credit: 30,
-            /* rating: {
-                positive: 0,
-                negative: 0,
-                count: 0
-            }, */
+            
             range: body.range,
-            user: req.params.id
+            user: req.user.id
         })
         const savedProvider = await provider.save()
-        savedProvider.populate('user');
+        await savedProvider.populate('user');
         res.json(savedProvider)
     } catch (exception) {
         console.log("Error in providers post: " + exception)

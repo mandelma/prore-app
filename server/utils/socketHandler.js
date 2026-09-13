@@ -189,12 +189,13 @@ const hs = (io, socket) => {
 
     // Same socket call without pro offers / no notification, only local delete pro booking
     socket.on('on-client-del-public-booking', (receiver, bookingId) => {
+        console.log("REMOVE FOR NO OFFERS?")
         const room = `user:${receiver}`
         console.log("Receiver: " + receiver);
         socket.to(room).emit('local-client-del-public-booking', bookingId);
     })
 
-    socket.on('on-client-confirmed-deal-motification', (receiver, bookingId, notification) => {
+    socket.on('on-client-confirmed-deal-notification', (receiver, bookingId, notification, sideNotes) => {
         const room = `user:${receiver}`
         console.log("RECEIVER ID: " + receiver);
         socket.to(room).emit('local-handle-client-confirmed-deal', bookingId, notification);

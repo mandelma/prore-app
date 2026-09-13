@@ -25,6 +25,7 @@
       <div v-if="safeOffers.length">
         <div v-for="(booking, index) in _props.clients " :key="index" >
 
+
           <!-- style="color: red; background-color: green;" -->
            <!-- :class="[{ activePanel: booking.id === bookingID }]" -->
           <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" >
@@ -54,15 +55,28 @@
               
             </span>
             
-            <div v-if="booking?.disabled" style=" padding-top: 33px;">
-              <p class="text-danger">{{ t('clientOfferList.booking_removed', {
-                  name: booking.user.firstName
-                }) }}&nbsp; &nbsp;
-                <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}
+            <div v-if="booking?.disabled">
+              
+              <div v-if="booking?.removed === true" style=" padding-top: 33px;">
+                
+                <p class="text-warning">{{ t('clientOfferList.booking_removed', {
+                    name: booking.user.firstName
+                  }) }}&nbsp; &nbsp;
+                  <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
 
-                </strong>
-              </p>
+                  </strong>
+                </p>
+              </div>
+              <div v-else style=" padding-top: 33px;">
+      
+                <p class="text-info">Tilaus on kinnitatud kellegi teise pakkuja poolt
+                  &nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
+
+                  </strong>
+                </p>
+              </div>
             </div>
+            
             <MDBCollapse
                 v-if="booking.id === bookingID"
                 class="client-collapse"
@@ -148,9 +162,26 @@
 
               </span>
               
-              <div v-if="booking?.disabled" style=" padding-top: 33px;">
-                <p class="text-danger">{{ `${booking.user.firstName} on poistanut tilauksen!` }}&nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('clientOfferList.done') }}</strong></p>
-                
+              <div v-if="booking?.disabled">
+              
+                <div v-if="booking?.removed === true" style=" padding-top: 33px;">
+                  
+                  <p class="text-warning">{{ t('clientOfferList.booking_removed', {
+                      name: booking.user.firstName
+                    }) }}&nbsp; &nbsp;
+                    <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
+
+                    </strong>
+                  </p>
+                </div>
+                <div v-else style=" padding-top: 33px;">
+        
+                  <p class="text-info">Tilaus on kinnitatud kellegi teise pakkuja poolt
+                    &nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
+
+                    </strong>
+                  </p>
+                </div>
               </div>
 
               <!-- @confirmed-order-toast="(...args) => { console.log('raw event in parent', args); handleConfirmedOrderToast() }" -->

@@ -198,6 +198,37 @@ export const useClientStore = defineStore('client', () => {
         
     }
 
+    const applyConfirmedBooking = (booking) => {
+        console.log("R STORE BOOKING ", booking);
+
+        if (!booking) {
+            console.error("Booking missing");
+            return;
+        }
+
+        const offer = booking.confirmedOffer;
+
+        console.log("R STORE OFFER ", offer);
+
+        if (!offer) {
+            console.error(
+                "confirmedOffer missing from booking:",
+                booking
+            );
+            return;
+        }
+
+        bookings.value = bookings.value.map(order =>
+            String(order.id) === String(booking.id)
+                ? {
+                    ...order,
+                    status: "confirmed",
+                    confirmedOffer: offer
+                }
+                : order
+        );
+    };
+
     
 
     const removeProRejectedMapOffer_ls = async (offerId) => {
@@ -229,8 +260,6 @@ export const useClientStore = defineStore('client', () => {
     const removeExpiredBooking = async (id) => {
         const removed = await clientService.removeBooking(id);
 
-        console.log("_____ ", removed);
-
         if (removed.ok && removed.deleted) {
             bookings.value = bookings.value.filter(item => item.id !== id);
         }
@@ -245,6 +274,9 @@ export const useClientStore = defineStore('client', () => {
         const booking = bookings.value.find(b => b.id === bookingId);
         const bOffers = booking.offers;
         const bGetters = booking.ordered;
+
+        
+
         const notification = {
             bookingId: bookingId,
             isNewMsg: true,
@@ -255,18 +287,25 @@ export const useClientStore = defineStore('client', () => {
             sender: "xxx",
         }
         if (bOffers.length) {
-            
+
+            console.log("BOFFERS----- ", bOffers);
+
             for (let offer of bOffers) {
                 const receiver = offer.sender;
                 const created = await noteService.createMessage(receiver, notification);
                 if (created) notification.id = created.id;
-                await notificationStore.clientPublicBookingDelNotification(receiver, bookingId, notification);
+                //await notificationStore.clientPublicBookingDelNotification(receiver, bookingId, notification);
+                socket.emit('on-client-del-public-booking-notification', receiver, bookingId, notification);
             }
             await offerService.deleteBookingOffers(bookingId);
             clientNewOffers.value = clientNewOffers.value.filter(no => no.bookingID !== bookingId);
-        } else {
+        }
+        if (bGetters.length) {
+
+            console.log("BGETTERS----- ", bGetters);
+
             for (let pro of bGetters) {
-                // notification currently not send id no offer done.
+                // notification currently not send if no offer done.
                 console.log("Pro user id -- " + pro.user.id);
                 const addressaat = pro.user.id;
                 socket.emit('on-client-del-public-booking', addressaat, bookingId);
@@ -301,7 +340,7 @@ export const useClientStore = defineStore('client', () => {
     ) => {
         try {
             console.log("Data in rec store", receiver);
-            console.log("#################");
+    
             console.log("User id", userId);
             console.log("REQUEST", request);
 
@@ -550,6 +589,7 @@ export const useClientStore = defineStore('client', () => {
         removeProRejectedMapOffer_ls,
         onRequest,
         handleConfirmedOffer,
+        applyConfirmedBooking,
         disableMapBooking,
         removeMapOffer,
         removeExpiredBooking,

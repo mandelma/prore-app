@@ -2138,6 +2138,30 @@ const listen = async() => {
     await client.handleConfirmedOffer(bId, _providerId, _offer);
     await notificationStore.localStateAddNotification(_note);
   }) */
+
+  socket.on('booking-offer-confirmed', async ({bookingId, notification}) => {
+    console.log("CONFIRMED bookin id -- ", bookingId);
+    console.log("CONFIRMED ---- ", notification);
+
+    handleProvider.handleConfirmed(bookingId);
+
+    
+    notificationStore.localStateAddNotification(notification);
+    
+  })
+
+  socket.on('booking-offer-closed', async ({bookingId, notification, removed}) => {
+    console.log("CLOSED bookin id -- ", bookingId);
+    console.log("CLOSED ---- ", notification);
+
+    console.log("CLOSED removed -- ", removed); 
+
+    const isDisabled = await handleProvider.disableLocalBooking(bookingId, removed);
+
+    if (isDisabled) {
+      notificationStore.localStateAddNotification(notification);
+    }
+  })
   
   socket.on('handle-pro-del-map-booking', async (receiver, bookingId, note) => {
     console.log("Del map booking " + bookingId);
@@ -2159,7 +2183,8 @@ const listen = async() => {
     console.log("Pro removed map booking " + bookingId);
     console.log("Pro removed map b note - ", note)
     //const isRemoved = await client.removeProRejectedMapOffer_ls(bookingId);
-    const isRemoved = await handleProvider.disableLocalBooking(bookingId);
+    const removed = true;
+    const isRemoved = await handleProvider.disableLocalBooking(bookingId, removed);
     console.log("IS REMOVED?? ", isRemoved);
     if (isRemoved) {
       await notificationStore.localStateAddNotification(note);
@@ -2175,16 +2200,20 @@ const listen = async() => {
     await notificationStore.localStateAddNotification(notes.cNote);
   })
 
+  // Kutsutakse pakkujale kui klient eemaldab multi tellimuse ja tellimusele on tehtud pakkumine
   socket.on('local-handle-del-client-public-booking', async (bookingId, note) => {
-    console.log("Notification locally added - " + note.content);
+    console.log("Notification locally added - ", note);
     //await handleProvider.removeLocalBooking(bookingId);
-    await handleProvider.disableLocalBooking(bookingId);
+    const removed = true;
+    await handleProvider.disableLocalBooking(bookingId, removed);
     await notificationStore.localStateAddNotification(note);
   })
-  // Same, only no offers
+  // Kutsutakse pakkujale kui klient eemaldab multi tellimuse aga tellimuse saaja ei ole teinud pakkumist veel
   socket.on('local-client-del-public-booking', async (bookingId) => {
-    //await handleProvider.removeLocalBooking(bookingId);
-    await handleProvider.disableLocalBooking(bookingId);
+
+    console.log("Kas see kui ei ole offerit???")
+    const removed = true;
+    await handleProvider.disableLocalBooking(bookingId, removed);
   })
 
   socket.on('local-handle-client-confirmed-deal', (bookingId, notification) => {
@@ -2320,6 +2349,7 @@ const isBookingWithinZone = async (booking, provider) => {
 
 // Client created booking and finding matching providers to send this booking to
 const handleCreateBookingMultiple = async booking => {
+
   sendUserAction();
 
   console.log("Booking zone:", booking.zone);
@@ -2403,6 +2433,10 @@ const handleCreateBookingMultiple = async booking => {
       continue;
     } */
 
+    console.log(
+      `Provider ${providerUserId} is within the booking zone. Sending booking.`
+    );
+
     orderedBookings.push(providerItem);
     proIdArr.push(providerUserId);
 
@@ -2417,7 +2451,6 @@ const handleCreateBookingMultiple = async booking => {
     );
   }
 
-  //booking.ordered = orderedBookings;
 
   console.log(
     "Matching provider count:",

@@ -136,8 +136,8 @@
         @updateOfferState="handleUpdateOfferState"
         @cancelRecipientContent="handleCancelRecipientContent"
         @out-here="handleOutHere"
-        @canselRecipientContentConfirmed="
-          handleCanselRecipientContentConfirmed
+        @cancelRecipientContentConfirmed="
+          handleCancelRecipientContentConfirmed
         "
       />
     </section>
@@ -948,9 +948,9 @@ const handleCancelRecipientContent = () => {
   isRecipientContent.value = false;
 } */
 
-const handleCanselRecipientContentConfirmed = (pro) => {
+const handleCancelRecipientContentConfirmed = (pro) => {
   isRecipientContent.value = false;
-  console.log("Pro - " + pro)
+  console.log("Pro emit to recipient page - " + pro)
   // Show success toast after confirmation
   isConfirmed.value = true;
   confirmedMessage.value = t(

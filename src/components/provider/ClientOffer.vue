@@ -312,7 +312,7 @@
             block
             outline="success"
             size="lg"
-            @click="confirmClientBooking()"
+            @click="confirmProviderOffer()"
         >
             {{ t('clientOffer.confirm_order') }}
         </MDBBtn>
@@ -899,6 +899,8 @@ const createOffer = async () => {
   } catch (error) {
     console.error("Offer creation failed:", error);
 
+    loading.value = false;
+    
     const status = error.response?.status;
     const code = error.response?.data?.code;
 
@@ -916,7 +918,7 @@ const createOffer = async () => {
       });
       
       await proStore.removeLocalBooking(client.value.id);
-      //emit("handle-user-action");
+      emit("handle-user-action");
       return;
     }
 
@@ -964,10 +966,11 @@ const undoRejectMapOffer = () => {
   reason.value = "";
 }
 
-const confirmClientBooking = async () => {
+const confirmProviderOffer = async () => {
   showDealConfirm.value = true;
 }
 
+// Confirming provider offer and sending notification
 const confirmDeal = async () => {
   loading.value = true;
   const bookingId = client.value?.id;

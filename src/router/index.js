@@ -54,6 +54,18 @@ const routes = [
         }
     },
     {
+        path: "/projekti",
+        name: "projekti",
+        component: () => import("../components/views/Projekti.vue"),
+        meta: { requiresAuth: false, standalone: true }
+    },
+    {
+        path: "/projekt",
+        name: "projekt",
+        component: () => import("../components/views/Projekt.vue"),
+        meta: { requiresAuth: false, standalone: true }
+    },
+    {
         path: "/terms",
         name: "Terms",
         component: () => import("../components/Terms.vue")

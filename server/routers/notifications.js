@@ -9,7 +9,7 @@ messageRouter.get('/', async (req, res) => {
 })
 
 messageRouter.get('/:userId', async (req, res) => {
-    const notifications = await Messages.find({user: req.params.userId});
+    const notifications = await Messages.find({receiver: req.params.userId});
     res.send(notifications);
 })
 
@@ -30,7 +30,7 @@ messageRouter.post('/:id/notification', async (req, res) => {
         }
 
         const newMessage = new Messages({
-            user: req.params.id,
+            receiver: req.params.id || body.receiver,
             bookingId: body.bookingId,
             isNewMsg: body.isNewMsg,
             isLink: body.isLink,

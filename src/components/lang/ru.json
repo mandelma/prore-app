@@ -317,7 +317,8 @@
         "order_confirmed_by_you": "Вы подтвердили заказ!",
         "minutes_ago": "{count} минут назад",
         "hours_ago": "{count} часов назад",
-        "days_ago": "{count} дней назад"
+        "days_ago": "{count} дней назад",
+        "booking_confirmed_other_provider": "Заказ был подтверждён у другого поставщика услуг."
     },
 
     "photoGallery": {

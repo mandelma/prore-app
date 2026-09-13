@@ -375,7 +375,8 @@
     "order_confirmed_by_you": "Olet vahvistanut tilauksen!",
     "minutes_ago": "{count} minuuttia sitten",
     "hours_ago": "{count} tuntia sitten",
-    "days_ago": "{count} päivää sitten"
+    "days_ago": "{count} päivää sitten",
+    "booking_confirmed_other_provider": "Tilaus on vahvistettu toiselle palveluntarjoajalle."
   },
 
   "photoGallery": {

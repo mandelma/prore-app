@@ -645,7 +645,7 @@ const submitPro = async() => {
       proLink: pro_link.value,
       isAvailable24_7: false,
     }
-    const newProvider = await proService.addProvider(proAuth.user.id, provider);
+    const newProvider = await proService.addProvider(proAuth.user.id, proAuth.token, provider);
     console.log("Added provider::: " + newProvider)
     if (newProvider) {
       newProvider.user = {id: proAuth.user.id, username: proAuth.user.username};

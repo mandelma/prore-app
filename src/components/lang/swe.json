@@ -356,7 +356,8 @@
     "order_confirmed_by_you": "Du har bekräftat beställningen!",
     "minutes_ago": "{count} minuter sedan",
     "hours_ago": "{count} timmar sedan",
-    "days_ago": "{count} dagar sedan"
+    "days_ago": "{count} dagar sedan",
+    "booking_confirmed_other_provider": "Bokningen har bekräftats med en annan tjänsteleverantör."
   },
 
   "photoGallery": {

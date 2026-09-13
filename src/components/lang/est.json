@@ -356,7 +356,8 @@
     "order_confirmed_by_you": "Oled tellimuse kinnitanud!",
     "minutes_ago": "{count} minutit tagasi",
     "hours_ago": "{count} tundi tagasi",
-    "days_ago": "{count} päeva tagasi"
+    "days_ago": "{count} päeva tagasi",
+    "booking_confirmed_other_provider": "Tellimus on kinnitatud teisele teenusepakkujale."
   },
 
 

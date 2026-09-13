@@ -86,12 +86,12 @@ const createOffer = async (bookingID, offerID) => {
 
 // Add confirmed offer ( for provider action )
 const confirmOffer = async (bookingId, offer) => {
-    const confirmed = await axios.post(`${baseUrl}/${bookingId}/confirm-client-offer`, offer);
+    const confirmed = await axios.post(`${baseUrl}/${bookingId}/confirm-offer`, offer);
     return confirmed.data;
 }
 
 // Add confirmed offer ( by client action )
-const confirmOffer__ = async (bookingId, offer) => {
+const confirmProviderOffer = async (bookingId, offer) => {
     const confirmed = await axios.post(`${baseUrl}/${bookingId}/confirm-provider-offer`, offer);
     return confirmed.data;
 }
@@ -136,6 +136,7 @@ export default {
     removeProviderData,
     createOffer,
     confirmOffer,
+    confirmProviderOffer,
     updateOffer,
     orderDuration,
     //addProviderID,
