@@ -329,7 +329,11 @@
       "offer_limit_reached": "The maximum number of offers has already been reached. Unfortunately, you can no longer submit an offer for this order.",
       "booking_not_active": "The order is no longer active.",
       "offer_failed": "Failed to send the offer. Please try again.",
-      "invalid_offer_price": "Please enter a valid offer price."
+      "invalid_offer_price": "Please enter a valid offer price.",
+      "deal_confirmed_title": "Booking confirmed",
+      "deal_confirmed_content": "{client} confirmed your offer for \"{booking}\".",
+      "offer_closed_title": "Offer closed",
+      "offer_closed_content": "{client} confirmed another service provider for \"{booking}\"."
     }
   },
 

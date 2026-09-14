@@ -356,7 +356,11 @@
       "offer_limit_reached": "Tarjousten enimmäismäärä on jo saavutettu. Valitettavasti et voi enää lähettää tarjousta tähän tilaukseen.",
       "booking_not_active": "Tilaus ei ole enää aktiivinen.",
       "offer_failed": "Tarjouksen lähettäminen epäonnistui. Yritä uudelleen.",
-      "invalid_offer_price": "Anna kelvollinen tarjoushinta."
+      "invalid_offer_price": "Anna kelvollinen tarjoushinta.",
+      "deal_confirmed_title": "Tilaus vahvistettu",
+      "deal_confirmed_content": "{client} vahvisti tarjouksesi tilaukseen \"{booking}\".",
+      "offer_closed_title": "Tarjous suljettu",
+      "offer_closed_content": "{client} vahvisti toisen palveluntarjoajan tilaukseen \"{booking}\"."
     }
   },
 

@@ -55,25 +55,40 @@
               
             </span>
             
-            <div v-if="booking?.disabled">
-              
-              <div v-if="booking?.removed === true" style=" padding-top: 33px;">
-                
-                <p class="text-warning">{{ t('clientOfferList.booking_removed', {
-                    name: booking.user.firstName
-                  }) }}&nbsp; &nbsp;
-                  <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
-
-                  </strong>
-                </p>
+            <div
+              v-if="booking?.disabled"
+              class="booking-status-notice"
+              :class="{
+                'booking-status-notice--removed': booking?.removed === true,
+                'booking-status-notice--confirmed': booking?.removed === false
+              }"
+            >
+              <div class="booking-status-notice__icon">
+                <MDBIcon
+                  :icon="booking?.removed === true
+                    ? 'trash-alt'
+                    : 'check-circle'"
+                />
               </div>
-              <div v-else style=" padding-top: 33px;">
-      
-                <p class="text-info">Tilaus on kinnitatud kellegi teise pakkuja poolt
-                  &nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
 
-                  </strong>
-                </p>
+              <div class="booking-status-notice__content">
+                <div class="booking-status-notice__title">
+                  {{
+                    booking?.removed === true
+                      ? t('clientOfferList.booking_removed', {
+                          name: booking.user.firstName
+                        })
+                      : t('clientOfferList.booking_confirmed_other_provider')
+                  }}
+                </div>
+
+                <button
+                  type="button"
+                  class="booking-status-notice__dismiss"
+                  @click="bookingEnded(booking.id)"
+                >
+                  {{ t('notifications.dismiss') }}
+                </button>
               </div>
             </div>
             
@@ -162,25 +177,40 @@
 
               </span>
               
-              <div v-if="booking?.disabled">
-              
-                <div v-if="booking?.removed === true" style=" padding-top: 33px;">
-                  
-                  <p class="text-warning">{{ t('clientOfferList.booking_removed', {
-                      name: booking.user.firstName
-                    }) }}&nbsp; &nbsp;
-                    <strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
-
-                    </strong>
-                  </p>
+              <div
+                v-if="booking?.disabled"
+                class="booking-status-notice"
+                :class="{
+                  'booking-status-notice--removed': booking?.removed === true,
+                  'booking-status-notice--confirmed': booking?.removed === false
+                }"
+              >
+                <div class="booking-status-notice__icon">
+                  <MDBIcon
+                    :icon="booking?.removed === true
+                      ? 'trash-alt'
+                      : 'check-circle'"
+                  />
                 </div>
-                <div v-else style=" padding-top: 33px;">
-        
-                  <p class="text-info">Tilaus on kinnitatud kellegi teise pakkuja poolt
-                    &nbsp; &nbsp;<strong style="color: aquamarine; cursor: pointer;" @click="bookingEnded(booking.id)">{{ t('notifications.dismiss') }}
 
-                    </strong>
-                  </p>
+                <div class="booking-status-notice__content">
+                  <div class="booking-status-notice__title">
+                    {{
+                      booking?.removed === true
+                        ? t('clientOfferList.booking_removed', {
+                            name: booking.user.firstName
+                          })
+                        : t('clientOfferList.booking_confirmed_other_provider')
+                    }}
+                  </div>
+
+                  <button
+                    type="button"
+                    class="booking-status-notice__dismiss"
+                    @click="bookingEnded(booking.id)"
+                  >
+                    {{ t('notifications.dismiss') }}
+                  </button>
                 </div>
               </div>
 
@@ -543,6 +573,98 @@ const timeAgo = (iso) => {
 .booking-status-seen {
     color: #5aa8ff;
     font-weight: 600;
+}
+
+/* Order removed or closed */
+.booking-status-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  margin-top: 24px;
+  padding: 14px 16px;
+
+  border: 1px solid;
+  border-radius: 8px;
+
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+/* Tellimus kustutatud */
+.booking-status-notice--removed {
+  color: #ffd78a;
+  background: rgba(255, 193, 7, 0.08);
+  border-color: rgba(255, 193, 7, 0.25);
+}
+
+/* Teine pakkuja kinnitatud */
+.booking-status-notice--confirmed {
+  color: #8ed9ff;
+  background: rgba(13, 202, 240, 0.07);
+  border-color: rgba(13, 202, 240, 0.22);
+}
+
+.booking-status-notice__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+.booking-status-notice--removed
+.booking-status-notice__icon {
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.12);
+}
+
+.booking-status-notice--confirmed
+.booking-status-notice__icon {
+  color: #42c9f5;
+  background: rgba(13, 202, 240, 0.11);
+}
+
+.booking-status-notice__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-status-notice__title {
+  font-weight: 500;
+}
+
+/* "Sulge" / "Dismiss" */
+.booking-status-notice__dismiss {
+  margin-top: 7px;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: aquamarine;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.booking-status-notice__dismiss:hover {
+  color: #ffffff;
+}
+
+.booking-status-notice__dismiss:focus-visible {
+  outline: 2px solid aquamarine;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* .booking-row-done {

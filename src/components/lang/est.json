@@ -338,7 +338,11 @@
       "offer_limit_reached": "Pakkumiste maksimaalne arv on juba täis. Kahjuks ei ole enam võimalik sellele tellimusele pakkumist esitada.",
       "booking_not_active": "Tellimus ei ole enam aktiivne.",
       "offer_failed": "Pakkumise saatmine ebaõnnestus. Palun proovi uuesti.",
-      "invalid_offer_price": "Sisesta korrektne pakkumise hind."
+      "invalid_offer_price": "Sisesta korrektne pakkumise hind.",
+      "deal_confirmed_title": "Tellimus kinnitatud",
+      "deal_confirmed_content": "{client} kinnitas sinu pakkumise tellimusele \"{booking}\".",
+      "offer_closed_title": "Pakkumine suletud",
+      "offer_closed_content": "{client} kinnitas tellimusele \"{booking}\" teise teenusepakkuja."
     }
   },
 

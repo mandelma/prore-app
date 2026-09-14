@@ -294,6 +294,31 @@ const orderProvider = async() => {
 
 const confirmProvider = async () => {
   try {
+    const winnerTitle = t(
+      "clientOffer.notifications.deal_confirmed_title"
+    );
+
+    const winnerContent = t(
+      "clientOffer.notifications.deal_confirmed_content",
+      {
+        client: user.value.firstName,
+        booking: activeOffer.value.header
+      }
+    );
+
+    const sideTitle = t(
+      "clientOffer.notifications.offer_closed_title"
+    );
+
+    const sideContent = t(
+      "clientOffer.notifications.offer_closed_content",
+      {
+        client: user.value.firstName,
+        booking: activeOffer.value.header
+      }
+    );
+
+
     const result =
       await clientService.confirmProviderOffer(
         activeOffer.value.bookingID,
@@ -301,6 +326,16 @@ const confirmProvider = async () => {
           offerId: offerId.value,
           confirmed_provider_user_id: activeOffer.value.sender,
           clientName: user.value.firstName,
+
+          winnerNotification: {
+            title: winnerTitle,
+            content: winnerContent
+          },
+
+          sideNotification: {
+            title: sideTitle,
+            content: sideContent
+          }
         }
       );
 

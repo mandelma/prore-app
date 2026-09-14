@@ -293,13 +293,13 @@ module.exports = (io) => {
     // Add client side confirmed offer
     recipientRouter.post('/:bookingId/confirm-provider-offer', async (req, res) => {
 
-        console.error(
+        /* console.error(
             "🔥🔥🔥 CONFIRM ROUTE V3 HIT 🔥🔥🔥",
             req.params.bookingId,
             new Date().toISOString(),
             "PID:",
             process.pid
-        );
+        ); */
         
         try {
             
@@ -307,7 +307,9 @@ module.exports = (io) => {
             const {
                 offerId,
                 confirmed_provider_user_id,
-                clientName
+                clientName,
+                winnerNotification,
+                sideNotification
             } = req.body;
 
             console.log("Client - confirmed offer id  - ", offerId);
@@ -332,30 +334,6 @@ module.exports = (io) => {
                 });
             }
 
-            console.log(("Offer ----- ", selectedOffer))
-
-            /* const confirmed = await Recipient.findOneAndUpdate(
-                {
-                    _id: bookingId
-                },
-                {
-                    $set: {
-                        status: "confirmed",
-                        confirmed_provider_user_id,
-                        confirmedOffer: selectedOffer,
-                        confirmedAt: new Date()
-                    }
-                },
-                {
-                    new: true,
-                    runValidators: true
-                }
-            );
-
-            if (!confirmed) {
-                return res.status(404).json({ success: false, booking: "Booking is not confirmed!" });
-            } */
-
             booking.status = "confirmed";
             booking.confirmed_provider_user_id =
                 confirmed_provider_user_id;
@@ -368,19 +346,14 @@ module.exports = (io) => {
                 String(selectedOffer.sender);
 
 
-            console.log(
+            /* console.log(
                 "ALL OFFERS:",
                 booking.offers.map(o => ({
                     id: String(o._id),
                     sender: String(o.sender),
                     name: o.name
                 }))
-            );
-
-            console.log("WINNER ID:", winnerId)
-
-
-
+            ); */
 
             const sideProviders = [
                 ...new Set(
@@ -401,13 +374,17 @@ module.exports = (io) => {
             );
 
 
-            const winnerNotification = await Notification.create({
+            const winnerNotificationResult = await Notification.create({
                 receiver: selectedOffer.sender,
                 bookingId: booking._id,
                 isNewMsg: true,
                 isLink: true,
-                title: "Deal confirmed",
+                title:
+                    winnerNotification?.title ??
+                    "Deal confirmed",
+
                 content:
+                    winnerNotification?.content ??
                     `${clientName} confirmed your offer for "${booking.header}".`,
                 sender: clientName
             });
@@ -422,8 +399,12 @@ module.exports = (io) => {
                         bookingId: booking._id,
                         isNewMsg: true,
                         isLink: false,
-                        title: "Offer closed",
+                        title:
+                            sideNotification?.title ??
+                            "Offer closed",
+
                         content:
+                            sideNotification?.content ??
                             `${clientName} confirmed another provider for "${booking.header}".`,
                         sender: clientName
                     }))
@@ -444,7 +425,7 @@ module.exports = (io) => {
                     "booking-offer-confirmed",
                     {
                         bookingId: booking._id,
-                        notification: winnerNotification
+                        notification: winnerNotificationResult
                     }
                 );
 

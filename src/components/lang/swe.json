@@ -338,7 +338,11 @@
       "offer_limit_reached": "Det maximala antalet offerter har redan uppnåtts. Tyvärr kan du inte längre lämna ett erbjudande för denna beställning.",
       "booking_not_active": "Beställningen är inte längre aktiv.",
       "offer_failed": "Det gick inte att skicka offerten. Försök igen.",
-      "invalid_offer_price": "Ange ett giltigt offertpris."
+      "invalid_offer_price": "Ange ett giltigt offertpris.",
+      "deal_confirmed_title": "Bokning bekräftad",
+      "deal_confirmed_content": "{client} bekräftade ditt erbjudande för \"{booking}\".",
+      "offer_closed_title": "Erbjudandet stängt",
+      "offer_closed_content": "{client} bekräftade en annan tjänsteleverantör för \"{booking}\"."
     }
   },
 
