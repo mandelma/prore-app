@@ -4,8 +4,8 @@ import axios from 'axios';
 //const baseUrl = `${backendUrl}/offer`;
 const baseUrl = "/api/offer";
 
-const addOffer = async (offer) => {
-    const new_offer = await axios.post(baseUrl, {offer});
+const addOffer = async (offer, receiver) => {
+    const new_offer = await axios.post(baseUrl, {offer, receiver});
     return new_offer.data;
 }
 

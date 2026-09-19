@@ -302,6 +302,8 @@ module.exports = (io) => {
 
                 await sendPushToUser(receiver, payload);
 
+                console.log("ADD ORDER PUSH SENT")
+
                 res.send("pro is added!")
             } else {
                 res.send("pro is already added!")
@@ -344,7 +346,7 @@ module.exports = (io) => {
         }
     })
 
-    // Add client side confirmed offer
+    // Client side confirm offer
     recipientRouter.post('/:bookingId/confirm-provider-offer', async (req, res) => {
 
         /* console.error(
@@ -504,7 +506,9 @@ module.exports = (io) => {
 
             };
 
-            await sendPushToUser(receiverId, payload);
+            await sendPushToUser(confirmed_provider_user_id, payload);
+
+            console.log("PUSH SENT")
 
             res.status(200).json({
                 success: true,

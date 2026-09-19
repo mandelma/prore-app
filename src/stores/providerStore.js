@@ -169,6 +169,7 @@ export const useProStore = defineStore("pro", () => {
     
     const addProviderOffer = async (
         id,
+        receiver,
         newContent
     ) => {
         if (loading.value) {
@@ -180,7 +181,7 @@ export const useProStore = defineStore("pro", () => {
 
         try {
             const response =
-                await offerService.addOffer(newContent);
+                await offerService.addOffer(newContent, receiver);
 
             if (!response?.success || !response?.offer) {
                 throw new Error("Invalid offer response.");

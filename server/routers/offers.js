@@ -4,6 +4,8 @@ const Offer = require('../models/offers');
 const Recipient = require('../models/recipients');
 const Provider = require("../models/providers");
 
+const { sendPushToUser } = require('../services/pushService');
+
 
 router.get('/:id', async(req, res) => {
     const offers = await Offer.find({});
@@ -15,9 +17,11 @@ router.post("/", async (req, res) => {
     const session = await mongoose.startSession();
 
     try {
-        const { offer } = req.body;
+        const { offer, receiver } = req.body;
 
         console.log("OFFER - ", offer);
+
+        console.log("Receiver - ", receiver);
 
         console.log("REQ BODY:", req.body);
         console.log("OFFER:", req.body?.offer);
@@ -95,6 +99,17 @@ router.post("/", async (req, res) => {
                     runValidators: true
                 }
             );
+
+            const payload = {
+                title: "New offer",
+                body: "You have a new offer in DuunHub.",
+
+                url:
+                    '/',
+
+            };
+
+            await sendPushToUser(receiver, payload);
 
             if (!updatedBooking) {
                 const booking = await Recipient.findById(

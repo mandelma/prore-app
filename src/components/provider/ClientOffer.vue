@@ -868,6 +868,7 @@ const createOffer = async () => {
   try {
     const result = await proStore.addProviderOffer(
       client.value.id,
+      client.author_id,
       offer
     );
 
