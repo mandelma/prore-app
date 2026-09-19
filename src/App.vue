@@ -2400,39 +2400,6 @@ const handleCreateBookingMultiple = async booking => {
       continue;
     }
 
-    /* let isWithinZone = booking.zone === 0;
-
-    if (!isWithinZone) {
-      const destination = [
-        providerItem.latitude,
-        providerItem.longitude
-      ];
-
-      const distanceData = await onMap.findDistance(
-        origin,
-        destination
-      );
-
-      const distance = Number.parseFloat(
-        distanceData.distance
-      );
-
-      if (!Number.isFinite(distance)) {
-        console.warn(
-          "Invalid provider distance:",
-          distanceData.distance
-        );
-
-        continue;
-      }
-
-      isWithinZone = distance < Number(booking.zone);
-    }
-
-    if (!isWithinZone) {
-      continue;
-    } */
-
     console.log(
       `Provider ${providerUserId} is within the booking zone. Sending booking.`
     );
@@ -2442,7 +2409,11 @@ const handleCreateBookingMultiple = async booking => {
 
     await recipientService.addProviderData(
       booking.id,
-      providerItem.id
+      {
+        providerId: providerItem.id,
+        receiver: providerItem.personId
+      }
+      
     );
 
     await providerService.addProviderBooking(

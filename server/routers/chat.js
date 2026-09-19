@@ -193,7 +193,6 @@ router.post(
       console.log("RECEIVER:", receiverId);
       console.log("CONVERSATION:", conversationId); */
 
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
       console.log(
         "RECEIVER SOCKETS:",
@@ -338,11 +337,11 @@ router.post(
         );
 
         const payload = {
-          title: "Uus sõnum",
+          title: "New chat message",
           body:
             text?.trim()
               ? text
-              : "Sul on DuunHubis uus sõnum.",
+              : "You have new chat message in DuunHub.",
 
           url:
             '/',
@@ -355,36 +354,10 @@ router.post(
             `message-${msg._id}`
         }
 
-
-
-
-
-
         if (!receiverIsViewingConversation) {
 
           await sendPushToUser(receiver, payload);
 
-          
-          /* await sendPushToUser(
-            receiver,
-            {
-              title: "Uus sõnum",
-              body:
-                text?.trim()
-                  ? text
-                  : "Sul on DuunHubis uus sõnum.",
-
-              url:
-                '/',
-              conversationId:
-                String(conversationId),
-
-              unreadCount: totalUnread,
-
-              tag:
-                `message-${msg._id}`
-            }
-          ); */
         }
         
 

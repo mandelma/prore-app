@@ -20,6 +20,7 @@ const sendPushToUser = async (
     const subscription
     of user.pushSubscriptions
   ) {
+    
     try {
       await webpush.sendNotification(
         subscription,

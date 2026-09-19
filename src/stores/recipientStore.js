@@ -365,7 +365,10 @@ export const useClientStore = defineStore('client', () => {
             const handleClient =
                 await clientService.addProviderData(
                     bookingId,
-                    pro.id
+                    {
+                        providerId: pro.id,
+                        receiver: pro.personId
+                    }
                 );
 
             console.log("handleClient:", handleClient);

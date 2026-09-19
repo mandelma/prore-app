@@ -21,6 +21,9 @@ const s3 = new S3Client({
     },
 });
 
+const { sendPushToUser } = require('../services/pushService');
+
+
 module.exports = (io) => {
     const recipientRouter = express.Router();
 
@@ -86,6 +89,7 @@ module.exports = (io) => {
             console.log("Photos", body.photos);
             console.log("BODY - ", body);               // → 09/26/2025
             console.log("DateObj " + body.created)
+
             const recipient = new Recipient({
                 author_id: body.author_id,
                 started: new Date(),
@@ -120,9 +124,14 @@ module.exports = (io) => {
 
             const savedRecipient = await recipient.save();
 
+            if (!savedRecipient) {
+                res.status(404).json({error: "Booking not added"});
+            }
+
             await savedRecipient.populate({ path: 'user', select: '_id name avatar email' });
 
             res.json(savedRecipient.toObject({ getters: true, virtuals: true }));
+
             //res.json(savedRecipient)
         } catch (err) {
             console.log("Error: " + err.message);
@@ -242,12 +251,57 @@ module.exports = (io) => {
     })
 
     // Add ordered provider id to ordered array
-    recipientRouter.post('/:recipientId/addOrdered/:id', async (req, res) => {
+    /* recipientRouter.post('/:recipientId/add-ordered/:id', async (req, res) => {
         try {
+
             const recipient = await Recipient.findById(req.params.recipientId);
             if (!recipient.ordered.includes(req.params.id)) {
                 recipient.ordered = recipient.ordered.concat(req.params.id);
                 await recipient.save();
+
+                const payload = {
+                    title: "New order",
+                    body: "You have new order in DuunHub.",
+
+                    url:
+                        '/',
+
+                };
+
+                res.send("pro is added!")
+            } else {
+                res.send("pro is already added!")
+            }
+
+
+        } catch (err) {
+            console.log("Error: " + err.message)
+            res.send("Error to add order!")
+        }
+    }) */
+
+    recipientRouter.post('/:recipientId/add-ordered', async (req, res) => {
+        try {
+            const { providerId, receiver } = req.body;
+
+            console.log("PRO ID " + providerId + " - receiver: " + receiver);
+
+            const recipient = await Recipient.findById(req.params.recipientId);
+            if (!recipient.ordered.includes(providerId)) {
+                recipient.ordered = recipient.ordered.concat(providerId);
+                await recipient.save();
+
+                const payload = {
+                    title: "New offer",
+                    body: "You have a new offer in DuunHub.",
+
+                    url:
+                        '/',
+
+                };
+
+                await sendPushToUser(receiver, payload);
+
                 res.send("pro is added!")
             } else {
                 res.send("pro is already added!")
@@ -346,15 +400,6 @@ module.exports = (io) => {
                 String(selectedOffer.sender);
 
 
-            /* console.log(
-                "ALL OFFERS:",
-                booking.offers.map(o => ({
-                    id: String(o._id),
-                    sender: String(o.sender),
-                    name: o.name
-                }))
-            ); */
-
             const sideProviders = [
                 ...new Set(
                     booking.offers
@@ -450,6 +495,17 @@ module.exports = (io) => {
                     );
             }
 
+            const payload = {
+                title: "Offer confirmed",
+                body: `You offer is confirmed by ${clientName} in DuunHub.`,
+
+                url:
+                    '/',
+
+            };
+
+            await sendPushToUser(receiverId, payload);
+
             res.status(200).json({
                 success: true,
                 booking: booking,
@@ -499,6 +555,20 @@ module.exports = (io) => {
                     message: "The booking has already been confirmed by another provider."
                 });
             }
+
+            const receiverId = confirmedRecipient.author_id;
+            console.log("CONFIRMED PUSH TO - ", receiverId);
+
+            const payload = {
+                title: "Order confirmed",
+                body: `You order is confirmed by ${offer?.name || " provider "} in DuunHub.`,
+
+                url:
+                    '/',
+
+            };
+
+            await sendPushToUser(receiverId, payload);
 
             res.status(200).json({
                 success: true,

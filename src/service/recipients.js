@@ -59,10 +59,17 @@ const editDescription = async (id, description) => {
 }
 
 // Add confirmed provider
-const addProviderData = async (id, proID) => {
-    const result = await axios.post(`${baseUrl}/${id}/addOrdered/${proID}`);
+/* const addProviderData = async (id, proData) => {
+    const result = await axios.post(`${baseUrl}/${id}/add-ordered/${proData}`);
+    return result.data;
+} */
+
+const addProviderData = async (id, proData) => {
+    const result = await axios.post(`${baseUrl}/${id}/add-ordered`, proData);
     return result.data;
 }
+
+
 // Add visitor
 const addVisitor = async (id, visitor) => {
     const newVisitor = await axios.put(`${baseUrl}/${id}/visitor`, visitor);
