@@ -510,8 +510,8 @@ module.exports = (io) => {
             }
 
             const payload = {
-                title: "Offer confirmed",
-                body: `You offer is confirmed by ${clientName} in DuunHub.`,
+                title: "Confirmed",
+                body: `You offer is confirmed by ${clientName}.`,
 
                 url:
                     '/',
@@ -579,11 +579,13 @@ module.exports = (io) => {
 
             if (!pushTo) {
                 console.warn("Receiver for push does not exist for - ", receiverId);
+            } else {
+                console.log("Receiver existing");
             }
 
             const payload = {
                 title: "Order confirmed",
-                body: `You order is confirmed by ${offer?.name || " provider "} in DuunHub.`,
+                body: `You order is confirmed by ${offer?.name || " provider "} xxx.`,
 
                 url:
                     '/',

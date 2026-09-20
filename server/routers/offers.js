@@ -107,16 +107,7 @@ router.post("/", async (req, res) => {
                 }
             );
 
-            const payload = {
-                title: "New offer",
-                body: "You have a new offer in DuunHub.",
-
-                url:
-                    '/',
-
-            };
-
-            await sendPushToUser(receiver, payload);
+            
 
             if (!updatedBooking) {
                 const booking = await Recipient.findById(
@@ -149,6 +140,17 @@ router.post("/", async (req, res) => {
                 throw error;
             }
         });
+
+        const payload = {
+            title: "New offer",
+            body: "You got offer from ${savedOffer?.name || 'provider'}.",
+
+            url:
+                '/',
+
+        };
+
+        await sendPushToUser(receiver, payload);
 
         return res.status(201).json({
             success: true,

@@ -1258,7 +1258,6 @@ const unreadCount = computed(() => {
     unreadNotificationsCount.value +
     unreadProBellNotifications.value +
     unreadClientBellNotifications.value
-
   );
 });
 
@@ -1867,7 +1866,8 @@ const enableNotificationsFromModal = async () => {
 
     notificationPermission.value = "granted";
 
-    await ensurePushSubscription();
+    //await ensurePushSubscription();
+    await initPushNotifications();
   }
 
   showNotificationModal.value = false;
