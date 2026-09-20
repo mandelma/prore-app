@@ -1488,6 +1488,11 @@ const handleVisibilityChange = async () => {
     );
 
     await forceChatSync();
+
+    // Provideri bookingute taastav sync
+    
+    await handleProvider.syncProviderBookings();
+    
   }
 };
 
@@ -2186,6 +2191,8 @@ const listen = async() => {
       handleProvider.upsertBooking(b);
     }
   })
+
+
   socket.on('client use offer', async(bookingID, offer) => {
     console.log("I got the offer - " + offer.name);
     const target = await providerService.getProvByProvId(offer.provider.id);
@@ -2493,7 +2500,7 @@ const handleCreateBookingMultiple = async booking => {
     proIdArr.push(providerUserId);
 
     // Test 
-    
+
     await recipientService.addProviderData(
       booking.id,
       {

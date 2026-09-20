@@ -158,14 +158,48 @@ export const useProStore = defineStore("pro", () => {
             isProStateLoading.value = false;
         }
     };
-    const upsertBooking = (booking) => {
-        incomingOffers.value.push(booking);
-        //newOffersAmount.value = incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length;
-        incomingOffers.value = incomingOffers.value.sort((a, b) => b.created_ms - a.created_ms);;
-        // keep the counter in sync
 
-        
-    }
+    const syncProviderBookings = async () => {
+        try {
+            const proCount  =
+                await providerService.getProvider(
+                    provider.value.id
+                );
+            const bookingList = proCount.proposal || [];
+
+            const bookings = removeExpiredOffers(bookingList);
+
+            for (const booking of bookings) {
+                upsertBooking(booking);
+            }
+        } catch (error) {
+            console.error(
+                "Provider booking sync failed:",
+                error
+            );
+        }
+    };
+
+
+    const upsertBooking = (booking) => {
+        const index = incomingOffers.value.findIndex(
+            item => item.id === booking.id
+        );
+
+        if (index === -1) {
+            incomingOffers.value.push(booking);
+        } else {
+            incomingOffers.value[index] = booking;
+        }
+
+        incomingOffers.value = [
+            ...incomingOffers.value
+        ].sort(
+            (a, b) =>
+                Number(b.created_ms || 0) -
+                Number(a.created_ms || 0)
+        );
+    };
     
     const addProviderOffer = async (
         id,

@@ -110,23 +110,7 @@ const setRating = async (id, rating) => {
     const feedback = await axios.put(`${baseUrl}/${id}/feedback`, rating);
     return feedback.data;
 }
-/* const setNegativeRating = async (id) => {
-    const ratingNeg = await axios.put(`${baseUrl}/${id}/rating-minus`);
-    return ratingNeg.data;
-}
-const addPositiveFeedback = async (id, feedbackPos) => {
-    const res = await axios.put(`${baseUrl}/${id}/rating-pos`, feedbackPos);
-    return res.data;
-}
-const addNegativeFeedback = async (id, feedbackNeg) => {
-    const neg = await axios.put(`${baseUrl}/${id}/rating-neg`, feedbackNeg);
-    return neg.data;
-} */
 
-/* const addProSlide = async (id, slide) => {
-    const addedSlide = await axios.post(`${baseUrl}/${id}/addSlide`, slide);
-    return addedSlide.data;
-} */
 
 const handleReference = async (proId, payload) => {
     const reference = await axios.put(`${baseUrl}/update-reference/${proId}`, payload);
