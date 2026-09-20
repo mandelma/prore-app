@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
 const Offer = require('../models/offers');
+const User = require('../models/users');
 const Recipient = require('../models/recipients');
 const Provider = require("../models/providers");
 
@@ -50,6 +51,12 @@ router.post("/", async (req, res) => {
                 code: "INVALID_OFFER_PRICE",
                 message: "The offer price is invalid."
             });
+        }
+
+        const pushTo = await User.findById(receiver);
+
+        if (!pushTo) {
+            console.warn("There is not user for pushTo - ", receiver);
         }
 
         let savedOffer;

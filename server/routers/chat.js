@@ -194,7 +194,7 @@ router.post(
       console.log("CONVERSATION:", conversationId); */
 
 
-      console.log(
+      /* console.log(
         "RECEIVER SOCKETS:",
         receiverSockets.map(s => ({
           socketId: s.id,
@@ -205,9 +205,9 @@ router.post(
           activeConversationId:
             s.data?.activeConversationId
         }))
-      );
+      ); */
 
-      console.log("Is receiver watching chat? : " + receiverIsViewingConversation);
+      //console.log("Is receiver watching chat? : " + receiverIsViewingConversation);
 
       const conversationUpdate = {
         $set: {

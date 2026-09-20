@@ -286,6 +286,12 @@ module.exports = (io) => {
 
             console.log("PRO ID " + providerId + " - receiver: " + receiver);
 
+            const pushReceiver = await User.findById(receiver);
+
+            if (!pushReceiver) {
+                console.warn("Push receiver does not exists for - ", receiver);
+            }
+
             const recipient = await Recipient.findById(req.params.recipientId);
             if (!recipient.ordered.includes(providerId)) {
                 recipient.ordered = recipient.ordered.concat(providerId);
@@ -300,7 +306,7 @@ module.exports = (io) => {
 
                 };
 
-                await sendPushToUser(receiver, payload);
+                await sendPushToUser(pushReceiver, payload);
 
                 console.log("ADD ORDER PUSH SENT")
 
@@ -367,6 +373,12 @@ module.exports = (io) => {
                 winnerNotification,
                 sideNotification
             } = req.body;
+
+            const pushReceiver = await User.findById(confirmed_provider_user_id);
+
+            if (!pushReceiver) {
+                console.warn("Push receiver does not exist for - ", confirmed_provider_user_id);
+            }
 
             console.log("Client - confirmed offer id  - ", offerId);
 
@@ -506,7 +518,7 @@ module.exports = (io) => {
 
             };
 
-            await sendPushToUser(confirmed_provider_user_id, payload);
+            await sendPushToUser(pushReceiver, payload);
 
             console.log("PUSH SENT")
 
@@ -563,6 +575,12 @@ module.exports = (io) => {
             const receiverId = confirmedRecipient.author_id;
             console.log("CONFIRMED PUSH TO - ", receiverId);
 
+            const pushTo = await User.findById(receiverId);
+
+            if (!pushTo) {
+                console.warn("Receiver for push does not exist for - ", receiverId);
+            }
+
             const payload = {
                 title: "Order confirmed",
                 body: `You order is confirmed by ${offer?.name || " provider "} in DuunHub.`,
@@ -572,7 +590,7 @@ module.exports = (io) => {
 
             };
 
-            await sendPushToUser(receiverId, payload);
+            await sendPushToUser(pushTo, payload);
 
             res.status(200).json({
                 success: true,
