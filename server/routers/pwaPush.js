@@ -9,26 +9,26 @@ router.post(
     auth,
     async (req, res) => {
         try {
-            const subscription =
-                req.body.subscription;
+            const subscription = req.body.subscription;
 
-                console.log("Subscription - ", subscription);
+            console.log(
+                "SUBSCRIBE DEBUG:",
+                {
+                    endpoint: subscription?.endpoint,
+                    standalone: req.body.debug?.standalone,
+                    userAgent: req.body.debug?.userAgent
+                }
+            );
 
-                
-                console.log(
-                    "SUBSCRIBE DEBUG:",
-                    {
-                        endpoint:
-                            req.body.subscription?.endpoint,
 
-                        standalone:
-                            req.body.debug?.standalone,
-
-                        userAgent:
-                            req.body.debug?.userAgent
-                    }
-                );
-                
+            console.log(
+                "🔥 PUSH SUBSCRIBE REQUEST",
+                {
+                    time: new Date().toISOString(),
+                    userId: req.user.id,
+                    endpoint: subscription.endpoint
+                }
+            );
 
             if (!subscription?.endpoint) {
                 return res.status(400).json({
@@ -36,32 +36,46 @@ router.post(
                 });
             }
 
-            const user = await User.findById(
-                req.user.id
+            const result = await User.updateOne(
+                {
+                    _id: req.user.id,
+
+                    "pushSubscriptions.endpoint": {
+                        $ne: subscription.endpoint
+                    }
+                },
+                {
+                    $push: {
+                        pushSubscriptions: subscription
+                    }
+                }
             );
 
-            const alreadyExists =
-                user.pushSubscriptions.some(
-                    item =>
-                        item.endpoint === subscription.endpoint
-                );
+            console.log("🔥 PUSH SUBSCRIBE RESULT", {
+                endpoint: subscription.endpoint,
+                matchedCount: result.matchedCount,
+                modifiedCount: result.modifiedCount
+            });
 
-            if (!alreadyExists) {
-                user.pushSubscriptions.push(
-                    subscription
-                );
+            console.log(
+                "Push subscription update:",
+                {
+                    matched: result.matchedCount,
+                    modified: result.modifiedCount
+                }
+            );
 
-                await user.save();
-            }
-
-            res.json({
+            return res.json({
                 success: true
             });
 
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Failed to save push subscription:",
+                error
+            );
 
-            res.status(500).json({
+            return res.status(500).json({
                 message:
                     "Failed to save push subscription"
             });

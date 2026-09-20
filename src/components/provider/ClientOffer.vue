@@ -956,6 +956,16 @@ const createOffer = async () => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
 // On single offer from map
 const quitMapOffer = async () => {
   isQuitClientBooking.value = true;

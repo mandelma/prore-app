@@ -299,7 +299,7 @@ module.exports = (io) => {
 
                 const payload = {
                     title: "New offer",
-                    body: "You have a new offer in DuunHub.",
+                    body: "You have a new offer.",
 
                     url:
                         '/',

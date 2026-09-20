@@ -2492,6 +2492,8 @@ const handleCreateBookingMultiple = async booking => {
     orderedBookings.push(providerItem);
     proIdArr.push(providerUserId);
 
+    // Test 
+    
     await recipientService.addProviderData(
       booking.id,
       {

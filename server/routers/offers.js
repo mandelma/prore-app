@@ -150,7 +150,7 @@ router.post("/", async (req, res) => {
 
         };
 
-        await sendPushToUser(receiver, payload);
+        await sendPushToUser(pushTo, payload);
 
         return res.status(201).json({
             success: true,
