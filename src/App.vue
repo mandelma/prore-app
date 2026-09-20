@@ -1851,7 +1851,7 @@ const urlBase64ToUint8Array = base64String => {
   );
 };
 
-const enableNotificationsFromModal = async () => {
+const enableNotificationsFromModal__ = async () => {
 
   if (Notification.permission === "granted") {
     console.log("Permission already granted");
@@ -1871,6 +1871,91 @@ const enableNotificationsFromModal = async () => {
   }
 
   showNotificationModal.value = false;
+};
+
+const enableNotificationsFromModal = async () => {
+  if (!("Notification" in window)) {
+    notificationPermission.value = "unsupported";
+    return;
+  }
+
+  try {
+    // Juba lubatud
+    if (Notification.permission === "granted") {
+      notificationPermission.value = "granted";
+
+      localStorage.removeItem(
+        "notificationPermissionPromptDismissed"
+      );
+
+      localStorage.removeItem(
+        "notificationDeniedInfoShown"
+      );
+
+      showNotificationModal.value = false;
+
+      await ensurePushSubscription();
+
+      return;
+    }
+
+    // Kasutaja pole veel otsustanud
+    if (Notification.permission === "default") {
+      console.log("Requesting notification permission...");
+
+      const permission =
+        await Notification.requestPermission();
+
+      console.log(
+        "Notification permission result:",
+        permission
+      );
+
+      notificationPermission.value = permission;
+
+      if (permission === "granted") {
+        localStorage.removeItem(
+          "notificationPermissionPromptDismissed"
+        );
+
+        localStorage.removeItem(
+          "notificationDeniedInfoShown"
+        );
+
+        showNotificationModal.value = false;
+
+        await ensurePushSubscription();
+
+        return;
+      }
+
+      if (permission === "denied") {
+        showNotificationModal.value = false;
+
+        localStorage.setItem(
+          "notificationDeniedInfoShown",
+          "true"
+        );
+
+        showNotificationsBlockedModal.value = true;
+      }
+
+      return;
+    }
+
+    // Permission oli juba varem denied
+    if (Notification.permission === "denied") {
+      notificationPermission.value = "denied";
+      showNotificationModal.value = false;
+      showNotificationsBlockedModal.value = true;
+    }
+
+  } catch (error) {
+    console.error(
+      "Enabling notifications failed:",
+      error
+    );
+  }
 };
 
 onMounted(async () => {
