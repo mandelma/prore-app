@@ -334,9 +334,14 @@ module.exports = (io) => {
 
                 await recipient.save();
 
-                const totalUnread = 1; // ajutine
+                console.log("PUSHRECEIVER ", pushReceiver)
+
+                console.log("PR id " + pushReceiver?.id)
+                console.log("PR id xx " + pushReceiver?._id)
 
                 const badge = getUserBadgeCount(pushReceiver.id ?? pushReceiver._id);
+
+                console.log("BADGE - ", badge)
 
                 if (pushReceiver) {
                     const payload = {
