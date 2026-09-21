@@ -342,7 +342,7 @@
     <!-- v-if="showPwaTopBottomNav" -->
     <template v-if="!isPageStandalone">
 
-      <!-- <div
+      <div
         v-if="debugStore.logs.length"
         class="pwa-debug"
       >
@@ -362,7 +362,7 @@
         >
           {{ log }}
         </div>
-      </div> -->
+      </div>
 
 
 
@@ -2145,18 +2145,6 @@ onMounted(async () => {
 
     await syncConversations();
 
-
-
-    client.orderList(userId),
-    handleProvider.getProState(userId),
-
-
-
-
-
-
-    await handleProvider.syncProviderBookings();
-
     // ???
     //startChatSyncPolling();
 
@@ -2205,6 +2193,7 @@ onMounted(async () => {
 
   await mapStore.init();
 });
+
 
 onBeforeUnmount(() => {
   document.removeEventListener(
