@@ -1219,10 +1219,8 @@ const unreadMessagesCount = computed(() => {
 });
 
 const unreadProBellNotifications = computed(() => {
-  return newOffersAmount > 0
-    ? newOffersAmount.value
-    : 0
-})
+  return Number(newOffersAmount.value || 0);
+});
 
 const unreadClientBellNotifications = computed(() => {
   return clientNewOffersAmount.value > 0
@@ -2009,6 +2007,8 @@ onMounted(async () => {
 
     await syncConversations();
 
+    await handleProvider.syncProviderBookings();
+
     // ???
     //startChatSyncPolling();
 
@@ -2181,7 +2181,7 @@ const listen = async() => {
     handleProConfirmMapClient
   );
 
-  socket.on('create booking mtp', async(id, bookingId, proIdArr) => {
+  socket.on('handle-create-booking-multiple', async(id, bookingId, proIdArr) => {
     console.log("GOT THE BOOKING " + bookingId + ": ");
     console.log("Booking id + " + bookingId)
     const b = await recipientService.getBookingById(bookingId);
@@ -2524,7 +2524,7 @@ const handleCreateBookingMultiple = async booking => {
 
   if (proIdArr.length > 0) {
     socket.emit(
-      "create booking multiple - pro",
+      "create-booking-multiple",
       proIdArr,
       booking.id
     );

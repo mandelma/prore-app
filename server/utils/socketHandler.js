@@ -11,7 +11,7 @@ const hs = (io, socket) => {
         userId = action.userId;
         io.to(`user:${userId}`).emit("user-action", action);
     })
-    socket.on("create booking multiple - pro", async(proIdArr, bookingId) => {
+    socket.on("create-booking-multiple", async(proIdArr, bookingId) => {
         console.log("Pro id arr length " + proIdArr.length);
         
         proIdArr.forEach(id => {
@@ -19,7 +19,7 @@ const hs = (io, socket) => {
             console.log("Pro id is " + id)
 
             console.log("BOOKING " + bookingId)
-            socket.to(room).emit("create booking mtp", id, bookingId, proIdArr);
+            socket.to(room).emit("handle-create-booking-multiple", id, bookingId, proIdArr);
         })
     })
 
