@@ -314,27 +314,7 @@
 
     
     
-    <div
-  v-if="debugStore.logs.length"
-  class="pwa-debug"
->
-  <div class="pwa-debug__header">
-    PWA DEBUG
-
-    <button
-      @click="debugStore.clear()"
-    >
-      Clear
-    </button>
-  </div>
-
-  <div
-    v-for="(log, index) in debugStore.logs"
-    :key="index"
-  >
-    {{ log }}
-  </div>
-</div>
+    
 
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
@@ -361,6 +341,30 @@
     
     <!-- v-if="showPwaTopBottomNav" -->
     <template v-if="!isPageStandalone">
+
+      <div
+        v-if="debugStore.logs.length"
+        class="pwa-debug"
+      >
+        <div class="pwa-debug__header">
+          PWA DEBUG
+
+          <button
+            @click="debugStore.clear()"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div
+          v-for="(log, index) in debugStore.logs"
+          :key="index"
+        >
+          {{ log }}
+        </div>
+      </div>
+
+
 
       <div
         id="widget-drag"

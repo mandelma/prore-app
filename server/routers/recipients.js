@@ -297,13 +297,15 @@ module.exports = (io) => {
                 recipient.ordered = recipient.ordered.concat(providerId);
                 await recipient.save();
 
+                const totalUnread = 1;
+
                 const payload = {
                     title: "New offer",
                     body: "You have a new offer.",
 
                     url:
                         '/',
-
+                    unreadCount: totalUnread,
                 };
 
                 await sendPushToUser(pushReceiver, payload);
