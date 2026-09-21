@@ -7,7 +7,7 @@
                 
                     :src="navLogo"
                     :alt="t('home.logoAlt')"
-                    width="59"
+                    width="37"
                     
                     
                 />
