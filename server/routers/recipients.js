@@ -282,7 +282,7 @@ module.exports = (io) => {
         }
     }) */
 
-    recipientRouter.post(
+    /* recipientRouter.post(
         "/:recipientId/add-ordered",
         async (req, res) => {
             try {
@@ -375,6 +375,128 @@ module.exports = (io) => {
                 return res.status(500).json({
                     success: false,
                     message: "Error to add order!"
+                });
+            }
+        }
+    ); */
+
+    recipientRouter.post(
+        "/:recipientId/add-ordered",
+        async (req, res) => {
+            try {
+                const {
+                    providerId,
+                    receiver
+                } = req.body;
+
+                const recipientId =
+                    req.params.recipientId;
+
+                const pushReceiver =
+                    await User.findById(receiver);
+
+                if (!pushReceiver) {
+                    return res.status(404).json({
+                        message: "Push receiver not found"
+                    });
+                }
+
+                const recipient =
+                    await Recipient.findById(
+                        recipientId
+                    );
+
+                if (!recipient) {
+                    return res.status(404).json({
+                        message: "Booking not found"
+                    });
+                }
+
+                const provider =
+                    await Provider.findById(
+                        providerId
+                    );
+
+                if (!provider) {
+                    return res.status(404).json({
+                        message: "Provider not found"
+                    });
+                }
+
+                // 1. Recipient.ordered
+                if (
+                    !recipient.ordered.some(
+                        id =>
+                            String(id) ===
+                            String(providerId)
+                    )
+                ) {
+                    recipient.ordered.push(
+                        providerId
+                    );
+
+                    await recipient.save();
+                }
+
+                // 2. Provider.proposal
+                if (
+                    !provider.proposal.some(
+                        id =>
+                            String(id) ===
+                            String(recipientId)
+                    )
+                ) {
+                    provider.proposal.push(
+                        recipientId
+                    );
+
+                    await provider.save();
+                }
+
+                // 3. NÜÜD on DB õiges seisus
+                const badge =
+                    await getUserBadgeCount(
+                        receiver
+                    );
+
+                console.log(
+                    "BADGE AFTER PROPOSAL:",
+                    badge
+                );
+
+                // 4. Push
+                const payload = {
+                    title: "New booking",
+                    body:
+                        "You have a new booking.",
+                    url: "/",
+                    unreadCount: badge.total
+                };
+
+                await sendPushToUser(
+                    pushReceiver,
+                    payload
+                );
+
+                console.log(
+                    "ADD ORDER PUSH SENT"
+                );
+
+                return res.status(200).json({
+                    success: true,
+                    badge
+                });
+
+            } catch (err) {
+                console.error(
+                    "Error adding provider:",
+                    err
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Error to add order!"
                 });
             }
         }

@@ -2647,10 +2647,10 @@ const handleCreateBookingMultiple = async booking => {
       
     );
 
-    await providerService.addProviderBooking(
+    /* await providerService.addProviderBooking(
       providerItem.id,
       booking.id
-    );
+    ); */
   }
 
 
