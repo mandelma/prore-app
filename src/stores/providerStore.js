@@ -161,6 +161,8 @@ export const useProStore = defineStore("pro", () => {
 
     const syncProviderBookings = async () => {
         try {
+            if (!isUserPro.value) return;
+
             const proCount  =
                 await providerService.getProvider(
                     provider.value.id
@@ -651,6 +653,7 @@ export const useProStore = defineStore("pro", () => {
         getAllProviders,
         getProState,
         upsertBooking,
+        syncProviderBookings,
         addProviderOffer,
         removeBookingMapOffer,
         removeBookingPublicOffer,
