@@ -127,7 +127,8 @@ import {
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import navLogo from '@/assets/duun_hub_hero_nav.png'
+//import navLogo from '@/assets/duun_hub_hero_nav.png'
+import navLogo from '/icon-64x64.png'
 import LanguageContents from "../LanguageContents.vue";
 
 const props = defineProps({

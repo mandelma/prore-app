@@ -159,7 +159,7 @@ export const useProStore = defineStore("pro", () => {
         }
     };
 
-    const syncProviderBookings = async () => {
+    const syncProviderBookings__ = async () => {
         try {
             if (!isUserPro.value) return;
 
@@ -171,9 +171,39 @@ export const useProStore = defineStore("pro", () => {
 
             const bookings = removeExpiredOffers(bookingList);
 
-            for (const booking of bookings) {
+            /* for (const booking of bookings) {
                 upsertBooking(booking);
-            }
+            } */
+        } catch (error) {
+            console.error(
+                "Provider booking sync failed:",
+                error
+            );
+        }
+    };
+
+    const syncProviderBookings = async () => {
+        try {
+            if (!isUserPro.value) return;
+            if (!provider.value?.id) return;
+
+            const proData =
+                await providerService.getProvider(
+                    provider.value.id
+                );
+
+            const bookingList =
+                proData?.proposal || [];
+
+            const bookings =
+                removeExpiredOffers(bookingList);
+
+            incomingOffers.value = [...bookings].sort(
+                (a, b) =>
+                    Number(b.created_ms || 0) -
+                    Number(a.created_ms || 0)
+            );
+
         } catch (error) {
             console.error(
                 "Provider booking sync failed:",
