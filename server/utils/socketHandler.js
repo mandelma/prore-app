@@ -11,7 +11,8 @@ const hs = (io, socket) => {
         userId = action.userId;
         io.to(`user:${userId}`).emit("user-action", action);
     })
-    socket.on("create-booking-multiple", async(proIdArr, bookingId) => {
+
+    /* socket.on("create-booking-multiple", async(proIdArr, bookingId) => {
         console.log("Pro id arr length " + proIdArr.length);
         
         proIdArr.forEach(id => {
@@ -21,7 +22,39 @@ const hs = (io, socket) => {
             console.log("BOOKING " + bookingId)
             socket.to(room).emit("handle-create-booking-multiple", id, bookingId, proIdArr);
         })
-    })
+    }) */
+
+    socket.on(
+        "create-booking-multiple",
+        async (proIdArr, bookingId) => {
+
+            for (const id of proIdArr) {
+                const room = `user:${id}`;
+
+                const sockets =
+                    await io.in(room).fetchSockets();
+
+                console.log(
+                    "🔥 BOOKING DELIVERY",
+                    {
+                        bookingId,
+                        providerUserId: id,
+                        room,
+                        socketsInRoom: sockets.length,
+                        socketIds:
+                            sockets.map(s => s.id)
+                    }
+                );
+
+                io.to(room).emit(
+                    "handle-create-booking-multiple",
+                    id,
+                    bookingId,
+                    proIdArr
+                );
+            }
+        }
+    );
 
     socket.on('on-pro-remove-public-offer', (bookingId, receiver) => {
         const room = `user:${receiver}`

@@ -8,6 +8,8 @@ import clientService from "@/service/recipients.js";
 import notificationService from '../service/notifications.js';
 import { useNotificationStore } from './notificationStore.js';
 import { useRouter } from 'vue-router';
+
+import { useDebugStore } from "@/stores/debugStore";
 //import { aW } from '@fullcalendar/core/internal-common.js';
 
 export const useProStore = defineStore("pro", () => {
@@ -35,6 +37,8 @@ export const useProStore = defineStore("pro", () => {
     const newOffersAmount = computed(() => incomingOffers.value.filter(io => !io.visitors.includes(providerId.value)).length);
     const reference = computed(() => provider.value?.reference || []);
     //const proTimetable = computed(() => provider.timetable);
+
+    const debugStore = useDebugStore();
 
     const getIncomOfferById = (id) => {
         console.log("INCOMINGOFFERS ID - " + id)
@@ -74,21 +78,30 @@ export const useProStore = defineStore("pro", () => {
         return uniqueProfessions.size;
     });
 
-    const isOfferValid = (offer) => {
-        //const now = Date.now();
+   /*  const isOfferValid = (offer) => {
         const now = new Date().getTime();
         const offerTime = new Date(offer.created_ms).getTime();
-        //const offerValidityDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds      
-        //return now - offerTime < offerValidityDuration;
+    
         return offerTime < now;
+    }; */
+
+    const isOfferValid = (offer) => {
+        return Number(offer.created_ms) > Date.now();
     };
 
-    const removeExpiredOffers = (offers) => {
+    /* const removeExpiredOffers = (offers) => {
         const ms_now = new Date().getTime();
         return offers.filter(offer => offer.created_ms > ms_now);       
     };
+    */
+    const removeExpiredOffers = (offers) => {
+        const ms_now = Date.now();
 
-    const getProState = async (id) => {
+        return offers.filter(
+            offer => Number(offer.created_ms) > ms_now
+        );
+    };
+    const getProState__ = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
@@ -159,58 +172,210 @@ export const useProStore = defineStore("pro", () => {
         }
     };
 
-    const syncProviderBookings__ = async () => {
+
+    const getProState_ok = async (id) => {
+        isProStateLoading.value = true;
+        proError.value = null;
+
         try {
-            if (!isUserPro.value) return;
+            const pro =
+                await providerService.getProvider(id);
 
-            const proCount  =
-                await providerService.getProvider(
-                    provider.value.id
+            if (!pro) {
+                providerId.value = null;
+                provider.value = null;
+                incomingOffers.value = [];
+                proCalendarEvents.value = [];
+                proTimetable.value = [];
+                proCredit.value = 0;
+
+                return null;
+            }
+
+            providerId.value = pro.id ?? null;
+            provider.value = pro;
+
+            let incomingOffersList =
+                pro.proposal || [];
+
+            incomingOffersList =
+                removeExpiredOffers(
+                    incomingOffersList
                 );
-            const bookingList = proCount.proposal || [];
 
-            const bookings = removeExpiredOffers(bookingList);
+            incomingOffersList =
+                incomingOffersList.map(offer => ({
+                    ...offer,
+                    valid: isOfferValid(offer)
+                }));
 
-            /* for (const booking of bookings) {
-                upsertBooking(booking);
-            } */
+            proCredit.value =
+                (
+                    (
+                        pro.proTime -
+                        Date.now()
+                    ) /
+                    86400000
+                ).toFixed() <= 0
+                    ? 0
+                    : (
+                        (
+                            pro.proTime -
+                            Date.now()
+                        ) /
+                        86400000
+                    ).toFixed();
+
+            proCalendarEvents.value =
+                incomingOffersList.filter(
+                    offer =>
+                        offer.status === "confirmed"
+                );
+
+            incomingOffers.value =
+                incomingOffersList
+                    .filter(
+                        offer =>
+                            offer.status === "active"
+                    )
+                    .sort(
+                        (a, b) =>
+                            Number(b.created_ms) -
+                            Number(a.created_ms)
+                    );
+
+            proTimetable.value =
+                pro.timetable || [];
+
+            return pro;
+
         } catch (error) {
-            console.error(
-                "Provider booking sync failed:",
-                error
-            );
+            if (
+                error.response?.status === 404
+            ) {
+                providerId.value = null;
+                provider.value = null;
+                incomingOffers.value = [];
+                proCalendarEvents.value = [];
+                proTimetable.value = [];
+                proCredit.value = 0;
+                proError.value = null;
+
+                return null;
+            }
+
+            proError.value = error.message;
+
+            providerId.value = null;
+            provider.value = null;
+            incomingOffers.value = [];
+            proCalendarEvents.value = [];
+            proTimetable.value = [];
+            proCredit.value = 0;
+
+            throw error;
+
+        } finally {
+            isProStateLoading.value = false;
         }
     };
 
-    const syncProviderBookings = async () => {
-        try {
-            if (!isUserPro.value) return;
-            if (!provider.value?.id) return;
 
-            const proData =
-                await providerService.getProvider(
-                    provider.value.id
+    const getProState = async (id) => {
+        isProStateLoading.value = true;
+        proError.value = null;
+
+        debugStore.log("getProState START", {
+            userId: id
+        });
+
+        try {
+            const pro =
+                await providerService.getProvider(id);
+
+            debugStore.log(
+                "getProState provider received",
+                {
+                    providerId: pro?.id,
+                    proposalCount:
+                        pro?.proposal?.length ?? 0
+                }
+            );
+
+            if (!pro) {
+                debugStore.log(
+                    "getProState: provider not found"
                 );
 
-            const bookingList =
-                proData?.proposal || [];
+                // ...
+                return null;
+            }
 
-            const bookings =
-                removeExpiredOffers(bookingList);
+            providerId.value = pro.id ?? null;
+            provider.value = pro;
 
-            incomingOffers.value = [...bookings].sort(
-                (a, b) =>
-                    Number(b.created_ms || 0) -
-                    Number(a.created_ms || 0)
+            let incomingOffersList =
+                pro.proposal || [];
+
+            debugStore.log(
+                "before removeExpiredOffers",
+                {
+                    count: incomingOffersList.length
+                }
             );
+
+            incomingOffersList =
+                removeExpiredOffers(
+                    incomingOffersList
+                );
+
+            debugStore.log(
+                "after removeExpiredOffers",
+                {
+                    count: incomingOffersList.length
+                }
+            );
+
+            // ...
+
+            incomingOffers.value =
+                incomingOffersList
+                    .filter(
+                        ol => ol.status === "active"
+                    )
+                    .sort(
+                        (a, b) =>
+                            b.created_ms -
+                            a.created_ms
+                    );
+
+            debugStore.log(
+                "getProState COMPLETE",
+                {
+                    incomingOffers:
+                        incomingOffers.value.length
+                }
+            );
+
+            return pro;
 
         } catch (error) {
-            console.error(
-                "Provider booking sync failed:",
-                error
+
+            debugStore.log(
+                "getProState ERROR",
+                {
+                    message: error?.message,
+                    status:
+                        error?.response?.status
+                }
             );
+
+            // sinu olemasolev error handling...
+        } finally {
+            isProStateLoading.value = false;
         }
     };
+
 
 
     const upsertBooking = (booking) => {
@@ -683,7 +848,6 @@ export const useProStore = defineStore("pro", () => {
         getAllProviders,
         getProState,
         upsertBooking,
-        syncProviderBookings,
         addProviderOffer,
         removeBookingMapOffer,
         removeBookingPublicOffer,

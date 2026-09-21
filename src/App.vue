@@ -314,7 +314,27 @@
 
     
     
-    
+    <div
+  v-if="debugStore.logs.length"
+  class="pwa-debug"
+>
+  <div class="pwa-debug__header">
+    PWA DEBUG
+
+    <button
+      @click="debugStore.clear()"
+    >
+      Clear
+    </button>
+  </div>
+
+  <div
+    v-for="(log, index) in debugStore.logs"
+    :key="index"
+  >
+    {{ log }}
+  </div>
+</div>
 
 
     <!-- <MDBBtn color="warning" @click="enablePushNotifications">
@@ -480,6 +500,8 @@ import { useMapStore } from './stores/mapStore';
 import { useProfessionStore } from './stores/professionStore.js';
 import { useAdminStore } from './stores/adminStore.js';
 
+import { useDebugStore } from "@/stores/debugStore";
+
 import PwaUpdate from './components/PwaUpdate.vue';
 import PwaInstallButton from './components/PwaInstallButton.vue'
 import { setAppBadge } from './components/helpers/appBadge.js';
@@ -534,6 +556,7 @@ const mapStore = useMapStore();
 const professionStore = useProfessionStore();
 const adminStore = useAdminStore();
 
+const debugStore = useDebugStore();
 
 const { isAuthenticated } = storeToRefs(login);
 const { profile } = storeToRefs(userStore);
@@ -585,6 +608,18 @@ const wasNormalizedForOpen = ref(false);
 const showNotificationModal = ref(false);
 const showNotificationsBlockedModal = ref(false);
 const notificationPermission = ref("");
+
+const pwaDebug = ref([]);
+
+const debugPwa = (message, data = null) => {
+  const line = data
+    ? `${message}: ${JSON.stringify(data)}`
+    : message;
+
+  pwaDebug.value.push(line);
+
+  console.log(message, data ?? "");
+};
 
 const checkDisplayMode = () => {
   isPwa.value =
@@ -1362,6 +1397,29 @@ watch(
   }
 );
 
+let liveSyncPromise = null;
+
+const syncUserLiveData = async (userId) => {
+  if (!userId) return;
+
+  if (liveSyncPromise) {
+    return liveSyncPromise;
+  }
+
+  liveSyncPromise = Promise.allSettled([
+    client.orderList(userId),
+    handleProvider.getProState(userId),
+    notificationStore.handleNotifications(userId),
+    conversationStore.getConversations()
+  ]);
+
+  try {
+    return await liveSyncPromise;
+  } finally {
+    liveSyncPromise = null;
+  }
+};
+
 const syncConversations = async () => {
   if (!login.isAuthenticated) return;
 
@@ -1469,6 +1527,11 @@ const handleVisibilityChange = async () => {
     visible
   );
 
+  debugStore.log(
+    "visibilitychange",
+    { visible }
+  );
+
   if (!visible) {
     return;
   }
@@ -1488,8 +1551,12 @@ const handleVisibilityChange = async () => {
     await forceChatSync();
 
     // Provideri bookingute taastav sync
-    
-    await handleProvider.syncProviderBookings();
+
+    const userId = login.user?.id;
+
+    if (userId) {
+      await syncUserLiveData(userId);
+    }
     
   }
 };
@@ -1499,9 +1566,76 @@ const handleFocus = async () => {
   await forceChatSync();
 };
 
-const handlePageShow = async () => {
+const handlePageShow__ = async () => {
+  if (!login.isAuthenticated) {
+    return;
+  }
+
+  const userId = login.user?.id;
+
+  if (!userId) {
+    return;
+  }
+
+  await syncUserLiveData(userId);
+
+
   conversationStore.syncPresence("pageshow");
   await forceChatSync();
+};
+
+const handlePageShow_ok = async () => {
+  if (!login.isAuthenticated) {
+    return;
+  }
+
+  const userId = login.user?.id;
+
+  if (!userId) {
+    return;
+  }
+
+  conversationStore.syncPresence("pageshow");
+
+  await syncUserLiveData(userId);
+};
+
+const handlePageShow = async () => {
+  debugStore.log("pageshow fired", {
+    authenticated: login.isAuthenticated,
+    visibility: document.visibilityState
+  });
+
+  if (!login.isAuthenticated) {
+    debugStore.log(
+      "pageshow stopped: not authenticated"
+    );
+    return;
+  }
+
+  const userId = login.user?.id;
+
+  if (!userId) {
+    debugStore.log(
+      "pageshow stopped: userId missing"
+    );
+    return;
+  }
+
+  debugStore.log(
+    "pageshow starting live sync",
+    { userId }
+  );
+
+  conversationStore.syncPresence(
+    "pageshow"
+  );
+
+  await syncUserLiveData(userId);
+
+  debugStore.log(
+    "pageshow live sync complete"
+  );
 };
 
 const handleOnline__ = async () => {
@@ -2006,6 +2140,16 @@ onMounted(async () => {
     conversationStore.syncPresence();
 
     await syncConversations();
+
+
+
+    client.orderList(userId),
+    handleProvider.getProState(userId),
+
+
+
+
+
 
     await handleProvider.syncProviderBookings();
 
@@ -2844,5 +2988,36 @@ html, body { height: 100%; }
   padding-bottom: calc(
     83px + env(safe-area-inset-bottom)
   );
+}
+
+
+/* PWA debug */
+.pwa-debug {
+  position: fixed;
+  z-index: 999999;
+  left: 5px;
+  right: 5px;
+  bottom: 70px;
+
+  max-height: 45vh;
+  overflow-y: auto;
+
+  padding: 10px;
+
+  background: rgba(0, 0, 0, 0.92);
+  color: #00ff6a;
+
+  font-family: monospace;
+  font-size: 11px;
+
+  white-space: pre-wrap;
+}
+
+.pwa-debug__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  font-weight: bold;
 }
 </style>
