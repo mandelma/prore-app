@@ -339,7 +339,7 @@ module.exports = (io) => {
                 console.log("PR id " + pushReceiver?.id)
                 console.log("PR id xx " + pushReceiver?._id)
 
-                const badge = getUserBadgeCount(pushReceiver.id ?? pushReceiver._id);
+                const badge = await getUserBadgeCount(pushReceiver.id ?? pushReceiver._id);
 
                 console.log("BADGE - ", badge)
 
@@ -348,7 +348,7 @@ module.exports = (io) => {
                         title: "New booking",
                         body: "You have a new booking.",
                         url: "/",
-                        unreadCount: badge
+                        unreadCount: badge.total
                     };
 
                     await sendPushToUser(

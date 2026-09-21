@@ -104,7 +104,7 @@ export const useClientStore = defineStore('client', () => {
 
             console.log("LIST ", list)
 
-            
+            // xxx
 
             console.log("Expired bookings removed:", removeExpiredBookings(list));
 
@@ -135,7 +135,7 @@ export const useClientStore = defineStore('client', () => {
         }
     }
 
-    
+
     const getProviderOffer = async(bId, offer) => {
         console.log("Added order to booking id - " + bId);
         console.log("Offer in client store - ", offer)
