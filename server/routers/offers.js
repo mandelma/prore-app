@@ -5,6 +5,8 @@ const User = require('../models/users');
 const Recipient = require('../models/recipients');
 const Provider = require("../models/providers");
 
+const getUserBadgeCount = require('../utils/totalBadgeCount');
+
 const { sendPushToUser } = require('../services/pushService');
 
 
@@ -53,11 +55,7 @@ router.post("/", async (req, res) => {
             });
         }
 
-        const pushTo = await User.findById(receiver);
-
-        if (!pushTo) {
-            console.warn("There is not user for pushTo - ", receiver);
-        }
+        
 
         let savedOffer;
         let updatedBooking;
@@ -141,13 +139,22 @@ router.post("/", async (req, res) => {
             }
         });
 
+        const pushTo = await User.findById(receiver);
+
+        if (!pushTo) {
+            console.warn("There is not user for pushTo - ", receiver);
+        }
+
+        const badge = getUserBadgeCount(receiver)
+
         const payload = {
             title: "New offer",
             body: "You got offer from ${savedOffer?.name || 'provider'}.",
 
             url:
                 '/',
-
+            unreadCount:
+                badge.total,
         };
 
         await sendPushToUser(pushTo, payload);

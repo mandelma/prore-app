@@ -342,7 +342,7 @@
     <!-- v-if="showPwaTopBottomNav" -->
     <template v-if="!isPageStandalone">
 
-      <div
+      <!-- <div
         v-if="debugStore.logs.length"
         class="pwa-debug"
       >
@@ -362,7 +362,7 @@
         >
           {{ log }}
         </div>
-      </div>
+      </div> -->
 
 
 

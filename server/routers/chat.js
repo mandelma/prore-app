@@ -6,6 +6,8 @@ const Recipient = require("../models/recipients");
 
 const { sendPushToUser } = require("../services/pushService.js");
 
+const getUserBadgeCount = require('../utils/totalBadgeCount')
+
 const router = express.Router();
 
 function dmKey(a, b) {
@@ -286,7 +288,7 @@ router.post(
           return;
         }
 
-        const unreadCount =
+        /* const unreadCount =
           Number(
             updatedConvo
               ?.unread
@@ -308,11 +310,11 @@ router.post(
         console.log(
           "Unread count:",
           unreadCount
-        );
+        ); */
 
 
 
-        const receiverConversations =
+        /* const receiverConversations =
           await Conversation.find({
             participantIds:
               new mongoose.Types.ObjectId(otherKey)
@@ -334,32 +336,37 @@ router.post(
         console.log(
           "TOTAL UNREAD:",
           totalUnread
-        );
+        ); */
+
+        const badge =
+          await getUserBadgeCount(otherKey);
 
         const payload = {
           title: "New chat message",
+
           body:
             text?.trim()
               ? text
               : "You have new chat message in DuunHub.",
 
-          url:
-            '/',
+          url: "/",
+
           conversationId:
             String(conversationId),
 
-          unreadCount: totalUnread,
+          unreadCount:
+            badge.total,
 
           tag:
             `message-${msg._id}`
-        }
+        };
 
         if (!receiverIsViewingConversation) {
-
-          await sendPushToUser(receiver, payload);
-
+          await sendPushToUser(
+            receiver,
+            payload
+          );
         }
-        
 
       } catch (pushError) {
         /*

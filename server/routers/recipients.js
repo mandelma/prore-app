@@ -11,6 +11,8 @@ const Notification = require("../models/notifications");
 const { Conversation, Message } = require("../models/chat");
 //const Provider = require("../models/providers");
 
+const getUserBadgeCount = require('../utils/totalBadgeCount');
+
 const s3 = new S3Client({
     region: process.env.AWS_REGION,
     // endpoint: `https://s3.${process.env.AWS_REGION}.amazonaws.com`,  // Explicitly set the endpoint
@@ -280,49 +282,98 @@ module.exports = (io) => {
         }
     }) */
 
-    recipientRouter.post('/:recipientId/add-ordered', async (req, res) => {
-        try {
-            const { providerId, receiver } = req.body;
+    recipientRouter.post(
+        "/:recipientId/add-ordered",
+        async (req, res) => {
+            try {
+                const {
+                    providerId,
+                    receiver
+                } = req.body;
 
-            console.log("PRO ID " + providerId + " - receiver: " + receiver);
+                console.log(
+                    "PRO ID " +
+                    providerId +
+                    " - receiver: " +
+                    receiver
+                );
 
-            const pushReceiver = await User.findById(receiver);
+                const pushReceiver =
+                    await User.findById(receiver);
 
-            if (!pushReceiver) {
-                console.warn("Push receiver does not exists for - ", receiver);
-            }
+                if (!pushReceiver) {
+                    console.warn(
+                        "Push receiver does not exist:",
+                        receiver
+                    );
+                }
 
-            const recipient = await Recipient.findById(req.params.recipientId);
-            if (!recipient.ordered.includes(providerId)) {
-                recipient.ordered = recipient.ordered.concat(providerId);
+                const recipient =
+                    await Recipient.findById(
+                        req.params.recipientId
+                    );
+
+                if (!recipient) {
+                    return res.status(404).json({
+                        message: "Booking not found"
+                    });
+                }
+
+                if (
+                    recipient.ordered.includes(
+                        providerId
+                    )
+                ) {
+                    return res.json({
+                        success: true,
+                        alreadyAdded: true
+                    });
+                }
+
+                recipient.ordered.push(providerId);
+
                 await recipient.save();
 
-                const totalUnread = 1;
+                const totalUnread = 1; // ajutine
 
-                const payload = {
-                    title: "New offer",
-                    body: "You have a new offer.",
+                const badge = getUserBadgeCount(pushReceiver.id ?? pushReceiver._id);
 
-                    url:
-                        '/',
-                    unreadCount: totalUnread,
-                };
+                if (pushReceiver) {
+                    const payload = {
+                        title: "New booking",
+                        body: "You have a new booking.",
+                        url: "/",
+                        unreadCount: badge
+                    };
 
-                await sendPushToUser(pushReceiver, payload);
+                    await sendPushToUser(
+                        pushReceiver,
+                        payload
+                    );
 
-                console.log("ADD ORDER PUSH SENT")
+                    console.log(
+                        "ADD ORDER PUSH SENT"
+                    );
+                }
 
-                res.send("pro is added!")
-            } else {
-                res.send("pro is already added!")
+                return res.status(200).json({
+                    success: true,
+                    alreadyAdded: false
+                });
+
+            } catch (err) {
+                console.error(
+                    "Error adding provider:",
+                    err
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message: "Error to add order!"
+                });
             }
-
-
-        } catch (err) {
-            console.log("Error: " + err.message)
-            res.send("Error to add order!")
         }
-    })
+    );
 
 
     // Remove ordered provider id from ordered array
@@ -376,11 +427,7 @@ module.exports = (io) => {
                 sideNotification
             } = req.body;
 
-            const pushReceiver = await User.findById(confirmed_provider_user_id);
-
-            if (!pushReceiver) {
-                console.warn("Push receiver does not exist for - ", confirmed_provider_user_id);
-            }
+            
 
             console.log("Client - confirmed offer id  - ", offerId);
 
@@ -511,13 +558,22 @@ module.exports = (io) => {
                     );
             }
 
+            const pushReceiver = await User.findById(confirmed_provider_user_id);
+
+            if (!pushReceiver) {
+                console.warn("Push receiver does not exist for - ", confirmed_provider_user_id);
+            }
+
+            const badge = getUserBadgeCount(confirmed_provider_user_id);
+
             const payload = {
                 title: "Confirmed",
                 body: `You offer is confirmed by ${clientName}.`,
 
                 url:
                     '/',
-
+                unreadCount:
+                    badge.total,
             };
 
             await sendPushToUser(pushReceiver, payload);
@@ -585,12 +641,16 @@ module.exports = (io) => {
                 console.log("Receiver existing");
             }
 
+            const badge = getUserBadgeCount(receiverId)
+
             const payload = {
                 title: "Order confirmed",
                 body: `You order is confirmed by ${offer?.name || " provider "} xxx.`,
 
                 url:
                     '/',
+                unreadCount:
+                    badge.total,
 
             };
 

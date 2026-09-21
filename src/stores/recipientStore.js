@@ -96,10 +96,6 @@ export const useClientStore = defineStore('client', () => {
             // Checking expired bookings
             checkExpired(orders || []);
 
-            //removeExpiredBookings(orders || []);
-
-            //let list = removeExpiredBookings(orders || []);
-
             let list = orders ? orders : [];
 
             console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
@@ -138,6 +134,8 @@ export const useClientStore = defineStore('client', () => {
             isLoading.value = false;
         }
     }
+
+    
     const getProviderOffer = async(bId, offer) => {
         console.log("Added order to booking id - " + bId);
         console.log("Offer in client store - ", offer)
