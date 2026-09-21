@@ -101,7 +101,7 @@ export const useProStore = defineStore("pro", () => {
             offer => Number(offer.created_ms) > ms_now
         );
     };
-    const getProState__ = async (id) => {
+    const getProState = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
@@ -281,7 +281,7 @@ export const useProStore = defineStore("pro", () => {
     };
 
 
-    const getProState = async (id) => {
+    const getProState_debug = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
