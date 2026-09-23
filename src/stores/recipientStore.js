@@ -221,7 +221,9 @@ export const useClientStore = defineStore('client', () => {
                 ? {
                     ...order,
                     status: "confirmed",
-                    confirmedOffer: offer
+                    confirmedOffer: booking.confirmedOffer,
+                    confirmed_provider_user_id:
+                        booking.confirmed_provider_user_id
                 }
                 : order
         );

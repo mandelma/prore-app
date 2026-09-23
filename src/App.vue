@@ -373,7 +373,7 @@
         
       >
         <chat-widget 
-          v-if="login.isAuthenticated && conversations.length"
+          v-if="login.isAuthenticated && conversations.length && isUpdating === false"
           :did-drag="didDrag"
           :launcher-pos="widgetAnchor"
           :is-open-mode="conversationStore.openChat"
@@ -387,7 +387,9 @@
     
       
       <div v-if="login.isAuthenticated">
-        <PwaUpdate />
+        <PwaUpdate 
+          v-model:isUpdating = isUpdating
+        />
       </div>
 
       <MobileBottomNav 
@@ -451,6 +453,11 @@
     </template>
     
 
+  </div>
+
+  <!-- Overlay -->
+  <div v-if="loadingBooking" class="on-overlay">
+    <div class="on-spinner"></div>
   </div>
 
 </template>
@@ -535,6 +542,7 @@ const deviceID = ref(null);
 const isPwa = ref(false);
 const isMobile = ref(false);
 
+const isUpdating = ref(false);
 
 const showPwaBottomNavx = ref(true);
 
@@ -612,6 +620,8 @@ const wasNormalizedForOpen = ref(false);
 const showNotificationModal = ref(false);
 const showNotificationsBlockedModal = ref(false);
 const notificationPermission = ref("");
+
+const loadingBooking = ref(false);
 
 const pwaDebug = ref([]);
 
@@ -2578,6 +2588,8 @@ const isBookingWithinZone = async (booking, provider) => {
 
 // Client created booking and finding matching providers to send this booking to
 const handleCreateBookingMultiple = async booking => {
+  loadingBooking.value = true;
+
 
   sendUserAction();
 
@@ -2601,73 +2613,77 @@ const handleCreateBookingMultiple = async booking => {
   const proIdArr = [];
   const orderedBookings = [];
 
-  for (const providerItem of providersForBooking) {
-    const providerUserId = providerItem.user?.id;
+  try {
+    for (const providerItem of providersForBooking) {
+      const providerUserId = providerItem.user?.id;
 
-    // Ära saada kasutaja enda teenusepakkujale.
-    if (providerUserId === userID.value) {
-      continue;
-    }
+      // Ära saada kasutaja enda teenusepakkujale.
+      if (providerUserId === userID.value) {
+        continue;
+      }
 
 
 
 
-    const isProWithinZone = await isProviderWithinZone(providerItem, booking);
-    const isBookingWithinProRange = await isBookingWithinZone(booking, providerItem);
+      const isProWithinZone = await isProviderWithinZone(providerItem, booking);
+      const isBookingWithinProRange = await isBookingWithinZone(booking, providerItem);
 
-    if (!isProWithinZone) {
+      if (!isProWithinZone) {
+        console.log(
+          `Provider ${providerUserId} is outside the booking zone. Skipping.`
+        );
+        continue;
+      }
+
+      if (!isBookingWithinProRange) {
+        console.log(
+          `Booking is outside the provider ${providerUserId}'s range. Skipping.`
+        );
+        continue;
+      }
+
       console.log(
-        `Provider ${providerUserId} is outside the booking zone. Skipping.`
+        `Provider ${providerUserId} is within the booking zone. Sending booking.`
       );
-      continue;
+
+      orderedBookings.push(providerItem);
+      proIdArr.push(providerUserId);
+
+      // Test 
+
+      await recipientService.addProviderData(
+        booking.id,
+        {
+          providerId: providerItem.id,
+          receiver: providerItem.personId
+        }
+        
+      );
+
     }
 
-    if (!isBookingWithinProRange) {
-      console.log(
-        `Booking is outside the provider ${providerUserId}'s range. Skipping.`
-      );
-      continue;
-    }
 
     console.log(
-      `Provider ${providerUserId} is within the booking zone. Sending booking.`
+      "Matching provider count:",
+      proIdArr.length
     );
 
-    orderedBookings.push(providerItem);
-    proIdArr.push(providerUserId);
+    if (proIdArr.length > 0) {
+      socket.emit(
+        "create-booking-multiple",
+        proIdArr,
+        booking.id
+      );
+    }
 
-    // Test 
-
-    await recipientService.addProviderData(
-      booking.id,
-      {
-        providerId: providerItem.id,
-        receiver: providerItem.personId
-      }
-      
-    );
-
-    /* await providerService.addProviderBooking(
-      providerItem.id,
-      booking.id
-    ); */
+    await router.push("/client-panel");
+  } catch (err) {
+    console.log("Error to load booking - ", err.message);
+  } finally {
+    loadingBooking.value = false;
   }
 
-
-  console.log(
-    "Matching provider count:",
-    proIdArr.length
-  );
-
-  if (proIdArr.length > 0) {
-    socket.emit(
-      "create-booking-multiple",
-      proIdArr,
-      booking.id
-    );
-  }
-
-  await router.push("/client-panel");
+  
 };
 
 const logOut = () => {
@@ -3012,5 +3028,10 @@ html, body { height: 100%; }
   margin-bottom: 8px;
 
   font-weight: bold;
+}
+
+.spinner-overlay,
+.on-overlay {
+  pointer-events: none;
 }
 </style>

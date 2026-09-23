@@ -12,7 +12,7 @@
           toast="danger"
           icon="fas fa-exclamation-circle fa-lg me-2"
       >
-        <template #title>PROKEIKKATORI</template>
+        <template #title>DuunHub</template>
         <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
         <template #small></template>
           {{ t('clientOfferList.credit_expired') }}
@@ -25,9 +25,6 @@
       <div v-if="safeOffers.length">
         <div v-for="(booking, index) in _props.clients " :key="index" >
 
-
-          <!-- style="color: red; background-color: green;" -->
-           <!-- :class="[{ activePanel: booking.id === bookingID }]" -->
           <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" >
             <div class="line">
             <span class="left-item">
@@ -254,7 +251,7 @@
           icon="fas fa-check fa-lg me-2"
         >
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
-          <template #title> PROKEIKKATORI </template>
+          <template #title> DuunHub </template>
           <!-- <template #small> 11 mins ago </template> -->
           {{ confirmedOrderMessage }}
         </MDBToast>

@@ -21,6 +21,7 @@
       </div>
 
       <div class="pwa-update__actions">
+        is updating {{ isUpdating }}
         <button
           type="button"
           class="pwa-update__button pwa-update__button--primary"
@@ -51,7 +52,14 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRegisterSW } from "virtual:pwa-register/vue";
 
+const emit = defineEmits(['update-version'])
+
 const { t } = useI18n();
+
+const isUpdating = defineModel("isUpdating", {
+  type: Boolean,
+  default: false
+});
 
 const manualRefreshAvailable = ref(false);
 
@@ -119,14 +127,15 @@ const checkForUpdate = async () => {
       "PWA update check failed:",
       error
     );
-  }
+  } 
 };
 
 
 /*
- * Installi uus versioon
+ * Installitakse uus versioon
  */
 const installUpdate = async () => {
+  isUpdating.value = true;
   try {
     console.log("Installing PWA update...");
 
@@ -136,6 +145,8 @@ const installUpdate = async () => {
       "PWA update failed:",
       error
     );
+  } finally{
+    isUpdating.value = false;
   }
 };
 const installUpdate__ = async () => {
