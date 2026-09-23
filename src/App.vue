@@ -367,13 +367,14 @@
 
 
       <div
+        v-if="isUpdating === false"
         id="widget-drag"
         class="widget-drag"
         :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
         
       >
         <chat-widget 
-          v-if="login.isAuthenticated && conversations.length && isUpdating === false"
+          v-if="login.isAuthenticated && conversations.length"
           :did-drag="didDrag"
           :launcher-pos="widgetAnchor"
           :is-open-mode="conversationStore.openChat"

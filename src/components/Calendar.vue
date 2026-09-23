@@ -980,8 +980,7 @@
       </div>
 
       <div class="event-note">
-        {{ selectedEvent?.location }}<br>
-        xxx {{ selectedEvent?.otherId }}
+        {{ selectedEvent?.location }}
         <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
       </div>
     </MDBModalBody>
