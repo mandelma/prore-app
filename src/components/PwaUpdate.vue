@@ -134,12 +134,13 @@ const checkForUpdate = async () => {
  * Installitakse uus versioon
  */
 const installUpdate = async () => {
-  console.log("BEFORE:", isUpdating.value);
 
   isUpdating.value = true;
 
-  console.log("AFTER:", isUpdating.value);
-  
+  await new Promise(resolve =>
+    setTimeout(resolve, 2000)
+  );
+
   try {
     console.log("Installing PWA update...");
 
