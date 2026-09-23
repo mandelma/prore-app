@@ -367,7 +367,6 @@
 
 
       <div
-        v-if="isUpdating === false"
         id="widget-drag"
         class="widget-drag"
         :style="{ left: widgetAnchor.x + 'px', top: widgetAnchor.y + 'px' }"
@@ -2111,6 +2110,8 @@ const enableNotificationsFromModal = async () => {
 };
 
 onMounted(async () => {
+
+  placeWidgetBottomRight();
   
   await login.hydrate();
 
@@ -2199,8 +2200,6 @@ onMounted(async () => {
    * Ülejäänud äpi init, mis ei sõltu chatist.
    */
   
-
-  placeWidgetBottomRight();
 
   await mapStore.init();
 });
