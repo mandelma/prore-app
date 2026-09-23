@@ -980,7 +980,8 @@
       </div>
 
       <div class="event-note">
-        {{ selectedEvent?.location }}
+        {{ selectedEvent?.location }}<br>
+        xxx {{ selectedEvent?.otherId }}
         <i class="far fa-comments fa-lg event-chat" @click="onEventChat(selectedEvent?.otherId, selectedEvent?.id)"></i>
       </div>
     </MDBModalBody>
@@ -3364,6 +3365,10 @@ function openEventModalPreview(raw) {
         ?? null;
 
   event_state.value = type || '';
+
+  console.log("EVENT:", ev);
+  console.log("EVENT extendedProps:", ev?.extendedProps);
+  console.log("EVENT otherId:", ev?.extendedProps?.otherId);
 
   selectedEvent.value = {
     id: String(ev?.id ?? ev?._def?.publicId ?? ev?._instance?.instanceId ?? ''),

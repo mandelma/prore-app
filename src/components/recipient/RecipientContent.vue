@@ -162,6 +162,11 @@
       :text="toastContent"
     />
   </div>
+
+  <!-- Overlay -->
+  <!-- <div v-if="loading" class="on-overlay">
+    <div class="on-spinner"></div>
+  </div> -->
   
 </template>
 

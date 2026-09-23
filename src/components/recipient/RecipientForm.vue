@@ -552,6 +552,11 @@
           </MDBBtn>
         </section>
       </form>
+
+      <!-- Overlay -->
+      <div v-if="loading" class="on-overlay">
+        <div class="on-spinner"></div>
+      </div>
       
     </MDBContainer>
   </div>
@@ -607,6 +612,8 @@ const { professions, professionCategories } = storeToRefs(professionStore);
 
 const router = useRouter();
 const route = useRoute();
+
+const loading = ref(false);
 
 const customFields = ref(null);
 
@@ -1374,6 +1381,8 @@ const buildCustomFieldsSnapshot = () => {
   });
 };
 const createClient = async() => {
+  loading.value = true;
+
   isValidating.value = true;
   if (!validateForm()) {
     console.log("Midagi puudu:", form);
@@ -1397,136 +1406,130 @@ const createClient = async() => {
     isInitClientError.value = true;
   } else {
 
-
-    const customFieldsSnapshot =
+    try {
+      const customFieldsSnapshot =
       buildCustomFieldsSnapshot();
 
-    /* console.log(
-      "customFieldsSnapshot:",
-      JSON.stringify(
-        customFieldsSnapshot,
-        null,
-        2
-      )
-    ); */
+      const dateObj = parseDmyTime(form.dateTime);
+      let ms;
+      if (dateObj) {
+        o.value = dateObj;
+        console.log("DATE - " + dateObj);
+        ms = dateObj.getTime();
+        console.log("Milliseconds:", ms);  // e.g. 1758976800000
+      } else {
+        console.log("Invalid date string");
+      }
+
+      const pendingPhotos = addedPhotos.value.filter(p => p.file);
+
+      const { uploaded } = await uploadBookingPhotos();
+
+      const photosForBackend = pendingPhotos
+      .map((photo, index) => {
+        const upload = uploaded[index];
+        const imageId = getUploadId(upload);
+
+        return {
+          imageId,
+          text: photo.text?.trim() || "",
+          order: index,
+        };
+      })
+      .filter(p => p.imageId);
+
+      const photosForLocalState = pendingPhotos
+      .map((photo, index) => {
+        const upload = uploaded[index];
+        const imageId = getUploadId(upload);
+
+        return {
+          imageId,
+          imageUrl:
+            upload?.imageUrl ||
+            upload?.url ||
+            upload?.location ||
+            upload?.path ||
+            photo.previewUrl,
+          /* previewUrl: photo.previewUrl, */
+          text: photo.text?.trim() || "",
+          order: index,
+          slotId: photo.slotId,
+        };
+      })
+      .filter(p => p.imageId || p.previewUrl);
+
+      // selectedProfessionName.value
+      const client = {
+        author_id: userAuth.user.id,
+
+        created: dateObj,
+        created_ms: ms,
+        dateStr: form.dateTime,
+
+        header:
+          form.orderHeader.trim() ||
+          generatedOrderHeader.value,
+
+        professionCode: form.profession,
+        professional: form.profession,
 
 
-    //console.log("Header - " + form.orderHeader);
-    const dateObj = parseDmyTime(form.dateTime);
-    let ms;
-    if (dateObj) {
-      o.value = dateObj;
-      console.log("DATE - " + dateObj);
-      ms = dateObj.getTime();
-      console.log("Milliseconds:", ms);  // e.g. 1758976800000
-    } else {
-      console.log("Invalid date string");
-    }
 
-    const pendingPhotos = addedPhotos.value.filter(p => p.file);
+        customFieldValues: {
+          ...form.customFieldValues
+        },
 
-    const { uploaded } = await uploadBookingPhotos();
+        customFields: customFieldsSnapshot,
 
-    const photosForBackend = pendingPhotos
-    .map((photo, index) => {
-      const upload = uploaded[index];
-      const imageId = getUploadId(upload);
+        
 
-      return {
-        imageId,
-        text: photo.text?.trim() || "",
-        order: index,
+        agreement: isClientContactAgreement.value,
+
+        address: form.address,
+        latitude: form.lat,
+        longitude: form.lng,
+
+        zone: Number(form.desiredRange) || 0,
+
+        description: form.explanation.trim(),
+
+        isBudget: isBudget.value,
+
+        budget: isBudget.value
+          ? {
+              min:
+                form.budgetMin !== ""
+                  ? Number(form.budgetMin)
+                  : null,
+
+              max:
+                form.budgetMax !== ""
+                  ? Number(form.budgetMax)
+                  : null
+            }
+          : null,
+
+        photos: photosForBackend,
+
+        isIncludeOffers: true,
+        status: "active"
       };
-    })
-    .filter(p => p.imageId);
 
-    const photosForLocalState = pendingPhotos
-    .map((photo, index) => {
-      const upload = uploaded[index];
-      const imageId = getUploadId(upload);
+      const booking = await clientService.addRecipient(userAuth.user.id, client);
 
-      return {
-        imageId,
-        imageUrl:
-          upload?.imageUrl ||
-          upload?.url ||
-          upload?.location ||
-          upload?.path ||
-          photo.previewUrl,
-        /* previewUrl: photo.previewUrl, */
-        text: photo.text?.trim() || "",
-        order: index,
-        slotId: photo.slotId,
-      };
-    })
-    .filter(p => p.imageId || p.previewUrl);
-
-    // selectedProfessionName.value
-    const client = {
-      author_id: userAuth.user.id,
-
-      created: dateObj,
-      created_ms: ms,
-      dateStr: form.dateTime,
-
-      header:
-        form.orderHeader.trim() ||
-        generatedOrderHeader.value,
-
-      professionCode: form.profession,
-      professional: form.profession,
-
-
-
-      customFieldValues: {
-        ...form.customFieldValues
-      },
-
-      customFields: customFieldsSnapshot,
-
-      
-
-      agreement: isClientContactAgreement.value,
-
-      address: form.address,
-      latitude: form.lat,
-      longitude: form.lng,
-
-      zone: Number(form.desiredRange) || 0,
-
-      description: form.explanation.trim(),
-
-      isBudget: isBudget.value,
-
-      budget: isBudget.value
-        ? {
-            min:
-              form.budgetMin !== ""
-                ? Number(form.budgetMin)
-                : null,
-
-            max:
-              form.budgetMax !== ""
-                ? Number(form.budgetMax)
-                : null
-          }
-        : null,
-
-      photos: photosForBackend,
-
-      isIncludeOffers: true,
-      status: "active"
-    };
-
-    const booking = await clientService.addRecipient(userAuth.user.id, client);
-
-   
-    if (booking) {
-      emit("createBookingMultiple", {
-        ...booking,
-        photos: photosForLocalState,
-      });
-      isValidating.value = false;
+    
+      if (booking) {
+        emit("createBookingMultiple", {
+          ...booking,
+          photos: photosForLocalState,
+        });
+        isValidating.value = false;
+      }
+    } catch (error) {
+      console.log("Something went wrong to create booking - " + error.message);
+    } finally {
+      loading.value = false;
     }
 
   }
@@ -2201,6 +2204,11 @@ const createClient = async() => {
   .profession-field--full {
     grid-column: auto;
   }
+}
+
+.spinner-overlay,
+.on-overlay {
+  pointer-events: none;
 }
 
 </style>
