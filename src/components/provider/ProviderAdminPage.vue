@@ -1,6 +1,16 @@
 <template>
   <MDBContainer v-if="!provider">
-    <p>{{ t('providerAdmin.loading') }}</p>
+    <!-- <p>{{ t('providerAdmin.loading') }}</p> -->
+
+    <div
+      v-if="!provider"
+      class="admin-overlay"
+    >
+      <div class="admin-loader">
+        <div class="spinner"></div>
+        <span>{{ t('providerAdmin.loading') }}</span>
+      </div>
+    </div>
   </MDBContainer>
   <MDBContainer 
     v-else 
@@ -2780,6 +2790,50 @@ button.provider-stat-card {
   .quick-action,
   .provider-stat-card--interactive {
     transition: none;
+  }
+}
+
+/* Page loader */
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.admin-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 22px 28px;
+  border-radius: 14px;
+  background: white;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 4px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

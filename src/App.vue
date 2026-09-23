@@ -646,6 +646,10 @@ const debugPwa = (message, data = null) => {
   console.log(message, data ?? "");
 };
 
+watch(isUpdating, (value) => {
+  console.log("🔥 APP isUpdating changed:", value);
+});
+
 const checkDisplayMode = () => {
   isPwa.value =
     window.matchMedia("(display-mode: standalone)").matches ||
