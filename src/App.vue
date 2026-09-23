@@ -460,6 +460,17 @@
     <div class="on-spinner"></div>
   </div>
 
+  <!-- Updater overlay -->
+  <div
+    v-if="isUpdating"
+    class="update-overlay"
+  >
+    <div class="update-loader">
+      <div class="spinner"></div>
+      <span>Uuendatakse...</span>
+    </div>
+  </div>
+
 </template>
 
 <script setup>
@@ -2111,6 +2122,8 @@ const enableNotificationsFromModal = async () => {
 
 onMounted(async () => {
 
+  checkDisplayMode();
+
   placeWidgetBottomRight();
   
   await login.hydrate();
@@ -2184,7 +2197,7 @@ onMounted(async () => {
       );
     }
 
-    checkDisplayMode();
+    //checkDisplayMode();
 
     window.addEventListener(
       "resize",
@@ -2200,6 +2213,7 @@ onMounted(async () => {
    * Ülejäänud äpi init, mis ei sõltu chatist.
    */
   
+  // placeWidgetBottomRight();
 
   await mapStore.init();
 });
@@ -3033,5 +3047,49 @@ html, body { height: 100%; }
 .spinner-overlay,
 .on-overlay {
   pointer-events: none;
+}
+
+/* Updater overlay */
+.update-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.update-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 22px 28px;
+  border-radius: 14px;
+  background: white;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 4px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
