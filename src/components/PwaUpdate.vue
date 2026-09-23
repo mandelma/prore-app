@@ -21,7 +21,6 @@
       </div>
 
       <div class="pwa-update__actions">
-        is updating {{ isUpdating }}
         <button
           type="button"
           class="pwa-update__button pwa-update__button--primary"
