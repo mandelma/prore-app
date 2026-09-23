@@ -2815,7 +2815,7 @@ button.provider-stat-card {
 
   padding: 22px 28px;
   border-radius: 14px;
-  background: white;
+  background: var(--admin-surface);
 
   font-size: 14px;
   font-weight: 500;

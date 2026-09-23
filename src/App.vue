@@ -3075,7 +3075,7 @@ html, body { height: 100%; }
 
   padding: 22px 28px;
   border-radius: 14px;
-  background: white;
+  background: #0f172a;
 
   font-size: 14px;
   font-weight: 500;
