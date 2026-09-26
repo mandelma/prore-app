@@ -101,6 +101,24 @@ export const useProStore = defineStore("pro", () => {
             offer => Number(offer.created_ms) > ms_now
         );
     };
+
+    const removeExpiredCalendarEvents = (events) => {
+        const ms_now = Date.now();
+        let validEvents = [];
+        for (const event of events) {
+            if (new Date(event?.end) > ms_now) {
+                validEvents = validEvents.concat(event);
+            } else {
+                //console.log("EXPIRED EVENT: ", event.id);
+                onDelete(event.id);
+            }
+            
+        }
+
+        return validEvents;
+    }
+
+
     const getProState = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
@@ -122,6 +140,8 @@ export const useProStore = defineStore("pro", () => {
             providerId.value = pro.id ?? null;
             provider.value = pro;
 
+
+
             let incomingOffersList = pro.proposal || [];
 
             console.log(incomingOffersList.map(item => isOfferValid(item) ? item.header + "-expired-" : item.header + "-valid-"));
@@ -142,7 +162,10 @@ export const useProStore = defineStore("pro", () => {
                 .filter(ol => ol.status === "active")
                 .sort((a, b) => b.created_ms - a.created_ms);
 
-            proTimetable.value = pro.timetable || [];
+            const events = pro.timetable || [];
+
+            //proTimetable.value = pro.timetable || [];
+            proTimetable.value = removeExpiredCalendarEvents(events);
 
             return pro;
         } catch (error) {
@@ -821,6 +844,7 @@ export const useProStore = defineStore("pro", () => {
 
     }
 
+    // Removing calendar event
     const onDelete = async (eventId) => {
         console.log("Del event id is: " + eventId);
         console.log("Pro id is " + providerId.value);

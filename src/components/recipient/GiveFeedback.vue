@@ -222,7 +222,7 @@ const handleConfirmRating = async () => {
   const booking = clientStore.getBookingById(props.booking_id);
 
   if (!booking) return;
-  //const provider = await providerService.getProvByProvId(props.providerId);
+  
   const provider = await providerService.getProvider(props.target);
 
   console.log("TARGET " + props.target)

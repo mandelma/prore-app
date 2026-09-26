@@ -134,7 +134,7 @@
               </span>
             </label>
           </div>
-
+          <!-- :timepicker="{ ...L, hoursFormat: 24, timePickerOptions}" -->
           <MDBDateTimepicker
             v-if="!isDateNow"
             v-model="dt"
@@ -145,7 +145,7 @@
             :datepicker="{ ...L }"
             :timepicker="{ ...L, hoursFormat: 24 }"
             :key="reInitKey"
-            disable-past
+            disablePast
             class="map-datetime-picker"
           />
         </div>
@@ -415,6 +415,35 @@ const { localProfession } = useLocalProfession();
 const toastState = ref('')
 const toastIcon = ref('')
 const toastContent = ref('') */
+
+const isSelectedToday = computed(() => {
+  if (!dt.value) return false;
+
+  // "24/09/2026, 10:00"
+  const [datePart] = dt.value.split(", ");
+  const [day, month, year] = datePart.split("/").map(Number);
+
+  const today = new Date();
+
+  return (
+    day === today.getDate() &&
+    month === today.getMonth() + 1 &&
+    year === today.getFullYear()
+  );
+});
+
+const timepickerOptions = computed(() => {
+  const now = new Date();
+
+  const minTime =
+    `${String(now.getHours()).padStart(2, "0")}:00`;
+
+  return {
+    ...L,
+    hoursFormat: 24,
+    min: minTime,
+  };
+});
 
 function testToast() {
   toastState.value = 'danger'

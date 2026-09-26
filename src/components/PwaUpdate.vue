@@ -51,8 +51,6 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRegisterSW } from "virtual:pwa-register/vue";
 
-const emit = defineEmits(['update-version'])
-
 const { t } = useI18n();
 
 const isUpdating = defineModel("isUpdating", {
@@ -136,10 +134,6 @@ const checkForUpdate = async () => {
 const installUpdate = async () => {
 
   isUpdating.value = true;
-
-  await new Promise(resolve =>
-    setTimeout(resolve, 2000)
-  );
 
   try {
     console.log("Installing PWA update...");

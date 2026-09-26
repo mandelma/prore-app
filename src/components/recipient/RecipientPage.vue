@@ -754,11 +754,16 @@ const getLocalizedValue = translations => {
 const handleDone = async (bookingId, target) => {
   isDone.value = true;
   selectedBookingId.value = bookingId;
-  await clientStore.handleEditStatus(bookingId, 'done');
+  const statusChanged = await clientStore.handleEditStatus(bookingId, 'done');
 
-  socket.emit("booking-done", bookingId, target);
+  if (statusChanged) {
+    socket.emit("booking-done", bookingId, target);
 
-  console.log("DONE")
+    console.log("DONE")
+  } else {
+    console.log("Some problem occured to change booking status");
+  }
+  
 }
 
 const confirmedBookingsExpiration = async () => {

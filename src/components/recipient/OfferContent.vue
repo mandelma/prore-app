@@ -10,13 +10,13 @@
         
         <!-- <MDBContainer> -->
             <div v-if="isFeedback" v-html="feedbackHtml"></div>
-            <MDBTable v-else borderless class="client-content" style="">
+            <MDBTable v-else borderless class="client-content">
                 <tbody>
                     <tr>
                         <td class="c-td">
                             {{ t('offerContent.company') }}
                         </td>
-                        <td class="text-muted">
+                        <td class="c-td-text">
                             {{ offerContent?.name }}
                         </td>
                     </tr>
@@ -24,25 +24,25 @@
                         <td class="c-td">
                             {{ t('offerContent.description') }}
                         </td>
-                        <td class="text-muted">
+                        <td class="c-td-text">
                             {{ offerContent?.provider?.description }}
                         </td>
                     </tr>
                     <tr>
                         <td class="c-td">{{ t('offerContent.business_id') }}</td>
-                        <td class="text-muted">{{ offerContent?.provider?.ide }}</td>
+                        <td class="c-td-text">{{ offerContent?.provider?.ide }}</td>
                     </tr>
                     <tr>
                         <td class="c-td">
                             {{ t('offerContent.address') }}
                         </td>
-                        <td class="text-muted">{{ offerContent?.provider?.address }}</td>
+                        <td class="c-td-text">{{ offerContent?.provider?.address }}</td>
                     </tr>
                     <tr>
                         <td class="c-td">
                             {{ t('offerContent.distance') }}
                         </td>
-                        <td class="text-muted">
+                        <td class="c-td-text">
                             {{ offerContent?.distance }} km.
                         </td>
                     </tr>
@@ -50,7 +50,7 @@
                         <td class="c-td">
                             {{ t('offerContent.hourly_rate') }}
                         </td>
-                        <td class="text-muted">
+                        <td class="c-td-text">
                             {{ offerContent?.provider?.priceByHour }} eur
                         </td>
                     </tr>
@@ -58,12 +58,12 @@
                         <td class="c-td">
                             {{ t('offerContent.offer_price') }}
                         </td>
-                        <td class="text-muted">
+                        <td class="c-td-text">
                             {{ offerContent?.price }} eur
                         </td>
                     </tr>
                     <tr v-if="offerContent?.description !== ''">
-                        <td colspan="2" class="text-muted">
+                        <td colspan="2" class="c-td-text">
                             {{ offerContent?.description }}
                         </td>
                     </tr>
@@ -102,7 +102,7 @@
                 </tbody>
             </MDBTable>
             
-            <div class="right-side">
+            <div v-if="route.name !== 'client-history'" class="right-side">
                 <MDBBtn color="primary" @click="onChat"><i class="far fa-comment"></i></MDBBtn>
             </div>
             
@@ -127,7 +127,7 @@
     import { useConversationStore } from '@/stores/conversationStore';
     import { getBottomRightAnchor } from '../helpers/chatGeometry.js';
     import Feedback from '../provider/Feedback.vue';
-    import { useRouter } from 'vue-router';
+    import { useRouter, useRoute } from 'vue-router';
     import { storeToRefs } from 'pinia';
     defineOptions({
         name: 'offer-content'
@@ -144,6 +144,7 @@
     const isFeedback = ref(false);
 
     const router = useRouter();
+    const route = useRoute();
 
     const { bookings } = storeToRefs(clientStore);
     const { user } = storeToRefs(auth);
@@ -392,7 +393,11 @@
 }
 
 .client-content .c-td {
-    color: #ddd;
+    color: #ece5e5;
+}
+
+.client-content .c-td-text {
+    color: #d6caca;
 }
 
 /* Lightbox thumb */

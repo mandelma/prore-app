@@ -409,9 +409,9 @@
           style="background-color: #0F172A; margin-top: auto;"
         >
         <!-- Grid container -->
-        <MDBContainer class="p-4 pb-0">
+        <MDBContainer class="p-4 pb-0" >
           <!-- Section: CTA -->
-          <section v-if="login.isAuthenticated" class="">
+          <section v-if="login.isAuthenticated" class="" >
             <p class="d-flex justify-content-left align-items-center">
               <button
                 class="contact-btn"
@@ -424,7 +424,8 @@
               
             </p>
           </section>
-          <section v-else>
+          <section v-else >
+            <p class="d-flex justify-content-left align-items-center">
               <button
                 v-if="showInstallOption"
                 type="button"
@@ -434,6 +435,8 @@
                 <i class="fas fa-download"></i>
                 <span>{{ t('pwa.install_app') }}</span>
               </button>
+            </p>
+              
           </section>
           <!-- Section: CTA -->
           <section>
@@ -458,17 +461,6 @@
   <!-- Overlay -->
   <div v-if="loadingBooking" class="on-overlay">
     <div class="on-spinner"></div>
-  </div>
-
-  <!-- Updater overlay -->
-  <div
-    v-if="isUpdating"
-    class="update-overlay"
-  >
-    <div class="update-loader">
-      <div class="spinner"></div>
-      <span>Uuendatakse...</span>
-    </div>
   </div>
 
 </template>
@@ -2457,6 +2449,12 @@ const listen = async() => {
     await notificationStore.localStateAddNotification(notes.cNote);
   })
 
+  socket.on('order:status:update', async (bookingId) => {
+    console.log("Rmoving booking ordered provider booking id")
+    const removed = true
+    await handleProvider.disableLocalBooking(bookingId, removed);
+  })
+
   // Kutsutakse pakkujale kui klient eemaldab multi tellimuse ja tellimusele on tehtud pakkumine
   socket.on('local-handle-del-client-public-booking', async (bookingId, note) => {
     console.log("Notification locally added - ", note);
@@ -3053,47 +3051,4 @@ html, body { height: 100%; }
   pointer-events: none;
 }
 
-/* Updater overlay */
-.update-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
-}
-
-.update-loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-
-  padding: 22px 28px;
-  border-radius: 14px;
-  background: #0f172a;
-
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.spinner {
-  width: 34px;
-  height: 34px;
-  border: 4px solid #ddd;
-  border-top-color: #333;
-  border-radius: 50%;
-
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 </style>

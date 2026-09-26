@@ -252,134 +252,6 @@ module.exports = (io) => {
         }
     })
 
-    // Add ordered provider id to ordered array
-    /* recipientRouter.post('/:recipientId/add-ordered/:id', async (req, res) => {
-        try {
-
-            const recipient = await Recipient.findById(req.params.recipientId);
-            if (!recipient.ordered.includes(req.params.id)) {
-                recipient.ordered = recipient.ordered.concat(req.params.id);
-                await recipient.save();
-
-                const payload = {
-                    title: "New order",
-                    body: "You have new order in DuunHub.",
-
-                    url:
-                        '/',
-
-                };
-
-                res.send("pro is added!")
-            } else {
-                res.send("pro is already added!")
-            }
-
-
-        } catch (err) {
-            console.log("Error: " + err.message)
-            res.send("Error to add order!")
-        }
-    }) */
-
-    /* recipientRouter.post(
-        "/:recipientId/add-ordered",
-        async (req, res) => {
-            try {
-                const {
-                    providerId,
-                    receiver
-                } = req.body;
-
-                console.log(
-                    "PRO ID " +
-                    providerId +
-                    " - receiver: " +
-                    receiver
-                );
-
-                const pushReceiver =
-                    await User.findById(receiver);
-
-                if (!pushReceiver) {
-                    console.warn(
-                        "Push receiver does not exist:",
-                        receiver
-                    );
-                }
-
-                const recipient =
-                    await Recipient.findById(
-                        req.params.recipientId
-                    );
-
-                if (!recipient) {
-                    return res.status(404).json({
-                        message: "Booking not found"
-                    });
-                }
-
-                if (
-                    recipient.ordered.includes(
-                        providerId
-                    )
-                ) {
-                    return res.json({
-                        success: true,
-                        alreadyAdded: true
-                    });
-                }
-
-                recipient.ordered.push(providerId);
-
-                await recipient.save();
-
-                console.log("PUSHRECEIVER ", pushReceiver)
-
-                console.log("PR id " + pushReceiver?.id)
-                console.log("PR id xx " + pushReceiver?._id)
-
-                const badge = await getUserBadgeCount(pushReceiver.id ?? pushReceiver._id);
-
-                console.log("BADGE - ", badge)
-
-                if (pushReceiver) {
-                    const payload = {
-                        title: "New booking",
-                        body: "You have a new booking.",
-                        url: "/",
-                        unreadCount: badge.total
-                    };
-
-                    await sendPushToUser(
-                        pushReceiver,
-                        payload
-                    );
-
-                    console.log(
-                        "ADD ORDER PUSH SENT"
-                    );
-                }
-
-                return res.status(200).json({
-                    success: true,
-                    alreadyAdded: false
-                });
-
-            } catch (err) {
-                console.error(
-                    "Error adding provider:",
-                    err
-                );
-
-                return res.status(500).json({
-                    success: false,
-                    message: "Error to add order!"
-                });
-            }
-        }
-    ); */
-
     recipientRouter.post(
         "/:recipientId/add-ordered",
         async (req, res) => {
@@ -1038,6 +910,7 @@ module.exports = (io) => {
         };
     }
 
+
     // Delete booking with all included
     recipientRouter.delete("/:id", async (req, res) => {
         try {
@@ -1052,6 +925,8 @@ module.exports = (io) => {
                 });
             }
 
+            
+
             const uploadIds = (recipient.photos || [])
                 .map((photo) => photo.imageId)
                 .filter(Boolean);
@@ -1061,6 +936,12 @@ module.exports = (io) => {
 
             const clientId = String(recipient.author_id);
 
+            // Providers who are included with booking
+            const mainProviders = [
+                ...new Set((recipient.ordered || []).map(String))
+            ];
+
+            // Chat participants
             const providerIds = [
                 ...new Set((recipient.chat_provider_user_ids || []).map(String))
             ];
@@ -1087,6 +968,23 @@ module.exports = (io) => {
             for (const providerId of providerIds) {
                 io.to(providerId).emit("conversation:list:refresh");
             }
+
+            await Provider.updateMany(
+                {
+                    _id: { $in: mainProviders }
+                },
+                {
+                    $pull: {
+                        proposal: recipientId
+                    }
+                }
+            );
+
+            for (const mainId in mainProviders) {
+                io.to(mainId).emit("order:status:update", recipientId);
+            }
+
+            
 
             return res.json({
                 ok: true,

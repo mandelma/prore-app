@@ -50,7 +50,7 @@ export const useClientStore = defineStore('client', () => {
         count.value = bookings.value.length;
     }
 
-    const checkExpired = (orders) => {
+    const checkExpired = async (orders) => {
         console.log("Do booking check");
         const ms_now = new Date().getTime()
 
@@ -58,6 +58,7 @@ export const useClientStore = defineStore('client', () => {
 
         console.log("O -- " + orders.map(ord => ord.created_ms > ms_now ? ord.header + " is + valid" : ord.header + " expired"));
 
+        return removeExpiredBookings(orders)
         
     }
 
@@ -76,16 +77,19 @@ export const useClientStore = defineStore('client', () => {
     const removeExpiredBookings = (orders) => {
         const now = Date.now();
 
-        return orders.filter(
+        const result = orders.filter(
             order =>
-                ['confirmed', 'done'].includes(order.status) ||
+                ['active', 'archived'].includes(order.status) ||
                 order.created_ms > now
         );
+
+        for (const booking of result) {
+            console.log("REMOVING BOOKING ", booking.id)
+            removeExpiredBooking(booking.id);
+        }
+
+        return result;
     };
-
-    const removeExpiredPendingBookings = (orders) => {
-
-    }
     
     const orderList = async(id) => {
         isLoading.value = true;
@@ -94,19 +98,17 @@ export const useClientStore = defineStore('client', () => {
             const orders = await clientService.getOwnBookings(id);
 
             // Checking expired bookings
-            checkExpired(orders || []);
+            //checkExpired(orders || []);
 
-            let list = orders ? orders : [];
+            //let list = orders ? orders : [];
 
-            console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
+            let list = checkExpired(orders || []);
 
-            
+            //console.log(list.map(item => isValid(item.created_ms) ? item.header + "-expired-" : item.header + "-valid-"));
 
             console.log("LIST ", list)
 
-            // xxx
-
-            console.log("Expired bookings removed:", removeExpiredBookings(list));
+            //console.log("Expired bookings removed:", removeExpiredBookings(list));
 
             const bookingOffers = list.reduce((acc, booking) => {
                 const offerList = booking.offers;
@@ -264,7 +266,7 @@ export const useClientStore = defineStore('client', () => {
             bookings.value = bookings.value.filter(item => item.id !== id);
         }
 
-        if (bookings.value.length < 1) router.push('/');
+        //if (bookings.value.length < 1) router.push('/');
 
     }
 
@@ -514,10 +516,13 @@ export const useClientStore = defineStore('client', () => {
 
     const handleEditStatus = async (bookingId, new_status) => {
         const status = await clientService.updateRecipientStatus(bookingId, { status: new_status });
-        if (status) {
-            const booking = bookings.value.find(booking => booking.id === bookingId);
-            if (booking) booking.status = new_status;
-        }
+        if (!status) return false;
+        
+        const booking = bookings.value.find(booking => booking.id === bookingId);
+        if (booking) booking.status = new_status;
+
+        return true;
+        
     }
 
     const handleGivenFeedback = async (bookingId, target, pHistory, status) => {
