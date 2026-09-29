@@ -303,6 +303,8 @@
             :offers-in="incomingOffers ?? []"
             :is-pro="isUserPro ?? false"
             :credit="provider?.proTime ?? 0"
+
+            @delete-count="handleDeleteCount"
           />
         </div>
         <component
@@ -2775,6 +2777,12 @@ const sendClientMessage = async () => {
     isSendingContactMessage.value = false;
   }
 };
+
+const handleDeleteCount = (message) => {
+  console.log("Deleted count " + message);
+  confirmedOrderMessage.value = message;
+  isOrderConfirmed.value = true;
+}
 
 </script>
 

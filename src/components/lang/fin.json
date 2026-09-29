@@ -261,7 +261,11 @@
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisäosiot: aikataulu, ilmoitukset ja laskutuksen yhteenveto",
     "commentSimpleToast": "Yksinkertainen ilmoitus",
     "serviceAreaRequired": "Et voi vastaanottaa asiakkaiden tarjouspyyntöjä, jos toiminta-alue on 0 km. Määritä toiminta-alue, jotta voit vastaanottaa alueellesi lähetettyjä tarjouspyyntöjä.",
-    "serviceAreaSelected": "Voit vastaanottaa asiakkaiden tarjouspyyntöjä enintään {range} km:n säteellä. Toiminta-alue näkyy myös asiakkaille, mutta asiakas voi silti tehdä sinulle suoran tilauksen kartalta."
+    "serviceAreaSelected": "Voit vastaanottaa asiakkaiden tarjouspyyntöjä enintään {range} km:n säteellä. Toiminta-alue näkyy myös asiakkaille, mutta asiakas voi silti tehdä sinulle suoran tilauksen kartalta.",
+    "deleteUndone": "Kalenterissa on aktiivinen varaus ja sopimus on voimassa. Palveluntarjoajan tiliä ei voi poistaa.",
+    "deletePending": "Poista avoimet tarjoukset ennen palveluntarjoajan tilin poistamista.",
+    "deleteFailed": "Jotain meni pieleen. Yritä myöhemmin uudelleen.",
+    "deleteSuccess": "{name}-tili on poistettu!"
   },
 
   "dealConfirm": {

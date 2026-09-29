@@ -714,6 +714,17 @@
       :text="toastContent"
     />
 
+    <ConfirmModal
+      v-model="showDeleteProviderModal"
+      :title="cTitle"
+      :message="cMessage"
+      :confirm-text="t('recipientPage.delete')"
+      :cancel-text="t('recipientPage.keep')"
+      :danger="true"
+      @confirm="handleRemoveProviderCount"
+      @cancel="cancelRemoveProviderCount"
+    />
+
     <!-- Simple toast -->
     <div class="toast-wrap" v-if="toast.show">
       <div class="toast-card shadow-sm border rounded p-3 bg-white">
@@ -725,6 +736,22 @@
           <button class="btn btn-sm btn-link p-0" @click="toast.show = false">✕</button>
         </div>
       </div>
+    </div>
+
+    <div style="cursor: pointer; display: flex; justify-content: right;">
+      <button
+              
+        type="button"
+        class="delete-link"
+        @click="
+          removeProviderCount()
+        "
+      >
+        <MDBIcon icon="trash-alt" />
+
+        Kustuta konto
+      </button>
+      <!-- {{ tr('cancelOrder') }} -->
     </div>
     
   </MDBContainer>
@@ -773,13 +800,16 @@ import Calendar from "../Calendar.vue";
 //import ClientOffer from "./ClientOffer.vue";
 import ClientOffersList from "./ClientOffersList.vue";
 import NotificationStatusBanner from "../NotificationStatusBanner.vue";
+
+import ConfirmModal from "../helpers/ConfirmModal.vue";
+
 import AdminMessage from "../AdminMessage.vue";
 import providerService from '../../service/providers'
 
 import { useLocalProfession } from '@/composables/useLocalProfession.js';
 import socket from "@/socket";
 
-const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications"]);
+const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications", "delete-count"]);
 const props = defineProps({
   isMobile: {type: Boolean},
   providerId: { type: [String, Number], required: true },
@@ -875,6 +905,8 @@ const { localProfession } = useLocalProfession();
 const clientQuery = ref("");
 
 const navbarHidden = ref(false);
+
+const showDeleteProviderModal = ref(false);
 
 let lastScrollY__ = 0;
 
@@ -1810,6 +1842,51 @@ async function apiGetBilling() {
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
+
+const removeProviderCount = () => {
+  console.log("Removing provider");
+  showDeleteProviderModal.value = true;
+}
+
+const cancelRemoveProviderCount = () => {
+  showDeleteProviderModal.value = false;
+}
+
+const handleRemoveProviderCount = async () => {
+  console.log("Provider count is removed ", token.value);
+  const success = await providerStore.removeProvider(token.value);
+
+  console.log("Provider removed - " + success);
+
+
+  if (success.message === "undone") {
+  onToast(
+    "fas fa-exclamation-circle fa-lg me-2",
+    t("providerAdmin.deleteUndone"),
+    "danger"
+  );
+} else if (success.message === "pending") {
+  onToast(
+    "fas fa-exclamation-triangle fa-lg me-2",
+    t("providerAdmin.deletePending"),
+    "warning"
+  );
+} else if (success.message === "failed") {
+  onToast(
+    "fas fa-exclamation-circle fa-lg me-2",
+    t("providerAdmin.deleteFailed"),
+    "danger"
+  );
+} else {
+  const successMessage = t("providerAdmin.deleteSuccess", {
+    name: success.title
+  });
+
+  emit("delete-count", successMessage);
+  router.push("/home");
+}
+}
+
 </script>
 
 <style scoped>
@@ -2835,5 +2912,22 @@ button.provider-stat-card {
   to {
     transform: rotate(360deg);
   }
+}
+
+.delete-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: #fda4af;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.delete-link:hover {
+  color: #fb7185;
 }
 </style>

@@ -408,251 +408,6 @@ const confirmProvider = async () => {
   }
 };
 
-
-
-
-const confirmProvider__ = async () => {
-  console.log("-- Confirming provider --");
-
-  const _offer = activeOffer.value;
-
-  console.log("Offer id " + offerId.value)
-  const offerContent = clientStore.getOfferById(offerId.value);
-  const clientBooking = clientStore.getBookingById(offerContent.bookingID);
-  
-
-  console.log("Ordering the provider to the booking - " + activeOffer.value.bookingID);
-  console.log("OfferContent booking id ", offerContent.bookingID);
-
-  const offer = {
-    bookingID: _offer.bookingID,
-    sender: _offer.sender,
-    isNewOffer: _offer.isNewOffer,
-    name: _offer.name,
-    placeOrGo: _offer.placeOrGo,
-    cAddress: clientBooking.address,
-    pAddress: activeProvider.value.address,
-    area: _offer.area,
-    distance: _offer.distance,
-    duration: _offer.duration,
-    price: _offer.price,
-    description: _offer.description,
-    place: _offer.place,
-    provider: activeProvider.value.id
-  };
-
-
-
-
-  try {
-    const confirmation =
-      await clientService.confirmOffer(_offer.bookingID, {
-        offer,
-        confirmed_provider_user_id: _offer.sender
-      });
-
-    if (!confirmation?.success) {
-      return;
-    }
-
-    console.log("Confirmation - ", confirmation)
-
-    const booking = bookings.value.find(b => b.id === activeOffer.value.bookingID);
-    if (!booking) {
-      console.error("No booking found for bookingID:", activeOffer.value.bookingID, bookings.value);
-      return;
-    }
-
-    /* const sideProviders = booking.offers
-    .filter(o => o.sender !== activeOffer.value.sender)
-    .map(o => o.sender); */
-
-    let sideProviders = booking.offers.reduce((acc, o) => {
-      if (o.sender !== activeOffer.value.sender) {
-        acc.push(o.sender);
-      }
-      return acc;
-    }, []);
-
-    console.log("Side providers - ", sideProviders);
-
-    emit("handle-user-action");
-
-    //onToast("fas fa-check fa-lg me-2", "Tellimus kinnitatud!", "success");
-
-    emit("toast", {
-      state: "success",
-      message: t(
-        "clientOffer.notifications.order_confirmed"
-      ),
-      icon: "fas fa-check fa-lg me-2",
-      color: "success"
-    });
-
-    const mainContent = tr("providerNotification", {
-      client: user.value.firstName,
-      booking: booking.header
-    });
-    const clientContent = tr("clientNotification");
-
-    console.log("OFFERCONTENT*** ", offerContent);
-
-    const receiver = activeOffer.value.sender;
-    const myId = user.value.id;
-    const bookingId = activeOffer.value.bookingID;
-    const header = tr("dealCreatedTitle");
-
-    const sideNotifications = sideProviders.map(providerId => {
-      return {
-        receiver: providerId,
-        bookingId: bookingId,
-        isNewMsg: true,
-        isLink: true,
-        title: header,
-        content: `${user.value.firstName} has confirmed the order "${booking.header}" with another provider.`,
-        reason: '',
-        sender: user.value.firstName,
-      };
-    });
-
-    console.log("Side --- notifications - ", sideNotifications);
-
-    const mainNotification = {
-      bookingId: bookingId,
-      isNewMsg: true,
-      isLink: true,
-      title: header,
-      content: mainContent,
-      reason: '',
-      sender: user.value.firstName,
-    }
-
-    await clientStore.confirmOffer(offer);
-    
-    
-    const noteAdded = await notificationStore.clientConfirmDealNotification(bookingId, _offer.sender, mainNotification, sideNotifications);
-
-    if (noteAdded) {
-      console.log("Notification added successfully");
-    } else {
-      console.error("Failed to add notification");
-    } 
-
-    emit('cancelRecipientContentConfirmed', activeOffer.value.name);
-
-    
-
-    //openProModal.value = false;
-
-    //showDealConfirm.value = false;
-
-    /* await proStore.onClientBooking(
-      client.value.id,
-      offer,
-      myself,
-      client.value.author_id,
-      providerId.value,
-      notes
-    ); */
-
-    /* socket.emit(
-      "pro-confirm-client",
-      receiver,
-      providerId.value
-    ); */
-  } catch (error) {
-    const status = error.response?.status;
-    const code = error.response?.data?.code;
-
-    if (
-      status === 409 &&
-      code === "BOOKING_ALREADY_CONFIRMED"
-    ) {
-      /* emit("toast", {
-        state: "warning",
-        message: t(
-          "clientOffer.notifications.already_confirmed"
-        ),
-        icon: "fas fa-exclamation-triangle fa-lg me-2",
-        color: "warning"
-      }); */
-
-      //emit("handle-user-action");
-      return;
-    }
-
-    console.error("API error in child:", error);
-
-    //onToast("fas fa-times fa-lg me-2", "Tilause kinnitamine ei õnnestunud!", "danger");
-
-    /* emit("toast", {
-      state: "danger",
-      message: t(
-        "clientOffer.notifications.confirmation_failed"
-      ),
-      icon: "fas fa-times fa-lg me-2",
-      color: "danger"
-    }); */
-  } finally {
-    //loading.value = false;
-    openProModal.value = false;
-
-    showDealConfirm.value = false;
-  }
-
-
-
-
-
-  /* const receiver = selectedProvider.value.sender;
-  const myId = user.value.id;
-  const bookingId = selectedProvider.value.bookingID;
-  const header = tr("dealCreatedTitle");;
-
-
-  const booking = bookings.value.find(b => b.id === selectedProvider.value.bookingID);
-  if (!booking) {
-    console.error("No booking found for bookingID:", selectedProvider.value.bookingID, bookings.value);
-    return;
-  } */
-
-  /* const proContent = tr("providerNotification", {
-    client: user.value.firstName,
-    booking: booking.header
-  });
-  const clientContent = tr("clientNotification");
-
-  console.log("OFFERCONTENT*** ", offerContent); */
-
-  //const confirmed = await clientService.updateRecipientStatus(offerContent.bookingID, {status: 'confirmed'});
-  //console.log("Confirmed --- ", confirmed)
-
-  //const includeOffer = await clientService.confirmOffer(offerContent.bookingID, offer);
-
-  //if (!includeOffer) return;
-
-  /* const notification = {
-      bookingId: bookingId,
-      isNewMsg: true,
-      isLink: true,
-      title: header,
-      content: proContent,
-      reason: '',
-      sender: user.value.firstName,
-  }
-
-  await clientStore.confirmOffer(offer);
-  
-  await notificationStore.clientConfirmDealNotification(bookingId, offerContent.sender, notification);
-  emit('cancelRecipientContentConfirmed', selectedProvider.value.name);
-
-  
-
-  openProModal.value = false;
-
-  showDealConfirm.value = false; */
-}
-
 const cancelProvider = () => {
   console.log("Provider order cancelled");
   showDealConfirm.value = false;
@@ -664,9 +419,8 @@ const handleQuitContent = () => {
 
 const handleQuitOfferContentConfirmed = (pro) => {
   console.log("Quitting content! " + pro)
-  //isOfferContent.value = false;
+
   openProModal.value = false;
-  //selectedProvider.value = false;
   
   emit('cancelRecipientContentConfirmed', pro);
 }
@@ -704,12 +458,6 @@ const handleCancelRemoving = () => {
   padding: 16px;
 }
 
-/* .page-header{
-  display: flex;
-  align-items: flex-start; 
-  gap: 12px;
-} */
-
 .page-header{
   display: flex;
   padding-bottom: 17px;
@@ -739,15 +487,6 @@ const handleCancelRemoving = () => {
 }
 
 .panel{ min-width: 0; }
-
-/* .panel{
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 16px;
-  background: rgba(0,0,0,.15);
-  padding: 16px;
-} */
 
 /* make left/right feel like “sidebars” */
 .panel--order{
@@ -830,22 +569,6 @@ const handleCancelRemoving = () => {
 
   }
 }
-
-
-
-/* .offer-item{
-  position: relative;
-  display:flex;
-  align-items:center;
-  text-align: left;
-  justify-content:space-between;
-  margin-bottom: 12px;
-  gap:12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.08);
-  cursor:pointer;
-} */
 
 .offer-item {
   position: relative;
@@ -962,26 +685,6 @@ const handleCancelRemoving = () => {
   }
 }
 
-/* .new-dot{
-  position:absolute;
-  top:8px;
-  right:8px;
-  width:10px;
-  height:10px;
-  border-radius:999px;
-  background:#d34954;
-  box-shadow:0 0 0 2px rgba(0,0,0,.25);
-} */
-
-
-
-/* optional: make the whole card slightly highlighted if new */
-/* .offer-item.is-new{
-  border-color: rgba(241, 134, 33, 0.45);
-  background-color: rgba(241, 134, 33, 0.1);
-  background-color: #083b4b
-} */
-
 .offer-main{
   min-width:0;
 }
@@ -1004,9 +707,6 @@ const handleCancelRemoving = () => {
   font-size: 12px;
 }
 
-/* .offer-item:hover{
-  border-color: rgba(255,255,255,.18);
-} */
 .offer-item.is-active{
   border-color: rgba(13,202,240,.6); /* “info” vibe */
 }
@@ -1017,13 +717,6 @@ const handleCancelRemoving = () => {
   display: flex;
   justify-content: space-between;
 }
-
-
-
-
-
-
-
 
 .provider-selection {
   margin-top: 0;
@@ -1054,7 +747,5 @@ background-color: #e05b69 !important;
 border-color: #dc3545 !important;
 box-shadow: 0 4px 9px -4px rgba(220, 53, 69, 0.55) !important;
 }
-
-
 
 </style>

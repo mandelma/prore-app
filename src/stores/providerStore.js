@@ -78,22 +78,10 @@ export const useProStore = defineStore("pro", () => {
         return uniqueProfessions.size;
     });
 
-   /*  const isOfferValid = (offer) => {
-        const now = new Date().getTime();
-        const offerTime = new Date(offer.created_ms).getTime();
-    
-        return offerTime < now;
-    }; */
-
     const isOfferValid = (offer) => {
         return Number(offer.created_ms) > Date.now();
     };
 
-    /* const removeExpiredOffers = (offers) => {
-        const ms_now = new Date().getTime();
-        return offers.filter(offer => offer.created_ms > ms_now);       
-    };
-    */
     const removeExpiredOffers = (offers) => {
         const ms_now = Date.now();
 
@@ -147,8 +135,6 @@ export const useProStore = defineStore("pro", () => {
             console.log(incomingOffersList.map(item => isOfferValid(item) ? item.header + "-expired-" : item.header + "-valid-"));
 
             incomingOffersList = incomingOffersList.map(p => !isOfferValid(p) ? { ...p, valid: true } : { ...p, valid: false });
-
-            //incomingOffersList = incomingOffersList.filter(p => !isOfferValid(p));
 
             incomingOffersList = removeExpiredOffers(incomingOffersList);
 
@@ -734,7 +720,7 @@ export const useProStore = defineStore("pro", () => {
                     }
                 })
 
-            //proTimetable.value = provider.value.timetable;
+            proTimetable.value = provider.value.timetable;
         }
 
         
@@ -864,7 +850,35 @@ export const useProStore = defineStore("pro", () => {
         return referenceHandled;
     }
 
+    const removeProvider = async (token) => {
 
+        const countName = provider.value?.pName || "";
+
+        console.log("NAME - " + countName)
+
+        const result = await providerService.remove(token);
+
+        console.log("REMOVE RESULT:", result);
+
+        if (!result.ok && !result.deleted) {
+            if (result.message === "undone") {
+                return {message: result.message}
+            } else if (!result.ok && result.message === "pending") {
+                return { message: result.message }
+            }
+        } 
+
+        
+        provider.value = null;
+
+        providerId.value = null;
+        incomingOffers.value = [];
+        proCalendarEvents.value = [];
+        proTimetable.value = [];
+        proCredit.value = 0;
+
+        return {message: "done", title: countName};
+    }
     
 
     return {
@@ -894,6 +908,8 @@ export const useProStore = defineStore("pro", () => {
         handleRemoveDisabledBooking,
         updateReference,
         handleOfferDone,
+        removeProvider,
+
         providerId,
         isUserPro,
         provider,

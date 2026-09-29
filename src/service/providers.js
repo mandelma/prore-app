@@ -127,6 +127,17 @@ const editPortfolio = async (id, editedPortfolio) => {
     return portfolio.data;
 }
 
+const remove = async (token) => {
+    const removed = await axios.delete(`${baseUrl}/remove-provider-count`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        validateStatus: status => status < 500
+    })
+
+    return removed.data;
+}
+
 export default {
     getProviders,
     getProvider,
@@ -152,5 +163,6 @@ export default {
     //addNegativeFeedback,
     handleReference,
     editRange,
-    editPortfolio
+    editPortfolio,
+    remove
 }

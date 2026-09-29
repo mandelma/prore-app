@@ -234,7 +234,11 @@
     "commentExtrasScheduleAlertsBillingSnapshot": "Extras schedule alerts and billing snapshot",
     "commentSimpleToast": "Simple toast",
     "serviceAreaRequired": "You cannot receive customer quote requests while your service area is set to 0 km. Set a service area to receive quote requests sent to providers in your area.",
-    "serviceAreaSelected": "You can receive customer quote requests within a radius of up to {range} km. Your service area is also shown to customers, but customers can still place a direct booking with you from the map."
+    "serviceAreaSelected": "You can receive customer quote requests within a radius of up to {range} km. Your service area is also shown to customers, but customers can still place a direct booking with you from the map.",
+    "deleteUndone": "There is an active booking in the calendar and the agreement is still valid. The provider account cannot be deleted.",
+    "deletePending": "Delete all open offers before deleting the provider account.",
+    "deleteFailed": "Something went wrong. Please try again later.",
+    "deleteSuccess": "{name} account has been deleted!"
   },
 
   "dealConfirm": {

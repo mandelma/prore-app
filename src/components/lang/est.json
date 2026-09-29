@@ -245,7 +245,11 @@
     "commentExtrasScheduleAlertsBillingSnapshot": "Lisa ajakava teavitused ja arvelduse ülevaade",
     "commentSimpleToast": "Lihtne teavitus",
     "serviceAreaRequired": "Sa ei saa vastu võtta klientide hinnapakkumise päringuid, kui sinu tegevuspiirkond on 0 km. Määra tegevuspiirkond, et saada sinu piirkonna teenusepakkujatele saadetud hinnapäringuid.",
-    "serviceAreaSelected": "Sa saad vastu võtta klientide hinnapakkumise päringuid kuni {range} km raadiuses. Tegevuspiirkonda kuvatakse ka klientidele, kuid klient saab sulle kaardilt siiski otsetellimuse teha."
+    "serviceAreaSelected": "Sa saad vastu võtta klientide hinnapakkumise päringuid kuni {range} km raadiuses. Tegevuspiirkonda kuvatakse ka klientidele, kuid klient saab sulle kaardilt siiski otsetellimuse teha.",
+    "deleteUndone": "Kalendris on aktiivne broneering ja leping on kehtiv. Pakkuja kontot ei saa kustutada.",
+    "deletePending": "Kustuta avatud pakkumised enne pakkuja konto kustutamist.",
+    "deleteFailed": "Midagi läks valesti. Proovi hiljem uuesti.",
+    "deleteSuccess": "{name} konto on kustutatud!"
   },
 
   "dealConfirm": {

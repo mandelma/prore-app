@@ -1381,7 +1381,6 @@ const buildCustomFieldsSnapshot = () => {
   });
 };
 const createClient = async() => {
-  loading.value = true;
 
   isValidating.value = true;
   if (!validateForm()) {
@@ -1405,7 +1404,7 @@ const createClient = async() => {
     clientFormErrorMsg.value = t('recipientForm.formFieldsRequired')
     isInitClientError.value = true;
   } else {
-
+    loading.value = true;
     try {
       const customFieldsSnapshot =
       buildCustomFieldsSnapshot();
@@ -1840,20 +1839,6 @@ const createClient = async() => {
     min-width: 0;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .message-counter {
   float: right;

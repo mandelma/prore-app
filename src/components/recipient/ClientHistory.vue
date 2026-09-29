@@ -432,6 +432,8 @@ const bookAgain = async (booking) => {
 
   if (!provider) return;
 
+  // TODO toast about provider is not available
+
   selectedProvider.value = provider;
   bookingData.value = booking;
   orderProviderModal.value = true;

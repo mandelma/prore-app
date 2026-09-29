@@ -245,7 +245,11 @@
     "commentExtrasScheduleAlertsBillingSnapshot": "Extra schema varningar och faktureringsöversikt",
     "commentSimpleToast": "Enkel toast",
     "serviceAreaRequired": "Du kan inte ta emot kundernas offertförfrågningar när ditt verksamhetsområde är inställt på 0 km. Ange ett verksamhetsområde för att kunna ta emot offertförfrågningar som skickas till leverantörer i ditt område.",
-    "serviceAreaSelected": "Du kan ta emot kundernas offertförfrågningar inom en radie på upp till {range} km. Verksamhetsområdet visas även för kunderna, men kunden kan fortfarande göra en direktbokning hos dig via kartan."
+    "serviceAreaSelected": "Du kan ta emot kundernas offertförfrågningar inom en radie på upp till {range} km. Verksamhetsområdet visas även för kunderna, men kunden kan fortfarande göra en direktbokning hos dig via kartan.",
+    "deleteUndone": "Det finns en aktiv bokning i kalendern och avtalet är fortfarande giltigt. Tjänsteleverantörens konto kan inte tas bort.",
+    "deletePending": "Ta bort alla öppna offerter innan du tar bort tjänsteleverantörens konto.",
+    "deleteFailed": "Något gick fel. Försök igen senare.",
+    "deleteSuccess": "Kontot {name} har tagits bort!"
   },
 
   "dealConfirm": {
