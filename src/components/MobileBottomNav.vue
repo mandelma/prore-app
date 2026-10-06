@@ -85,7 +85,7 @@
         <span>asiointti</span>
         <MDBDropdownMenu>
 
-          <MDBDropdownItem >
+          <MDBDropdownItem class="dd-item">
             <RouterLink
               to="/profile"
               class="dropdown-item dd-item"
