@@ -51,61 +51,22 @@
           <MDBNavbarItem class="me-3 me-lg-5" linkClass="link-secondary">
             <language-contents />
           </MDBNavbarItem>
-          <!--User-->
-          <!-- <MDBNavbarItem v-if="isAuthenticated" class="me-3 me-lg-0 dropdown">
-            <MDBDropdown v-model="userDropdown">
-              <MDBDropdownToggle 
-                tag="a" class="nav-link"
-                :aria-label="t('app.openUserMenu')"
-                @click="userDropdown = !userDropdown"
-              >
-                <template v-if="profileLoaded">
-                  <MDBIcon v-if="!avatarIsImage || avatarError" icon="user" class="icon" />
-                
-                  <img
-                    v-else
-                    :src="imageUrl"
-                    class="rounded-circle"
-                    height="22"
-                    :alt="t('app.profileAvatarAlt')"
-                    loading="lazy"
-                    @error="avatarError = true"
-                  />
-                </template>
-
-                <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge>
-              </MDBDropdownToggle>
-              <MDBDropdownMenu >
-                <MDBDropdownItem
-                  v-if="showInstallOption"
-                  class="dd-item"
-                >
-                  <button
-                    type="button"
-                    class="pwa-install-btn"
-                    @click="$emit('handle-install')"
-                  >
-                    <i class="fas fa-download"></i>
-                    <span>{{ t('pwa.install_app') }}</span>
-                  </button>
-                </MDBDropdownItem>
-
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/"
-                  class="dd-item logout-item"
-                  @click="$emit('log-out')"
-                >
-                  {{ t("app.logout") }}
-                </MDBDropdownItem>
-
-              </MDBDropdownMenu>
-            </MDBDropdown>
-          </MDBNavbarItem> -->
-
-          <MDBNavbarItem v-if="!isAuthenticated" :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
+          
+          <!-- <MDBNavbarItem v-if="!isAuthenticated" :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
             <span style="color: #ef8627;">{{t('app.login')}}</span>
+          </MDBNavbarItem> -->
+          <MDBNavbarItem
+            v-if="!isAuthenticated"
+            class="me-3 me-lg-0"
+          >
+            <RouterLink
+              to="/login-register"
+              class="nav-link link-secondary"
+            >
+              <span style="color: #ef8627;">
+                {{ t("app.login") }}
+              </span>
+            </RouterLink>
           </MDBNavbarItem>
         </MDBNavbarNav>
       </div>
@@ -125,7 +86,7 @@ import {
     MDBDropdownMenu
 } from "mdb-vue-ui-kit"
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 //import navLogo from '@/assets/duun_hub_hero_nav.png'
 import navLogo from '/icon-48x48.png'
@@ -168,7 +129,7 @@ const props = defineProps({
       type: Boolean
     },
     clientHistory: {
-      type: Boolean
+      type: Array
     }
 })
 

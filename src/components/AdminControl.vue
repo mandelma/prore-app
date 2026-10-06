@@ -608,7 +608,7 @@ const loadDashboard = async () => {
    *   response.completedOrders;
   */
 
-  console.log("TOKEN - " + token.value);
+  //console.log("TOKEN - " + token.value);
 
   const response = await adminService.getDashboard(token.value);
 
@@ -624,7 +624,7 @@ const loadDashboard = async () => {
 
 
 onMounted(() => {
-  //loadDashboard();
+  loadDashboard();
 });
 </script>
 

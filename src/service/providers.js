@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { authApi } from './api';
+
 // import backendUrl from '@/url_config';
 // const baseUrl = `${backendUrl}/providers`;
 
@@ -7,7 +9,12 @@ const baseUrl = "/api/providers";
 
 
 const getProviders = async () => {
-    const result = await axios.get(baseUrl);
+    const result = await authApi.get('/providers');
+    return result.data;
+}
+
+const getDocument = async () => {
+    const result = await axios.get(`${baseUrl}/document`);
     return result.data;
 }
 
@@ -140,6 +147,7 @@ const remove = async (token) => {
 
 export default {
     getProviders,
+    getDocument,
     getProvider,
     getProvByProvId,
     getProvidersMatchingByProfession,

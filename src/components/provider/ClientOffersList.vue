@@ -262,7 +262,7 @@
 </template>
 
 <script setup>
-import {MDBContainer, MDBRow, MDBCol, MDBToast, MDBBtn, MDBBtnClose, MDBCollapse} from'mdb-vue-ui-kit';
+import {MDBContainer, MDBRow, MDBCol, MDBToast, MDBBtn, MDBBtnClose, MDBCollapse, MDBBadge, MDBIcon} from'mdb-vue-ui-kit';
 import {ref, toRefs, onMounted, onBeforeUnmount, provide, computed, nextTick} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';

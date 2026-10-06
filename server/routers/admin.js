@@ -7,37 +7,6 @@ const Client = require("../models/recipients");
 const userAuth = require("../middleware/httpAuth.js");
 const adminAuth = require("../middleware/requireAdmin.js");
 
-/* {
-    users: 0,
-    usersToday: 0,
-
-    providers: 0,
-    providersToday: 0,
-
-    clients: 0,
-    clientsToday: 0,
-
-    activeBookings: 0,
-    bookingsToday: 0,
-
-    completedOrders: 0,
-    completedOrdersToday: 0,
-
-    openOffers: 0,
-
-    inactiveUsers: 0,
-    blockedUsers: 0,
-
-    transactionVolume: 0,
-    averageOrderValue: 0,
-
-    conversionRate: 0,
-    cancellationRate: 0,
-
-    failedPayments: 0,
-    unresolvedReports: 0
-} */
-
 const userStats = async () => {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);

@@ -118,7 +118,6 @@
       /> -->
     </div>
 
-
     <!-- Statistika -->
     <section class="provider-stats page-content">
       <article class="provider-stat-card">
@@ -716,8 +715,7 @@
 
     <ConfirmModal
       v-model="showDeleteProviderModal"
-      :title="cTitle"
-      :message="cMessage"
+      
       :confirm-text="t('recipientPage.delete')"
       :cancel-text="t('recipientPage.keep')"
       :danger="true"
@@ -770,7 +768,6 @@ import {
   MDBInput,
   MDBTextarea,
   MDBTable,
-  MDBBadge,
   MDBIcon,
   MDBModal,
   MDBModalHeader,
@@ -812,7 +809,7 @@ import socket from "@/socket";
 const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications", "delete-count"]);
 const props = defineProps({
   isMobile: {type: Boolean},
-  providerId: { type: [String, Number], required: true },
+  /* providerId: { type: [String, Number], required: true }, */
   notificationPermission: {
     type: String,
     default: ""
@@ -1466,7 +1463,7 @@ function isValidEmail(email) {
  * - providerId: this page should be used only for the selected provider (e.g. route param)
  */
 
-const providerId = computed(() => props.providerId);
+//const providerId = computed(() => props.providerId);
 
 // State
 const busy = ref(false);
@@ -1549,7 +1546,7 @@ const filteredClients = computed(() => {
 // bootstrap();
 
 // Actions
-async function bootstrap() {
+/* async function bootstrap() {
   busy.value = true;
   try {
     const [p, cs, appts, ts, b] = await Promise.all([
@@ -1560,9 +1557,7 @@ async function bootstrap() {
       apiGetBilling(providerId.value),
     ]);
 
-    //assignProvider(p);
-    //assignDraftProvider(p);
-    //clients.value = cs;
+    
     upcomingAppointments.value = appts;
     alerts.value = ts;
     billing.openInvoices = b.openInvoices;
@@ -1576,7 +1571,7 @@ async function bootstrap() {
   } finally {
     busy.value = false;
   }
-}
+} */
 
 function refreshAll() {
   bootstrap();
@@ -1668,7 +1663,7 @@ function openClientModal() {
   clientModalOpen.value = true;
 }
 
-async function createClient() {
+/* async function createClient() {
   if (!newClient.name.trim()) {
     notify("Validation", "Client name is required.");
     return;
@@ -1691,20 +1686,20 @@ async function createClient() {
   } finally {
     busy.value = false;
   }
-}
+} */
 
-function viewClient(c) {
+/* function viewClient(c) {
   notify("Client", `Open client: ${c.user.firstName}`);
   onToast('fas fa-info-circle fa-lg me-2', `Asiakas ${c.user.firstName} tiedot`, "info");
   // Example:
   // router.push({ name: "ClientDetail", params: { clientId: c.id } })
-}
+} */
 
-function messageClient(c) {
+/* function messageClient(c) {
   notify("Message", `Start message to: ${c.name}`);
-}
+} */
 
-async function unlinkClient(c) {
+/* async function unlinkClient(c) {
   const ok = window.confirm(`Unlink ${c.name} from this provider?`);
   if (!ok) return;
 
@@ -1720,16 +1715,16 @@ async function unlinkClient(c) {
   } finally {
     busy.value = false;
   }
-}
+} */
 
 function openSchedule() {
   //notify("Schedule", "Open schedule management (wire to your router).");
   isCalendar.value = true;
 }
 
-function openBilling() {
+/* function openBilling() {
   notify("Billing", "Open billing page (wire to your router).");
-}
+} */
 
 /* function addAlert() {
   const id = `t_${Math.random().toString(16).slice(2)}`;
@@ -1737,16 +1732,16 @@ function openBilling() {
   notify("Added", "Task created.");
 } */
 
-function completeAlert(t) {
+/* function completeAlert(t) {
   alerts.value = alerts.value.filter((x) => x.id !== t.id);
   notify("Done", "Task completed.");
-}
+} */
 
-function formatDate(iso) {
+/* function formatDate(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
-}
+} */
 
 function formatDateTime(iso) {
   if (!iso) return "—";
@@ -1787,21 +1782,21 @@ function notify(title, message) {
   toastTimer = setTimeout(() => (toast.show = false), 3500);
 }
 
-async function apiUpdateProvider(id, payload) {
+/* async function apiUpdateProvider(id, payload) {
   await sleep(180);
   return { ...payload, id, updatedAt: new Date().toISOString() };
-}
+} */
 
-async function apiGetClients(providerId) {
+/* async function apiGetClients(providerId) {
   await sleep(120);
   return [
     { id: "c1", name: "Aino Korhonen", email: "aino@example.com", lastVisit: "2025-12-18T10:00:00.000Z", status: "Active" },
     { id: "c2", name: "Mika Laine", email: "mika@example.com", lastVisit: "2025-11-02T14:00:00.000Z", status: "Active" },
     { id: "c3", name: "Sara Niemi", email: "", lastVisit: null, status: "Inactive" },
   ].map((c) => ({ ...c, providerId }));
-}
+} */
 
-async function apiCreateClient(providerId, payload) {
+/* async function apiCreateClient(providerId, payload) {
   await sleep(180);
   return {
     id: `c_${Math.random().toString(16).slice(2)}`,
@@ -1811,37 +1806,37 @@ async function apiCreateClient(providerId, payload) {
     lastVisit: null,
     providerId,
   };
-}
+} */
 
-async function apiUnlinkClient() {
+/* async function apiUnlinkClient() {
   await sleep(120);
   return true;
-}
+} */
 
-async function apiGetAppointments() {
+/* async function apiGetAppointments() {
   await sleep(120);
   return [
     { id: "a1", clientName: "Aino Korhonen", startAt: "2026-01-08T09:30:00.000Z", service: "Consultation", status: "Confirmed" },
     { id: "a2", clientName: "Mika Laine", startAt: "2026-01-10T12:00:00.000Z", service: "Follow-up", status: "Pending" },
   ];
-}
+} */
 
-async function apiGetAlerts() {
+/* async function apiGetAlerts() {
   await sleep(100);
   return [
     { id: "t1", title: "Missing insurance info", detail: "Client Sara Niemi has incomplete insurance fields." },
     { id: "t2", title: "Verify bank details", detail: "Bank payout details need re-validation." },
   ];
-}
+} */
 
-async function apiGetBilling() {
+/* async function apiGetBilling() {
   await sleep(100);
   return { openInvoices: 2, nextPayout: "2026-01-15T00:00:00.000Z" };
-}
+} */
 
-function sleep(ms) {
+/* function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
-}
+} */
 
 const removeProviderCount = () => {
   console.log("Removing provider");

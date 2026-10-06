@@ -118,11 +118,11 @@ const routes = [
         name: "client-around",
         component: () => import("../components/provider/ClientAround.vue")
     },
-    {
+    /* {
         path: "/follow-pos",
         name: "follow-user-position",
         component: () => import('../components/FollowUserPosition.vue')
-    },
+    }, */
     {
         path: "/calendar",
         name: "calendar",
@@ -225,9 +225,15 @@ const protectedRoutes = [
     "recipient-form",
     "provider-form",
     "pro-around",
-    // "Gallery",
-    // "pro-gallery"
-    //"provider-panel"
+    "client-around",
+    "profile",
+    "calendar",
+    "providerAdmin",
+    "pro-photos",
+    "pay-plan",
+    "notifications",
+    "client-history",
+    "pro-archive"
 ];
 
 

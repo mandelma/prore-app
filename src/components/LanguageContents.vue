@@ -18,7 +18,7 @@
       </span>
       <span v-else-if="currentLanguage === 'en'">
         <!-- <img style="width: 20px;" :src="en" alt="en"/> -->
-         <spanc class="fi fi-gb me-2"></spanc>
+         <span class="fi fi-gb me-2"></span>
       </span>
       <span v-else-if="currentLanguage === 'ru'">
         <span class="fi fi-ru me-2"></span>

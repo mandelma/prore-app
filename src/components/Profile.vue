@@ -7,7 +7,7 @@
       :text="toastContent"
     />
 
-    <MDBRow class="g-4">
+    <MDBRow v-if="profile" class="g-4">
       <MDBCol lg="4">
         <div class="form-card avatar-card">
           <MDBCard class="p-3">
@@ -155,6 +155,7 @@
       MDBRow,
       MDBCol,
       MDBIcon,
+      MDBCard,
       MDBBtnClose
   //MDBInput
   } from "mdb-vue-ui-kit";
@@ -182,7 +183,9 @@
   const proStore = useProStore();
   const { t } = useI18n();
   const { user, credentials } = storeToRefs(auth);
+
   const { profile } = storeToRefs(userStore);
+
   const { isUserPro, provider } = storeToRefs(proStore);
   
   const router = useRouter();

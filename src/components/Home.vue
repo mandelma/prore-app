@@ -19,11 +19,11 @@
 
               <div class="stats-row">
                 <div class="stat-box">
-                  <strong>{{ providerCount }}+</strong>
+                  <strong>{{ stat?.providerCount }}+</strong>
                   <span>{{ t('home.professionals') }}</span>
                 </div>
                 <div class="stat-box">
-                  <strong>{{ professionCount }}+</strong>
+                  <strong>{{ stat?.professionCount }}+</strong>
                   <span>{{ t('home.professionFields') }}</span>
                 </div>
                 <div class="stat-box">
@@ -112,6 +112,7 @@
 
 <script setup>
 import { MDBContainer, MDBRow, MDBCol } from 'mdb-vue-ui-kit'
+import { ref, onMounted, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n/dist/vue-i18n'
@@ -132,6 +133,25 @@ const { providerCount, professionCount } = storeToRefs(proStore)
 const clientInitial = () => {
   router.push('/client-form')
 }
+
+const stat = ref({
+  providerCount: 0,
+  professionCount: 0
+});
+
+const getStats = async () => {
+  try {
+    stat.value = await proStore.providerStat();
+
+    console.log("Document:", stat.value);
+  } catch (error) {
+    console.error("Error getting stats:", error);
+  }
+};
+
+onMounted(() => {
+  getStats();
+});
 
 const proInitial = async () => {
   const savedUser = localStorage.getItem('loggedAppUser') || sessionStorage.getItem("loggedAppUser");

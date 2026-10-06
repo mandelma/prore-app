@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 
 module.exports = function httpAuth(req, res, next) {
   const auth = req.headers.authorization || "";
-  //console.log("AUTH HEADER:", auth);
   console.log(
     "AUTH HEADER:",
     auth ? `${auth.slice(0, 20)}...` : "missing"

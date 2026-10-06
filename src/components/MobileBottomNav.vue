@@ -85,47 +85,58 @@
         <span>asiointti</span>
         <MDBDropdownMenu>
 
-          <MDBDropdownItem
-            :tag="RouterLink"
-            to="/profile"
-            class="dd-item"
-          >
-            {{ t("app.profile") }}
+          <MDBDropdownItem >
+            <RouterLink
+              to="/profile"
+              class="dropdown-item dd-item"
+              @click="mobileBottomDropdown = false"
+            >
+              {{ t("app.profile") }}
+            </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem
-            v-if="!isProvider"
-            :tag="RouterLink"
-            to="/calendar"
-            class="dd-item"
-          >
-            {{ t("app.calendar") }}
+          <MDBDropdownItem class="dd-item">
+            <RouterLink
+              to="/calendar"
+              class="dropdown-item dd-item"
+              @click="mobileBottomDropdown = false"
+            >
+              {{ t("app.calendar") }}
+            </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem
-            :tag="RouterLink"
-            to="/rules"
-            class="dd-item"
-          >
-            {{ t("app.rules") }}
+          <MDBDropdownItem class="dd-item">
+            <RouterLink
+              to="/rules"
+              class="dropdown-item dd-item "
+              @click="mobileBottomDropdown = false"
+            >
+              {{ t("app.rules") }}
+            </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem
-            :tag="RouterLink"
-            to="/manual"
-            class="dd-item"
-          >
-            {{ t("app.manual") }}
+          <MDBDropdownItem class="dd-item">
+            <RouterLink
+              to="/manual"
+              class="dropdown-item dd-item"
+              @click="mobileBottomDropdown = false"
+            >
+              {{ t("app.manual") }}
+            </RouterLink>
           </MDBDropdownItem>
 
           <!-- isBookings || clientHistory.length -->
           <MDBDropdownItem
-            v-if="isProvider"
-            :tag="RouterLink"
-            to="/client-panel"
+            v-if="isBookings || clientHistory.length"
             class="dd-item"
           >
-            {{ t("app.orders") }}
+            <RouterLink
+              to="/client-panel"
+              class="dropdown-item dd-item  "
+              @click="mobileBottomDropdown = false"
+            >
+              {{ t("app.orders") }}
+            </RouterLink>
           </MDBDropdownItem>
 
           
@@ -157,13 +168,17 @@
             </button>
           </MDBDropdownItem>
 
-          <MDBDropdownItem
-            :tag="RouterLink"
-            to="/"
-            class="dd-item logout-item"
-            @click="$emit('log-out')"
-          >
-            {{ t("app.logout") }}
+          <MDBDropdownItem class="dd-item logout-item">
+            <RouterLink
+              to="/"
+              class="dropdown-item dd-item logout-item"
+              @click="
+                userDropdown = false;
+                $emit('log-out')
+              "
+            >
+              {{ t("app.logout") }}
+            </RouterLink>
           </MDBDropdownItem>
 
         </MDBDropdownMenu>
@@ -180,7 +195,7 @@ import {
   MDBDropdownMenu
 } from "mdb-vue-ui-kit";
 
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 defineProps({

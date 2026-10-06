@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 // User email update with /api
 router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.id).select(
-    "firstName lastName username email avatar"
+    "firstName lastName username email avatar role"
   );
   res.json(user);
 });

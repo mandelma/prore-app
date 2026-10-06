@@ -58,7 +58,7 @@
       </div>
     </template>
 
-
+    <!-- User role: {{ profile?.role ?? "unknown" }} <br> -->
 
     <MDBModal
       v-model="showNotificationsBlockedModal"
@@ -162,7 +162,7 @@
     <MDBModal
       id="contactModal"
       v-model="contactModal"
-      side="bottom"
+      side
       position="bottom-left"
       tabindex="-1"
       labelledby="contactModalLabel"
@@ -271,7 +271,7 @@
   
     <!-- :class="{ 'has-bottom-nav': showPwaTopBottomNav }" -->
     <main class="app-content" :class="{ 'has-bottom-nav': showPwaTopBottomNav }" style=" flex: 1;">
-
+      <!-- @over="handleOver" -->
       <RouterView
           v-slot="{Component}">
         <div v-if="!$route.path.startsWith('/login')" class="page-wrap">
@@ -280,7 +280,7 @@
             :days="weekdays"
             :bookings="bookings"
             @create-booking-multiple="handleCreateBookingMultiple"
-            @over="handleOver"
+            
 
             @open-chat="handleOpenChat"
 
@@ -1349,7 +1349,7 @@ watch(
 );
 
 
-const refreshUserData = async (userId) => {
+const refreshUserData = async (userId, userRole) => {
   await Promise.all([
     userStore.fetchMe(),
     client.orderList(userId),
@@ -1359,7 +1359,7 @@ const refreshUserData = async (userId) => {
     clientArchiveStore.initClientArchive(),
     proArchiveStore.initProviderArchive(),
     conversationStore.getConversations(),
-    adminStore.fetchAdminData()
+    adminStore.fetchAdminData(userRole, login.token)
   ])
 }
 
@@ -1411,7 +1411,7 @@ watch(
     conversationStore.initSocket();
     conversationStore.reconnectSocket();
 
-    await refreshUserData(u.id);
+    await refreshUserData(u.id, u.role);
 
     profileLoaded.value = true;
   },
@@ -2168,7 +2168,7 @@ onMounted(async () => {
 
     await syncConversations();
 
-    // ???
+    // ??? Sisse lülitada äpi käivitamisel, et hoida chat serveriga sünkroonis
     //startChatSyncPolling();
 
     if (shouldShowNotificationModal) {
@@ -2202,7 +2202,7 @@ onMounted(async () => {
       checkDisplayMode
     );
 
-    await handleProvider.getAllProviders();
+    //await handleProvider.getAllProviders();
 
     joinServer();
   }

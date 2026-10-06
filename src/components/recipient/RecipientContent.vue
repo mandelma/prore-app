@@ -441,7 +441,6 @@ const handleRemovePublicBooking = async () => {
 
     handleQuitContent();
     
-    //emit('out-here');
   } catch (err) {
     console.log("Error to remove client multy booking");
   }

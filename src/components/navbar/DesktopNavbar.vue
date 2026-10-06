@@ -74,96 +74,131 @@
               </MDBDropdownToggle>
               <MDBDropdownMenu user-dropdown-menu>
 
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/profile"
-                  class="dd-item"
-                >
-                  {{ t("app.profile") }}
+                <MDBDropdownItem >
+                  <RouterLink
+                    to="/profile"
+                    class="dropdown-item dd-item"
+                    @click="userDropdown = false"
+                  >
+                    {{ t("app.profile") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
                 <MDBDropdownItem
                   v-if="notifications.length"
-                  :tag="RouterLink"
-                  to="/notifications"
                   class="dd-item"
-                  @click="$emit('show-notifications')"
                 >
-                  {{ t("app.notifications") }}
-
-                  <MDBBadge
-                    v-if="newNotesCount > 0"
-                    color="danger"
-                    class="ms-2"
+                  <RouterLink
+                    to="/notifications"
+                    class="dropdown-item dd-item"
+                    @click="
+                      userDropdown = false;
+                      $emit('show-notifications')
+                    "
                   >
-                    {{ newNotesCount }}
-                  </MDBBadge>
+                    {{ t("app.notifications") }}
+
+                    <MDBBadge
+                      v-if="newNotesCount > 0"
+                      color="danger"
+                      class="ms-2"
+                    >
+                      {{ newNotesCount }}
+                    </MDBBadge>
+                  </RouterLink>
                 </MDBDropdownItem>
 
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/calendar"
-                  class="dd-item"
-                >
-                  {{ t("app.calendar") }}
+                <MDBDropdownItem class="dd-item">
+                  <RouterLink
+                    to="/calendar"
+                    class="dropdown-item dd-item"
+                    @click="userDropdown = false"
+                  >
+                    {{ t("app.calendar") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/rules"
-                  class="dd-item"
-                >
-                  {{ t("app.rules") }}
+                <MDBDropdownItem class="dd-item">
+                  <RouterLink
+                    to="/rules"
+                    class="dropdown-item dd-item "
+                    @click="userDropdown = false"
+                  >
+                    {{ t("app.rules") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/manual"
-                  class="dd-item"
-                >
-                  {{ t("app.manual") }}
+                <MDBDropdownItem class="dd-item">
+                  <RouterLink
+                    to="/manual"
+                    class="dropdown-item dd-item"
+                    @click="userDropdown = false"
+                  >
+                    {{ t("app.manual") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
                 <MDBDropdownItem
                   v-if="isBookings || clientHistory.length"
-                  :tag="RouterLink"
-                  to="/client-panel"
                   class="dd-item"
                 >
-                  {{ t("app.orders") }}
+                  <RouterLink
+                    to="/client-panel"
+                    class="dropdown-item dd-item  "
+                  >
+                    {{ t("app.orders") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
                 <MDBDropdownItem
                   v-if="showInstallOption"
-                  
                   class="dd-item"
                 >
                   <button
                     type="button"
                     class="pwa-install-btn"
-                    @click="$emit('handle-install')"
+                    @click="
+                      userDropdown = false;
+                      $emit('handle-install')
+                    "
                   >
                     <i class="fas fa-download"></i>
-                    <span>{{ t('pwa.install_app') }}</span>
+                    <span>{{ t("pwa.install_app") }}</span>
                   </button>
                 </MDBDropdownItem>
 
-
-                <MDBDropdownItem
-                  :tag="RouterLink"
-                  to="/"
-                  class="dd-item logout-item"
-                  @click="$emit('log-out')"
-                >
-                  {{ t("app.logout") }}
+                <MDBDropdownItem class="dd-item logout-item">
+                  <RouterLink
+                    to="/"
+                    class="dropdown-item dd-item logout-item"
+                    @click="
+                      userDropdown = false;
+                      $emit('log-out')
+                    "
+                  >
+                    {{ t("app.logout") }}
+                  </RouterLink>
                 </MDBDropdownItem>
 
               </MDBDropdownMenu>
             </MDBDropdown>
           </MDBNavbarItem>
 
-          <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
+          <!-- <MDBNavbarItem v-else :tag="RouterLink" to="/login-register" class="me-3 me-lg-0" linkClass="link-secondary">
             <span style="color: #ef8627;">{{t('app.login')}}</span>
+          </MDBNavbarItem> -->
+          <MDBNavbarItem
+            v-else
+            class="me-3 me-lg-0"
+          >
+            <RouterLink
+              to="/login-register"
+              class="nav-link link-secondary"
+            >
+              <span style="color: #ef8627;">
+                {{ t("app.login") }}
+              </span>
+            </RouterLink>
           </MDBNavbarItem>
         </MDBNavbarNav>
       </div>
@@ -183,7 +218,7 @@ import {
     MDBDropdownMenu
 } from "mdb-vue-ui-kit"
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 import LanguageContents from "../LanguageContents.vue";
 
@@ -224,7 +259,7 @@ const props = defineProps({
       type: Boolean
     },
     clientHistory: {
-      type: Boolean
+      type: Array
     }
 })
 

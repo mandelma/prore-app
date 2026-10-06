@@ -1,8 +1,8 @@
-const router = require('express').Router()
-const Provider = require('../models/providers')
+const router = require('express').Router();
+const Provider = require('../models/providers');
 //const Offer = require("../models/calendarOffer");
 const Recipient = require("../models/recipients");
-const Event = require("../models/timetable")
+const Event = require("../models/timetable");
 //const User = require('../models/users')
 
 const { Conversation, Message } = require("../models/chat");
@@ -20,15 +20,53 @@ const s3 = new S3Client({
 });
 
 const httpAuth = require('../middleware/httpAuth');
+const requireAdmin = require('../middleware/requireAdmin');
+
 const { io } = require('socket.io-client');
 
 module.exports = (io) => {
-    router.get('/', async (req, res) => {
+    router.get('/', httpAuth, requireAdmin, async (req, res) => {
+        console.log("Get all providers is called!", req.user?.id)
         const providers = await Provider.find({})
-            .populate('user')
+            .populate({
+                path: 'user',
+                select: 'username avatar'
+            })
             .populate('timetable')
             .populate('reference.imageId');
         res.send(providers)
+    })
+
+    router.get('/document', async (req, res) => {
+        
+        try {
+            const providerCount = await Provider.countDocuments();
+
+            /* await Provider.countDocuments({}, (err, count) => {
+                if (err) {
+                    console.log("Error to get provider documents: " + err.message)
+                }
+                res.send({ count });
+            }); */
+
+            const professions = await Provider.distinct('profession');
+            const professionCount = professions.length;
+            
+            console.log("Profession count: " + professionCount);
+
+            return res.status(200).json({
+                ok: true,
+                providerCount,
+                professionCount,
+            });
+        } catch (err) {
+            console.error("Error getting provider stats:", err);
+
+            return res.status(500).json({
+                ok: false,
+                message: "Failed to get provider statistics",
+            });
+        }
     })
 
     router.get('/:id', async (req, res) => {
@@ -37,7 +75,10 @@ module.exports = (io) => {
                 .populate('timetable')
                 .populate('reference.imageId')
                 //.populate('proposal')
-                .populate('user')
+                .populate({
+                    path: 'user',
+                    select: 'username avatar'
+                })
                 .populate({ path: 'proposal', populate: { path: 'user' } })
 
                 .populate({ path: 'proposal', populate: { path: 'photos.imageId' } })
@@ -57,12 +98,13 @@ module.exports = (io) => {
         const provider = await Provider.findOne({ _id: req.params.id })
             //.populate('timeoffer')
             .populate('reference.imageId')
-            .populate('user')
+            .populate({
+                path: 'user',
+                select: 'username avatar'
+            })
             .populate({ path: 'proposal', populate: { path: 'user' } })
             .populate('timetable').exec()
-        //.populate({path: 'booking', populate: {path: 'image'}}).exec()
-
-        //const provider = await Provider.findById(req.params.id)
+        
         res.send(provider);
     })
 
@@ -75,9 +117,11 @@ module.exports = (io) => {
             const providers = await Provider.find({ profession: { $in: req.body.result } })
                 // .populate('reference')
                 // .populate('timeoffer')
-                .populate('user').exec();
-
-            //.populate({path: 'timeoffer', populate: {path: 'user'}}).exec()
+                .populate({
+                    path: 'user',
+                    select: 'username avatar'
+                })
+                .exec();
 
             res.send(providers)
         } catch (err) {
@@ -111,7 +155,10 @@ module.exports = (io) => {
                 user: req.user.id
             })
             const savedProvider = await provider.save()
-            await savedProvider.populate('user');
+            await savedProvider.populate({
+                path: 'user',
+                select: 'username avatar'
+            });
             res.json(savedProvider)
         } catch (exception) {
             console.log("Error in providers post: " + exception)
@@ -137,6 +184,10 @@ module.exports = (io) => {
                 user: req.params.id
             })
             const savedProvider = await provider.save()
+            await savedProvider.populate({
+                path: 'user',
+                select: 'username avatar'
+            });
             res.json(savedProvider)
         } catch (exception) {
             console.log("Error in providers post: " + exception)
@@ -718,12 +769,6 @@ module.exports = (io) => {
 
             const offers = proCount.proposal || [];
 
-
-            
-            
-
-            
-
             const clientUserIds = [
                 ...new Set(
                     recipients
@@ -745,60 +790,6 @@ module.exports = (io) => {
             deleteConversationBetweenUsers(req.user.id, clientUserIds);
 
             io.to(req.user.id).emit("conversation:list:refresh");
-
-            /* for (const recipient of recipients) {
-                const clientUserId = recipient.author_id?.toString();
-
-                if (!clientUserId) continue;
-
-                await deleteConversationBetweenUsers(
-                    req.user.id,
-                    clientUserId
-                );
-
-                io.to(clientUserId).emit("conversation:list:refresh");
-                deletedConversationRecipientIds.push(clientUserId);
-            } */
-
-
-
-            /* const conversations = await Conversation.find({
-                participantIds: req.user.id
-            }).select("_id participantIds");
-
-            const conversationIds = conversations.map(
-                conversation => conversation._id
-            );
-
-            const clientUserIds = [
-                ...new Set(
-                    conversations.flatMap(conversation =>
-                        conversation.participantIds
-                            .map(id => id.toString())
-                            .filter(id => id !== req.user.id.toString())
-                    )
-                )
-            ];
-
-            const deletedMessages = await Message.deleteMany({
-                conversationId: { $in: conversationIds }
-            });
-
-            const deletedConversations = await Conversation.deleteMany({
-                _id: { $in: conversationIds }
-            });
-
-            console.log("Deleted messages:", deletedMessages.deletedCount);
-            console.log(
-                "Deleted conversations:",
-                deletedConversations.deletedCount
-            );
-
-            for (const clientUserId of clientUserIds) {
-                io.to(clientUserId).emit("conversation:list:refresh");
-            } */
-
-            
 
             return res.json({
                 ok: true,

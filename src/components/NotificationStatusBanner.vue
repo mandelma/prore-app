@@ -65,7 +65,7 @@
 </template>
 <script setup>
 import { useI18n } from "vue-i18n";
-
+import { MDBBtn } from "mdb-vue-ui-kit";
 defineOptions({
     name: 'notification-permission-banner'
 })

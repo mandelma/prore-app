@@ -59,6 +59,11 @@ export const useProStore = defineStore("pro", () => {
         incomingOffers.value[index].visitors.push(offer.visitor);
     }
 
+    const providerStat = async () => {
+        const document = await providerService.getDocument();
+        return document;
+    }
+
     const getAllProviders = async() => {
         try {
             const all = await providerService.getProviders();
@@ -72,11 +77,14 @@ export const useProStore = defineStore("pro", () => {
     }
 
     const providerCount = computed(() => providers.value.length);
+
     const professionCount = computed(() => {
         const allProfessions = providers.value.flatMap(p => p.profession || []);
         const uniqueProfessions = new Set(allProfessions);
         return uniqueProfessions.size;
     });
+
+
 
     const isOfferValid = (offer) => {
         return Number(offer.created_ms) > Date.now();
@@ -883,6 +891,7 @@ export const useProStore = defineStore("pro", () => {
 
     return {
         createPro,
+        providerStat,
         getAllProviders,
         getProState,
         upsertBooking,
