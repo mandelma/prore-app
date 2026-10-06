@@ -95,7 +95,7 @@
             </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem class="dd-item">
+          <MDBDropdownItem v-if="!isProvider" class="dd-item">
             <RouterLink
               to="/calendar"
               class="dropdown-item dd-item"
@@ -127,7 +127,7 @@
 
           <!-- isBookings || clientHistory.length -->
           <MDBDropdownItem
-            v-if="isBookings || clientHistory.length"
+            v-if="isProvider"
             class="dd-item"
           >
             <RouterLink
@@ -173,7 +173,7 @@
               to="/"
               class="dropdown-item dd-item logout-item"
               @click="
-                userDropdown = false;
+                mobileBottomDropdown = false;
                 $emit('log-out')
               "
             >
