@@ -12,11 +12,26 @@ const pwaPushRouter = require("./routers/pwaPush");
 
 const webpush = require('web-push')
 
-require('dotenv').config();
+// require('dotenv').config();
+
 const handleSocket = require('./utils/socketHandler')
 const handleChatSockets = require('./utils/socketChathandler')
 const jwt = require("jsonwebtoken");
 const server = require('http').Server(app);
+
+
+const dotenv = require("dotenv");
+
+const result = dotenv.config();
+
+console.log("DOTENV ERROR:", result.error);
+console.log("DOTENV NODE_ENV:", result.parsed?.NODE_ENV);
+console.log("PROCESS NODE_ENV:", process.env.NODE_ENV);
+console.log("CURRENT DIRECTORY:", process.cwd());
+
+
+
+
 
 const io = require('socket.io')(server, {
     maxHttpBufferSize: 1e8,
@@ -29,73 +44,6 @@ const io = require('socket.io')(server, {
     allowEIO3: true,
 
 });
-
-/* io.on(
-    "connection",
-    socket => {
-        console.log(
-            "### CONNECTION HANDLER ###",
-            socket.id
-        );
-
-
-
-        console.log(
-            "SOCKET CONNECT:",
-            {
-                socketId:
-                    socket.id,
-
-                userId:
-                    socket.userId,
-
-                username:
-                    socket.username
-            }
-        );
-
-        socket.on(
-            "disconnect",
-            reason => {
-                console.log(
-                    "SOCKET DISCONNECT:",
-                    {
-                        socketId:
-                            socket.id,
-
-                        userId:
-                            socket.userId,
-
-                        reason
-                    }
-                );
-            }
-        );
-
-        socket.join(
-            `user:${socket.userId}`
-        );
-
-        handleSocket(io, socket);
-        console.log(
-            "pro-confirm listeners AFTER handleSocket:",
-            socket.listenerCount(
-                "pro-confirm-map-client"
-            )
-        );
-        handleChatSockets(
-            io,
-            socket
-        );
-
-        console.log(
-            "pro-confirm listeners AFTER handleChatSockets:",
-            socket.listenerCount(
-                "pro-confirm-map-client"
-            )
-        );
-    }
-); */
 
 io.on("connection", socket => {
     console.log("========== SOCKET CONNECT ==========");
@@ -124,8 +72,6 @@ io.on("connection", socket => {
             socket.handshake.auth
     });
 
-    console.log("====================================");
-
     socket.join(`user:${socket.userId}`);
 
     handleSocket(io, socket);
@@ -140,27 +86,41 @@ app.set("io", io);
 
 let mongo_access = "";
 
-if (process.env.NODE_ENV === 'production') {
-    console.log('App is running in production mode');
-    mongo_access = process.env.MONGODB_URL_PUBLIC;
-} else {
-    console.log('App is running in development mode');
-    mongo_access = process.env.MONGODB_URL_LOCAL
-}
-const connected = mongoose.connect(mongo_access, {
-    
-});
+switch (process.env.NODE_ENV) {
 
-if (connected) {
-    console.log('mongo database is connected')
-}else {
-    console.log('error: mongo database is not connected')
+    case "production":
+        console.log("Production environment");
+        mongo_access = process.env.MONGODB_URL_PUBLIC;
+        break;
+
+    case "test":
+        console.log("Test environment");
+        mongo_access = process.env.MONGODB_URL_TEST;
+        break;
+
+    case "development":
+        console.log("Development environment");
+        mongo_access = process.env.MONGODB_URL_LOCAL;
+        break;
+
+    default:
+        throw new Error(
+            `Unsupported NODE_ENV: ${process.env.NODE_ENV}`
+        );
 }
+
+mongoose.connect(mongo_access)
+    .then(() => {
+        console.log("MongoDB connected successfully");
+    })
+    .catch((error) => {
+        console.error("MongoDB connection failed:", error);
+    });
 
 const corsOptions ={
     //origin: true,
     origin: '*',
-    credentials: true,            //access-control-allow-credentials:true
+    credentials: true,
     optionSuccessStatus: 200,
 }
 
@@ -178,10 +138,6 @@ app.use((req, res, next) => {
     console.log("HIT:", req.method, req.originalUrl);
     next();
 });
-
-//const keys = webpush.generateVAPIDKeys();
-
-//console.log(keys);
 
 const offerRouter = require('./routers/offers')
 
@@ -225,10 +181,6 @@ app.use("/assets", express.static(path.join(distPath, "assets")));
 app.use(express.static(distPath));
 
 
-
-//app.get(/^\/(?!api|assets).*/, (req, res) => {
-//    res.sendFile(path.join(distPath, "index.html"));
-//});
 app.get(/^\/(?!api|assets).*/, (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
 });
@@ -259,4 +211,10 @@ app.use((err, req, res, next) => {
 });
 
 
-module.exports = server;
+//module.exports = server;
+
+module.exports = {
+    app,
+    server,
+    io
+}
