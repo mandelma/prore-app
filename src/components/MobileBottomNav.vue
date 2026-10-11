@@ -2,7 +2,7 @@
   <nav class="mobile-bottom-nav">
     <!-- Home -->
     <RouterLink
-      to="/home"
+      to="/"
       class="mobile-nav-item"
       :class="{ active: route.path === '/' }"
     >
@@ -85,7 +85,7 @@
         <span>asiointti</span>
         <MDBDropdownMenu>
 
-          <MDBDropdownItem class="dd-item">
+          <MDBDropdownItem >
             <RouterLink
               to="/profile"
               class="dropdown-item dd-item"
@@ -95,7 +95,7 @@
             </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem v-if="!isProvider" class="dd-item">
+          <MDBDropdownItem v-if="!isProvider" >
             <RouterLink
               to="/calendar"
               class="dropdown-item dd-item"
@@ -105,7 +105,7 @@
             </RouterLink>
           </MDBDropdownItem>
 
-          <MDBDropdownItem class="dd-item">
+          <MDBDropdownItem >
             <RouterLink
               to="/rules"
               class="dropdown-item dd-item "
