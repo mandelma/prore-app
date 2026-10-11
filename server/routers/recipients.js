@@ -11,6 +11,8 @@ const Notification = require("../models/notifications");
 const { Conversation, Message } = require("../models/chat");
 //const Provider = require("../models/providers");
 
+const httpAuth = require('../middleware/httpAuth');
+
 const getUserBadgeCount = require('../utils/totalBadgeCount');
 
 const s3 = new S3Client({
@@ -69,17 +71,19 @@ module.exports = (io) => {
 
 
     // Add recipient
-    recipientRouter.post('/:id', async (req, res, next) => {
+    recipientRouter.post('/', httpAuth, async (req, res, next) => {
         const body = req.body;
-        console.log(
+        /* console.log(
             "body.customFields:",
             JSON.stringify(body.customFields, null, 2)
-        );
+        ); */
 
-        console.log(
+        /* console.log(
             "body.customFieldValues:",
             JSON.stringify(body.customFieldValues, null, 2)
-        );
+        ); */
+
+
         try {
             
             const date = new Date(body.created)              // current date
@@ -93,7 +97,7 @@ module.exports = (io) => {
             console.log("DateObj " + body.created)
 
             const recipient = new Recipient({
-                author_id: body.author_id,
+                author_id: req.user.id,
                 started: new Date(),
                 created: body.created,
                 created_ms: body.created_ms,
@@ -121,7 +125,7 @@ module.exports = (io) => {
                 photos: body.photos,
                 status: body.status,
                 image: body.imageId,
-                user: req.params.id
+                user: req.user.id
             })
 
             const savedRecipient = await recipient.save();
@@ -254,24 +258,18 @@ module.exports = (io) => {
 
     recipientRouter.post(
         "/:recipientId/add-ordered",
+        httpAuth,
         async (req, res) => {
             try {
                 const {
-                    providerId,
-                    receiver
+                    providerId
+                    //receiver
                 } = req.body;
 
                 const recipientId =
                     req.params.recipientId;
 
-                const pushReceiver =
-                    await User.findById(receiver);
-
-                if (!pushReceiver) {
-                    return res.status(404).json({
-                        message: "Push receiver not found"
-                    });
-                }
+                
 
                 const recipient =
                     await Recipient.findById(
@@ -284,6 +282,12 @@ module.exports = (io) => {
                     });
                 }
 
+                if (String(recipient.author_id) !== String(req.user.id)) {
+                    return res.status(403).json({
+                        error: "Not authorized to modify this booking"
+                    });
+                }
+
                 const provider =
                     await Provider.findById(
                         providerId
@@ -292,6 +296,17 @@ module.exports = (io) => {
                 if (!provider) {
                     return res.status(404).json({
                         message: "Provider not found"
+                    });
+                }
+
+                const receiver = String(provider.personId);
+
+                const pushReceiver =
+                    await User.findById(receiver);
+
+                if (!pushReceiver) {
+                    return res.status(404).json({
+                        message: "Push receiver not found"
                     });
                 }
 

@@ -42,12 +42,6 @@ module.exports = (io) => {
         try {
             const providerCount = await Provider.countDocuments();
 
-            /* await Provider.countDocuments({}, (err, count) => {
-                if (err) {
-                    console.log("Error to get provider documents: " + err.message)
-                }
-                res.send({ count });
-            }); */
 
             const professions = await Provider.distinct('profession');
             const professionCount = professions.length;
@@ -114,18 +108,24 @@ module.exports = (io) => {
         try {
             console.log("In req.body " + req.body.result)
 
-            const providers = await Provider.find({ profession: { $in: req.body.result } })
-                // .populate('reference')
-                // .populate('timeoffer')
+            const professions = Array.isArray(req.body.result)
+                ? req.body.result
+                : [req.body.result];
+
+            const providers = await Provider.find({ profession: { $in: professions } })
                 .populate({
                     path: 'user',
                     select: 'username avatar'
                 })
                 .exec();
 
-            res.send(providers)
+            if (!providers) {
+                res.status(400).json({error: "No matching providers!"});
+            }
+
+            res.status(200).send(providers);
         } catch (err) {
-            res.send("Error!!!")
+            res.status(500).json({error: err.message})
         }
 
     })
@@ -155,13 +155,26 @@ module.exports = (io) => {
                 user: req.user.id
             })
             const savedProvider = await provider.save()
+
+            if (!savedProvider) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Failed to save provider"
+                });
+            }
             await savedProvider.populate({
                 path: 'user',
                 select: 'username avatar'
             });
-            res.json(savedProvider)
+            
+            return res.status(200).json(savedProvider);
+
         } catch (exception) {
             console.log("Error in providers post: " + exception)
+            res.status(500).json({
+                success: false,
+                error: exception.message
+            });
         }
     })
 

@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const loginRouter = require('express').Router()
 const User = require('../models/users');
+const Provider = require('../models/providers')
 
 loginRouter.post('/', async (request, response) => {
     const body = request.body
@@ -14,6 +15,12 @@ loginRouter.post('/', async (request, response) => {
     if (!(user && passwordCorrect)) {
         return response.status(401).json({ error: "invalid username or password" });
     }
+
+    const providerExists = await Provider.exists({
+        user: user._id
+    });
+
+    console.log("PRO EXICTS " + providerExists)
 
     const userForToken = {
         username: user.username,
@@ -34,14 +41,15 @@ loginRouter.post('/', async (request, response) => {
         .status(200)
         .send({
             token,
-            error: "no login error",
+            //error: "no login error",
             id: user._id,
             username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
             remember: !!body.remember,
-            role: user.role
+            role: user.role,
+            isProvider: !!providerExists
         })
 })
 

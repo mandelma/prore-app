@@ -1,15 +1,23 @@
 const webpush = require("web-push")
 
-webpush.setVapidDetails(
+const isTest = process.env.NODE_ENV === "test";
+
+if (!isTest) {
+  webpush.setVapidDetails(
     "mailto:mandlimarko@gmail.com",
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
-);
+  );
+}
 
 const sendPushToUser = async (
   user,
   payload
 ) => {
+  if (isTest) {
+    return;
+  }
+
   if (!user?.pushSubscriptions?.length) {
     return;
   }

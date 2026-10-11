@@ -1460,7 +1460,7 @@ const createClient = async() => {
 
       // selectedProfessionName.value
       const client = {
-        author_id: userAuth.user.id,
+        //author_id: userAuth.user.id,
 
         created: dateObj,
         created_ms: ms,
@@ -1515,7 +1515,7 @@ const createClient = async() => {
         status: "active"
       };
 
-      const booking = await clientService.addRecipient(userAuth.user.id, client);
+      const booking = await clientService.addRecipient(client);
 
     
       if (booking) {

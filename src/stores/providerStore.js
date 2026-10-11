@@ -64,7 +64,7 @@ export const useProStore = defineStore("pro", () => {
         return document;
     }
 
-    const getAllProviders = async() => {
+    /* const getAllProviders = async() => {
         try {
             const all = await providerService.getProviders();
             //return all.length ? all : [];
@@ -74,7 +74,7 @@ export const useProStore = defineStore("pro", () => {
             console.log("Error to get all providers - " + e.message);
             throw e;
         }
-    }
+    } */
 
     const providerCount = computed(() => providers.value.length);
 
@@ -115,7 +115,7 @@ export const useProStore = defineStore("pro", () => {
     }
 
 
-    const getProState = async (id) => {
+    const getProState_prev = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
@@ -190,7 +190,7 @@ export const useProStore = defineStore("pro", () => {
     };
 
 
-    const getProState_ok = async (id) => {
+    const getProState = async (id) => {
         isProStateLoading.value = true;
         proError.value = null;
 
@@ -892,7 +892,7 @@ export const useProStore = defineStore("pro", () => {
     return {
         createPro,
         providerStat,
-        getAllProviders,
+
         getProState,
         upsertBooking,
         addProviderOffer,

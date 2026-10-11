@@ -24,15 +24,6 @@ const dotenv = require("dotenv");
 
 const result = dotenv.config();
 
-console.log("DOTENV ERROR:", result.error);
-console.log("DOTENV NODE_ENV:", result.parsed?.NODE_ENV);
-console.log("PROCESS NODE_ENV:", process.env.NODE_ENV);
-console.log("CURRENT DIRECTORY:", process.cwd());
-
-
-
-
-
 const io = require('socket.io')(server, {
     maxHttpBufferSize: 1e8,
     cors: {
@@ -78,44 +69,7 @@ io.on("connection", socket => {
     handleChatSockets(io, socket);
 });
 
-mongoose.set('strictQuery', false);
-
-console.log("Mongoose... " + process.env.NODE_ENV);
-
 app.set("io", io); 
-
-let mongo_access = "";
-
-switch (process.env.NODE_ENV) {
-
-    case "production":
-        console.log("Production environment");
-        mongo_access = process.env.MONGODB_URL_PUBLIC;
-        break;
-
-    case "test":
-        console.log("Test environment");
-        mongo_access = process.env.MONGODB_URL_TEST;
-        break;
-
-    case "development":
-        console.log("Development environment");
-        mongo_access = process.env.MONGODB_URL_LOCAL;
-        break;
-
-    default:
-        throw new Error(
-            `Unsupported NODE_ENV: ${process.env.NODE_ENV}`
-        );
-}
-
-mongoose.connect(mongo_access)
-    .then(() => {
-        console.log("MongoDB connected successfully");
-    })
-    .catch((error) => {
-        console.error("MongoDB connection failed:", error);
-    });
 
 const corsOptions ={
     //origin: true,
@@ -174,7 +128,7 @@ app.use(history());
 //const distPath = path.join(__dirname, "dist");
 const distPath = path.join(__dirname, "../dist");
 
-console.log("DIST PATH:", distPath);
+//console.log("DIST PATH:", distPath);
 
 app.use("/assets", express.static(path.join(distPath, "assets")));
 

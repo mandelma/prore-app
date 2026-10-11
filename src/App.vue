@@ -529,6 +529,9 @@ import AdminMessage from './components/AdminMessage.vue';
 import DesktopNavbar from './components/navbar/DesktopNavbar.vue';
 import MobileNavbar from './components/navbar/MobileNavbar.vue';
 
+import { isProviderMatchingBooking } from './utils/providerMatching.js';
+import { distributeBooking } from './utils/bookingDistribution.js';
+
 import { useI18n } from 'vue-i18n';
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
 import recipientService from './service/recipients.js';
@@ -2346,7 +2349,7 @@ const listen = async() => {
     const b = await recipientService.getBookingById(bookingId);
     bb.value = b
     if (userID.value === id) {
-      //await handleProvider.addBooking(bookingID);
+      
       handleProvider.upsertBooking(b);
     }
   })
@@ -2621,18 +2624,16 @@ const handleCreateBookingMultiple = async booking => {
 
   console.log("ORIGIN ", origin)
 
-  const providersForBooking =
-    await providerService.getProvidersMatchingByProfession({
-      result: booking.professional
-    });
-
-  client.createBooking(booking);
-
-  const proIdArr = [];
-  const orderedBookings = [];
-
   try {
-    for (const providerItem of providersForBooking) {
+    client.createBooking(booking);
+
+    const providersForBooking =
+      await providerService.getProvidersMatchingByProfession({
+        result: booking.professional
+      });
+
+
+    /* for (const providerItem of providersForBooking) {
       const providerUserId = providerItem.user?.id;
 
       // Ära saada kasutaja enda teenusepakkujale.
@@ -2640,46 +2641,43 @@ const handleCreateBookingMultiple = async booking => {
         continue;
       }
 
-
-
-
-      const isProWithinZone = await isProviderWithinZone(providerItem, booking);
-      const isBookingWithinProRange = await isBookingWithinZone(booking, providerItem);
-
-      if (!isProWithinZone) {
-        console.log(
-          `Provider ${providerUserId} is outside the booking zone. Skipping.`
-        );
-        continue;
-      }
-
-      if (!isBookingWithinProRange) {
-        console.log(
-          `Booking is outside the provider ${providerUserId}'s range. Skipping.`
-        );
-        continue;
-      }
-
-      console.log(
-        `Provider ${providerUserId} is within the booking zone. Sending booking.`
+    
+      const matching = await isProviderMatchingBooking(
+          providerItem,
+          booking,
+          onMap.findDistance
       );
 
-      orderedBookings.push(providerItem);
-      proIdArr.push(providerUserId);
+      if (!matching) {
+          console.log(
+              `Provider ${providerUserId} does not match distance requirements`
+          );
+          continue;
+      }
 
-      // Test 
+
+      
+      proIdArr.push(providerUserId);
 
       await recipientService.addProviderData(
         booking.id,
         {
-          providerId: providerItem.id,
-          receiver: providerItem.personId
+          providerId: providerItem.id
+    
         }
         
       );
 
-    }
+    } */
 
+
+    const proIdArr = await distributeBooking({
+      booking,
+      providers: providersForBooking,
+      currentUserId: userID.value,
+      findDistance: onMap.findDistance,
+      addProviderData: recipientService.addProviderData
+    });
 
     console.log(
       "Matching provider count:",

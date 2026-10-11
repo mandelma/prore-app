@@ -1,9 +1,5 @@
 import axios from "axios";
 
-//export const authApi = axios.create({ baseURL: "/api"});
-//export const api = axios.create({baseURL: "/api/users"});
-console.log("Does interceptor works?")
-
 const attachAuth = (apiInstance) => {
   apiInstance.interceptors.request.use((config) => {
     const raw = localStorage.getItem("loggedAppUser") || sessionStorage.getItem("loggedAppUser");

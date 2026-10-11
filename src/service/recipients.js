@@ -1,6 +1,7 @@
 import axios from 'axios';
-//import backendUrl from '@/url_config';
-//const baseUrl = `${backendUrl}/recipients`;
+import { authApi } from './api';
+// import backendUrl from '@/url_config';
+// const baseUrl = `${backendUrl}/recipients`;
 const baseUrl = '/api/recipients';
 
 const getRecipients = async () => {
@@ -18,8 +19,8 @@ const getBookingById = async (id) => {
     return booking.data;
 }
 
-const addRecipient = async (id, newRecipient) => {
-    const recipient = await axios.post(`${baseUrl}/${id}`, newRecipient);
+const addRecipient = async (newRecipient) => {
+    const recipient = await authApi.post(`/recipients`, newRecipient);
     return recipient.data;
 }
 // Update main - description, date, photos
@@ -65,7 +66,7 @@ const editDescription = async (id, description) => {
 } */
 
 const addProviderData = async (id, proData) => {
-    const result = await axios.post(`${baseUrl}/${id}/add-ordered`, proData);
+    const result = await authApi.post(`${baseUrl}/${id}/add-ordered`, proData);
     return result.data;
 }
 

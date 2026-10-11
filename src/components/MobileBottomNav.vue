@@ -2,7 +2,7 @@
   <nav class="mobile-bottom-nav">
     <!-- Home -->
     <RouterLink
-      to="/"
+      to="/home"
       class="mobile-nav-item"
       :class="{ active: route.path === '/' }"
     >

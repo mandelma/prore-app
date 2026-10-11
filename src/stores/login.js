@@ -59,10 +59,12 @@ export const useLoginStore = defineStore('login', () => {
 
         if (route.query.redirect) {
             target = route.query.redirect;
-        } else if (payload.role === 'admin') {
+        } else if (payload.role === "admin") {
             target = "/admin";
+        } else if (payload.isProvider) {
+            target = "/admin/provider";
         } else {
-            target = '/';
+            target = "/home";
         }
 
         //const target = route.query.redirect || "/";

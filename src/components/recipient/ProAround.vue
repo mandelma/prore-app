@@ -1517,11 +1517,12 @@ const refreshMapState = async() => {
 
 const showClientLocationOnTheMap = async(profession, range) => {
 
-  console.log("Current distance herexx  ")
+  console.log("Current distance herexx  " + profession);
   //TODO hehe need to find matching profession at first
-  const providers = await providerService.getProviders()
+  const providers = await providerService.getProvidersMatchingByProfession({result: profession});
+  console.log("PROV ", providers)
   if (providers) {
-    otherUserLocations(providers, profession, range);
+    await otherUserLocations(providers, profession, range);
   }
 
 }

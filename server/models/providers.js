@@ -28,7 +28,7 @@ const providerSchema = new Schema({
     },
     description: {
         type: String,
-        default: "Lyhyt kuvaus itsestään ja yrityksestä..."
+        default: "..."
     },
     address: {
         type: String,

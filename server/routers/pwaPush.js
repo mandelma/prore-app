@@ -21,14 +21,14 @@ router.post(
             );
 
 
-            console.log(
+            /* console.log(
                 "🔥 PUSH SUBSCRIBE REQUEST",
                 {
                     time: new Date().toISOString(),
                     userId: req.user.id,
                     endpoint: subscription.endpoint
                 }
-            );
+            ); */
 
             if (!subscription?.endpoint) {
                 return res.status(400).json({
@@ -78,6 +78,58 @@ router.post(
             return res.status(500).json({
                 message:
                     "Failed to save push subscription"
+            });
+        }
+    }
+);
+
+router.post(
+    "/unsubscribe",
+    auth,
+    async (req, res) => {
+        try {
+            const { endpoint } = req.body;
+
+            if (
+                typeof endpoint !== "string" ||
+                !endpoint
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid subscription endpoint"
+                });
+            }
+
+            const result = await User.updateOne(
+                { _id: req.user.id },
+                {
+                    $pull: {
+                        pushSubscriptions: {
+                            endpoint
+                        }
+                    }
+                }
+            );
+
+            console.log("PUSH UNSUBSCRIBE:", {
+                userId: req.user.id,
+                modifiedCount: result.modifiedCount
+            });
+
+            return res.status(200).json({
+                success: true,
+                removed: result.modifiedCount > 0
+            });
+
+        } catch (error) {
+            console.error(
+                "Push unsubscribe failed:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                message: "Failed to unsubscribe"
             });
         }
     }

@@ -36,8 +36,8 @@ const getProvByProvId = async (id) => {
     return result.data;
 }*/
 
-const getProvidersMatchingByProfession = async (profession) => {
-    const result = await axios.post(`${baseUrl}/profession`, profession);
+const getProvidersMatchingByProfession = async (professions) => {
+    const result = await axios.post(`${baseUrl}/profession`, professions);
     return result.data;
 }
 

@@ -14,11 +14,11 @@ export const useAdminStore = defineStore('admin', () => {
         //await all_providers();
     }
     
-    const all_providers = async () => {
+    /* const all_providers = async () => {
         const providerList = await providerService.getProviders();
         if (!providerList) return;
         _providers.value = providerList || [];
-    }
+    } */
 
 
     return {

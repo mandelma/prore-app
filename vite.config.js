@@ -136,6 +136,18 @@ export default defineConfig({
 
     //vueDevTools(),
   ],
+
+  test: {
+    include: [
+      "tests/**/*.test.js"
+    ],
+
+    exclude: [
+      "server/**",
+      "node_modules/**"
+    ]
+  },
+  
   server: {
     proxy: {
       '/api': {

@@ -17,9 +17,9 @@
     "build": "npm run build:ui",
     "seed:profession-categories": "node seeds/seedProfessionCategories.js",
     "seed:professions": "node seeds/seedProfessions.js",
-    "test": "node --test --watch",
-    "test:run": "node --test",
-    "test:coverage": "node --test --coverage"
+    "test": "cross-env NODE_ENV=test node --test --watch --test-concurrency=1 --test-reporter=spec",
+    "test:run": "cross-env NODE_ENV=test node --test --test-reporter=spec",
+    "test:coverage": "cross-env NODE_ENV=test node --test --coverage --test-concurrency=1"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.952.0",
@@ -41,6 +41,7 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "supertest": "^7.3.1"
   }
 }

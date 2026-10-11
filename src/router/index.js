@@ -7,28 +7,41 @@ const routes = [
     {
         path: "/",
         name: "Root",
-        beforeEnter: async (to, from, next) => {
+
+        beforeEnter: async () => {
+
             const proStore = useProStore();
 
-            const savedUser = localStorage.getItem("loggedAppUser") || sessionStorage.getItem("loggedAppUser");
+            const savedUser =
+                localStorage.getItem("loggedAppUser") ||
+                sessionStorage.getItem("loggedAppUser");
 
             if (!savedUser) {
-                return next({ name: "Home" });
+                return { name: "Home" };
             }
 
             const user = JSON.parse(savedUser);
 
+            // Admin
+            if (user.role === "admin") {
+                return { name: "admin" };
+            }
+
+            // Kontrollime pakkujakonto olemasolu
             try {
                 await proStore.getProState(user.id);
-            } catch (e) {
-                proStore.isUserPro = false;
+            } catch (error) {
+                console.error("Provider state error:", error);
+                return { name: "Home" };
             }
 
+            // Pakkuja
             if (proStore.isUserPro) {
-                return next({ name: "providerAdmin" });
+                return { name: "providerAdmin" };
             }
 
-            return next({ name: "Home" });
+            // Tavakasutaja
+            return { name: "Home" };
         }
     },
     {

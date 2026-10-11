@@ -85,30 +85,7 @@ const recipientSchema = new Schema({
         type: [bookingCustomFieldSchema],
         default: []
     },
-    onTime: [
-        {
-            year: {
-                type: Number,
-                required: true
-            },
-            month: {
-                type: Number,
-                required: true
-            },
-            day: {
-                type: Number,
-                required: true
-            },
-            hours: {
-                type: Number,
-                required: true
-            },
-            minutes: {
-                type: Number,
-                required: true
-            },
-        }
-    ],
+    
     started: {
         type: Date
     },
@@ -176,9 +153,7 @@ const recipientSchema = new Schema({
             ref: "offer"
         }
     ],
-    /* confirmedOffer: {
-        type: Object
-    }, */
+    
     confirmedOffer: {
         type: mongoose.Schema.Types.Mixed,
         default: null
