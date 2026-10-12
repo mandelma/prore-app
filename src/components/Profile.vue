@@ -6,7 +6,7 @@
       :icon-state="toastIcon"
       :text="toastContent"
     />
-    xxx
+    
     <MDBRow v-if="profile" class="g-4">
       <MDBCol lg="4">
         <div class="form-card avatar-card">

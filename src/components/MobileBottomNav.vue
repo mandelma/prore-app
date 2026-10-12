@@ -75,20 +75,20 @@
           @click="mobileBottomDropdown = !mobileBottomDropdown"
         >
           <i class="fas fa-bars"></i>
-          
-          <template >
-            
-          </template>
 
           <!-- <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge> -->
         </MDBDropdownToggle>
         <span>asiointti</span>
-        <MDBDropdownMenu>
+        <MDBDropdownMenu user-dropdown-menu>
 
-          <MDBDropdownItem 
-            class="dd-item"
-            @click="openProfile">
+          <MDBDropdownItem >
+            <RouterLink
+              to="/profile"
+              class="dropdown-item dd-item"
+              @click="mobileBottomDropdown = false"
+            >
               {{ t("app.profile") }}
+            </RouterLink>
           </MDBDropdownItem>
 
           <MDBDropdownItem v-if="!isProvider" >
