@@ -79,9 +79,9 @@
           <!-- <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge> -->
         </MDBDropdownToggle>
         <span>asiointti</span>
-        <MDBDropdownMenu user-dropdown-menu>
+        <MDBDropdownMenu >
 
-          <MDBDropdownItem >
+          <MDBDropdownItem>
             <RouterLink
               to="/profile"
               class="dropdown-item dd-item"
@@ -226,6 +226,7 @@ const handleOpenContact = () => {
   emit('open-contact');
   mobileBottomDropdown.value = false;
 }
+
 </script>
 
 <style scoped>
@@ -372,7 +373,11 @@ const handleOpenContact = () => {
   
 }
 
-.mobile-nav-item:active {
+/* .mobile-nav-item:active {
+  transform: scale(0.92);
+} */
+
+.mobile-nav-item:not(.dropdown):active {
   transform: scale(0.92);
 }
 

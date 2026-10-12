@@ -281,6 +281,16 @@ const router = createRouter({
 }) */
 
 router.beforeEach(async (to, from, next) => {
+
+    /* if (to.path === "/profile") {
+        console.log("PROFILE NAVIGATION START", {
+            from: from.fullPath,
+            to: to.fullPath
+        });
+    } */
+
+
+
     const savedUser =
         localStorage.getItem("loggedAppUser") ||
         sessionStorage.getItem("loggedAppUser");
@@ -319,5 +329,17 @@ router.beforeEach(async (to, from, next) => {
 
     next();
 });
+
+
+
+
+/* router.afterEach((to, from, failure) => {
+    if (to.path === "/profile" || from.path === "/profile") {
+        console.log("PROFILE NAVIGATION END", {
+            to: to.fullPath,
+            failure
+        });
+    }
+}); */
 
 export default router;

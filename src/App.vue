@@ -393,7 +393,7 @@
           v-model:isUpdating = isUpdating
         />
       </div>
-
+      
       <MobileBottomNav 
         v-if="login.isAuthenticated && showPwaTopBottomNav" 
         :is-provider="isUserPro ?? null"
