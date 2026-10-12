@@ -1,5 +1,10 @@
 /// <reference lib="webworker" />
 
+/** @type {ServiceWorkerGlobalScope} */
+const sw = /** @type {ServiceWorkerGlobalScope} */ (
+    /** @type {unknown} */ (self)
+);
+
 import {
     cleanupOutdatedCaches,
     createHandlerBoundToURL,
@@ -25,14 +30,18 @@ self.addEventListener("message", event => {
     }
 });
 
-self.addEventListener("activate", event => {
+/* self.addEventListener("activate", event => {
     event.waitUntil(
         self.clients.claim()
     );
-});
+}); */
 
-self.addEventListener("activate", event => {
+/* self.addEventListener("activate", event => {
     event.waitUntil(self.clients.claim());
+}); */
+
+sw.addEventListener("activate", event => {
+    event.waitUntil(sw.clients.claim());
 });
 
 /* self.addEventListener(

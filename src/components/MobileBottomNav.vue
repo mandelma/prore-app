@@ -85,14 +85,10 @@
         <span>asiointti</span>
         <MDBDropdownMenu>
 
-          <MDBDropdownItem >
-            <RouterLink
-              to="/profile"
-              class="dropdown-item dd-item"
-              @click="mobileBottomDropdown = false"
-            >
+          <MDBDropdownItem 
+            class="dd-item"
+            @click="openProfile">
               {{ t("app.profile") }}
-            </RouterLink>
           </MDBDropdownItem>
 
           <MDBDropdownItem v-if="!isProvider" >
