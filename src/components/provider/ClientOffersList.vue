@@ -132,7 +132,7 @@
               <!-- v-if="!parentOpen" -->
               <span class="text-muted">
                 <MDBBadge 
-                  class="translate-middle p-1 booking-status-seen"  
+                  class=" booking-status-seen"  
                   :class="
                     booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId
 
@@ -141,7 +141,7 @@
                       : 'booking-status-seen'
 
                   "
-                  pill notification
+                  pill 
                   >
                   {{ 
                     booking.offers.some(offer => offer.bookingID === booking.id && offer.provider.id === providerId)

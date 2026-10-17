@@ -66,7 +66,7 @@ const editDescription = async (id, description) => {
 } */
 
 const addProviderData = async (id, proData) => {
-    const result = await authApi.post(`${baseUrl}/${id}/add-ordered`, proData);
+    const result = await authApi.post(`recipients/${id}/add-ordered`, proData);
     return result.data;
 }
 

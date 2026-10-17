@@ -531,6 +531,7 @@ import MobileNavbar from './components/navbar/MobileNavbar.vue';
 
 import { isProviderMatchingBooking } from './utils/providerMatching.js';
 import { distributeBooking } from './utils/bookingDistribution.js';
+import { notifyBookingProviders } from './utils/bookingSocket.js';
 
 import { useI18n } from 'vue-i18n';
 //import { loadGoogleMap } from "@/components/controllers/loadGoogleMap.js"
@@ -2625,50 +2626,12 @@ const handleCreateBookingMultiple = async booking => {
   console.log("ORIGIN ", origin)
 
   try {
-    client.createBooking(booking);
+    await client.createBooking(booking);
 
     const providersForBooking =
       await providerService.getProvidersMatchingByProfession({
         result: booking.professional
       });
-
-
-    /* for (const providerItem of providersForBooking) {
-      const providerUserId = providerItem.user?.id;
-
-      // Ära saada kasutaja enda teenusepakkujale.
-      if (providerUserId === userID.value) {
-        continue;
-      }
-
-    
-      const matching = await isProviderMatchingBooking(
-          providerItem,
-          booking,
-          onMap.findDistance
-      );
-
-      if (!matching) {
-          console.log(
-              `Provider ${providerUserId} does not match distance requirements`
-          );
-          continue;
-      }
-
-
-      
-      proIdArr.push(providerUserId);
-
-      await recipientService.addProviderData(
-        booking.id,
-        {
-          providerId: providerItem.id
-    
-        }
-        
-      );
-
-    } */
 
 
     const proIdArr = await distributeBooking({
@@ -2684,15 +2647,15 @@ const handleCreateBookingMultiple = async booking => {
       proIdArr.length
     );
 
-    if (proIdArr.length > 0) {
-      socket.emit(
-        "create-booking-multiple",
-        proIdArr,
-        booking.id
-      );
+    if (notifyBookingProviders({
+      socket,
+      providerUserIds: proIdArr,
+      bookingId: booking.id
+    })) {
+      await router.push("/client-panel");
     }
 
-    await router.push("/client-panel");
+    //await router.push("/client-panel");
   } catch (err) {
     console.log("Error to load booking - ", err.message);
   } finally {

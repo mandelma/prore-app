@@ -266,10 +266,13 @@ module.exports = (io) => {
                     //receiver
                 } = req.body;
 
+                
+
                 const recipientId =
                     req.params.recipientId;
 
                 
+                console.log("RECIPIENT ID " + recipientId)
 
                 const recipient =
                     await Recipient.findById(
@@ -300,6 +303,8 @@ module.exports = (io) => {
                 }
 
                 const receiver = String(provider.personId);
+
+                console.log("RECEIVER - " + receiver)
 
                 const pushReceiver =
                     await User.findById(receiver);

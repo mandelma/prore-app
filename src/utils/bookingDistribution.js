@@ -23,21 +23,29 @@ export const distributeBooking = async ({
             continue;
         }
 
-        const matching = await isProviderMatchingBooking(
-            provider,
-            booking,
-            findDistance
-        );
+        try {
+            const matching = await isProviderMatchingBooking(
+                provider,
+                booking,
+                findDistance
+            );
 
-        if (!matching) {
-            continue;
+            if (!matching) {
+                continue;
+            }
+
+            await addProviderData(booking.id, {
+                providerId: provider.id
+            });
+
+            providerUserIds.push(providerUserId);
+        } catch (error) {
+            console.error(
+                `Booking distribution failed for provider ${provider.id}:`,
+                error
+            );
         }
-
-        await addProviderData(booking.id, {
-            providerId: provider.id
-        });
-
-        providerUserIds.push(providerUserId);
+        
     }
 
     return providerUserIds;

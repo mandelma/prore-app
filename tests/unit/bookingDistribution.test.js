@@ -83,4 +83,63 @@ describe("Booking distribution", () => {
         );
     });
 
+    it("jätkab järgmise pakkujaga, kui ühe pakkuja API päring ebaõnnestub", async () => {
+
+        const booking = {
+            id: "booking123",
+            latitude: 60.3,
+            longitude: 24.8,
+            zone: 100
+        };
+
+        const providers = [
+            {
+                id: "providerA",
+                user: { id: "userA" },
+                latitude: 60.4,
+                longitude: 24.9,
+                range: 80
+            },
+            {
+                id: "providerB",
+                user: { id: "userB" },
+                latitude: 60.5,
+                longitude: 25.0,
+                range: 80
+            }
+        ];
+
+        const findDistance = vi.fn()
+            .mockResolvedValueOnce({ distance: "30.0" })
+            .mockResolvedValueOnce({ distance: "40.0" });
+
+        const addProviderData = vi.fn()
+            .mockRejectedValueOnce(new Error("Server error"))
+            .mockResolvedValueOnce({ success: true });
+
+        const result = await distributeBooking({
+            booking,
+            providers,
+            currentUserId: "currentUser",
+            findDistance,
+            addProviderData
+        });
+
+        expect(result).toEqual(["userB"]);
+
+        expect(addProviderData).toHaveBeenNthCalledWith(
+            1,
+            "booking123",
+            { providerId: "providerA" }
+        );
+
+        expect(addProviderData).toHaveBeenNthCalledWith(
+            2,
+            "booking123",
+            { providerId: "providerB" }
+        );
+
+        expect(addProviderData).toHaveBeenCalledTimes(2);
+    });
+
 });

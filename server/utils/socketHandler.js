@@ -1,5 +1,9 @@
 
 const Dialog = require('../models/messages');
+const Provider = require('../models/providers');
+const Recipient = require('../models/recipients');
+
+const mongoose = require('mongoose');
 
 const hs = (io, socket) => {
     socket.on("join-user-room", (userId) => {
@@ -24,37 +28,53 @@ const hs = (io, socket) => {
         })
     }) */
 
-    socket.on(
-        "create-booking-multiple",
-        async (proIdArr, bookingId) => {
+    socket.on("create-booking-multiple", async (proIdArr, bookingId) => {
+        try {
+            // 1. Kontrollime tellimuse ID vormingut
+            if (!mongoose.isValidObjectId(bookingId)) {
+                return;
+            }
 
-            for (const id of proIdArr) {
-                const room = `user:${id}`;
+            // 2. Otsime tellimuse
+            const booking = await Recipient.findById(bookingId);
 
-                const sockets =
-                    await io.in(room).fetchSockets();
+            if (!booking) {
+                return;
+            }
 
-                console.log(
-                    "🔥 BOOKING DELIVERY",
-                    {
-                        bookingId,
-                        providerUserId: id,
-                        room,
-                        socketsInRoom: sockets.length,
-                        socketIds:
-                            sockets.map(s => s.id)
-                    }
-                );
+            // 3. Kontrollime tellimuse omanikku
+            if (String(booking.author_id) !== String(socket.userId)) {
+                return;
+            }
 
-                io.to(room).emit(
+            // 4. Leiame tellimusega seotud pakkujad
+            const providers = await Provider.find({
+                _id: { $in: booking.ordered }
+            });
+
+            // 5. Leiame pakkujate kasutaja ID-d
+            const providerUserIds = [
+                ...new Set(
+                    providers
+                        .map(provider => String(provider.personId || ""))
+                        .filter(Boolean)
+                )
+            ];
+
+            // 6. Saadame teavitused
+            for (const id of providerUserIds) {
+                io.to(`user:${id}`).emit(
                     "handle-create-booking-multiple",
                     id,
-                    bookingId,
-                    proIdArr
+                    String(booking._id),
+                    providerUserIds
                 );
             }
+
+        } catch (error) {
+            console.error("Socket booking notification error:", error);
         }
-    );
+    });
 
     socket.on('on-pro-remove-public-offer', (bookingId, receiver) => {
         const room = `user:${receiver}`
