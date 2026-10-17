@@ -1,0 +1,448 @@
+{
+  "code": "construction_cleaning",
+  "customFields": [
+    {
+      "key": "cleaningStage",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Siivouksen vaihe",
+        "en": "Cleaning stage",
+        "sv": "Städningsskede",
+        "et": "Koristuse etapp",
+        "ru": "Этап уборки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "during",
+          "label": {
+            "fi": "Rakennusaikainen siivous",
+            "en": "Cleaning during construction",
+            "sv": "Städning under byggtiden",
+            "et": "Ehitusjärgne vahekoristus",
+            "ru": "Уборка во время строительства"
+          }
+        },
+        {
+          "value": "final",
+          "label": {
+            "fi": "Loppusiivous",
+            "en": "Final cleaning",
+            "sv": "Slutstädning",
+            "et": "Lõppkoristus",
+            "ru": "Финальная уборка"
+          }
+        },
+        {
+          "value": "both",
+          "label": {
+            "fi": "Molemmat",
+            "en": "Both",
+            "sv": "Båda",
+            "et": "Mõlemad",
+            "ru": "Оба этапа"
+          }
+        }
+      ]
+    },
+    {
+      "key": "siteType",
+      "type": "select",
+      "required": true,
+      "order": 210,
+      "label": {
+        "fi": "Kohteen tyyppi",
+        "en": "Property type",
+        "sv": "Typ av objekt",
+        "et": "Objekti tüüp",
+        "ru": "Тип объекта"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "apartment",
+          "label": {
+            "fi": "Asunto",
+            "en": "Apartment",
+            "sv": "Lägenhet",
+            "et": "Korter",
+            "ru": "Квартира"
+          }
+        },
+        {
+          "value": "house",
+          "label": {
+            "fi": "Omakotitalo",
+            "en": "House",
+            "sv": "Hus",
+            "et": "Eramu",
+            "ru": "Частный дом"
+          }
+        },
+        {
+          "value": "commercial",
+          "label": {
+            "fi": "Liiketila tai toimisto",
+            "en": "Commercial or office space",
+            "sv": "Affärslokal eller kontor",
+            "et": "Äri- või büroopind",
+            "ru": "Коммерческое или офисное помещение"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu",
+            "en": "Other",
+            "sv": "Annat",
+            "et": "Muu",
+            "ru": "Другое"
+          }
+        }
+      ]
+    },
+    {
+      "key": "areaSqm",
+      "type": "number",
+      "required": true,
+      "order": 220,
+      "label": {
+        "fi": "Siivottava pinta-alan arvio (m²)",
+        "en": "Approximate area to clean (m²)",
+        "sv": "Ungefärlig städyta (m²)",
+        "et": "Koristatav pindala (m²)",
+        "ru": "Примерная площадь уборки (м²)"
+      },
+      "min": 1,
+      "max": 100000
+    },
+    {
+      "key": "workScope",
+      "type": "multiselect",
+      "required": true,
+      "order": 230,
+      "label": {
+        "fi": "Tarvittavat siivoustyöt",
+        "en": "Required cleaning tasks",
+        "sv": "Önskade städarbeten",
+        "et": "Vajalikud koristustööd",
+        "ru": "Необходимые уборочные работы"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "dust",
+          "label": {
+            "fi": "Rakennuspölyn poisto",
+            "en": "Construction dust removal",
+            "sv": "Borttagning av byggdamm",
+            "et": "Ehitustolmu eemaldamine",
+            "ru": "Удаление строительной пыли"
+          }
+        },
+        {
+          "value": "floors",
+          "label": {
+            "fi": "Lattioiden puhdistus",
+            "en": "Floor cleaning",
+            "sv": "Golvrengöring",
+            "et": "Põrandate puhastus",
+            "ru": "Мытьё полов"
+          }
+        },
+        {
+          "value": "surfaces",
+          "label": {
+            "fi": "Pintojen pyyhintä",
+            "en": "Surface wiping",
+            "sv": "Avtorkning av ytor",
+            "et": "Pindade puhastamine",
+            "ru": "Протирка поверхностей"
+          }
+        },
+        {
+          "value": "windows",
+          "label": {
+            "fi": "Ikkunoiden puhdistus",
+            "en": "Window cleaning",
+            "sv": "Fönsterputsning",
+            "et": "Akende puhastamine",
+            "ru": "Мойка окон"
+          }
+        },
+        {
+          "value": "sanitary",
+          "label": {
+            "fi": "Saniteettitilojen puhdistus",
+            "en": "Bathroom and sanitary cleaning",
+            "sv": "Rengöring av sanitetsutrymmen",
+            "et": "Sanitaarruumide puhastus",
+            "ru": "Уборка санитарных помещений"
+          }
+        },
+        {
+          "value": "debris",
+          "label": {
+            "fi": "Pienten rakennusjätteiden keräys",
+            "en": "Collecting small construction debris",
+            "sv": "Insamling av mindre byggavfall",
+            "et": "Väikese ehitusprahi kogumine",
+            "ru": "Сбор мелкого строительного мусора"
+          }
+        }
+      ]
+    },
+    {
+      "key": "wasteRemoval",
+      "type": "select",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Rakennusjätteen poiskuljetus",
+        "en": "Construction waste removal",
+        "sv": "Bortforsling av byggavfall",
+        "et": "Ehitusjäätmete äravedu",
+        "ru": "Вывоз строительного мусора"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "not_needed",
+          "label": {
+            "fi": "Ei tarvita",
+            "en": "Not needed",
+            "sv": "Behövs inte",
+            "et": "Ei ole vaja",
+            "ru": "Не требуется"
+          }
+        },
+        {
+          "value": "small",
+          "label": {
+            "fi": "Pieni määrä",
+            "en": "Small amount",
+            "sv": "Liten mängd",
+            "et": "Väike kogus",
+            "ru": "Небольшое количество"
+          }
+        },
+        {
+          "value": "large",
+          "label": {
+            "fi": "Suurempi määrä, sovittava erikseen",
+            "en": "Larger amount, agree separately",
+            "sv": "Större mängd, avtalas separat",
+            "et": "Suurem kogus, eraldi kokkuleppel",
+            "ru": "Большой объём, по договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "utilitiesAvailable",
+      "type": "select",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Vesi ja sähkö käytettävissä",
+        "en": "Water and electricity available",
+        "sv": "Vatten och el tillgängliga",
+        "et": "Vee ja elektri olemasolu",
+        "ru": "Наличие воды и электричества"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "both",
+          "label": {
+            "fi": "Molemmat",
+            "en": "Both",
+            "sv": "Båda",
+            "et": "Mõlemad",
+            "ru": "Оба доступны"
+          }
+        },
+        {
+          "value": "water",
+          "label": {
+            "fi": "Vain vesi",
+            "en": "Water only",
+            "sv": "Endast vatten",
+            "et": "Ainult vesi",
+            "ru": "Только вода"
+          }
+        },
+        {
+          "value": "electricity",
+          "label": {
+            "fi": "Vain sähkö",
+            "en": "Electricity only",
+            "sv": "Endast el",
+            "et": "Ainult elekter",
+            "ru": "Только электричество"
+          }
+        },
+        {
+          "value": "neither",
+          "label": {
+            "fi": "Ei kumpaakaan",
+            "en": "Neither",
+            "sv": "Ingetdera",
+            "et": "Kumbagi pole",
+            "ru": "Ничего нет"
+          }
+        }
+      ]
+    },
+    {
+      "key": "cleaningSupplies",
+      "type": "select",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Siivousvälineiden ja -aineiden hankinta",
+        "en": "Cleaning equipment and supplies",
+        "sv": "Städutrustning och rengöringsmedel",
+        "et": "Koristusvahendite ja -tarvikute olemasolu",
+        "ru": "Кто предоставляет средства для уборки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "provider",
+          "label": {
+            "fi": "Palveluntarjoaja tuo",
+            "en": "Provider brings supplies",
+            "sv": "Utföraren tar med",
+            "et": "Teenusepakkuja toob",
+            "ru": "Привозит исполнитель"
+          }
+        },
+        {
+          "value": "customer",
+          "label": {
+            "fi": "Tilaaja järjestää",
+            "en": "Customer provides supplies",
+            "sv": "Beställaren tillhandahåller",
+            "et": "Tellija tagab",
+            "ru": "Предоставляет заказчик"
+          }
+        },
+        {
+          "value": "agree",
+          "label": {
+            "fi": "Sovitaan erikseen",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "siteAccess",
+      "type": "select",
+      "required": false,
+      "order": 270,
+      "label": {
+        "fi": "Kohteen kulkuyhteydet",
+        "en": "Site access",
+        "sv": "Tillträde till objektet",
+        "et": "Objektile ligipääs",
+        "ru": "Доступ к объекту"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "easy",
+          "label": {
+            "fi": "Esteetön tai helppo pääsy",
+            "en": "Easy access",
+            "sv": "Enkel åtkomst",
+            "et": "Lihtne ligipääs",
+            "ru": "Удобный доступ"
+          }
+        },
+        {
+          "value": "stairs",
+          "label": {
+            "fi": "Portaita, ei hissiä",
+            "en": "Stairs, no lift",
+            "sv": "Trappor, ingen hiss",
+            "et": "Trepid, lifti pole",
+            "ru": "Лестница без лифта"
+          }
+        },
+        {
+          "value": "restricted",
+          "label": {
+            "fi": "Rajoitettu pääsy",
+            "en": "Restricted access",
+            "sv": "Begränsad åtkomst",
+            "et": "Piiratud ligipääs",
+            "ru": "Ограниченный доступ"
+          }
+        }
+      ]
+    },
+    {
+      "key": "specialCleaningNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 280,
+      "label": {
+        "fi": "Lisätiedot ja erityisohjeet",
+        "en": "Additional details and special instructions",
+        "sv": "Övriga uppgifter och särskilda instruktioner",
+        "et": "Lisainfo ja erijuhised",
+        "ru": "Дополнительная информация и особые указания"
+      },
+      "maxLength": 1000
+    }
+  ]
+}

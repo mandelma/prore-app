@@ -1,0 +1,31 @@
+{
+  "code": "food_courier",
+  "categoryCode": "courier",
+  "name": {
+    "fi": "Ruokalähetti",
+    "en": "Food courier",
+    "sv": "Matbud",
+    "et": "Toidukuller",
+    "ru": "Курьер по доставке еды"
+  },
+  "description": {
+    "fi": "Valmiiden ruoka-annosten ja ruokaostosten nouto sekä toimitus asiakkaalle.",
+    "en": "Pickup and delivery of prepared meals and groceries.",
+    "sv": "Upphämtning och leverans av färdig mat och matvaror.",
+    "et": "Valmistoidu ja toidukaupade pealevõtmine ning kohaletoimetamine.",
+    "ru": "Получение и доставка готовой еды и продуктов."
+  },
+  "icon": "fa-solid fa-motorcycle",
+  "enabled": true,
+  "sortOrder": 10,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "delivery",
+    "food_delivery"
+  ],
+  "customFields": []
+}

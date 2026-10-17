@@ -1,0 +1,31 @@
+{
+  "code": "private_driver",
+  "categoryCode": "passenger_transport",
+  "name": {
+    "fi": "Henkilöauton kuljettaja",
+    "en": "Private car driver",
+    "sv": "Personbilsförare",
+    "et": "Sõiduautojuht",
+    "ru": "Водитель легкового автомобиля"
+  },
+  "description": {
+    "fi": "Henkilöauton kuljettajapalvelut yksityisille ja yrityksille, asiakkaan tai kuljettajan autolla.",
+    "en": "Passenger car driver services for individuals and businesses, using the client’s or driver’s car.",
+    "sv": "Förartjänster med personbil för privatpersoner och företag, med kundens eller förarens bil.",
+    "et": "Sõiduauto juhiteenus eraisikutele ja ettevõtetele tellija või juhi autoga.",
+    "ru": "Услуги водителя легкового автомобиля для частных лиц и компаний на автомобиле заказчика или водителя."
+  },
+  "icon": "fa-solid fa-car",
+  "enabled": true,
+  "sortOrder": 10,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "passenger_transport",
+    "private_driver"
+  ],
+  "customFields": []
+}

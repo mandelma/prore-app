@@ -1,0 +1,342 @@
+{
+  "code": "private_driver",
+  "customFields": [
+    {
+      "key": "serviceType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Kuljettajapalvelun tyyppi",
+        "en": "Type of driver service",
+        "sv": "Typ av chaufförstjänst",
+        "et": "Juhiteenuse tüüp",
+        "ru": "Тип услуги водителя"
+      },
+      "placeholder": {
+        "fi": "Valitse palvelu",
+        "en": "Select service",
+        "sv": "Välj tjänst",
+        "et": "Vali teenus",
+        "ru": "Выберите услугу"
+      },
+      "options": [
+        {
+          "value": "private_trip",
+          "label": {
+            "fi": "Yksityiskuljetus",
+            "en": "Private trip",
+            "sv": "Privat resa",
+            "et": "Erasõit",
+            "ru": "Частная поездка"
+          }
+        },
+        {
+          "value": "business_trip",
+          "label": {
+            "fi": "Työmatka tai yrityskuljetus",
+            "en": "Business trip",
+            "sv": "Affärsresa",
+            "et": "Töö- või ärisõit",
+            "ru": "Деловая поездка"
+          }
+        },
+        {
+          "value": "event",
+          "label": {
+            "fi": "Tapahtumakuljetus",
+            "en": "Event transport",
+            "sv": "Evenemangstransport",
+            "et": "Ürituse transport",
+            "ru": "Поездка на мероприятие"
+          }
+        },
+        {
+          "value": "hourly_driver",
+          "label": {
+            "fi": "Kuljettaja tuntiveloituksella",
+            "en": "Hourly driver",
+            "sv": "Chaufför per timme",
+            "et": "Juht tunnitasu alusel",
+            "ru": "Водитель с почасовой оплатой"
+          }
+        },
+        {
+          "value": "long_distance",
+          "label": {
+            "fi": "Pitkän matkan kuljetus",
+            "en": "Long-distance trip",
+            "sv": "Långdistansresa",
+            "et": "Pikamaasõit",
+            "ru": "Междугородняя поездка"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu",
+            "en": "Other",
+            "sv": "Annat",
+            "et": "Muu",
+            "ru": "Другое"
+          }
+        }
+      ]
+    },
+    {
+      "key": "vehicleProvidedBy",
+      "type": "select",
+      "required": true,
+      "order": 210,
+      "label": {
+        "fi": "Kenen autoa käytetään?",
+        "en": "Whose vehicle will be used?",
+        "sv": "Vems bil används?",
+        "et": "Kelle autot kasutatakse?",
+        "ru": "Чей автомобиль будет использоваться?"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj alternativ",
+        "et": "Vali variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "driver",
+          "label": {
+            "fi": "Kuljettajan auto",
+            "en": "Driver’s vehicle",
+            "sv": "Förarens bil",
+            "et": "Juhi auto",
+            "ru": "Автомобиль водителя"
+          }
+        },
+        {
+          "value": "client",
+          "label": {
+            "fi": "Tilaajan auto",
+            "en": "Client’s vehicle",
+            "sv": "Kundens bil",
+            "et": "Tellija auto",
+            "ru": "Автомобиль заказчика"
+          }
+        },
+        {
+          "value": "to_agree",
+          "label": {
+            "fi": "Sovitaan erikseen",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "vehiclePreference",
+      "type": "select",
+      "required": false,
+      "order": 220,
+      "label": {
+        "fi": "Auton toivottu tyyppi",
+        "en": "Preferred vehicle type",
+        "sv": "Önskad biltyp",
+        "et": "Soovitud autotüüp",
+        "ru": "Предпочтительный тип автомобиля"
+      },
+      "placeholder": {
+        "fi": "Valitse autotyyppi",
+        "en": "Select vehicle type",
+        "sv": "Välj biltyp",
+        "et": "Vali autotüüp",
+        "ru": "Выберите тип автомобиля"
+      },
+      "options": [
+        {
+          "value": "standard",
+          "label": {
+            "fi": "Henkilöauto",
+            "en": "Standard car",
+            "sv": "Personbil",
+            "et": "Sõiduauto",
+            "ru": "Легковой автомобиль"
+          }
+        },
+        {
+          "value": "premium",
+          "label": {
+            "fi": "Premium-auto",
+            "en": "Premium car",
+            "sv": "Premiumbil",
+            "et": "Premium-auto",
+            "ru": "Автомобиль премиум-класса"
+          }
+        },
+        {
+          "value": "estate",
+          "label": {
+            "fi": "Farmariauto",
+            "en": "Estate car",
+            "sv": "Kombi",
+            "et": "Universaal",
+            "ru": "Универсал"
+          }
+        },
+        {
+          "value": "van",
+          "label": {
+            "fi": "Tila-auto",
+            "en": "People carrier",
+            "sv": "Minibuss",
+            "et": "Mahtuniversaal",
+            "ru": "Минивэн"
+          }
+        },
+        {
+          "value": "no_preference",
+          "label": {
+            "fi": "Ei erityistoivetta",
+            "en": "No preference",
+            "sv": "Inga särskilda önskemål",
+            "et": "Eelistus puudub",
+            "ru": "Без предпочтений"
+          }
+        }
+      ]
+    },
+    {
+      "key": "estimatedDuration",
+      "type": "select",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Arvioitu palvelun kesto",
+        "en": "Estimated service duration",
+        "sv": "Beräknad tjänstetid",
+        "et": "Teenuse hinnanguline kestus",
+        "ru": "Примерная продолжительность услуги"
+      },
+      "placeholder": {
+        "fi": "Valitse arvio",
+        "en": "Select estimate",
+        "sv": "Välj uppskattning",
+        "et": "Vali hinnang",
+        "ru": "Выберите оценку"
+      },
+      "options": [
+        {
+          "value": "under_1h",
+          "label": {
+            "fi": "Alle tunti",
+            "en": "Under 1 hour",
+            "sv": "Under 1 timme",
+            "et": "Alla 1 tunni",
+            "ru": "Менее 1 часа"
+          }
+        },
+        {
+          "value": "1_3h",
+          "label": {
+            "fi": "1–3 tuntia",
+            "en": "1–3 hours",
+            "sv": "1–3 timmar",
+            "et": "1–3 tundi",
+            "ru": "1–3 часа"
+          }
+        },
+        {
+          "value": "half_day",
+          "label": {
+            "fi": "Puoli päivää",
+            "en": "Half day",
+            "sv": "Halv dag",
+            "et": "Pool päeva",
+            "ru": "Полдня"
+          }
+        },
+        {
+          "value": "full_day",
+          "label": {
+            "fi": "Koko päivä",
+            "en": "Full day",
+            "sv": "Hel dag",
+            "et": "Terve päev",
+            "ru": "Весь день"
+          }
+        },
+        {
+          "value": "multiple_days",
+          "label": {
+            "fi": "Useita päiviä",
+            "en": "Several days",
+            "sv": "Flera dagar",
+            "et": "Mitu päeva",
+            "ru": "Несколько дней"
+          }
+        },
+        {
+          "value": "unknown",
+          "label": {
+            "fi": "En tiedä",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei tea",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "multipleStops",
+      "type": "boolean",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Tarvitaanko välipysähdyksiä?",
+        "en": "Are intermediate stops needed?",
+        "sv": "Behövs mellanstopp?",
+        "et": "Kas on vaja vahepeatusi?",
+        "ru": "Нужны ли промежуточные остановки?"
+      }
+    },
+    {
+      "key": "driverWaits",
+      "type": "boolean",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Pitääkö kuljettajan odottaa kohteessa?",
+        "en": "Does the driver need to wait at the destination?",
+        "sv": "Behöver föraren vänta på plats?",
+        "et": "Kas juht peab sihtkohas ootama?",
+        "ru": "Нужно ли водителю ждать в пункте назначения?"
+      }
+    },
+    {
+      "key": "specialRequests",
+      "type": "textarea",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Kuljettajapalvelun erityistoiveet",
+        "en": "Special requests for the driver",
+        "sv": "Särskilda önskemål till föraren",
+        "et": "Erisoovid juhile",
+        "ru": "Особые пожелания водителю"
+      },
+      "placeholder": {
+        "fi": "Kerro mahdollisista lisätoiveista",
+        "en": "Describe any additional requests",
+        "sv": "Beskriv eventuella önskemål",
+        "et": "Kirjelda täiendavaid soove",
+        "ru": "Опишите дополнительные пожелания"
+      },
+      "validation": {
+        "maxLength": 2000
+      }
+    }
+  ]
+}

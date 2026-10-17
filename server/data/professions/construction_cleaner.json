@@ -1,0 +1,31 @@
+{
+  "code": "construction_cleaner",
+  "categoryCode": "cleaning",
+  "name": {
+    "fi": "Rakennussiivooja",
+    "en": "Construction cleaner",
+    "sv": "Byggstädare",
+    "et": "Ehituskoristaja",
+    "ru": "Уборщик после строительства"
+  },
+  "description": {
+    "fi": "Rakennus- ja remonttikohteiden välisiivous, loppusiivous sekä rakennuspölyn ja pienten roskien poisto.",
+    "en": "Cleaning during and after construction or renovation, including dust removal, final cleaning and collection of small debris.",
+    "sv": "Städning under och efter bygg- eller renoveringsarbeten, inklusive dammborttagning, slutstädning och insamling av mindre skräp.",
+    "et": "Ehitus- ja remondiobjektide vahe- ning lõppkoristus, ehitustolmu eemaldamine ja väikese prahi kogumine.",
+    "ru": "Промежуточная и финальная уборка после строительства и ремонта, удаление строительной пыли и мелкого мусора."
+  },
+  "icon": "fa-solid fa-broom",
+  "enabled": true,
+  "sortOrder": 50,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "cleaning",
+    "construction_cleaning"
+  ],
+  "customFields": []
+}

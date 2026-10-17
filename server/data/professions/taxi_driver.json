@@ -1,0 +1,31 @@
+{
+  "code": "taxi_driver",
+  "categoryCode": "passenger_transport",
+  "name": {
+    "fi": "Taksinkuljettaja",
+    "en": "Taxi driver",
+    "sv": "Taxiförare",
+    "et": "Taksojuht",
+    "ru": "Водитель такси"
+  },
+  "description": {
+    "fi": "Taksikuljetukset kaupungeissa ja niiden välillä sekä ennakkoon tilatut matkat ja lentokenttäkuljetukset.",
+    "en": "Taxi rides within and between cities, pre-booked journeys and airport transfers.",
+    "sv": "Taxiresor inom och mellan städer, förbokade resor och flygplatstransfer.",
+    "et": "Taksosõidud linnas ja linnade vahel, ettetellitud sõidud ning lennujaamatransfeerid.",
+    "ru": "Поездки на такси по городу и между городами, предварительные заказы и трансферы в аэропорт."
+  },
+  "icon": "fa-solid fa-taxi",
+  "enabled": true,
+  "sortOrder": 20,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "passenger_transport",
+    "taxi_service"
+  ],
+  "customFields": []
+}

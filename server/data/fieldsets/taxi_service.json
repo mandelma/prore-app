@@ -1,0 +1,236 @@
+{
+  "code": "taxi_service",
+  "customFields": [
+    {
+      "key": "rideType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Matkan tyyppi",
+        "en": "Ride type",
+        "sv": "Typ av resa",
+        "et": "Sõidu liik",
+        "ru": "Тип поездки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "city",
+          "label": {
+            "fi": "Kaupunkimatka",
+            "en": "City ride",
+            "sv": "Stadsresa",
+            "et": "Linnasisene sõit",
+            "ru": "Поездка по городу"
+          }
+        },
+        {
+          "value": "intercity",
+          "label": {
+            "fi": "Kaupunkien välinen matka",
+            "en": "Intercity ride",
+            "sv": "Resa mellan städer",
+            "et": "Linnadevaheline sõit",
+            "ru": "Междугородняя поездка"
+          }
+        },
+        {
+          "value": "airport",
+          "label": {
+            "fi": "Lentokenttäkuljetus",
+            "en": "Airport transfer",
+            "sv": "Flygplatstransfer",
+            "et": "Lennujaamatransfeer",
+            "ru": "Трансфер из/в аэропорт"
+          }
+        },
+        {
+          "value": "hourly",
+          "label": {
+            "fi": "Tuntivaraus",
+            "en": "Hourly booking",
+            "sv": "Timuthyrning",
+            "et": "Tunnipõhine tellimus",
+            "ru": "Почасовой заказ"
+          }
+        }
+      ]
+    },
+    {
+      "key": "vehiclePreference",
+      "type": "select",
+      "required": false,
+      "order": 210,
+      "label": {
+        "fi": "Auton toivottu tyyppi",
+        "en": "Preferred vehicle",
+        "sv": "Önskad biltyp",
+        "et": "Soovitud autotüüp",
+        "ru": "Предпочтительный тип автомобиля"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "standard",
+          "label": {
+            "fi": "Tavallinen henkilöauto",
+            "en": "Standard car",
+            "sv": "Standardbil",
+            "et": "Tavaline sõiduauto",
+            "ru": "Обычный автомобиль"
+          }
+        },
+        {
+          "value": "premium",
+          "label": {
+            "fi": "Premium-auto",
+            "en": "Premium car",
+            "sv": "Premiumbil",
+            "et": "Premium-auto",
+            "ru": "Автомобиль премиум-класса"
+          }
+        },
+        {
+          "value": "large",
+          "label": {
+            "fi": "Tilava auto",
+            "en": "Spacious car",
+            "sv": "Rymlig bil",
+            "et": "Mahukam sõiduauto",
+            "ru": "Просторный автомобиль"
+          }
+        },
+        {
+          "value": "no_preference",
+          "label": {
+            "fi": "Ei toivetta",
+            "en": "No preference",
+            "sv": "Inga önskemål",
+            "et": "Eelistus puudub",
+            "ru": "Без предпочтений"
+          }
+        }
+      ]
+    },
+    {
+      "key": "multipleStops",
+      "type": "boolean",
+      "required": false,
+      "order": 220,
+      "label": {
+        "fi": "Välipysähdyksiä tarvitaan",
+        "en": "Multiple stops needed",
+        "sv": "Flera stopp behövs",
+        "et": "Vaja on vahepeatusi",
+        "ru": "Нужны промежуточные остановки"
+      }
+    },
+    {
+      "key": "petTransport",
+      "type": "boolean",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Lemmikki mukana",
+        "en": "Travelling with a pet",
+        "sv": "Resa med husdjur",
+        "et": "Kaasas on lemmikloom",
+        "ru": "Поездка с питомцем"
+      }
+    },
+    {
+      "key": "meetAndGreet",
+      "type": "boolean",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Kuljettaja vastaan saapumispaikalla",
+        "en": "Driver meets passenger on arrival",
+        "sv": "Föraren möter passageraren vid ankomst",
+        "et": "Juht tuleb saabumisel vastu",
+        "ru": "Водитель встречает пассажира по прибытии"
+      }
+    },
+    {
+      "key": "paymentMethod",
+      "type": "select",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Toivottu maksutapa",
+        "en": "Preferred payment method",
+        "sv": "Önskat betalsätt",
+        "et": "Eelistatud makseviis",
+        "ru": "Предпочтительный способ оплаты"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "card",
+          "label": {
+            "fi": "Kortti",
+            "en": "Card",
+            "sv": "Kort",
+            "et": "Kaart",
+            "ru": "Карта"
+          }
+        },
+        {
+          "value": "cash",
+          "label": {
+            "fi": "Käteinen",
+            "en": "Cash",
+            "sv": "Kontanter",
+            "et": "Sularaha",
+            "ru": "Наличные"
+          }
+        },
+        {
+          "value": "agree",
+          "label": {
+            "fi": "Sovitaan erikseen",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "taxiNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Taksimatkan lisätoiveet",
+        "en": "Additional taxi ride requests",
+        "sv": "Övriga önskemål för taxiresan",
+        "et": "Takso sõidu erisoovid",
+        "ru": "Дополнительные пожелания к поездке"
+      },
+      "validation": {
+        "maxLength": 1000
+      }
+    }
+  ]
+}

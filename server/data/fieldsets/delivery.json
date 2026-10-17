@@ -1,0 +1,307 @@
+{
+  "code": "delivery",
+  "customFields": [
+    {
+      "key": "pickupAddress",
+      "type": "text",
+      "required": true,
+      "order": 10,
+      "label": {
+        "fi": "Nouto-osoite",
+        "en": "Pickup address",
+        "sv": "Hämtningsadress",
+        "et": "Pealevõtmise aadress",
+        "ru": "Адрес получения"
+      },
+      "placeholder": {
+        "fi": "Katuosoite ja tarkennukset",
+        "en": "Street address and details",
+        "sv": "Gatuadress och detaljer",
+        "et": "Tänav ja täpsustused",
+        "ru": "Улица и уточнения"
+      },
+      "validation": {
+        "maxLength": 250
+      }
+    },
+    {
+      "key": "deliveryAddress",
+      "type": "text",
+      "required": true,
+      "order": 20,
+      "label": {
+        "fi": "Toimitusosoite",
+        "en": "Delivery address",
+        "sv": "Leveransadress",
+        "et": "Kohaletoimetamise aadress",
+        "ru": "Адрес доставки"
+      },
+      "placeholder": {
+        "fi": "Katuosoite ja tarkennukset",
+        "en": "Street address and details",
+        "sv": "Gatuadress och detaljer",
+        "et": "Tänav ja täpsustused",
+        "ru": "Улица и уточнения"
+      },
+      "validation": {
+        "maxLength": 250
+      }
+    },
+    {
+      "key": "deliveryTime",
+      "type": "select",
+      "required": false,
+      "order": 30,
+      "label": {
+        "fi": "Toimituksen aikataulu",
+        "en": "Delivery timing",
+        "sv": "Leveranstid",
+        "et": "Kohaletoimetamise aeg",
+        "ru": "Время доставки"
+      },
+      "placeholder": {
+        "fi": "Valitse aikataulu",
+        "en": "Select timing",
+        "sv": "Välj tid",
+        "et": "Vali aeg",
+        "ru": "Выберите время"
+      },
+      "options": [
+        {
+          "value": "asap",
+          "label": {
+            "fi": "Mahdollisimman pian",
+            "en": "As soon as possible",
+            "sv": "Så snart som möjligt",
+            "et": "Esimesel võimalusel",
+            "ru": "Как можно скорее"
+          }
+        },
+        {
+          "value": "scheduled",
+          "label": {
+            "fi": "Sovittuna ajankohtana",
+            "en": "At an agreed time",
+            "sv": "Vid överenskommen tid",
+            "et": "Kokkulepitud ajal",
+            "ru": "В согласованное время"
+          }
+        },
+        {
+          "value": "flexible",
+          "label": {
+            "fi": "Joustava",
+            "en": "Flexible",
+            "sv": "Flexibelt",
+            "et": "Paindlik",
+            "ru": "Гибкое"
+          }
+        }
+      ]
+    },
+    {
+      "key": "packageSize",
+      "type": "select",
+      "required": false,
+      "order": 40,
+      "label": {
+        "fi": "Lähetyksen koko",
+        "en": "Shipment size",
+        "sv": "Försändelsens storlek",
+        "et": "Saadetise suurus",
+        "ru": "Размер отправления"
+      },
+      "placeholder": {
+        "fi": "Valitse koko",
+        "en": "Select size",
+        "sv": "Välj storlek",
+        "et": "Vali suurus",
+        "ru": "Выберите размер"
+      },
+      "options": [
+        {
+          "value": "small",
+          "label": {
+            "fi": "Pieni (kassi tai kirjekuori)",
+            "en": "Small (bag or envelope)",
+            "sv": "Liten (påse eller kuvert)",
+            "et": "Väike (kott või ümbrik)",
+            "ru": "Маленький (пакет или конверт)"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "fi": "Keskikokoinen (laatikko)",
+            "en": "Medium (box)",
+            "sv": "Medelstor (låda)",
+            "et": "Keskmine (kast)",
+            "ru": "Средний (коробка)"
+          }
+        },
+        {
+          "value": "large",
+          "label": {
+            "fi": "Suuri",
+            "en": "Large",
+            "sv": "Stor",
+            "et": "Suur",
+            "ru": "Большой"
+          }
+        },
+        {
+          "value": "unknown",
+          "label": {
+            "fi": "En tiedä",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei tea",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "packageWeightKg",
+      "type": "number",
+      "required": false,
+      "order": 50,
+      "label": {
+        "fi": "Lähetyksen paino (kg)",
+        "en": "Shipment weight (kg)",
+        "sv": "Försändelsens vikt (kg)",
+        "et": "Saadetise kaal (kg)",
+        "ru": "Вес отправления (кг)"
+      },
+      "placeholder": {
+        "fi": "Arvio kilogrammoina",
+        "en": "Estimated kilograms",
+        "sv": "Uppskattat antal kilo",
+        "et": "Hinnang kilogrammides",
+        "ru": "Примерный вес в кг"
+      },
+      "validation": {
+        "min": 0.1,
+        "max": 1000
+      }
+    },
+    {
+      "key": "handlingRequirements",
+      "type": "multiselect",
+      "required": false,
+      "order": 60,
+      "label": {
+        "fi": "Käsittelyvaatimukset",
+        "en": "Handling requirements",
+        "sv": "Hanteringskrav",
+        "et": "Käsitsemisnõuded",
+        "ru": "Требования к обращению"
+      },
+      "placeholder": {
+        "fi": "Valitse tarvittaessa",
+        "en": "Select if applicable",
+        "sv": "Välj vid behov",
+        "et": "Vali vajadusel",
+        "ru": "Выберите при необходимости"
+      },
+      "options": [
+        {
+          "value": "fragile",
+          "label": {
+            "fi": "Särkyvä",
+            "en": "Fragile",
+            "sv": "Ömtåligt",
+            "et": "Õrn / purunev",
+            "ru": "Хрупкое"
+          }
+        },
+        {
+          "value": "keep_upright",
+          "label": {
+            "fi": "Pidettävä pystyasennossa",
+            "en": "Keep upright",
+            "sv": "Håll upprätt",
+            "et": "Hoida püstiasendis",
+            "ru": "Держать вертикально"
+          }
+        },
+        {
+          "value": "keep_dry",
+          "label": {
+            "fi": "Pidettävä kuivana",
+            "en": "Keep dry",
+            "sv": "Håll torrt",
+            "et": "Hoida kuivana",
+            "ru": "Беречь от влаги"
+          }
+        },
+        {
+          "value": "temperature_sensitive",
+          "label": {
+            "fi": "Lämpötilaherkkä",
+            "en": "Temperature-sensitive",
+            "sv": "Temperaturkänsligt",
+            "et": "Temperatuuritundlik",
+            "ru": "Чувствительно к температуре"
+          }
+        },
+        {
+          "value": "none",
+          "label": {
+            "fi": "Ei erityisvaatimuksia",
+            "en": "No special requirements",
+            "sv": "Inga särskilda krav",
+            "et": "Erinõudeid ei ole",
+            "ru": "Без особых требований"
+          }
+        }
+      ]
+    },
+    {
+      "key": "recipientContact",
+      "type": "text",
+      "required": false,
+      "order": 70,
+      "label": {
+        "fi": "Vastaanottajan yhteystieto",
+        "en": "Recipient contact details",
+        "sv": "Mottagarens kontaktuppgifter",
+        "et": "Saaja kontaktandmed",
+        "ru": "Контактные данные получателя"
+      },
+      "placeholder": {
+        "fi": "Nimi tai yhteydenottotapa",
+        "en": "Name or contact method",
+        "sv": "Namn eller kontaktsätt",
+        "et": "Nimi või kontaktiviis",
+        "ru": "Имя или способ связи"
+      },
+      "validation": {
+        "maxLength": 150
+      }
+    },
+    {
+      "key": "deliveryNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 80,
+      "label": {
+        "fi": "Kuljetuksen lisätiedot",
+        "en": "Delivery notes",
+        "sv": "Leveransinformation",
+        "et": "Kohaletoimetamise lisainfo",
+        "ru": "Дополнительные сведения о доставке"
+      },
+      "placeholder": {
+        "fi": "Esimerkiksi sisäänkäynti ja toimitusohjeet",
+        "en": "For example entrance and delivery instructions",
+        "sv": "Till exempel ingång och leveransanvisningar",
+        "et": "Näiteks sissepääs ja üleandmisjuhised",
+        "ru": "Например вход и инструкции по доставке"
+      },
+      "validation": {
+        "maxLength": 2000
+      }
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "code": "passenger_transport",
+  "customFields": [
+    {
+      "key": "passengerCount",
+      "type": "number",
+      "required": true,
+      "order": 10,
+      "label": {
+        "fi": "Matkustajien määrä",
+        "en": "Number of passengers",
+        "sv": "Antal passagerare",
+        "et": "Reisijate arv",
+        "ru": "Количество пассажиров"
+      },
+      "validation": {
+        "min": 1,
+        "max": 50
+      }
+    },
+    {
+      "key": "luggageCount",
+      "type": "number",
+      "required": false,
+      "order": 20,
+      "label": {
+        "fi": "Matkatavaroiden määrä",
+        "en": "Number of luggage items",
+        "sv": "Antal bagage",
+        "et": "Pagasiühikute arv",
+        "ru": "Количество мест багажа"
+      },
+      "validation": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "key": "childSeatRequired",
+      "type": "select",
+      "required": false,
+      "order": 30,
+      "label": {
+        "fi": "Lasten turvaistuintarve",
+        "en": "Child seat requirement",
+        "sv": "Behov av barnstol",
+        "et": "Lapse turvatooli vajadus",
+        "ru": "Необходимость детского кресла"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj alternativ",
+        "et": "Vali variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "fi": "Ei tarvetta",
+            "en": "Not needed",
+            "sv": "Behövs inte",
+            "et": "Ei ole vaja",
+            "ru": "Не требуется"
+          }
+        },
+        {
+          "value": "infant",
+          "label": {
+            "fi": "Vauvan turvakaukalo",
+            "en": "Infant seat",
+            "sv": "Babyskydd",
+            "et": "Imiku turvahäll",
+            "ru": "Автолюлька"
+          }
+        },
+        {
+          "value": "child",
+          "label": {
+            "fi": "Lasten turvaistuin",
+            "en": "Child seat",
+            "sv": "Bilbarnstol",
+            "et": "Lapse turvatool",
+            "ru": "Детское автокресло"
+          }
+        },
+        {
+          "value": "booster",
+          "label": {
+            "fi": "Korokeistuin",
+            "en": "Booster seat",
+            "sv": "Bälteskudde",
+            "et": "Istmekõrgendus",
+            "ru": "Бустер"
+          }
+        },
+        {
+          "value": "multiple",
+          "label": {
+            "fi": "Useita istuimia",
+            "en": "Multiple seats",
+            "sv": "Flera stolar",
+            "et": "Mitu turvatooli",
+            "ru": "Несколько кресел"
+          }
+        }
+      ]
+    },
+    {
+      "key": "wheelchairAccessible",
+      "type": "boolean",
+      "required": false,
+      "order": 40,
+      "label": {
+        "fi": "Tarvitaanko pyörätuolille soveltuva auto?",
+        "en": "Is a wheelchair-accessible vehicle required?",
+        "sv": "Behövs ett rullstolsanpassat fordon?",
+        "et": "Kas on vaja ratastooliga ligipääsetavat sõidukit?",
+        "ru": "Нужен ли автомобиль для перевозки пассажира в инвалидной коляске?"
+      }
+    },
+    {
+      "key": "roundTrip",
+      "type": "boolean",
+      "required": false,
+      "order": 50,
+      "label": {
+        "fi": "Onko kyseessä edestakainen matka?",
+        "en": "Is this a round trip?",
+        "sv": "Är det en tur- och returresa?",
+        "et": "Kas soovitakse edasi-tagasi sõitu?",
+        "ru": "Это поездка туда и обратно?"
+      }
+    },
+    {
+      "key": "destinationAddress",
+      "type": "text",
+      "required": true,
+      "order": 60,
+      "label": {
+        "fi": "Määränpään osoite",
+        "en": "Destination address",
+        "sv": "Destinationsadress",
+        "et": "Sihtkoha aadress",
+        "ru": "Адрес назначения"
+      },
+      "placeholder": {
+        "fi": "Kirjoita määränpään osoite",
+        "en": "Enter destination address",
+        "sv": "Ange destinationsadress",
+        "et": "Sisesta sihtkoha aadress",
+        "ru": "Введите адрес назначения"
+      },
+      "validation": {
+        "maxLength": 250
+      }
+    },
+    {
+      "key": "transportNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 70,
+      "label": {
+        "fi": "Kuljetuksen lisätiedot",
+        "en": "Additional transport details",
+        "sv": "Ytterligare information om resan",
+        "et": "Reisi lisainfo",
+        "ru": "Дополнительная информация о поездке"
+      },
+      "placeholder": {
+        "fi": "Kerro matkaan liittyvistä erityistarpeista",
+        "en": "Describe any special travel needs",
+        "sv": "Beskriv särskilda behov för resan",
+        "et": "Kirjelda reisi erivajadusi",
+        "ru": "Опишите особые требования к поездке"
+      },
+      "validation": {
+        "maxLength": 2000
+      }
+    }
+  ]
+}

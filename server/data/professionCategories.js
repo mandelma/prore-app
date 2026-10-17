@@ -56,5 +56,42 @@ module.exports = [
         enabled: true,
         sortOrder: 30,
         countries: ["FI", "EE", "SE"]
+    },
+
+    {
+        "code": "courier",
+        "name": {
+            "fi": "Kuriiripalvelut",
+            "en": "Courier services",
+            "sv": "Budtjänster",
+            "et": "Kulleriteenused",
+            "ru": "Курьерские услуги"
+        },
+        "description": {
+            "fi": "Ruoan, pakettien ja muiden lähetysten kuljetuspalvelut.",
+            "en": "Delivery of food, parcels and other shipments.",
+            "sv": "Leverans av mat, paket och andra försändelser.",
+            "et": "Toidu, pakkide ja muude saadetiste kohaletoimetamine.",
+            "ru": "Доставка еды, посылок и других отправлений."
+        },
+        "icon": "fa-solid fa-motorcycle",
+        "enabled": true,
+        "sortOrder": 60,
+        countries: ["FI", "EE", "SE"]
+    },
+
+    {
+        "code": "passenger_transport",
+        "name": {
+            "fi": "Henkilökuljetus",
+            "en": "Passenger transport",
+            "sv": "Persontransport",
+            "et": "Reisijatevedu",
+            "ru": "Пассажирские перевозки"
+        },
+        "icon": "fa-solid fa-taxi",
+        "enabled": true,
+        "sortOrder": 60
     }
+
 ];

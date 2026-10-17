@@ -1,0 +1,303 @@
+{
+  "code": "food_delivery",
+  "customFields": [
+    {
+      "key": "deliveryType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Kuljetuksen tyyppi",
+        "en": "Delivery type",
+        "sv": "Typ av leverans",
+        "et": "Kohaletoimetamise tüüp",
+        "ru": "Тип доставки"
+      },
+      "placeholder": {
+        "fi": "Valitse kuljetus",
+        "en": "Select delivery type",
+        "sv": "Välj leveranstyp",
+        "et": "Vali kohaletoimetamise tüüp",
+        "ru": "Выберите тип доставки"
+      },
+      "options": [
+        {
+          "value": "restaurant",
+          "label": {
+            "fi": "Ravintolaruoka",
+            "en": "Restaurant meal",
+            "sv": "Restaurangmat",
+            "et": "Restoranitoit",
+            "ru": "Еда из ресторана"
+          }
+        },
+        {
+          "value": "groceries",
+          "label": {
+            "fi": "Ruokaostokset",
+            "en": "Groceries",
+            "sv": "Matvaror",
+            "et": "Toidukaubad",
+            "ru": "Продукты"
+          }
+        },
+        {
+          "value": "catering",
+          "label": {
+            "fi": "Catering-tilaus",
+            "en": "Catering order",
+            "sv": "Cateringbeställning",
+            "et": "Toitlustustellimus",
+            "ru": "Заказ кейтеринга"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu ruokakuljetus",
+            "en": "Other food delivery",
+            "sv": "Annan matleverans",
+            "et": "Muu toidutarne",
+            "ru": "Другая доставка еды"
+          }
+        }
+      ]
+    },
+    {
+      "key": "orderCount",
+      "type": "number",
+      "required": true,
+      "order": 210,
+      "label": {
+        "fi": "Tilausten määrä",
+        "en": "Number of orders",
+        "sv": "Antal beställningar",
+        "et": "Tellimuste arv",
+        "ru": "Количество заказов"
+      },
+      "placeholder": {
+        "fi": "Esim. 2",
+        "en": "E.g. 2",
+        "sv": "T.ex. 2",
+        "et": "Näiteks 2",
+        "ru": "Например 2"
+      },
+      "validation": {
+        "min": 1,
+        "max": 100
+      }
+    },
+    {
+      "key": "pickupReady",
+      "type": "select",
+      "required": true,
+      "order": 220,
+      "label": {
+        "fi": "Noudon valmius",
+        "en": "Pickup readiness",
+        "sv": "Status vid upphämtning",
+        "et": "Kauba valmidus pealevõtmiseks",
+        "ru": "Готовность к получению"
+      },
+      "placeholder": {
+        "fi": "Valitse tilanne",
+        "en": "Select status",
+        "sv": "Välj status",
+        "et": "Vali olukord",
+        "ru": "Выберите статус"
+      },
+      "options": [
+        {
+          "value": "ready",
+          "label": {
+            "fi": "Valmis noudettavaksi",
+            "en": "Ready for pickup",
+            "sv": "Klar för upphämtning",
+            "et": "Valmis pealevõtmiseks",
+            "ru": "Готово к получению"
+          }
+        },
+        {
+          "value": "scheduled",
+          "label": {
+            "fi": "Valmistuu sovittuna aikana",
+            "en": "Ready at agreed time",
+            "sv": "Klar vid avtalad tid",
+            "et": "Valmib kokkulepitud ajal",
+            "ru": "Будет готово к согласованному времени"
+          }
+        },
+        {
+          "value": "not_ordered",
+          "label": {
+            "fi": "Ei vielä tilattu",
+            "en": "Not ordered yet",
+            "sv": "Inte beställt ännu",
+            "et": "Pole veel tellitud",
+            "ru": "Ещё не заказано"
+          }
+        }
+      ]
+    },
+    {
+      "key": "vehicleType",
+      "type": "select",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Toivottu kuljetusväline",
+        "en": "Preferred transport",
+        "sv": "Önskat transportmedel",
+        "et": "Soovitud transpordivahend",
+        "ru": "Предпочтительный транспорт"
+      },
+      "placeholder": {
+        "fi": "Valitse tarvittaessa",
+        "en": "Select if needed",
+        "sv": "Välj vid behov",
+        "et": "Vali vajadusel",
+        "ru": "Выберите при необходимости"
+      },
+      "options": [
+        {
+          "value": "any",
+          "label": {
+            "fi": "Ei väliä",
+            "en": "Any",
+            "sv": "Spelar ingen roll",
+            "et": "Pole oluline",
+            "ru": "Любой"
+          }
+        },
+        {
+          "value": "bicycle",
+          "label": {
+            "fi": "Polkupyörä",
+            "en": "Bicycle",
+            "sv": "Cykel",
+            "et": "Jalgratas",
+            "ru": "Велосипед"
+          }
+        },
+        {
+          "value": "scooter",
+          "label": {
+            "fi": "Skootteri tai moottoripyörä",
+            "en": "Scooter or motorcycle",
+            "sv": "Moped eller motorcykel",
+            "et": "Roller või mootorratas",
+            "ru": "Скутер или мотоцикл"
+          }
+        },
+        {
+          "value": "car",
+          "label": {
+            "fi": "Auto",
+            "en": "Car",
+            "sv": "Bil",
+            "et": "Auto",
+            "ru": "Автомобиль"
+          }
+        }
+      ]
+    },
+    {
+      "key": "temperatureRequirement",
+      "type": "select",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Lämpötilavaatimus",
+        "en": "Temperature requirement",
+        "sv": "Temperaturkrav",
+        "et": "Temperatuurinõue",
+        "ru": "Температурные требования"
+      },
+      "placeholder": {
+        "fi": "Valitse tarvittaessa",
+        "en": "Select if needed",
+        "sv": "Välj vid behov",
+        "et": "Vali vajadusel",
+        "ru": "Выберите при необходимости"
+      },
+      "options": [
+        {
+          "value": "hot",
+          "label": {
+            "fi": "Pidettävä lämpimänä",
+            "en": "Keep hot",
+            "sv": "Håll varm",
+            "et": "Hoida soojana",
+            "ru": "Сохранять горячим"
+          }
+        },
+        {
+          "value": "cold",
+          "label": {
+            "fi": "Pidettävä kylmänä",
+            "en": "Keep cold",
+            "sv": "Håll kall",
+            "et": "Hoida külmana",
+            "ru": "Сохранять холодным"
+          }
+        },
+        {
+          "value": "frozen",
+          "label": {
+            "fi": "Pakastekuljetus",
+            "en": "Frozen delivery",
+            "sv": "Fryst transport",
+            "et": "Külmutatud kauba vedu",
+            "ru": "Перевозка замороженных продуктов"
+          }
+        },
+        {
+          "value": "none",
+          "label": {
+            "fi": "Ei erityisvaatimuksia",
+            "en": "No special requirements",
+            "sv": "Inga särskilda krav",
+            "et": "Erinõudeid ei ole",
+            "ru": "Без особых требований"
+          }
+        }
+      ]
+    },
+    {
+      "key": "contactlessDelivery",
+      "type": "boolean",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Toivotaanko kontaktitonta toimitusta?",
+        "en": "Contactless delivery requested?",
+        "sv": "Önskas kontaktlös leverans?",
+        "et": "Kas soovitakse kontaktivaba tarnet?",
+        "ru": "Нужна бесконтактная доставка?"
+      }
+    },
+    {
+      "key": "deliveryInstructions",
+      "type": "textarea",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Toimitusohjeet",
+        "en": "Delivery instructions",
+        "sv": "Leveransanvisningar",
+        "et": "Kohaletoimetamise juhised",
+        "ru": "Инструкции по доставке"
+      },
+      "placeholder": {
+        "fi": "Esim. ovikoodi, kerros tai tapaamispaikka; älä lisää arkaluonteisia tietoja.",
+        "en": "E.g. floor or meeting point; avoid sensitive information.",
+        "sv": "T.ex. våning eller mötesplats; undvik känsliga uppgifter.",
+        "et": "Näiteks korrus või kohtumispaik; ära lisa tundlikke andmeid.",
+        "ru": "Например этаж или место встречи; не указывайте конфиденциальные данные."
+      },
+      "validation": {
+        "maxLength": 1000
+      }
+    }
+  ]
+}
