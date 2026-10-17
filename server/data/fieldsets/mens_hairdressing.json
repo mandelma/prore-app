@@ -1,0 +1,419 @@
+{
+  "code": "mens_hairdressing",
+  "customFields": [
+    {
+      "key": "serviceType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Palvelun tyyppi",
+        "en": "Service type",
+        "sv": "Typ av tjänst",
+        "et": "Teenuse liik",
+        "ru": "Тип услуги"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "haircut",
+          "label": {
+            "fi": "Hiustenleikkaus",
+            "en": "Haircut",
+            "sv": "Klippning",
+            "et": "Juukselõikus",
+            "ru": "Стрижка"
+          }
+        },
+        {
+          "value": "fade",
+          "label": {
+            "fi": "Fade-leikkaus",
+            "en": "Fade haircut",
+            "sv": "Fade-klippning",
+            "et": "Fade-lõikus",
+            "ru": "Стрижка фейд"
+          }
+        },
+        {
+          "value": "buzz_cut",
+          "label": {
+            "fi": "Siilikampaus koneella",
+            "en": "Buzz cut",
+            "sv": "Snaggning",
+            "et": "Masinlõikus",
+            "ru": "Стрижка машинкой"
+          }
+        },
+        {
+          "value": "hair_and_beard",
+          "label": {
+            "fi": "Hiusten ja parran siistiminen",
+            "en": "Haircut and beard trim",
+            "sv": "Klippning och skäggtrimning",
+            "et": "Juukselõikus ja habeme piiramine",
+            "ru": "Стрижка и оформление бороды"
+          }
+        },
+        {
+          "value": "beard_trim",
+          "label": {
+            "fi": "Parran muotoilu",
+            "en": "Beard trim",
+            "sv": "Skäggtrimning",
+            "et": "Habeme piiramine",
+            "ru": "Подравнивание бороды"
+          }
+        },
+        {
+          "value": "coloring",
+          "label": {
+            "fi": "Hiusten värjäys",
+            "en": "Hair coloring",
+            "sv": "Hårfärgning",
+            "et": "Juuste värvimine",
+            "ru": "Окрашивание волос"
+          }
+        },
+        {
+          "value": "styling",
+          "label": {
+            "fi": "Hiusten muotoilu",
+            "en": "Hair styling",
+            "sv": "Hårstyling",
+            "et": "Juuste sättimine",
+            "ru": "Укладка волос"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu palvelu",
+            "en": "Other service",
+            "sv": "Annan tjänst",
+            "et": "Muu teenus",
+            "ru": "Другая услуга"
+          }
+        }
+      ]
+    },
+    {
+      "key": "hairLength",
+      "type": "select",
+      "required": false,
+      "order": 210,
+      "label": {
+        "fi": "Hiusten pituus",
+        "en": "Hair length",
+        "sv": "Hårlängd",
+        "et": "Juuste pikkus",
+        "ru": "Длина волос"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "very_short",
+          "label": {
+            "fi": "Hyvin lyhyet",
+            "en": "Very short",
+            "sv": "Mycket kort",
+            "et": "Väga lühikesed",
+            "ru": "Очень короткие"
+          }
+        },
+        {
+          "value": "short",
+          "label": {
+            "fi": "Lyhyet",
+            "en": "Short",
+            "sv": "Kort",
+            "et": "Lühikesed",
+            "ru": "Короткие"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "fi": "Keskipitkät",
+            "en": "Medium",
+            "sv": "Medellångt",
+            "et": "Keskmised",
+            "ru": "Средние"
+          }
+        },
+        {
+          "value": "long",
+          "label": {
+            "fi": "Pitkät",
+            "en": "Long",
+            "sv": "Långt",
+            "et": "Pikad",
+            "ru": "Длинные"
+          }
+        }
+      ]
+    },
+    {
+      "key": "haircutStyle",
+      "type": "select",
+      "required": false,
+      "order": 220,
+      "label": {
+        "fi": "Toivottu leikkaustyyli",
+        "en": "Preferred haircut style",
+        "sv": "Önskad klippstil",
+        "et": "Soovitud lõikuse stiil",
+        "ru": "Желаемый стиль стрижки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "classic",
+          "label": {
+            "fi": "Klassinen",
+            "en": "Classic",
+            "sv": "Klassisk",
+            "et": "Klassikaline",
+            "ru": "Классическая"
+          }
+        },
+        {
+          "value": "fade",
+          "label": {
+            "fi": "Fade",
+            "en": "Fade",
+            "sv": "Fade",
+            "et": "Fade",
+            "ru": "Фейд"
+          }
+        },
+        {
+          "value": "undercut",
+          "label": {
+            "fi": "Undercut",
+            "en": "Undercut",
+            "sv": "Undercut",
+            "et": "Undercut",
+            "ru": "Андеркат"
+          }
+        },
+        {
+          "value": "crew_cut",
+          "label": {
+            "fi": "Lyhyt mallileikkaus",
+            "en": "Crew cut",
+            "sv": "Kort frisyr",
+            "et": "Lühike sportlik lõikus",
+            "ru": "Короткая спортивная стрижка"
+          }
+        },
+        {
+          "value": "custom",
+          "label": {
+            "fi": "Oman mallin mukaan",
+            "en": "Custom / reference",
+            "sv": "Enligt egen modell",
+            "et": "Oma näidise järgi",
+            "ru": "По образцу"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "Tarvitsen suosituksen",
+            "en": "Need advice",
+            "sv": "Behöver råd",
+            "et": "Vajan soovitust",
+            "ru": "Нужна консультация"
+          }
+        }
+      ]
+    },
+    {
+      "key": "beardService",
+      "type": "select",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Partapalvelu",
+        "en": "Beard service",
+        "sv": "Skäggtjänst",
+        "et": "Habemeteenus",
+        "ru": "Услуга для бороды"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "fi": "Ei tarvetta",
+            "en": "Not needed",
+            "sv": "Behövs inte",
+            "et": "Ei ole vaja",
+            "ru": "Не требуется"
+          }
+        },
+        {
+          "value": "trim",
+          "label": {
+            "fi": "Parran siistiminen",
+            "en": "Beard trim",
+            "sv": "Skäggtrimning",
+            "et": "Habeme piiramine",
+            "ru": "Подравнивание бороды"
+          }
+        },
+        {
+          "value": "shape",
+          "label": {
+            "fi": "Parran muotoilu",
+            "en": "Beard shaping",
+            "sv": "Skäggformning",
+            "et": "Habeme kujundamine",
+            "ru": "Моделирование бороды"
+          }
+        },
+        {
+          "value": "shave",
+          "label": {
+            "fi": "Parranajo",
+            "en": "Clean shave",
+            "sv": "Rakning",
+            "et": "Habemeajamine",
+            "ru": "Бритьё"
+          }
+        }
+      ]
+    },
+    {
+      "key": "hairWash",
+      "type": "boolean",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Hiusten pesu toivotaan",
+        "en": "Hair wash requested",
+        "sv": "Hårtvätt önskas",
+        "et": "Soovin juuste pesu",
+        "ru": "Требуется мытьё волос"
+      }
+    },
+    {
+      "key": "hairColoringDetails",
+      "type": "textarea",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Värjäystoiveet",
+        "en": "Coloring preferences",
+        "sv": "Önskemål om färgning",
+        "et": "Värvimissoovid",
+        "ru": "Пожелания по окрашиванию"
+      },
+      "maxLength": 600
+    },
+    {
+      "key": "serviceLocation",
+      "type": "select",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Palvelun sijainti",
+        "en": "Service location",
+        "sv": "Plats för tjänsten",
+        "et": "Teenuse asukoht",
+        "ru": "Место оказания услуги"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "salon",
+          "label": {
+            "fi": "Parturissa tai kampaamossa",
+            "en": "At a barbershop or salon",
+            "sv": "På salong eller barberare",
+            "et": "Salongis või juuksuris",
+            "ru": "В барбершопе или салоне"
+          }
+        },
+        {
+          "value": "customer",
+          "label": {
+            "fi": "Asiakkaan luona",
+            "en": "At the customer’s location",
+            "sv": "Hos kunden",
+            "et": "Kliendi juures",
+            "ru": "У клиента"
+          }
+        },
+        {
+          "value": "flexible",
+          "label": {
+            "fi": "Sovitaan erikseen",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "referencePhotoAvailable",
+      "type": "boolean",
+      "required": false,
+      "order": 270,
+      "label": {
+        "fi": "Mallikuva saatavilla",
+        "en": "Reference photo available",
+        "sv": "Referensbild finns",
+        "et": "Näidispilt on olemas",
+        "ru": "Есть фото-пример"
+      }
+    },
+    {
+      "key": "additionalHairNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 280,
+      "label": {
+        "fi": "Lisätiedot ja toiveet",
+        "en": "Additional details and preferences",
+        "sv": "Ytterligare information och önskemål",
+        "et": "Lisainfo ja soovid",
+        "ru": "Дополнительная информация и пожелания"
+      },
+      "maxLength": 1000
+    }
+  ]
+}

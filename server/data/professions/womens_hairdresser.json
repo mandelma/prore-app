@@ -1,0 +1,30 @@
+{
+  "code": "womens_hairdresser",
+  "categoryCode": "beauty_wellness",
+  "name": {
+    "fi": "Naisten kampaaja",
+    "en": "Women’s hairdresser",
+    "sv": "Damfrisör",
+    "et": "Naistejuuksur",
+    "ru": "Женский парикмахер"
+  },
+  "description": {
+    "fi": "Naisten hiustenleikkaukset, värjäykset, kampaukset ja hiustenhoitopalvelut.",
+    "en": "Haircuts, coloring, styling and hair care services for women.",
+    "sv": "Klippning, färgning, styling och hårvård för kvinnor.",
+    "et": "Naiste juukselõikused, värvimine, soengute tegemine ja juuksehooldus.",
+    "ru": "Женские стрижки, окрашивание, укладки и уход за волосами."
+  },
+  "icon": "fa-solid fa-scissors",
+  "enabled": true,
+  "sortOrder": 20,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "womens_hairdressing"
+  ],
+  "customFields": []
+}

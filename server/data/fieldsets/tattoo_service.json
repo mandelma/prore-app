@@ -1,0 +1,346 @@
+{
+  "code": "tattoo_service",
+  "customFields": [
+    {
+      "key": "tattooType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Tatuoinnin tyyppi",
+        "en": "Tattoo type",
+        "sv": "Typ av tatuering",
+        "et": "Tätoveeringu tüüp",
+        "ru": "Тип татуировки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "new",
+          "label": {
+            "fi": "Uusi tatuointi",
+            "en": "New tattoo",
+            "sv": "Ny tatuering",
+            "et": "Uus tätoveering",
+            "ru": "Новая татуировка"
+          }
+        },
+        {
+          "value": "cover_up",
+          "label": {
+            "fi": "Vanhan tatuoinnin peittäminen",
+            "en": "Cover-up",
+            "sv": "Övertäckning",
+            "et": "Vana tätoveeringu katmine",
+            "ru": "Перекрытие старой татуировки"
+          }
+        },
+        {
+          "value": "touch_up",
+          "label": {
+            "fi": "Tatuoinnin korjaus",
+            "en": "Touch-up",
+            "sv": "Bättring",
+            "et": "Tätoveeringu parandamine",
+            "ru": "Коррекция татуировки"
+          }
+        }
+      ]
+    },
+    {
+      "key": "tattooStyle",
+      "type": "select",
+      "required": false,
+      "order": 210,
+      "label": {
+        "fi": "Tatuointityyli",
+        "en": "Tattoo style",
+        "sv": "Tatueringsstil",
+        "et": "Tätoveeringu stiil",
+        "ru": "Стиль татуировки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "fine_line",
+          "label": {
+            "fi": "Fine line",
+            "en": "Fine line",
+            "sv": "Fine line",
+            "et": "Peen joon",
+            "ru": "Тонкие линии"
+          }
+        },
+        {
+          "value": "traditional",
+          "label": {
+            "fi": "Perinteinen",
+            "en": "Traditional",
+            "sv": "Traditionell",
+            "et": "Traditsiooniline",
+            "ru": "Традиционный"
+          }
+        },
+        {
+          "value": "realism",
+          "label": {
+            "fi": "Realismi",
+            "en": "Realism",
+            "sv": "Realism",
+            "et": "Realism",
+            "ru": "Реализм"
+          }
+        },
+        {
+          "value": "minimalist",
+          "label": {
+            "fi": "Minimalistinen",
+            "en": "Minimalist",
+            "sv": "Minimalistisk",
+            "et": "Minimalistlik",
+            "ru": "Минимализм"
+          }
+        },
+        {
+          "value": "geometric",
+          "label": {
+            "fi": "Geometrinen",
+            "en": "Geometric",
+            "sv": "Geometrisk",
+            "et": "Geomeetriline",
+            "ru": "Геометрия"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu / sovitaan",
+            "en": "Other / to be agreed",
+            "sv": "Annat / enligt överenskommelse",
+            "et": "Muu / kokkuleppel",
+            "ru": "Другое / по договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "tattooSize",
+      "type": "select",
+      "required": true,
+      "order": 220,
+      "label": {
+        "fi": "Tatuoinnin koko",
+        "en": "Tattoo size",
+        "sv": "Tatueringens storlek",
+        "et": "Tätoveeringu suurus",
+        "ru": "Размер татуировки"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "small",
+          "label": {
+            "fi": "Pieni (alle 5 cm)",
+            "en": "Small (under 5 cm)",
+            "sv": "Liten (under 5 cm)",
+            "et": "Väike (alla 5 cm)",
+            "ru": "Маленькая (до 5 см)"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "fi": "Keskikokoinen (5–15 cm)",
+            "en": "Medium (5–15 cm)",
+            "sv": "Medelstor (5–15 cm)",
+            "et": "Keskmine (5–15 cm)",
+            "ru": "Средняя (5–15 см)"
+          }
+        },
+        {
+          "value": "large",
+          "label": {
+            "fi": "Suuri (yli 15 cm)",
+            "en": "Large (over 15 cm)",
+            "sv": "Stor (över 15 cm)",
+            "et": "Suur (üle 15 cm)",
+            "ru": "Большая (более 15 см)"
+          }
+        },
+        {
+          "value": "unknown",
+          "label": {
+            "fi": "En osaa arvioida",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei oska hinnata",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "bodyPlacement",
+      "type": "text",
+      "required": true,
+      "order": 230,
+      "label": {
+        "fi": "Tatuoinnin sijainti kehossa",
+        "en": "Body placement",
+        "sv": "Placering på kroppen",
+        "et": "Tätoveeringu asukoht kehal",
+        "ru": "Место на теле"
+      },
+      "maxLength": 120
+    },
+    {
+      "key": "colorPreference",
+      "type": "select",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Värivalinta",
+        "en": "Color preference",
+        "sv": "Färgval",
+        "et": "Värvieelistus",
+        "ru": "Цветовое решение"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "black_gray",
+          "label": {
+            "fi": "Musta ja harmaa",
+            "en": "Black and grey",
+            "sv": "Svart och grått",
+            "et": "Must ja hall",
+            "ru": "Чёрный и серый"
+          }
+        },
+        {
+          "value": "color",
+          "label": {
+            "fi": "Värillinen",
+            "en": "Color",
+            "sv": "Färg",
+            "et": "Värviline",
+            "ru": "Цветная"
+          }
+        },
+        {
+          "value": "undecided",
+          "label": {
+            "fi": "Ei vielä päätetty",
+            "en": "Undecided",
+            "sv": "Inte bestämt",
+            "et": "Pole otsustatud",
+            "ru": "Не определено"
+          }
+        }
+      ]
+    },
+    {
+      "key": "designStatus",
+      "type": "select",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Suunnitelman valmius",
+        "en": "Design status",
+        "sv": "Skissens status",
+        "et": "Kavandi olemasolu",
+        "ru": "Готовность эскиза"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "ready",
+          "label": {
+            "fi": "Valmis kuva tai luonnos",
+            "en": "Ready design or sketch",
+            "sv": "Färdig bild eller skiss",
+            "et": "Valmis kavand või pilt",
+            "ru": "Готовый эскиз"
+          }
+        },
+        {
+          "value": "needs_design",
+          "label": {
+            "fi": "Tarvitsen suunnittelua",
+            "en": "Need design help",
+            "sv": "Behöver hjälp med design",
+            "et": "Vajan kavandi koostamist",
+            "ru": "Нужна разработка эскиза"
+          }
+        },
+        {
+          "value": "consultation",
+          "label": {
+            "fi": "Haluan keskustella ideoista",
+            "en": "Want to discuss ideas",
+            "sv": "Vill diskutera idéer",
+            "et": "Soovin ideid arutada",
+            "ru": "Хочу обсудить идеи"
+          }
+        }
+      ]
+    },
+    {
+      "key": "referenceImagesAvailable",
+      "type": "boolean",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Onko mallikuvia saatavilla?",
+        "en": "Reference images available?",
+        "sv": "Finns referensbilder?",
+        "et": "Kas näidispildid on olemas?",
+        "ru": "Есть ли изображения-примеры?"
+      }
+    },
+    {
+      "key": "tattooDetails",
+      "type": "textarea",
+      "required": false,
+      "order": 270,
+      "label": {
+        "fi": "Tarkemmat toiveet",
+        "en": "Additional details",
+        "sv": "Ytterligare önskemål",
+        "et": "Täiendavad soovid",
+        "ru": "Дополнительные пожелания"
+      },
+      "maxLength": 1500
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "code": "mens_hairdresser",
+  "categoryCode": "beauty_wellness",
+  "name": {
+    "fi": "Miesten parturi",
+    "en": "Men’s hairdresser / barber",
+    "sv": "Herrfrisör / barberare",
+    "et": "Meestejuuksur",
+    "ru": "Мужской парикмахер"
+  },
+  "description": {
+    "fi": "Miesten hiustenleikkaukset, parran muotoilu, hiusten värjäys ja muotoilupalvelut.",
+    "en": "Men’s haircuts, beard trimming and shaping, hair coloring and styling.",
+    "sv": "Herrklippning, skäggtrimning och formning, hårfärgning och styling.",
+    "et": "Meeste juukselõikused, habeme piiramine ja kujundamine, juuste värvimine ning sättimine.",
+    "ru": "Мужские стрижки, стрижка и оформление бороды, окрашивание и укладка волос."
+  },
+  "icon": "fa-solid fa-scissors",
+  "enabled": true,
+  "sortOrder": 30,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "mens_hairdressing"
+  ],
+  "customFields": []
+}

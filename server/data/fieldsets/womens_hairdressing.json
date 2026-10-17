@@ -1,0 +1,462 @@
+{
+  "code": "womens_hairdressing",
+  "customFields": [
+    {
+      "key": "serviceType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Palvelun tyyppi",
+        "en": "Service type",
+        "sv": "Typ av tjänst",
+        "et": "Teenuse liik",
+        "ru": "Тип услуги"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "haircut",
+          "label": {
+            "fi": "Hiustenleikkaus",
+            "en": "Haircut",
+            "sv": "Klippning",
+            "et": "Juukselõikus",
+            "ru": "Стрижка"
+          }
+        },
+        {
+          "value": "coloring",
+          "label": {
+            "fi": "Hiusten värjäys",
+            "en": "Hair coloring",
+            "sv": "Hårfärgning",
+            "et": "Juuste värvimine",
+            "ru": "Окрашивание волос"
+          }
+        },
+        {
+          "value": "highlights",
+          "label": {
+            "fi": "Raidat tai balayage",
+            "en": "Highlights or balayage",
+            "sv": "Slingor eller balayage",
+            "et": "Triibutamine või balayage",
+            "ru": "Мелирование или балаяж"
+          }
+        },
+        {
+          "value": "styling",
+          "label": {
+            "fi": "Kampaus tai muotoilu",
+            "en": "Styling or updo",
+            "sv": "Styling eller uppsättning",
+            "et": "Soeng või sättimine",
+            "ru": "Укладка или причёска"
+          }
+        },
+        {
+          "value": "perm",
+          "label": {
+            "fi": "Permanentti",
+            "en": "Perm",
+            "sv": "Permanent",
+            "et": "Keemilised lokid",
+            "ru": "Химическая завивка"
+          }
+        },
+        {
+          "value": "treatment",
+          "label": {
+            "fi": "Hiushoito",
+            "en": "Hair treatment",
+            "sv": "Hårbehandling",
+            "et": "Juuksehooldus",
+            "ru": "Уход за волосами"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu palvelu",
+            "en": "Other service",
+            "sv": "Annan tjänst",
+            "et": "Muu teenus",
+            "ru": "Другая услуга"
+          }
+        }
+      ]
+    },
+    {
+      "key": "hairLength",
+      "type": "select",
+      "required": true,
+      "order": 210,
+      "label": {
+        "fi": "Hiusten pituus",
+        "en": "Hair length",
+        "sv": "Hårlängd",
+        "et": "Juuste pikkus",
+        "ru": "Длина волос"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "short",
+          "label": {
+            "fi": "Lyhyet",
+            "en": "Short",
+            "sv": "Kort",
+            "et": "Lühikesed",
+            "ru": "Короткие"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "fi": "Puolipitkät",
+            "en": "Medium",
+            "sv": "Medellångt",
+            "et": "Poolpikad",
+            "ru": "Средние"
+          }
+        },
+        {
+          "value": "long",
+          "label": {
+            "fi": "Pitkät",
+            "en": "Long",
+            "sv": "Långt",
+            "et": "Pikad",
+            "ru": "Длинные"
+          }
+        },
+        {
+          "value": "very_long",
+          "label": {
+            "fi": "Erittäin pitkät",
+            "en": "Very long",
+            "sv": "Mycket långt",
+            "et": "Väga pikad",
+            "ru": "Очень длинные"
+          }
+        }
+      ]
+    },
+    {
+      "key": "hairThickness",
+      "type": "select",
+      "required": false,
+      "order": 220,
+      "label": {
+        "fi": "Hiusten paksuus",
+        "en": "Hair thickness",
+        "sv": "Hårets tjocklek",
+        "et": "Juuste tihedus",
+        "ru": "Густота волос"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "fine",
+          "label": {
+            "fi": "Ohuet",
+            "en": "Fine",
+            "sv": "Tunt",
+            "et": "Õhukesed",
+            "ru": "Тонкие"
+          }
+        },
+        {
+          "value": "normal",
+          "label": {
+            "fi": "Normaalit",
+            "en": "Normal",
+            "sv": "Normalt",
+            "et": "Tavalised",
+            "ru": "Обычные"
+          }
+        },
+        {
+          "value": "thick",
+          "label": {
+            "fi": "Paksut",
+            "en": "Thick",
+            "sv": "Tjockt",
+            "et": "Paksud",
+            "ru": "Густые"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "En osaa sanoa",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei oska öelda",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "coloringScope",
+      "type": "select",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Värjäyksen laajuus",
+        "en": "Coloring scope",
+        "sv": "Färgningens omfattning",
+        "et": "Värvimise ulatus",
+        "ru": "Объём окрашивания"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "roots",
+          "label": {
+            "fi": "Tyvivärjäys",
+            "en": "Root touch-up",
+            "sv": "Utväxtfärgning",
+            "et": "Juurevärvimine",
+            "ru": "Окрашивание корней"
+          }
+        },
+        {
+          "value": "full",
+          "label": {
+            "fi": "Koko hiusten värjäys",
+            "en": "Full color",
+            "sv": "Helfärgning",
+            "et": "Kogu juuste värvimine",
+            "ru": "Полное окрашивание"
+          }
+        },
+        {
+          "value": "highlights",
+          "label": {
+            "fi": "Raidat",
+            "en": "Highlights",
+            "sv": "Slingor",
+            "et": "Triibud",
+            "ru": "Мелирование"
+          }
+        },
+        {
+          "value": "balayage",
+          "label": {
+            "fi": "Balayage",
+            "en": "Balayage",
+            "sv": "Balayage",
+            "et": "Balayage",
+            "ru": "Балаяж"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "Sovitaan yhdessä",
+            "en": "To be agreed",
+            "sv": "Bestäms tillsammans",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "currentHairColor",
+      "type": "text",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Nykyinen hiusväri",
+        "en": "Current hair color",
+        "sv": "Nuvarande hårfärg",
+        "et": "Praegune juuksevärv",
+        "ru": "Текущий цвет волос"
+      },
+      "maxLength": 120
+    },
+    {
+      "key": "desiredResult",
+      "type": "textarea",
+      "required": true,
+      "order": 250,
+      "label": {
+        "fi": "Toivottu lopputulos",
+        "en": "Desired result",
+        "sv": "Önskat resultat",
+        "et": "Soovitud tulemus",
+        "ru": "Желаемый результат"
+      },
+      "maxLength": 1200
+    },
+    {
+      "key": "hairCondition",
+      "type": "select",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Hiusten kunto",
+        "en": "Hair condition",
+        "sv": "Hårets skick",
+        "et": "Juuste seisukord",
+        "ru": "Состояние волос"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "normal",
+          "label": {
+            "fi": "Normaali",
+            "en": "Normal",
+            "sv": "Normalt",
+            "et": "Normaalne",
+            "ru": "Нормальное"
+          }
+        },
+        {
+          "value": "dry",
+          "label": {
+            "fi": "Kuivat",
+            "en": "Dry",
+            "sv": "Torrt",
+            "et": "Kuivad",
+            "ru": "Сухие"
+          }
+        },
+        {
+          "value": "damaged",
+          "label": {
+            "fi": "Vaurioituneet",
+            "en": "Damaged",
+            "sv": "Skadat",
+            "et": "Kahjustatud",
+            "ru": "Повреждённые"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "En osaa sanoa",
+            "en": "Not sure",
+            "sv": "Vet inte",
+            "et": "Ei oska öelda",
+            "ru": "Не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "serviceLocation",
+      "type": "select",
+      "required": true,
+      "order": 270,
+      "label": {
+        "fi": "Palvelun toteutuspaikka",
+        "en": "Service location",
+        "sv": "Plats för tjänsten",
+        "et": "Teenuse osutamise koht",
+        "ru": "Место оказания услуги"
+      },
+      "placeholder": {
+        "fi": "Valitse vaihtoehto",
+        "en": "Select an option",
+        "sv": "Välj ett alternativ",
+        "et": "Vali sobiv variant",
+        "ru": "Выберите вариант"
+      },
+      "options": [
+        {
+          "value": "salon",
+          "label": {
+            "fi": "Kampaamossa",
+            "en": "At a salon",
+            "sv": "På salong",
+            "et": "Salongis",
+            "ru": "В салоне"
+          }
+        },
+        {
+          "value": "client",
+          "label": {
+            "fi": "Asiakkaan luona",
+            "en": "At the client’s location",
+            "sv": "Hos kunden",
+            "et": "Kliendi juures",
+            "ru": "У клиента"
+          }
+        },
+        {
+          "value": "either",
+          "label": {
+            "fi": "Sovittavissa",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "referencePhotoAvailable",
+      "type": "boolean",
+      "required": false,
+      "order": 280,
+      "label": {
+        "fi": "Onko mallikuva saatavilla?",
+        "en": "Do you have a reference photo?",
+        "sv": "Finns en referensbild?",
+        "et": "Kas näidispilt on olemas?",
+        "ru": "Есть ли фото желаемой причёски?"
+      }
+    },
+    {
+      "key": "additionalHairNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 290,
+      "label": {
+        "fi": "Lisätiedot",
+        "en": "Additional details",
+        "sv": "Ytterligare information",
+        "et": "Lisainfo",
+        "ru": "Дополнительная информация"
+      },
+      "maxLength": 1000
+    }
+  ]
+}

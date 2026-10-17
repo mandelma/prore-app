@@ -1,0 +1,30 @@
+{
+  "code": "tattoo_artist",
+  "categoryCode": "beauty_wellness",
+  "name": {
+    "fi": "Tatuoija",
+    "en": "Tattoo artist",
+    "sv": "Tatuerare",
+    "et": "Tätoveerija",
+    "ru": "Тату-мастер"
+  },
+  "description": {
+    "fi": "Yksilöllisten tatuointien suunnittelu, toteutus ja vanhojen tatuointien peittäminen.",
+    "en": "Design and application of custom tattoos, including cover-up work.",
+    "sv": "Design och utförande av personliga tatueringar samt övertäckning av äldre tatueringar.",
+    "et": "Individuaalsete tätoveeringute kavandamine ja tegemine ning vanade tätoveeringute katmine.",
+    "ru": "Разработка и нанесение индивидуальных татуировок, перекрытие старых татуировок."
+  },
+  "icon": "fa-solid fa-pen-nib",
+  "enabled": true,
+  "sortOrder": 10,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "tattoo_service"
+  ],
+  "customFields": []
+}

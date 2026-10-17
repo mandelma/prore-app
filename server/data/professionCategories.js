@@ -92,6 +92,27 @@ module.exports = [
         "icon": "fa-solid fa-taxi",
         "enabled": true,
         "sortOrder": 60
+    },
+
+    {
+        "code": "beauty_wellness",
+        "name": {
+            "fi": "Kauneus ja hyvinvointi",
+            "en": "Beauty and wellness",
+            "sv": "Skönhet och välbefinnande",
+            "et": "Ilu ja heaolu",
+            "ru": "Красота и здоровье"
+        },
+        "description": {
+            "fi": "Kauneus-, ihonhoito- ja kehonkoristelupalvelut.",
+            "en": "Beauty, skincare and body art services.",
+            "sv": "Skönhets-, hudvårds- och kroppskonsttjänster.",
+            "et": "Ilu-, nahahooldus- ja kehakunstiteenused.",
+            "ru": "Услуги красоты, ухода за кожей и боди-арта."
+        },
+        "icon": "fa-solid fa-spa",
+        "enabled": true,
+        "sortOrder": 70
     }
 
 ];

@@ -57,15 +57,13 @@
           </MDBNavbarItem> -->
           <MDBNavbarItem
             v-if="!isAuthenticated"
-            class="me-3 me-lg-0"
           >
-            <RouterLink
+             <RouterLink
               to="/login-register"
-              class="nav-link link-secondary"
+              class="duunhub-login"
             >
-              <span style="color: #ef8627;">
-                {{ t("app.login") }}
-              </span>
+              <i class="fas fa-sign-in-alt"></i>
+              <span>{{ t("app.login") }}</span>
             </RouterLink>
           </MDBNavbarItem>
         </MDBNavbarNav>
@@ -148,3 +146,49 @@ const { t } = useI18n();
 const userDropdown = ref(false);
 
 </script>
+<style scoped>
+.duunhub-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 8px 16px;
+  border: 1.5px solid #ef8627;
+  border-radius: 20px;
+
+  color: #ef8627;
+  background-color: transparent;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.duunhub-login:hover {
+  background-color: #ef8627;
+  color: white;
+  box-shadow: 0 3px 10px rgba(239, 134, 39, 0.25);
+  transform: translateY(-1px);
+}
+
+.duunhub-login:active {
+  transform: scale(0.97);
+}
+
+.duunhub-login:focus-visible {
+  outline: 2px solid #ef8627;
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .duunhub-login {
+    padding: 6px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+}
+</style>
