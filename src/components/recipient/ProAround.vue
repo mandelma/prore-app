@@ -70,8 +70,6 @@
               hideClientInput: !address && isAddress
             }"
           >
-
-            aadress {{ address }}
             <AddressAutocomplete
               v-model="address"
               v-model:valid="addressValid"

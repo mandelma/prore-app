@@ -48,8 +48,6 @@
             
           </div>
 
-          form address {{ form.address }}
-
           <AddressAutocomplete
             v-model="form.address"
             v-model:valid="addressValid"
