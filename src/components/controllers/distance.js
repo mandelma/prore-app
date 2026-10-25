@@ -1,6 +1,6 @@
 /*global google*/
 
-/* const formatDuration = (durationMillis) => {
+const formatDuration = (durationMillis) => {
     const totalMinutes = Math.round(durationMillis / 60000);
 
     const hours = Math.floor(totalMinutes / 60);
@@ -54,9 +54,15 @@ const findDistance = async (start, end) => {
     }
 };
 
-export default { findDistance }; */
+export default { findDistance };
 
-const getDistanceMatrix = (service, data) => new Promise((resolve, reject) => {
+
+
+
+
+
+
+/* const getDistanceMatrix = (service, data) => new Promise((resolve, reject) => {
     service.getDistanceMatrix(data, (response, status) => {
         if(status === 'OK') {
             resolve(response)
@@ -90,4 +96,4 @@ const findDistance = async (start, end) => {
 };
 
 
-export default { findDistance }
+export default { findDistance } */

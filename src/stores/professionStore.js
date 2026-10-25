@@ -10,8 +10,8 @@ export const useProfessionStore = defineStore('profession', () => {
     const initProfessions = async () => {
         const {professionList, categoryList} = await professionService.getProfessions();
         
-        console.log("PPPROF ", professionList);
-        console.log("GGGA ", categoryList);
+        //console.log("PPPROF ", professionList);
+        //console.log("GGGA ", categoryList);
 
         professions.value = professionList || [];
         professionCategories.value = categoryList || [];

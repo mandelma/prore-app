@@ -70,6 +70,8 @@
               hideClientInput: !address && isAddress
             }"
           >
+
+            aadress {{ address }}
             <AddressAutocomplete
               v-model="address"
               v-model:valid="addressValid"
@@ -272,7 +274,8 @@
         <MDBModalBody>
           <request-form  
             v-if="target?.id !== providerId"
-            :target="target" 
+            :target="target"
+            :location="inputAddress" 
             :date="dt" 
             @open-chat="$emit('open-chat', $event)"
             @sendRequest="handleSendRequest"
@@ -488,6 +491,14 @@ let lastMapState = {
   zoom: null,
   center: null,
 };
+
+const inputAddress = computed(() => {
+  return {
+    address: address.value,
+    lat: myLat.value,
+    lng: myLng.value
+  }
+})
 
 const startPos = computed(() => userPos.value || lastKnownPos.value)
 
@@ -1219,24 +1230,25 @@ const otherUserLocations = async (providers, profession, dist) => {
         { once: true }
       );
     });
+
+    // if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
     
     for (let pos = 0; pos < providers.length; pos++) {
       console.log("-----Firma------- " + providers[pos].pName);
       
       let myLatLong = [myLat.value, myLng.value];
 
-      providers[pos].profession.forEach(prof => {
+      // providers[pos].profession.forEach(prof => {
     
-        if (prof === profession) {
+        //if (prof === profession) {
           
           const proClientDist = distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude);
 
           // Running message to matced providers
           notifyProvidersAboutInterest(providers[pos], profession, proClientDist);
-
-          console.log("Pro " + prof)
           
-          if (distanceBtw(myLat.value, myLng.value, providers[pos].latitude, providers[pos].longitude) <= dist) {
+          
+          if (proClientDist <= dist) {
             count ++;
 
             console.log("PROVIDER - ", providers[pos]);
@@ -1482,8 +1494,8 @@ const otherUserLocations = async (providers, profession, dist) => {
 
           }
 
-        }
-      })
+        //}
+      //})
 
     }
 
@@ -1492,17 +1504,13 @@ const otherUserLocations = async (providers, profession, dist) => {
     if (count > 0) {
       console.log("Pro count existing..." + count);
       isMainPanel.value = false;
-      //this.isActiveProffs = true;
-      //this.isMainPanel = false;
 
     } else {
-      console.log("Pro count not existing...")
-      //this.isActiveProffs = false;
+      console.log("Pro count not existing...") 
     }
     countOfSelectedProfessional.value = count;
     console.log("countxx " + count)
-    //this.identifyProfText();
-    //console.log("Count " + this.countOfSelectedClients)
+    
 
   }
 
@@ -1590,7 +1598,6 @@ const handleSendRequest = async (_form) => {
   const dateObj = parseDmyTime(dt.value) || parseDmyTime(_form.date);
   let ms;
   if (dateObj) {
-      //o.value = dateObj;
       ms = dateObj.getTime();
       console.log("Milliseconds:", ms);  // e.g. 1758976800000
   } else {
@@ -1605,8 +1612,9 @@ const handleSendRequest = async (_form) => {
 
   console.log("mainDate - " + mainDate)
 
+  //author_id: userId,
+
   const request = {
-    author_id: userId,
     created: dateObj,
     dateStr: mainDate,
     created_ms: ms,
@@ -1632,7 +1640,7 @@ const handleSendRequest = async (_form) => {
 
 
 
-  clientStore.onRequest(receiverId, userId, target.value, user.value, request, _form.localPhotos, () => {
+  clientStore.onRequest(receiverId, target.value, user.value, request, _form.localPhotos, () => {
     // success callback
     console.log("Request sent successfully");
     rs_success_msg.value = t("proAround.requestSent");
@@ -1713,157 +1721,6 @@ html {
 :deep(body.modal-open .fixed-top,
 body.modal-open .sticky-top,
 body.modal-open .navbar) { padding-right: 0 !important; }
-
-
-
-
-
-
-
-
-/* .client-map-panel {
-  position: absolute;
-  top: 48px;
-  right: 24px;
-  width: min(420px, calc(100vw - 32px));
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(22, 27, 34, 0.82);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-  color: #fff;
-  z-index: 1000;
-}
-
-.panel-header,
-.panel-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.panel-header {
-  margin-bottom: 14px;
-}
-
-.panel-refresh {
-  border: 0;
-  background: transparent;
-  color: #f2c078;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-}
-
-.panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.panel-icon,
-.panel-close {
-  cursor: pointer;
-  opacity: 0.8;
-  transition: 0.2s ease;
-}
-
-.panel-icon:hover,
-.panel-close:hover {
-  opacity: 1;
-  transform: scale(1.05);
-}
-
-.field-wrapper {
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.section-label {
-  margin: 4px 0 10px;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.modern-input-group,
-.modern-select,
-.modern-mdb-select {
-  width: 100%;
-}
-
-.clear-btn {
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #fff !important;
-}
-
-.select-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.select-group i {
-  font-size: 16px;
-  color: #6fd0d4;
-}
-
-.field-error {
-  border: 1px solid #ff6b8a !important;
-  border-radius: 8px;
-}
-
-.error-text {
-  color: #ff8a8a;
-  font-size: 13px;
-  margin: 6px 0 0;
-}
-
-.empty-text {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.search-btn {
-  border-radius: 10px;
-  padding: 7px 18px;
-  margin-top: 12px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #2aa7c9, #3b82f6) !important;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
-}
-
-.modern-checkbox {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-@media (max-width: 768px) {
-  .client-map-panel {
-    position: fixed;
-    top: auto;
-    right: 12px;
-    left: 12px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
-    width: auto;
-    max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 16px;
-  }
-
-  
-}
-
-@media only screen and (max-width: 1000px) {
-  #address-panel {
-    display: none !important;
-  }
- 
-} */
 
 .client-map-panel {
   position: absolute;

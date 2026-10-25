@@ -16,7 +16,8 @@
     "clean": "rimraf node_modules server/node_modules package-lock.json server/package-lock.json",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "check:icons": "node scripts/check-profession-icons.cjs scripts/fontawesome-6.0.0.min.css"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.19",

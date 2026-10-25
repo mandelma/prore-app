@@ -107,27 +107,60 @@ const hs = (io, socket) => {
     socket.on(
         "client made request",
         async (receiver, bookingId) => {
-            const room = `user:${receiver}`;
+            try {
+                // 1. Kontrollime tellimuse ID-d
+                if (!mongoose.isValidObjectId(bookingId)) {
+                    return;
+                }
 
-            console.log(
-                "Request:",
-                receiver,
-                bookingId
-            );
+                // 2. Otsime tellimuse andmebaasist
+                const booking = await Recipient.findById(bookingId);
 
-            const sockets =
-                await io.in(room).fetchSockets();
+                if (!booking) {
+                    return;
+                }
 
-            console.log(
-                `Receiver room ${room} has`,
-                sockets.length,
-                "socket(s)"
-            );
+                // 3. Kontrollime tellimuse omanikku
+                if (
+                    String(booking.author_id) !==
+                    String(socket.userId)
+                ) {
+                    return;
+                }
 
-            io.to(room).emit(
-                "handle client request",
-                { bookingId }
-            );
+                // 4. Leiame tellimusega seotud pakkujad
+                const providers = await Provider.find({
+                    _id: { $in: booking.ordered }
+                });
+
+                // 5. Kontrollime, kas adressaat on
+                //    tegelikult tellimusega seotud
+                const allowedReceivers = providers.map(
+                    provider => String(provider.personId)
+                );
+
+                if (
+                    !allowedReceivers.includes(String(receiver))
+                ) {
+                    return;
+                }
+
+                // 6. Saadame teavituse kontrollitud adressaadile
+                const room = `user:${receiver}`;
+
+                io.to(room).emit(
+                    "handle client request",
+                    {
+                        bookingId: String(booking._id)
+                    }
+                );
+
+            } catch (error) {
+                console.error(
+                    "Direct booking Socket.io error:",
+                    error
+                );
+            }
         }
     );
 

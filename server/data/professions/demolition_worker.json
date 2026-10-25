@@ -24,7 +24,7 @@
         "et": "Siseruumide, sisustuselementide, viimistluse ja väiksemate konstruktsioonide ohutu lammutamine ning jäätmete käitlemine.",
         "ru": "Безопасный демонтаж интерьеров, оборудования, отделки и небольших конструкций, включая обращение со строительными отходами."
     },
-    "icon": "fa-solid fa-person-digging",
+    "icon": "fa-solid fa-hammer",
     "sortOrder": 90,
     "customFields": [
         {

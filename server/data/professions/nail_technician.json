@@ -1,0 +1,30 @@
+{
+  "code": "nail_technician",
+  "categoryCode": "beauty_wellness",
+  "name": {
+    "fi": "Kynsiteknikko",
+    "en": "Nail technician",
+    "sv": "Nagelteknolog",
+    "et": "Küünetehnik",
+    "ru": "Мастер маникюра и педикюра"
+  },
+  "description": {
+    "fi": "Manikyyrit, geelilakkaukset, rakennekynnet, kynsien huollot ja koristelut sekä pedikyyrit.",
+    "en": "Manicures, gel polish, nail extensions, maintenance, nail art and pedicures.",
+    "sv": "Manikyr, gellack, nagelförlängning, nagelvård, nageldekoration och pedikyr.",
+    "et": "Maniküür, geellakkimine, kunstküünte paigaldamine ja hooldus, küünedisain ning pediküür.",
+    "ru": "Маникюр, гель-лак, наращивание и коррекция ногтей, дизайн ногтей и педикюр."
+  },
+  "icon": "fa-solid fa-hand-sparkles",
+  "enabled": true,
+  "sortOrder": 40,
+  "countries": [
+    "FI",
+    "EE",
+    "SE"
+  ],
+  "fieldSets": [
+    "nail_services"
+  ],
+  "customFields": []
+}

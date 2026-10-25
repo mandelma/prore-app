@@ -98,7 +98,6 @@ export const useClientStore = defineStore('client', () => {
         clientError.value = null;
         try {
             const orders = await clientService.getOwnBookings(id);
-
             let list = await checkExpired(orders || []);
 
             console.log("LIST ", list)
@@ -321,11 +320,12 @@ export const useClientStore = defineStore('client', () => {
         console.log("Nothing need to act in clint side");
 
     }
+    
+    //receiverId, target.value, user.value, request,
 
     // Client sending request to the provider via map
     const onRequest = async (
         receiver,
-        userId,
         pro,
         user,
         request,
@@ -334,15 +334,15 @@ export const useClientStore = defineStore('client', () => {
         onError
     ) => {
         try {
-            console.log("Data in rec store", receiver);
+            console.log("receiver ", receiver);
+            console.log("pro ", pro)
+            console.log("user ", user)
     
-            console.log("User id", userId);
             console.log("REQUEST", request);
 
             console.log("BEFORE addRecipient");
 
             const newRequest = await clientService.addRecipient(
-                userId,
                 request
             );
 
@@ -361,34 +361,28 @@ export const useClientStore = defineStore('client', () => {
                 await clientService.addProviderData(
                     bookingId,
                     {
-                        providerId: pro.id,
-                        receiver: pro.personId
+                        providerId: pro.id
                     }
                 );
 
-            console.log("handleClient:", handleClient);
-
-            const handlePro =
-                await providerService.addProviderBooking(
-                    pro.id,
-                    bookingId
-                );
-
-            console.log("handlePro:", handlePro);
-
-            console.log("USER --", user.username);
-
-            newRequest.ordered.push(pro);
-            newRequest.user = user;
-
-            if (!handleClient || !handlePro) {
+            if (!handleClient.success) {
                 console.log(
-                    "❌ handleClient or handlePro missing",
-                    handleClient,
-                    handlePro
+                    "❌ handleClient is missing",
+                    handleClient
                 );
                 throw new Error("Provider booking update failed");
             }
+
+            console.log("handleClient:", handleClient);
+
+
+            console.log("USER --", user.username);
+
+            newRequest.ordered ??= [];
+            newRequest.ordered.push(pro);
+            newRequest.user = user;
+
+            
 
             console.log("Created request id:", bookingId);
 

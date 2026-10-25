@@ -15,7 +15,7 @@
         "et": "Sõidukite rehvide vahetamine, paigaldamine, tasakaalustamine ja muud rehvitööd.",
         "ru": "Замена, монтаж, балансировка шин и другие шиномонтажные работы."
     },
-    "icon": "fa-solid fa-car-burst",
+    "icon": "fa-solid fa-car",
     "enabled": true,
     "sortOrder": 20,
     "countries": [

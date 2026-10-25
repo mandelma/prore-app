@@ -1,0 +1,467 @@
+{
+  "code": "nail_services",
+  "customFields": [
+    {
+      "key": "serviceType",
+      "type": "select",
+      "required": true,
+      "order": 200,
+      "label": {
+        "fi": "Palvelun tyyppi",
+        "en": "Service type",
+        "sv": "Typ av tjänst",
+        "et": "Teenuse liik",
+        "ru": "Тип услуги"
+      },
+      "options": [
+        {
+          "value": "classic_manicure",
+          "label": {
+            "fi": "Perusmanikyyri",
+            "en": "Classic manicure",
+            "sv": "Klassisk manikyr",
+            "et": "Klassikaline maniküür",
+            "ru": "Классический маникюр"
+          }
+        },
+        {
+          "value": "gel_polish",
+          "label": {
+            "fi": "Geelilakkaus",
+            "en": "Gel polish",
+            "sv": "Gellack",
+            "et": "Geellakkimine",
+            "ru": "Гель-лак"
+          }
+        },
+        {
+          "value": "gel_nails",
+          "label": {
+            "fi": "Geelikynnet",
+            "en": "Gel nails",
+            "sv": "Gelnaglar",
+            "et": "Geelküüned",
+            "ru": "Гелевые ногти"
+          }
+        },
+        {
+          "value": "acrylic_nails",
+          "label": {
+            "fi": "Akryylikynnet",
+            "en": "Acrylic nails",
+            "sv": "Akrylnaglar",
+            "et": "Akrüülküüned",
+            "ru": "Акриловые ногти"
+          }
+        },
+        {
+          "value": "maintenance",
+          "label": {
+            "fi": "Kynsien huolto",
+            "en": "Nail infill / maintenance",
+            "sv": "Nagelpåfyllning / underhåll",
+            "et": "Küünte hooldus",
+            "ru": "Коррекция ногтей"
+          }
+        },
+        {
+          "value": "removal",
+          "label": {
+            "fi": "Kynsimateriaalin poisto",
+            "en": "Nail product removal",
+            "sv": "Borttagning av nagelmaterial",
+            "et": "Küünematerjali eemaldamine",
+            "ru": "Снятие покрытия"
+          }
+        },
+        {
+          "value": "pedicure",
+          "label": {
+            "fi": "Pedikyyri",
+            "en": "Pedicure",
+            "sv": "Pedikyr",
+            "et": "Pediküür",
+            "ru": "Педикюр"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu",
+            "en": "Other",
+            "sv": "Annat",
+            "et": "Muu",
+            "ru": "Другое"
+          }
+        }
+      ]
+    },
+    {
+      "key": "currentNailCondition",
+      "type": "select",
+      "required": false,
+      "order": 210,
+      "label": {
+        "fi": "Kynsien nykytilanne",
+        "en": "Current nail condition",
+        "sv": "Nuvarande nagelskick",
+        "et": "Küünte praegune seisukord",
+        "ru": "Текущее состояние ногтей"
+      },
+      "options": [
+        {
+          "value": "natural",
+          "label": {
+            "fi": "Luonnonkynnet",
+            "en": "Natural nails",
+            "sv": "Naturliga naglar",
+            "et": "Loomulikud küüned",
+            "ru": "Натуральные ногти"
+          }
+        },
+        {
+          "value": "gel",
+          "label": {
+            "fi": "Geelikynnet",
+            "en": "Gel nails",
+            "sv": "Gelnaglar",
+            "et": "Geelküüned",
+            "ru": "Гелевые ногти"
+          }
+        },
+        {
+          "value": "acrylic",
+          "label": {
+            "fi": "Akryylikynnet",
+            "en": "Acrylic nails",
+            "sv": "Akrylnaglar",
+            "et": "Akrüülküüned",
+            "ru": "Акриловые ногти"
+          }
+        },
+        {
+          "value": "gel_polish",
+          "label": {
+            "fi": "Geelilakka",
+            "en": "Gel polish",
+            "sv": "Gellack",
+            "et": "Geellakk",
+            "ru": "Гель-лак"
+          }
+        },
+        {
+          "value": "other",
+          "label": {
+            "fi": "Muu / en tiedä",
+            "en": "Other / not sure",
+            "sv": "Annat / vet inte",
+            "et": "Muu / ei tea",
+            "ru": "Другое / не знаю"
+          }
+        }
+      ]
+    },
+    {
+      "key": "nailLength",
+      "type": "select",
+      "required": false,
+      "order": 220,
+      "label": {
+        "fi": "Toivottu kynsien pituus",
+        "en": "Desired nail length",
+        "sv": "Önskad nagellängd",
+        "et": "Soovitud küünte pikkus",
+        "ru": "Желаемая длина ногтей"
+      },
+      "options": [
+        {
+          "value": "short",
+          "label": {
+            "fi": "Lyhyt",
+            "en": "Short",
+            "sv": "Kort",
+            "et": "Lühike",
+            "ru": "Короткая"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "fi": "Keskipitkä",
+            "en": "Medium",
+            "sv": "Medellång",
+            "et": "Keskmine",
+            "ru": "Средняя"
+          }
+        },
+        {
+          "value": "long",
+          "label": {
+            "fi": "Pitkä",
+            "en": "Long",
+            "sv": "Lång",
+            "et": "Pikk",
+            "ru": "Длинная"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "Sovitaan yhdessä",
+            "en": "To be decided",
+            "sv": "Bestäms tillsammans",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "nailShape",
+      "type": "select",
+      "required": false,
+      "order": 230,
+      "label": {
+        "fi": "Toivottu kynsien muoto",
+        "en": "Desired nail shape",
+        "sv": "Önskad nagelform",
+        "et": "Soovitud küünte kuju",
+        "ru": "Желаемая форма ногтей"
+      },
+      "options": [
+        {
+          "value": "round",
+          "label": {
+            "fi": "Pyöreä",
+            "en": "Round",
+            "sv": "Rund",
+            "et": "Ümar",
+            "ru": "Круглая"
+          }
+        },
+        {
+          "value": "oval",
+          "label": {
+            "fi": "Ovaali",
+            "en": "Oval",
+            "sv": "Oval",
+            "et": "Ovaalne",
+            "ru": "Овальная"
+          }
+        },
+        {
+          "value": "square",
+          "label": {
+            "fi": "Neliö",
+            "en": "Square",
+            "sv": "Fyrkantig",
+            "et": "Kandiline",
+            "ru": "Квадратная"
+          }
+        },
+        {
+          "value": "almond",
+          "label": {
+            "fi": "Manteli",
+            "en": "Almond",
+            "sv": "Mandel",
+            "et": "Mandlikujuline",
+            "ru": "Миндальная"
+          }
+        },
+        {
+          "value": "stiletto",
+          "label": {
+            "fi": "Terävä",
+            "en": "Stiletto",
+            "sv": "Spetsig",
+            "et": "Terav",
+            "ru": "Стилет"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "Ei väliä / sovitaan",
+            "en": "No preference / discuss",
+            "sv": "Ingen preferens / diskuteras",
+            "et": "Pole eelistust / kokkuleppel",
+            "ru": "Без предпочтений / обсудим"
+          }
+        }
+      ]
+    },
+    {
+      "key": "nailArt",
+      "type": "select",
+      "required": false,
+      "order": 240,
+      "label": {
+        "fi": "Koristelun tarve",
+        "en": "Nail art preference",
+        "sv": "Önskad nageldekoration",
+        "et": "Küünedisaini soov",
+        "ru": "Желаемый дизайн ногтей"
+      },
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "fi": "Ei koristelua",
+            "en": "No nail art",
+            "sv": "Ingen dekoration",
+            "et": "Ilma kaunistusteta",
+            "ru": "Без дизайна"
+          }
+        },
+        {
+          "value": "simple",
+          "label": {
+            "fi": "Yksinkertainen koristelu",
+            "en": "Simple nail art",
+            "sv": "Enkel dekoration",
+            "et": "Lihtne disain",
+            "ru": "Простой дизайн"
+          }
+        },
+        {
+          "value": "detailed",
+          "label": {
+            "fi": "Näyttävä koristelu",
+            "en": "Detailed nail art",
+            "sv": "Avancerad dekoration",
+            "et": "Keerukam disain",
+            "ru": "Сложный дизайн"
+          }
+        },
+        {
+          "value": "french",
+          "label": {
+            "fi": "Ranskalainen manikyyri",
+            "en": "French manicure",
+            "sv": "Fransk manikyr",
+            "et": "Prantsuse maniküür",
+            "ru": "Французский маникюр"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "fi": "Sovitaan yhdessä",
+            "en": "To be decided",
+            "sv": "Bestäms tillsammans",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "removalNeeded",
+      "type": "boolean",
+      "required": false,
+      "order": 250,
+      "label": {
+        "fi": "Tarvitaanko vanhan materiaalin poisto?",
+        "en": "Is removal of existing product needed?",
+        "sv": "Behövs borttagning av befintligt material?",
+        "et": "Kas vana küünematerjal tuleb eemaldada?",
+        "ru": "Нужно ли снять старое покрытие?"
+      }
+    },
+    {
+      "key": "repairCount",
+      "type": "number",
+      "required": false,
+      "order": 260,
+      "label": {
+        "fi": "Korjattavien kynsien määrä",
+        "en": "Number of nails needing repair",
+        "sv": "Antal naglar som behöver lagas",
+        "et": "Parandamist vajavate küünte arv",
+        "ru": "Количество ногтей для ремонта"
+      },
+      "min": 0,
+      "max": 20
+    },
+    {
+      "key": "serviceLocation",
+      "type": "select",
+      "required": false,
+      "order": 270,
+      "label": {
+        "fi": "Palvelun toteutuspaikka",
+        "en": "Service location",
+        "sv": "Plats för tjänsten",
+        "et": "Teenuse osutamise koht",
+        "ru": "Место оказания услуги"
+      },
+      "options": [
+        {
+          "value": "salon",
+          "label": {
+            "fi": "Tekijän salongissa",
+            "en": "At technician’s salon",
+            "sv": "På teknikerens salong",
+            "et": "Tehniku salongis",
+            "ru": "В салоне мастера"
+          }
+        },
+        {
+          "value": "client",
+          "label": {
+            "fi": "Asiakkaan luona",
+            "en": "At client’s location",
+            "sv": "Hos kunden",
+            "et": "Kliendi juures",
+            "ru": "У клиента"
+          }
+        },
+        {
+          "value": "flexible",
+          "label": {
+            "fi": "Sovitaan erikseen",
+            "en": "To be agreed",
+            "sv": "Enligt överenskommelse",
+            "et": "Kokkuleppel",
+            "ru": "По договорённости"
+          }
+        }
+      ]
+    },
+    {
+      "key": "referencePhotoAvailable",
+      "type": "boolean",
+      "required": false,
+      "order": 280,
+      "label": {
+        "fi": "Onko mallikuva saatavilla?",
+        "en": "Do you have a reference photo?",
+        "sv": "Finns det en inspirationsbild?",
+        "et": "Kas näidispilt on olemas?",
+        "ru": "Есть ли фото-пример?"
+      }
+    },
+    {
+      "key": "additionalNailNotes",
+      "type": "textarea",
+      "required": false,
+      "order": 290,
+      "label": {
+        "fi": "Lisätiedot ja toiveet",
+        "en": "Additional details and preferences",
+        "sv": "Ytterligare information och önskemål",
+        "et": "Lisainfo ja erisoovid",
+        "ru": "Дополнительная информация и пожелания"
+      },
+      "placeholder": {
+        "fi": "Kuvaile väritoiveet ja muut yksityiskohdat",
+        "en": "Describe colors and any special requests",
+        "sv": "Beskriv färger och andra önskemål",
+        "et": "Kirjelda värvisoove ja muid erisoove",
+        "ru": "Опишите пожелания по цвету и другие детали"
+      },
+      "maxLength": 1000
+    }
+  ]
+}

@@ -24,7 +24,7 @@
         "et": "Torutööd, lekete parandamine ning segistite, WC-pottide ja veeseadmete paigaldus.",
         "ru": "Сантехнические работы, устранение протечек, установка смесителей, унитазов и водяного оборудования."
     },
-    "icon": "fa-solid fa-faucet-drip",
+    "icon": "fa-solid fa-wrench",
     "sortOrder": 20,
     "customFields": [
         {

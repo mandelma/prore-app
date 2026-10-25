@@ -24,7 +24,7 @@
         "et": "Köögikappide, töötasapindade, kodumasinate ja muu köögisisustuse paigaldus ning vahetus.",
         "ru": "Монтаж и замена кухонных шкафов, столешниц, бытовой техники и другого кухонного оборудования."
     },
-    "icon": "fa-solid fa-kitchen-set",
+    "icon": "fa-solid fa-screwdriver-wrench",
     "sortOrder": 80,
     "customFields": [
         {

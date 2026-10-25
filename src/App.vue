@@ -1356,7 +1356,7 @@ watch(
 const refreshUserData = async (userId, userRole) => {
   await Promise.all([
     userStore.fetchMe(),
-    client.orderList(userId),
+    client.orderList(),
     handleProvider.getProState(userId),
     professionStore.initProfessions(),
     notificationStore.handleNotifications(userId),
@@ -1434,7 +1434,7 @@ const syncUserLiveData = async (userId) => {
   }
 
   liveSyncPromise = Promise.allSettled([
-    client.orderList(userId),
+    client.orderList(),
     handleProvider.getProState(userId),
     notificationStore.handleNotifications(userId),
     conversationStore.getConversations()

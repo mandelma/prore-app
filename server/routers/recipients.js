@@ -40,8 +40,9 @@ module.exports = (io) => {
         }
     })
 
-    recipientRouter.get('/user/:id', async (req, res) => {
-        const recipients = await Recipient.find({ user: req.params.id })
+    recipientRouter.get('/user', httpAuth, async (req, res) => {
+        
+        const recipients = await Recipient.find({ user: req.user.id })
             .populate('user')
             .populate('ordered')
             .populate({ path: 'ordered', populate: { path: 'user' } })

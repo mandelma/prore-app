@@ -1339,17 +1339,6 @@ const { user } = storeToRefs(auth);
 const { clientConfirmed } = storeToRefs(clientStore);
 const { isUserPro, proCalendarEvents, proTimetable } = storeToRefs(proStore);
 
-
-// const events = ref([
-//   { id: '1', title: 'Team sync', start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', meetingId: 'ABC123', location: 'Room 1' } },
-//   { id: '2', title: 'Team sync',     start: '2025-09-16T10:00:00', end: '2025-09-16T11:00:00', extendedProps: { type: 'meeting', location: 'Room 2' } },
-//   { id: '3', title: 'Client call',   start: '2025-09-18T13:30:00', end: '2025-09-18T14:00:00', extendedProps: { type: 'client', location: 'Room 3' } },
-//   { id: '4', title: 'Vacation',      start: '2025-09-20', allDay: true, extendedProps: { type: 'vacation', location: 'Room 4' } },
-//   { id: '5', title: 'Write report',  start: '2025-09-19T09:00:00', end: '2025-09-19T10:00:00', extendedProps: { type: 'task', location: 'Room 5' } },
-//
-// ])
-//
-// // state for modal
 const showTimeEventModal = ref(false);
 const showNotesEventModal = ref(false);
 const showProEventModal = ref(false)
@@ -1508,22 +1497,6 @@ const filteredEvents = computed(() =>
     return t >= new Date().getTime() //startOfToday.value
   })
 )
-
-/* const stateOptions = ref([
-  {text: "🕒 Vapaa aika", value: "time"},
-  {text: "📝 Muistiinpano", value: "vacation"}
-]) */
-
-/* const stateOptions = computed(() => [
-  {
-    text: `🕒 ${t("calendar.freeTime")}`,
-    value: "time"
-  },
-  {
-    text: `📝 ${t("calendar.note")}`,
-    value: "vacation"
-  }
-]); */
 
 const stateOptions = ref([
   {
@@ -1786,11 +1759,6 @@ const saveOfferEventEdits__ = async () => {
     return;
   }
 
-
-
-
-
-
   const minimumEnd = new Date(
     start.getTime() + 30 * 60 * 1000
   );
@@ -1906,13 +1874,6 @@ const closeProviderDurationEdit = () => {
   showProviderEventEdit.value = false;
   offerDurationError.value = null;
 };
-
-
-
-
-
-
-
  
 // Time event
 
@@ -2108,18 +2069,6 @@ const saveOfferEventEdits = async () => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
 // If your type bar should show ONLY on the start day:
 const startKeyOf = (start) => {
   const s = new Date(start);
@@ -2259,8 +2208,6 @@ async function saveOfferEdit() {
 
   }
 
-  //await proStore.onEditOffer(payload.id, payload)
-  //await clientStore.updateClientMain(payload.id, payload);
   await clientStore.updatingBookingOffer(payload.id, {
     price: Number(editOfferForm.value.priceOffer),
     placeOrGo: editOfferForm.value.placeOrGo || ''
@@ -2598,20 +2545,6 @@ function openEditModal(eventLike) {
     note: ev.extendedProps?.note || ''
   };
 
-   /* editForm.value = {
-    title: ev.title || "",
-    note: ev.extendedProps?.note || "",
-    location: ev.extendedProps?.location || "",
-    start: ev.start ? new Date(ev.start) : null,
-    end: ev.end
-      ? new Date(ev.end)
-      : ev.start
-        ? new Date(ev.start.getTime() + 60 * 60 * 1000)
-        : null,
-  }; */
-
-
-  //reInitKey.value++;
   showEdit.value = true;
 
   // clear selection
@@ -2626,58 +2559,9 @@ const ymdLocal = (d) => {
   return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
 };
 
-
-
-
-
-
 const saveTimeEdit = () => {
 
 }
-
-
-
-
-/* if (prevState === "time") {
-  if (
-    !isValidDate(startForApi) ||
-    !isValidDate(endForApi)
-  ) {
-    editAvailabilityError.value =
-      t("calendar.availabilityErrorInvalidTime");
-
-    return;
-  }
-
-  if (startForApi < new Date()) {
-    editAvailabilityError.value =
-      t("calendar.availabilityErrorPastStart");
-
-    return;
-  }
-
-  if (endForApi <= startForApi) {
-    editAvailabilityError.value =
-      t("calendar.availabilityErrorEndBeforeStart");
-
-    return;
-  }
-
-  const minimumEnd = new Date(
-    startForApi.getTime() + 30 * 60 * 1000
-  );
-
-  if (endForApi < minimumEnd) {
-    editAvailabilityError.value =
-      t("calendar.availabilityErrorMinimumDuration");
-
-    return;
-  }
-} */
-
-// Eduka salvestamise lõpus 
-// editAvailabilityError.value = null;
-// showEdit.value = false;
 
 const MS_DAY = 24 * 60 * 60 * 1000;
 
@@ -2700,10 +2584,6 @@ const dayKeysOfRange = (
     return [];
   }
 
-  /*
-   * FullCalendari all-day event'i end on exclusive.
-   * Näiteks 10.–11. kuupäev tähendab ainult 10. kuupäeva.
-   */
   if (allDay) {
     rangeEnd.setTime(
       rangeEnd.getTime() - MS_DAY
@@ -2725,8 +2605,6 @@ const dayKeysOfRange = (
 
   return keys;
 };
-
-
 
 const saveEventEdits = async () => {
   editAvailabilityError.value = null;
@@ -2754,9 +2632,6 @@ const saveEventEdits = async () => {
 
   /*
    * Märkme muutmine
-   *
-   * Märkme modalis ei muudeta kuupäeva ega kellaaega,
-   * seega säilitame olemasolevad väärtused.
    */
   if (eventType === "vacation") {
     const payload = {
@@ -2796,9 +2671,7 @@ const saveEventEdits = async () => {
     return;
   }
 
-  /*
-   * Saadaoleva aja muutmine
-   */
+  // Saadaoleva aja muutmine
   if (eventType === "time") {
     const newStart = fromLocalInput(form.start);
     const newEnd = fromLocalInput(form.end);
@@ -2873,16 +2746,8 @@ const saveEventEdits = async () => {
     };
 
     try {
-      /*
-       * Salvesta kõigepealt backendis.
-       * Nii ei jää FullCalendar valele ajale,
-       * kui server annab vea.
-       */
+     
       await proStore.onEdit(id, payload);
-
-      /* eventApi.setDates(newStart, newEnd, {
-        allDay: false,
-      }); */
 
       selectedEvent.value = {
         ...selectedEvent.value,
@@ -3080,16 +2945,6 @@ const saveEventEdits__prev = async () => {
     
 };
 
-
-
-
-
-
-
-
-
-
-
 const handleEventDrop = async (info) => {
   const { event, oldEvent, revert } = info;
 
@@ -3265,7 +3120,7 @@ async function deleteFromPreview() {
   showNotesEventModal.value = false;
 }
 
-async function deleteEvent() {
+/* async function deleteEvent() {
   const id = editingEventId.value && String(editingEventId.value);
   if (!id) return;
 
@@ -3287,7 +3142,7 @@ async function deleteEvent() {
   showEdit.value = false;
   showProEventModal.value = false;
 }
-
+ */
 
 
 function rebuildTypeBarForDay(key) {
@@ -3333,8 +3188,6 @@ function getEventDays(ev) {
   }
   return days
 }
-
-
 
 // Avatakse event modal
 function openEventModalPreview(raw) {
@@ -3401,25 +3254,11 @@ function openEventModalPreview(raw) {
     default:
       showProEventModal.value = true; // fallback
   }
-
-  /* if (type === "pro") {
-    showEventModal.value = true;
-  } else if (type === "time") {
-    showTimeEventModal.value = true;
-  } else {
-    showClientEventModal.value = true;
-  } */
     
 }
 
 const fcLocaleCode = computed(() => ({ fi:'fi', sv:'sv', et:'et', ru: 'ru', en:'en-gb' }[locale.value] ?? 'fi'))
 const clickedDate = ref(null);
-
-/* function onEventClick(info) {
-  info.jsEvent.preventDefault()
-  openEventModalPreview(info.event)
-  
-} */
 
 const showDayEvents = ref(false)
 const selectedDayEvents = ref([])
@@ -3510,36 +3349,34 @@ const typeBarByDate = computed(() => {
   const list = Array.isArray(filteredEvents.value) ? filteredEvents.value : [];
   if (isUserPro.value) {
     for (const ev of list) {
-    const start = new Date(ev.start);
-    if (isNaN(+start)) continue;
+      const start = new Date(ev.start);
+      if (isNaN(+start)) continue;
 
-    // Determine end
-    // if no end, treat as single-day (or single moment) event
-    let end = ev.end ? new Date(ev.end) : new Date(start);
-    if (isNaN(+end)) end = new Date(start);
+      // Determine end
+      // if no end, treat as single-day (or single moment) event
+      let end = ev.end ? new Date(ev.end) : new Date(start);
+      if (isNaN(+end)) end = new Date(start);
 
-    // For allDay events, FullCalendar uses exclusive end → make it inclusive by subtracting 1 day
-    const last = ev.allDay ? new Date(end.getTime() - 86400000) : end;
+      // For allDay events, FullCalendar uses exclusive end → make it inclusive by subtracting 1 day
+      const last = ev.allDay ? new Date(end.getTime() - 86400000) : end;
 
-    // Walk day by day (local) from start to last inclusive
-    const cur = new Date(start);
-    cur.setHours(0, 0, 0, 0);
-    last.setHours(0, 0, 0, 0);
+      // Walk day by day (local) from start to last inclusive
+      const cur = new Date(start);
+      cur.setHours(0, 0, 0, 0);
+      last.setHours(0, 0, 0, 0);
 
-    const type = ev?.extendedProps?.type;
-    if (!type) continue;
+      const type = ev?.extendedProps?.type;
+      if (!type) continue;
 
-    while (cur <= last) {
-      const key = ymdLocal(cur);
-      if (!map.has(key)) map.set(key, new Set());
-      map.get(key).add(type);
-      
-      cur.setDate(cur.getDate() + 1);
+      while (cur <= last) {
+        const key = ymdLocal(cur);
+        if (!map.has(key)) map.set(key, new Set());
+        map.get(key).add(type);
+        
+        cur.setDate(cur.getDate() + 1);
+      }
     }
   }
-  }
-  
-
   return map;
 });
 
@@ -3595,48 +3432,7 @@ const handleEventResize = async (info) => {
   
 }
 
-
 const ymd = d => d.toISOString().slice(0, 10);
-
-
-/* const handleEventDrop_previous = async (info) => {
-  const event = info.event;
-
-  console.log('📅 Event moved!');
-  console.log('Title:', event.title);
-  console.log('New start:', event.start);
-  console.log('New end:', event.end);
-  console.log('AllDay:', event.allDay);
-
-  
-  const formatLocal = (d) =>
-    d?.toLocaleString('fi-FI', {
-      dateStyle: 'short',
-      timeStyle: 'short'
-    });
-
-  console.log(
-    `Moved to: ${formatLocal(event.start)} → ${formatLocal(event.end)}`
-  );
-
-
-  console.log("Event id on drop - " + event.id)
-
-  
-  const eventOnMove = {
-    id: event.id,
-    state: event.extendedProps.type,
-    allDay: event.allDay,
-    title: event.title,
-    content: event.content,
-    start: event.start,
-    end: event.end
-  }
-
-  await proStore.onEdit(event.id, eventOnMove);
-
-}
- */
 
 // does an all-day event cover this date?
 const allDayCovers = (ev, dateStr) => {
@@ -3658,32 +3454,6 @@ const MAX_ALLDAY_PER_DAY = 1;
 
 
 const pad = n => String(n).padStart(2, '0');
-
-/* const addDaysLocalStr = (yyyyMmDd, days) => {
-  const [y,m,da] = yyyyMmDd.split('-').map(Number);
-  const dt = new Date(y, m-1, da);
-  dt.setDate(dt.getDate() + days);
-  return ymdLocal(dt);
-}; */
-
-/* function createAllDayEvent(date) {
-  const cal = calendarRef.value.getApi();
-  const startStr = ymdLocal(date);
-
-  if (countAllDayOn(cal, startStr) >= 1) {
-      console.log("Is already all day event")
-      alert('⚠️ Only one all-day event allowed on this day.');
-      toast.warn('Only one all-day event per day');
-    return;
-  }
-
-  cal.addEvent({
-    title: 'New all-day',
-    start: startStr,
-    end: addDaysLocalStr(startStr, 1),
-    allDay: true,
-  });
-} */
 
 const options = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -4025,15 +3795,6 @@ const options = computed(() => ({
   transition: background 0.2s, transform 0.1s;
 }
 
-/* .fc-col-header {
-  background-color: #242931;
-}
-.fc .fc-col-header, .fc .fc-daygrid-day { border-color:#2a2f3a; }
-.fc { background:#161a22; color:#e6e6e6; border-radius:8px; }
-.fc .fc-day-today { background:#1e2530; } */
-
-
-
 /* --- Minimal dark theme to match MDB dark --- */
 .fc { background:#161a22; color:#e6e6e6; border-radius:8px; }
 .fc .fc-daygrid-day { border: 1px solid #c76d6d;}
@@ -4165,38 +3926,6 @@ const options = computed(() => ({
   .fc .fc-daygrid-day-frame { padding:2px; }
 }
 
-/* Slightly tighter padding helps on small screens */
-/* @media (max-width: 640px) {
-  .fc .fc-daygrid-event { padding: 0 2px; }
-  .fc .fc-daygrid-day {
-    height: 58px !important;
-  }
-  .fc .fc-daygrid-day-frame {
-    min-height: 43px !important;
-    padding: 3px;
-  }
-  .fc .fc-daygrid-day-events {
-    min-height: 18px;
-  }
-
-  .fc .fc-daygrid-event {
-    font-size: 0.72rem;
-    line-height: 1.2;
-  }
-} */
-
-
-/* @media (max-width: 640px) {
-  .fc .fc-daygrid-day {
-    height: 58px !important;
-  }
-
-  .fc .fc-daygrid-day-frame {
-    min-height: 58px !important;
-  }
-}
- */
-
  @media (max-width: 640px) {
   .fc .fc-daygrid-day-frame {
     min-height: 80px !important;
@@ -4210,16 +3939,6 @@ const options = computed(() => ({
     width: 100%;
   }
 
-  /* .fc .fc-event-main {
-    overflow: hidden;
-  }
-
-  .fc .fc-event-title {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  } */
 }
 
 /* Modal for event details */
@@ -4303,12 +4022,6 @@ const options = computed(() => ({
   display: flex;
   gap: 12px; /* horizontal space between buttons */
 }
-/* .event-chat :hoover{
-  background-color: red;
-} */
-
-
-
 
 /* Creating event css */
 .create-entry-modal__header {

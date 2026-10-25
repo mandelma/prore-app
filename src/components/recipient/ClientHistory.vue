@@ -505,7 +505,7 @@ const handleRequest = async (payload) => {
   }
 
   const request = {
-    author_id: userId,
+    // author_id: userId,
     created: dateObj,
     created_ms: ms,
     dateStr: payload.date,
@@ -529,8 +529,7 @@ const handleRequest = async (payload) => {
   //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!"
   //isRequestSent.value = true;
 
-
-  clientStore.onRequest(receiverId, userId, selectedProvider.value, user.value, request, payload.localPhotos, () => {
+  clientStore.onRequest(receiverId, selectedProvider.value, user.value, request, payload.localPhotos, () => {
     // success callback
     console.log("Request sent successfully");
     //rs_success_msg.value = "Tilaus lähetetty onnistuneesti!";

@@ -144,7 +144,8 @@
                 >
                   <RouterLink
                     to="/client-panel"
-                    class="dropdown-item dd-item  "
+                    class="dropdown-item dd-item"
+                    @click="userDropdown = false"
                   >
                     {{ t("app.orders") }}
                   </RouterLink>

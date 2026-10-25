@@ -48,6 +48,8 @@
             
           </div>
 
+          form address {{ form.address }}
+
           <AddressAutocomplete
             v-model="form.address"
             v-model:valid="addressValid"
@@ -222,6 +224,11 @@
       type: Object,
       default: null
     },
+    location: {
+      type: Object,
+      default: null
+    },
+    
     date: {
     type: String,
     default: ""
@@ -504,7 +511,7 @@
       const initPromise = mapStore.init()
       await nextTick()
 
-      const pos = userPos.value || lastKnownPos.value
+      /* const pos = userPos.value || lastKnownPos.value
       if (pos) {
         lat.value = pos.lat
         lng.value = pos.lng
@@ -531,7 +538,24 @@
         );
 
         addressValid.value = Boolean(result);
+      } */
+
+      const pos = props.location;
+
+      await initPromise;
+      
+      if (pos && !form.address) {
+        lat.value = pos.lat
+        lng.value = pos.lng
+
+        const result = await getAddressFromCoords(
+          pos.lat,
+          pos.lng
+        );
+
+        addressValid.value = Boolean(result);
       }
+
       
     } catch (err) {
       console.error("Map init failed:", err);
@@ -678,7 +702,7 @@
             upload?.location ||
             upload?.path ||
             photo.previewUrl,
-          /* previewUrl: photo.previewUrl, */
+          
           text: photo.text?.trim() || "",
           order: index,
           slotId: photo.slotId,
@@ -695,10 +719,6 @@
         content: form.requestContent,
         serverPhotos: photosForBackend,
         localPhotos: photosForLocalState,
-        /* budget: {
-          min: form.budgetMin,
-          max: form.budgetMax
-        }    */
       });
     }
   }

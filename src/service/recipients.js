@@ -9,8 +9,8 @@ const getRecipients = async () => {
     return results.data;
 }
 
-const getOwnBookings = async (id) => {
-    const ownResults = await axios.get(`${baseUrl}/user/${id}`);
+const getOwnBookings = async () => {
+    const ownResults = await authApi.get(`/recipients/user`);
     return ownResults.data;
 }
 
@@ -65,6 +65,7 @@ const editDescription = async (id, description) => {
     return result.data;
 } */
 
+// Adding booking id to provider count
 const addProviderData = async (id, proData) => {
     const result = await authApi.post(`recipients/${id}/add-ordered`, proData);
     return result.data;
