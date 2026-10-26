@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node server/index.js",
+    "dev:e2e": "cross-env E2E_TEST=true vite",
     "build": "vite build",
     "heroku-postbuild": "npm install --prefix server && npm run build",
     "preview": "vite preview",
@@ -45,6 +46,7 @@
     "@types/node": "^26.6.5",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/test-utils": "^2.5.1",
+    "cross-env": "^7.0.3",
     "jsdom": "^29.1.1",
     "rimraf": "^6.0.1",
     "vite": "^7.0.6",

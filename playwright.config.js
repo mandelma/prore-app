@@ -24,7 +24,7 @@ export default defineConfig({
   use: {
 
     // DuunHubi lokaalne frontend
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5174',
 
     // Salvestame vea korral ekraanipildi
     screenshot: 'only-on-failure',

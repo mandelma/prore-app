@@ -149,12 +149,19 @@ export default defineConfig({
   },
   
   server: {
+    port: process.env.E2E_TEST === 'true' ? 5174 : 5173,
+
+    strictPort: true,
+
     proxy: {
       '/api': {
-        target: 'http://localhost:3007',
+        target: process.env.E2E_TEST === 'true'
+          ? 'http://localhost:3008'
+          : 'http://localhost:3007',
+
         changeOrigin: true,
-        // if your backend routes are '/users' (no /api), add:
-        // rewrite: (p) => p.replace(/^\/api/, '')
+
+        ws: true,
       }
     }
   },
