@@ -242,7 +242,8 @@
     "freeTimes": "Vapaat ajat",
     "done": "Valmis",
     "calendar": "Kalenteri",
-    "addEntriesToCalendar": "Lisää merkintöjä kalenteriin",
+    "calendarAvailabilityHelp": "Merkitse kalenteriin ajat, jolloin olet käytettävissä. Näin asiakkaat näkevät vapaat aikasi ja sinun on helpompi saada uusia toimeksiantoja.",
+    
     "calendarVisibilityHelp": "Auttaa parantamaan näkyvyyttä kartalla ja antaa sinulle etulyöntiaseman asiakkaiden löytämisessä. Voit myös tehdä merkintöjä kalenteriin omaan käyttöösi.",
     "myOrders": "Omat tilaukset",
     "lookingForService": "ETSIN PALVELUA",

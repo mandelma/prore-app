@@ -226,7 +226,7 @@
     "freeTimes": "Lediga tider",
     "done": "Klar",
     "calendar": "Kalender",
-    "addEntriesToCalendar": "Lägg till anteckningar i kalendern",
+    "calendarAvailabilityHelp": "Markera i kalendern när du är tillgänglig för arbete. Då kan kunderna se dina lediga tider och det blir lättare för dig att få nya uppdrag.",
     "calendarVisibilityHelp": "Hjälper till att förbättra synligheten på kartan och ger dig en fördel när du hittar kunder. Du kan också göra kalenderanteckningar för eget bruk.",
     "myOrders": "Mina beställningar",
     "lookingForService": "SÖKER TJÄNST",

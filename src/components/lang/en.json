@@ -215,7 +215,7 @@
     "freeTimes": "Available times",
     "done": "Done",
     "calendar": "Calendar",
-    "addEntriesToCalendar": "Add entries to the calendar",
+    "calendarAvailabilityHelp": "Mark the times when you're available for work in your calendar. This helps customers see your availability and makes it easier for you to receive new job requests.",
     "calendarVisibilityHelp": "Helps improve visibility on the map and gives you an advantage in finding clients. You can also make calendar entries for your own use.",
     "myOrders": "My orders",
     "lookingForService": "LOOKING FOR A SERVICE",

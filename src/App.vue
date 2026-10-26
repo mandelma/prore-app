@@ -287,7 +287,7 @@
             @handle-user-action="sendUserAction"
 
             @confirm-order-toast="hConfirmOrderToast"
-            :is-mobile="isMobile"
+            :is-pwa="showPwaTopBottomNav"
             :provider="provider"
 
             :profile-loaded="profileLoaded"

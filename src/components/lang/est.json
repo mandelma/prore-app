@@ -226,7 +226,7 @@
     "freeTimes": "Vabad ajad",
     "done": "Valmis",
     "calendar": "Kalender",
-    "addEntriesToCalendar": "Lisa kalendrisse märkmeid",
+    "calendarAvailabilityHelp": "Märgi kalendrisse ajad, millal oled tööde tegemiseks saadaval. Nii näevad kliendid sinu vabu aegu ja sul on lihtsam uusi tellimusi saada.",
     "calendarVisibilityHelp": "Aitab parandada nähtavust kaardil ja annab eelise klientide leidmisel. Võid lisada ka isiklikke märkmeid kalendrisse.",
     "myOrders": "Minu tellimused",
     "lookingForService": "OTSIN TEENUST",

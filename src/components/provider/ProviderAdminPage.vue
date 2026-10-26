@@ -608,98 +608,148 @@
         
 
         <!-- Extras: schedule + alerts + billing snapshot -->
-        <MDBRow v-if="!isMobile" class="g-3 extras-row">
+        <!-- v-if="!isPwa" -->
+        <MDBRow class="g-3 extras-row">
           <MDBCol class="extras-col" col="12">
-            <MDBCard v-if="isCalendar">
-              <MDBCardBody>
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                  <table class="table-sm small" style="width: 40%; text-align: left;">
-                    <tbody>
-                      <tr>
-                        <th>
-                          {{ t('providerAdmin.freeTimes') }}
-                        </th>
-                        <td>
-                          <span style="color: orange;">{{ activeTimesCount }}</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>
-                          {{ t('providerAdmin.notes') }}
-                        </th>
-                        <td>
-                          <span style="color: palevioletred;">{{ activeNotesCount }}</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <p class="no-calendar" @click="isCalendar = false">{{ t('providerAdmin.done') }}</p>
-                  <!-- <MDBBtn size="sm" color="light" outline @click="openSchedule">Hallita</MDBBtn> -->
-                </div>
-              <calendar />
-              </MDBCardBody>
-              
-              
-            </MDBCard>
-            
-            <MDBCard v-else class="h-100">
-              <MDBCardBody>
-                <div class="d-flex align-items-center justify-content-between mb-2">
+            <MDBCard class="calendar-card">
 
-                  <table class="table-sm small" style="width: 40%; text-align: left;">
-                    <tbody>
-                      <tr>
-                        <th>
-                          {{ t('providerAdmin.freeTimes') }}
-                        </th>
-                        <td>
-                          <span style="color: orange;">{{ activeTimesCount }}</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>
-                          {{ t('providerAdmin.notes') }}
-                        </th>
-                        <td>
-                          <span style="color: palevioletred;">{{ activeNotesCount }}</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <!-- Klikitav päis -->
+              <button
+                type="button"
+                class="calendar-card-header"
+                :aria-expanded="isCalendar"
+                @click="isCalendar ? (isCalendar = false) : openSchedule()"
+              >
+
+                <div class="calendar-header-content">
+
+                  <!-- Ikoon ja pealkiri -->
+                  <div class="calendar-title-row">
+
+                    <div class="calendar-icon-box">
+                      <i class="fas fa-calendar-days"></i>
+                    </div>
+
+                    <div class="calendar-title">
+                      {{ t('providerAdmin.calendar') }}
+                    </div>
+
+                  </div>
+
+                  <!-- Selgitav tekst -->
                   
-                  <MDBBtn size="sm" color="light" outline @click="openSchedule">{{ t('providerAdmin.calendar') }}</MDBBtn>
-                </div>
-                <div style="text-align: left;">
-                  <div class="semibold" style="color: #708090;">
-                    {{ t('providerAdmin.addEntriesToCalendar') }}
+                  <p
+                    v-if="!isCalendar"
+                    class="calendar-description"
+                  >
+                    <MDBIcon
+                      icon="pencil"
+                      :class="activeTimesCount > 0 ? 'clock-icon-ok' : 'clock-icon'"
+                    />
+                    {{ t('providerAdmin.calendarAvailabilityHelp') }}
+                  </p>
+
+                  <!-- Statistika -->
+                  <div class="calendar-stats">
+
+                    <div class="calendar-stat">
+                      <span 
+                        class="stat-dot"
+                        :class="{
+                          'free-dot-ok': activeTimesCount > 0,
+                          'free-dot': activeTimesCount === 0
+                        }"
+                        >
+                      </span>
+
+                      <span class="stat-label">
+                        {{ t('providerAdmin.freeTimes') }}
+                      </span>
+
+                      <span class="stat-value free-value">
+                        {{ activeTimesCount }}
+                      </span>
+                    </div>
+
+                    <div class="calendar-stat">
+                      <span class="stat-dot notes-dot"></span>
+
+                      <span class="stat-label">
+                        {{ t('providerAdmin.notes') }}
+                      </span>
+
+                      <span class="stat-value notes-value">
+                        {{ activeNotesCount }}
+                      </span>
+                    </div>
+
                   </div>
-                  <div class="text-muted small">
-                    {{ t('providerAdmin.calendarVisibilityHelp') }}
-                  </div>
+
                 </div>
-                
-              </MDBCardBody>
+
+                <!-- Avamise / sulgemise ikoon -->
+                <div class="calendar-arrow">
+                  <i
+                    :class="
+                      isCalendar
+                        ? 'fas fa-chevron-up'
+                        : 'fas fa-chevron-right'
+                    "
+                  ></i>
+                </div>
+
+              </button>
+
+              <!-- Avatud kalender -->
+              <div
+                v-if="isCalendar"
+                class="calendar-expanded"
+              >
+                <calendar />
+              </div>
+
             </MDBCard>
           </MDBCol>
 
+          <!-- <div style="border-top: 1px solid orange;">
+            <img class="logo-hero__img img-box"
+              style="border-radius: 100%; margin-top: 13px;"
+              :src="logo"
+              alt="Prokeikkatori logo" width="100%"  />
+          </div> -->
+
           <MDBCol class="extras-col" col="12">
-            <MDBCard class="h-100">
-              <MDBCardBody>
-                
-                <!-- <div style="border-top: 1px solid orange;">
-                  <img class="logo-hero__img img-box"
-                    style="border-radius: 100%; margin-top: 13px;"
-                    :src="logo"
-                    alt="Prokeikkatori logo" width="100%"  />
-                </div> -->
-                <div style="display: flex; justify-content: space-between; margin-top: 14px;">
-                  <MDBBtn v-if="isBookings" color="light" @click="router.push('/client-panel')">{{ t('providerAdmin.myOrders') }}</MDBBtn>
-                  <p v-else></p>
-                  <MDBBtn outline="success" rounded @click="router.push('/client-form')"><span class="btn__icon">🔍</span> {{ t('providerAdmin.lookingForService') }}</MDBBtn>
-                </div>
-                
-                
-              </MDBCardBody>
+            <MDBCard class="action-card h-100">
+              <div class="action-container">
+
+                <!-- Minu tellimused -->
+                <button
+                  v-if="isBookings"
+                  type="button"
+                  class="action-area orders-area"
+                  @click="router.push('/client-panel')"
+                >
+                  <i class="fas fa-clipboard-list action-icon"></i>
+
+                  <span class="action-text">
+                    {{ t('providerAdmin.myOrders') }}
+                  </span>
+                </button>
+
+                <!-- Otsin teenust -->
+                <button
+                  type="button"
+                  class="action-area service-area"
+                  @click="router.push('/client-form')"
+                >
+                  <i class="fas fa-magnifying-glass action-icon"></i>
+
+                  <span class="action-text">
+                    {{ t('providerAdmin.lookingForService') }}
+                  </span>
+                </button>
+
+              </div>
             </MDBCard>
           </MDBCol>
         </MDBRow>
@@ -808,7 +858,7 @@ import socket from "@/socket";
 
 const emit = defineEmits(["handle-user-action", "open-chat", "show-notification-help", "show-set-notifications", "delete-count"]);
 const props = defineProps({
-  isMobile: {type: Boolean},
+  isPwa: {type: Boolean},
   /* providerId: { type: [String, Number], required: true }, */
   notificationPermission: {
     type: String,
@@ -2924,5 +2974,318 @@ button.provider-stat-card {
 
 .delete-link:hover {
   color: #fb7185;
+}
+
+
+
+
+/* Kalendrikaart */
+.calendar-card {
+  background: #1b2636;
+  border: 1px solid #2c3a4e;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.calendar-card:hover {
+  border-color: #3b5269;
+}
+
+/* Klikitav päis */
+.calendar-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+  padding: 20px;
+
+  background: transparent;
+  border: none;
+  color: inherit;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.calendar-card-header:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.calendar-card-header:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: -3px;
+}
+
+/* clock */
+.clock-icon-ok {
+  color: #34d399;
+  font-size: 20px;
+  padding-right: 7px;
+}
+
+.clock-icon {
+  color: #fbbf24;
+  font-size: 20px;
+  padding-right: 7px;
+}
+
+/* Päise sisu */
+.calendar-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Pealkiri */
+.calendar-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.calendar-icon-box {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+
+  font-size: 17px;
+}
+
+.calendar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* Kirjeldus */
+.calendar-description {
+  margin: 0 0 16px 0;
+
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Statistika */
+.calendar-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+
+.calendar-stat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.free-dot-ok {
+  background: #34d399;
+}
+
+.free-dot {
+  background: #64748b;
+}
+
+.notes-dot {
+  background: #c084fc;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.free-value {
+  color: #34d399;
+}
+
+.notes-value {
+  color: #c084fc;
+}
+
+/* Parempoolne nool */
+.calendar-arrow {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  color: #64748b;
+  font-size: 13px;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.calendar-card-header:hover .calendar-arrow {
+  color: #38bdf8;
+}
+
+/* Avatud kalender */
+.calendar-expanded {
+  padding: 16px 20px 20px;
+  border-top: 1px solid #2c3a4e;
+}
+
+/* Mobiil */
+@media (max-width: 576px) {
+  .calendar-card-header {
+    padding: 16px;
+  }
+
+  .calendar-description {
+    font-size: 12px;
+  }
+
+  .calendar-stats {
+    gap: 10px 16px;
+  }
+
+  .calendar-expanded {
+    padding: 12px;
+  }
+}
+
+/* Kliendi kaart */
+.action-card {
+  background-color: #192b29;
+  border: 1px solid #285447;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.action-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.action-area {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 100px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+  padding: 18px 12px;
+
+  border: none;
+  border-radius: 0;
+
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Minu tellimused */
+.orders-area {
+  background-color: #1b2636;
+  color: #cbd5e1;
+  border-right: 1px solid #334155;
+}
+
+.orders-area:hover {
+  background-color: #26364a;
+  color: #ffffff;
+}
+
+.orders-area .action-icon {
+  color: #60a5fa;
+}
+
+/* Otsin teenust */
+.service-area {
+  background-color: #192b29;
+  color: #4ade80;
+  
+}
+
+.service-area:hover {
+  background-color: #203d35;
+  color: #86efac;
+}
+
+/* Ikoonid */
+.action-icon {
+  font-size: 25px;
+  transition: transform 0.2s ease;
+}
+
+.action-area:hover .action-icon {
+  color: #4ade80;
+  transform: scale(1.12);
+}
+
+/* Tekst */
+.action-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Klaviatuuriga navigeerimine */
+.action-area:focus-visible {
+  outline: 3px solid #4caf50;
+  outline-offset: -3px;
+}
+
+/* Väiksemad ekraanid */
+@media (max-width: 576px) {
+  .action-container {
+    min-height: 95px;
+  }
+
+  .action-area {
+    min-height: 95px;
+    padding: 12px 8px;
+    gap: 7px;
+  }
+
+  .action-icon {
+    font-size: 21px;
+  }
+
+  .action-text {
+    font-size: 12px;
+  }
 }
 </style>
