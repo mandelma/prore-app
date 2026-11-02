@@ -135,6 +135,7 @@
               </label>
 
               <MDBInput
+                data-testid="provider-link"
                 v-model="pro_link"
                 size="lg"
                 :label="t('providerForm.fields.website')"
@@ -169,6 +170,16 @@
                 <span class="provider-required">*</span>
               </label>
 
+              <button
+                  v-if="isE2ETest"
+                  type="button"
+                  class="btn btn-outline-primary btn-sm mt-2"
+                  data-testid="mock-address-button"
+                  @click="selectTestAddress"
+              >
+                  Vali testiaadress
+              </button>
+
               <div class="provider-address-field">
                 <AddressAutocomplete
                   v-model="pForm.address"
@@ -188,6 +199,7 @@
 
               <div class="provider-input-unit">
                 <MDBInput
+                  data-testid="provider-range"
                   v-model="range"
                   type="text"
                   inputmode="numeric"
@@ -242,15 +254,6 @@
               :errors="pfErrors"
               :label="t('providerForm.fields.profession')"
             />
-
-            <!-- <small
-              v-if="pfErrors.profession"
-              class="provider-error"
-            >
-              <i class="fa-solid fa-circle-exclamation" />
-
-              {{ pfErrors.profession }}
-            </small> -->
           </div>
         </section>
 
@@ -281,6 +284,7 @@
               }"
             >
               <MDBRadio
+                data-testid="select-hour-price"
                 v-model="about_price"
                 name="aboutPrice"
                 value="hour"
@@ -306,6 +310,7 @@
               }"
             >
               <MDBRadio
+                data-testid="select-fixed-price"
                 v-model="about_price"
                 name="aboutPrice"
                 value="piece"
@@ -338,6 +343,7 @@
 
             <div class="provider-input-unit">
               <MDBInput
+                data-testid="hour-price"
                 v-model="price"
                 type="text"
                 inputmode="decimal"
@@ -378,6 +384,7 @@
           <div class="provider-field">
             <div class="provider-textarea-wrapper">
               <MDBTextarea
+                data-testid="provider-description"
                 v-model="proDescription"
                 maxlength="100"
                 rows="4"
@@ -404,6 +411,7 @@
           </div>
 
           <MDBBtn
+            data-testid="create-account"
             color="primary"
             size="lg"
             type="submit"
@@ -504,6 +512,21 @@ const {
   pForm,
   pfErrors
 );
+
+
+const isE2ETest = import.meta.env.VITE_E2E_TEST === 'true';
+
+const selectTestAddress = () => {
+    window.dispatchEvent(
+        new CustomEvent('duunhub:e2e-select-address', {
+            detail: {
+                address: 'Mannerheimintie 10, 00100 Helsinki, Finland',
+                lat: 60.1708,
+                lng: 24.9347
+            }
+        })
+    );
+};
 
 
 const filterInput = ref((event) => {
@@ -645,7 +668,7 @@ const submitPro = async() => {
       proLink: pro_link.value,
       isAvailable24_7: false,
     }
-    const newProvider = await proService.addProvider(proAuth.user.id, proAuth.token, provider);
+    const newProvider = await proService.addProvider(provider);
     console.log("Added provider::: " + newProvider)
     if (newProvider) {
       newProvider.user = {id: proAuth.user.id, username: proAuth.user.username};

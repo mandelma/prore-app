@@ -74,17 +74,7 @@ module.exports = (io) => {
     // Add recipient
     recipientRouter.post('/', httpAuth, async (req, res, next) => {
         const body = req.body;
-        /* console.log(
-            "body.customFields:",
-            JSON.stringify(body.customFields, null, 2)
-        ); */
-
-        /* console.log(
-            "body.customFieldValues:",
-            JSON.stringify(body.customFieldValues, null, 2)
-        ); */
-
-
+        
         try {
             
             const date = new Date(body.created)              // current date
@@ -132,14 +122,23 @@ module.exports = (io) => {
             const savedRecipient = await recipient.save();
 
             if (!savedRecipient) {
-                res.status(404).json({error: "Booking not added"});
+                return res.status(500).json({
+                    error: "Booking not added"
+                });
             }
 
-            await savedRecipient.populate({ path: 'user', select: '_id name avatar email' });
+            await savedRecipient.populate({
+                path: 'user',
+                select: '_id name avatar email'
+            });
 
-            res.json(savedRecipient.toObject({ getters: true, virtuals: true }));
+            return res.status(201).json(
+                savedRecipient.toObject({
+                    getters: true,
+                    virtuals: true
+                })
+            );
 
-            //res.json(savedRecipient)
         } catch (err) {
             console.log("Error: " + err.message);
             //next(err);
@@ -933,9 +932,11 @@ module.exports = (io) => {
 
 
     // Delete booking with all included
-    recipientRouter.delete("/:id", async (req, res) => {
+    recipientRouter.delete("/:id", httpAuth, async (req, res) => {
         try {
             const recipientId = req.params.id;
+
+            console.log("RES USER ", req.user.id)
 
             const recipient = await Recipient.findById(recipientId);
             if (!recipient) {
@@ -946,7 +947,13 @@ module.exports = (io) => {
                 });
             }
 
-            
+            if (String(recipient.author_id) !== String(req.user.id)) {
+                return res.status(404).json({
+                    ok: false,
+                    deleted: false,
+                    error: "Booking not belong to recipient",
+                });
+            }
 
             const uploadIds = (recipient.photos || [])
                 .map((photo) => photo.imageId)
@@ -1001,7 +1008,11 @@ module.exports = (io) => {
                 }
             );
 
-            for (const mainId in mainProviders) {
+            /* for (const mainId in mainProviders) {
+                io.to(mainId).emit("order:status:update", recipientId);
+            } */
+
+            for (const mainId of mainProviders) {
                 io.to(mainId).emit("order:status:update", recipientId);
             }
 

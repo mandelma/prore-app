@@ -93,6 +93,15 @@ app.use((req, res, next) => {
     next();
 });
 
+/* if (
+    process.env.NODE_ENV === "test" &&
+    process.env.E2E_TEST_MODE === "true"
+) {
+    const e2eRouter = require("./routers/e2e");
+
+    app.use("/api/e2e", e2eRouter);
+} */
+
 const offerRouter = require('./routers/offers')
 
 app.use('/api/push', pwaPushRouter);

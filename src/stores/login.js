@@ -21,40 +21,45 @@ export const useLoginStore = defineStore('login', () => {
 
     // --actions--
     const onLogin = async (payload) => {
-        console.log("Login payload - ", payload);
+
+        console.log('LOGIN STEP 1: onLogin started');
 
         if (!payload?.token) {
             throw new Error("Login token missing");
         }
 
-        user.value = payload;
-        token.value = payload.token;
-
-        console.log("---------------LOGIN user:", user.value);
-        console.log("-----------LOGIN authenticated:", isAuthenticated.value);
-
-        scheduleTokenExpiry(token.value);
-        
+        // 1. Salvestame kasutaja õigesse hoidlasse
         if (payload.remember) {
+
             localStorage.setItem(
                 "loggedAppUser",
                 JSON.stringify(payload)
             );
 
-            sessionStorage.removeItem(
-                "loggedAppUser"
-            );
+            sessionStorage.removeItem("loggedAppUser");
+
         } else {
+
             sessionStorage.setItem(
                 "loggedAppUser",
                 JSON.stringify(payload)
             );
 
-            localStorage.removeItem(
-                "loggedAppUser"
-            );
+            localStorage.removeItem("loggedAppUser");
         }
 
+        console.log('LOGIN STEP 2: storage completed');
+
+        // 2. Uuendame Pinia oleku
+        token.value = payload.token;
+        user.value = payload;
+
+        console.log('LOGIN STEP 3: Pinia updated');
+
+        // 3. Käivitame tokeni aegumise jälgimise
+        scheduleTokenExpiry(payload.token);
+
+        // 4. Määrame sihtlehe
         let target;
 
         if (route.query.redirect) {
@@ -67,9 +72,45 @@ export const useLoginStore = defineStore('login', () => {
             target = "/home";
         }
 
-        //const target = route.query.redirect || "/";
-        await router.replace(target);
-    }
+        console.log("LOGIN NAVIGATION START", {
+            target,
+            currentRoute: router.currentRoute.value.fullPath,
+            redirect: route.query.redirect,
+            role: payload.role,
+            isProvider: payload.isProvider
+        });
+
+        try {
+            console.log('LOGIN STEP 4: navigating to', target);
+
+            const failure = await router.replace(target);
+
+            console.log(
+                'LOGIN STEP 5: navigation finished',
+                router.currentRoute.value.fullPath
+            );
+
+            console.log("LOGIN NAVIGATION RESULT", {
+                failure: failure
+                    ? {
+                        type: failure.type,
+                        message: failure.message
+                    }
+                    : null,
+
+                currentRoute: router.currentRoute.value.fullPath
+            });
+
+        } catch (error) {
+
+            console.error(
+                "LOGIN NAVIGATION ERROR:",
+                error
+            );
+
+            throw error;
+        }
+    };
 
     const disablePushForThisDevice = async (jwt) => {
         if (!jwt) {
@@ -206,6 +247,8 @@ export const useLoginStore = defineStore('login', () => {
     const onLogOut = async () => {
         const jwt = token.value;
 
+        console.log("LOGOUT: funktsioon käivitus");
+
         const conversationStore = useConversationStore();
         const proStore = useProStore();
 
@@ -216,6 +259,11 @@ export const useLoginStore = defineStore('login', () => {
 
         localStorage.removeItem("loggedAppUser");
         sessionStorage.removeItem("loggedAppUser");
+
+        console.log("LOGOUT: salvestuskohad puhastatud", {
+            local: localStorage.getItem("loggedAppUser"),
+            session: sessionStorage.getItem("loggedAppUser")
+        });
 
         user.value = null;
         token.value = null;

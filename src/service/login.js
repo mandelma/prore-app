@@ -21,7 +21,7 @@ export default { login, verifyToken } */
 import { authApi } from "./api";
 
 const login = async (loginData) => {
-  const response = await authApi.post("/login", loginData); // -> /api/login
+  const response = await authApi.post("/login", loginData);
   return response.data;
 };
 

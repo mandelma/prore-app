@@ -164,9 +164,6 @@ const recipientSchema = new Schema({
     zone: {
         type: Number
     },
-    /* photos: {
-        type: Array
-    }, */
 
     photos: [
         {

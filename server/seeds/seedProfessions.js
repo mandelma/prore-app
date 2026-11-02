@@ -7,6 +7,11 @@ const Profession = require("../models/professions.js");
 
 dotenv.config();
 
+const {
+    connectDB,
+    disconnectDB
+} = require("../utils/database");
+
 // npm run seed:professions
 
 // **Powershell**
@@ -29,21 +34,7 @@ const fieldSetsDirectory = path.resolve(
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const getMongoUrl = () => {
-    const mongoUrl = isProduction
-        ? process.env.MONGODB_URL_PUBLIC
-        : process.env.MONGODB_URL_LOCAL;
-
-    if (!mongoUrl) {
-        throw new Error(
-            isProduction
-                ? "MONGODB_URL_PUBLIC environment variable is missing."
-                : "MONGODB_URL_LOCAL environment variable is missing."
-        );
-    }
-
-    return mongoUrl;
-};
+const isTest = process.env.NODE_ENV === "test"
 
 const checkProductionPermission = () => {
     if (
@@ -343,14 +334,13 @@ const seedProfessions = async () => {
     try {
         checkProductionPermission();
 
-        const mongoUrl = getMongoUrl();
-
         console.log(
-            `Running profession seed in ${isProduction ? "production" : "development"
-            } mode.`
+            `Running profession seed in ${process.env.NODE_ENV} mode.`
         );
 
-        await mongoose.connect(mongoUrl);
+        console.log("TEST MODE? ", isTest ),
+
+        await connectDB();
 
         console.log("MongoDB connected.");
 
@@ -401,7 +391,8 @@ const seedProfessions = async () => {
         process.exitCode = 1;
     } finally {
         if (mongoose.connection.readyState !== 0) {
-            await mongoose.disconnect();
+            // await mongoose.disconnect();
+            await disconnectDB();
             console.log("MongoDB disconnected.");
         }
     }

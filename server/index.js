@@ -6,13 +6,20 @@ const { connectDB } = require("./utils/database");
 
 const startServer = async () => {
     try {
+
         await connectDB();
 
-        server.listen(config.PORT, () => {
+        const host =
+            process.env.NODE_ENV === "test"
+                ? "127.0.0.1"
+                : "0.0.0.0";
+
+        server.listen(config.PORT, host, () => {
             logger.info(
-                `Server running on port ${config.PORT}`
+                `Server running on ${host}:${config.PORT}`
             );
         });
+
     } catch (error) {
         console.error("Server startup failed:", error);
         process.exit(1);

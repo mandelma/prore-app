@@ -16,18 +16,32 @@ import Aura from '@primevue/themes/aura'
 import { createPinia } from 'pinia'
 import router from './router'
 
+/* console.log(
+    'DUUNHUB DOCUMENT START',
+    window.location.href,
+    performance.getEntriesByType('navigation')[0]?.type
+); */
+
 const pinia = createPinia();
 
 initPwaInstall();
 
-createApp(App).use(router).use(pinia).use(i18n).use(PrimeVue, {
-    zIndex: {
-        overlay: 3000 // make sure it's higher than your navbar
-    },
-    theme: {preset: Aura, options: {
-            // pick a css class you’ll toggle to enable dark mode:
-            darkModeSelector: '.select-dark'
-        }}}).mount('#app')
+createApp(App)
+    .use(pinia)
+    .use(router)
+    .use(i18n)
+    .use(PrimeVue, {
+        zIndex: {
+            overlay: 3000
+        },
+        theme: {
+            preset: Aura,
+            options: {
+                darkModeSelector: '.select-dark'
+            }
+        }
+    })
+    .mount('#app');
 
 import '@/styles/pro-select.css'
 import '@/styles/theme.css'

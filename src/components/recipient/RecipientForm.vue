@@ -10,13 +10,14 @@
 
       <div style="padding: 13px 0 20px 0;">
         <MDBToast
-            v-model="isInitClientError"
-            autohide
-            :delay="3000"
-            :stacking="false"
-            position="top-center"
-            toast="danger"
-            icon="fas fa-exclamation-circle fa-lg me-2"
+          data-testid="booking-validation-toast"
+          v-model="isInitClientError"
+          autohide
+          :delay="3000"
+          :stacking="false"
+          position="top-center"
+          toast="danger"
+          icon="fas fa-exclamation-circle fa-lg me-2"
         >
           <template #title>{{ t('recipientForm.formErrorTitle') }} </template>
           <button type="button" style="visibility: hidden;" class="btn-close ms-auto" aria-label="Close" @click="hideError"></button>
@@ -25,6 +26,7 @@
         </MDBToast>
       </div>
       <form
+        data-testid="booking-form"
         class="booking-form"
         novalidate
         autocomplete="off"
@@ -117,6 +119,7 @@
             <div
               v-for="field in sortedCustomFields"
               :key="field.key"
+              :data-testid="`custom-field-${field.key}`"
               class="profession-field"
               :class="{
                 'profession-field--full': field.type === 'textarea'
@@ -179,6 +182,7 @@
                 option-value="value"
                 :placeholder="getLocalizedValue(field.placeholder)"
                 class="profession-field__select"
+                showClear
               />
 
               <MultiSelect
@@ -228,6 +232,7 @@
 
               <small
                 v-if="errors[field.key]"
+                :data-testid="`error-custom-${field.key}`"
                 class="profession-field__error"
               >
                 <i class="fa-solid fa-circle-exclamation" />
@@ -266,6 +271,7 @@
               </label>
 
               <input
+                data-testid="booking-header"
                 v-model.trim="form.orderHeader"
                 class="booking-input"
                 type="text"
@@ -274,6 +280,7 @@
               />
               <small
                 v-if="errors.orderHeader"
+                data-testid="error-header"
                 class="profession-field__error"
               >
                 <i class="fa-solid fa-circle-exclamation" />
@@ -304,6 +311,7 @@
 
               <div class="input-with-unit">
                 <input
+                  data-testid="client-area"
                   v-model.number="form.desiredRange"
                   class="booking-input"
                   type="number"
@@ -315,6 +323,7 @@
               </div>
               <small
                 v-if="errors.desiredRange"
+                data-testid="error-radius"
                 class="profession-field__error"
               >
                 <i class="fa-solid fa-circle-exclamation" />
@@ -329,6 +338,7 @@
               </label>
 
               <MDBDateTimepicker
+                data-testid="booking-datetime"
                 v-model="form.dateTime"
                 :toggle-button="false"
                 input-toggle
@@ -343,6 +353,7 @@
           </div>
           <small
             v-if="errors.dateTime"
+            data-testid="error-datetime"
             class="profession-field__error"
           >
             <i class="fa-solid fa-circle-exclamation" />
@@ -359,6 +370,7 @@
             </div>
 
             <MDBCheckbox
+              data-testid="booking-budget"
               v-model="isBudget"
               :label="t('recipientForm.addBudget')"
             />
@@ -370,6 +382,7 @@
           >
             <div class="booking-field">
               <MDBInput
+                data-testid="booking-budgetmin"
                 v-model="form.budgetMin"
                 type="number"
                 min="0"
@@ -378,6 +391,7 @@
               />
               <small
               v-if="errors.budgetMin"
+              data-testid="error-budgetmin"
               class="profession-field__error"
             >
               <i class="fa-solid fa-circle-exclamation" />
@@ -388,6 +402,7 @@
 
             <div class="booking-field">
               <MDBInput
+                data-testid="booking-budgetmax"
                 v-model="form.budgetMax"
                 type="number"
                 min="0"
@@ -396,6 +411,7 @@
               />
               <small
                 v-if="errors.budgetMax"
+                data-testid="error-budgetmax"
                 class="profession-field__error"
               >
                 <i class="fa-solid fa-circle-exclamation" />
@@ -423,6 +439,7 @@
             <div class="booking-field">
               <div class="booking-input-wrapper">
                 <MDBTextarea
+                  data-testid="booking-explanation"
                   v-model="form.explanation"
                   maxlength="1000"
                   rows="6"
@@ -433,6 +450,7 @@
               
               <small
                 v-if="errors.explanation"
+                data-testid="error-explanation"
                 class="profession-field__error"
               >
                 <i class="fa-solid fa-circle-exclamation" />
@@ -447,7 +465,7 @@
             <div class="booking-field">
               <!-- Olemasolev fotode lisamise osa -->
               <div v-if="!isAddPhotos">
-                <div>
+                <div data-testid="booking-photo-actions">
                   <MDBBtn v-if="!isAddPhotos && !addedPhotos.length" color="light" @click="isAddPhotos = true">{{ t('recipientForm.addOptionalPhotos')}}</MDBBtn>
                   <MDBBtn v-else color="light" @click="isAddPhotos = true">{{ t('recipientForm.editPhotos') }}</MDBBtn>
                 </div>
@@ -468,7 +486,7 @@
               </div>
 
               <!-- Booking pictures section -->
-              <form v-else class="panel__body" @submit.prevent="saveBookingPhotos">
+              <div v-else class="panel__body">
                 <div class="form-card">
                   
                   <div class="divider"></div>
@@ -476,10 +494,17 @@
                   <div class="photos">
                     <div class="photos__header">
                       <h5 class="section-title">{{ t('recipientForm.photos') }}</h5>
-                      <MDBBtn color="primary" @click="openFilePicker">{{ t('recipientForm.addPhotos') }}</MDBBtn>
+                      <MDBBtn
+                        data-testid="booking-photo-add"
+                        color="primary"
+                        @click="openFilePicker"
+                      >
+                        {{ t('recipientForm.addPhotos') }}
+                      </MDBBtn>
                       
                       <input
                         ref="fileInput"
+                        data-testid="booking-photo-input"
                         class="sr-only"
                         type="file"
                         accept="image/*"
@@ -487,12 +512,13 @@
                         @change="onFilesSelected"
                       />
 
+                      <!-- @change="onReplaceSelected" -->
                       <input
                           ref="replaceInput"
                           class="sr-only"
                           type="file"
                           accept="image/*"
-                          @change="onReplaceSelected"
+                          
                       />
                     </div>
 
@@ -520,29 +546,42 @@
                   </div>
 
                   <div class="actions">
-                    <button class="btn btn-danger" type="button" @click="cancelAddPhotos">
+                    <button
+                      data-testid="booking-photo-cancel"
+                      class="btn btn-danger"
+                      type="button"
+                      @click="cancelAddPhotos"
+                    >
                       {{ t('recipientForm.cancel') }}
                     </button>
 
-                    <button class="btn btn-success" type="submit" :disabled="!isDirty">
+                    <button
+                      data-testid="booking-photo-save"
+                      class="btn btn-success"
+                      type="submit"
+                      :disabled="!isDirty"
+                      @click="saveBookingPhotos"
+                    >
                       {{ t('recipientForm.save') }}
                     </button>
                   </div>
 
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </section>
 
         <section class="booking-submit">
           <MDBCheckbox
+            data-testid="booking-agreement"
             v-model="isClientContactAgreement"
             :label="t('recipientForm.emailAgreement')"
             name="agreement_as_client"
           />
 
           <MDBBtn
+            data-testid="booking-submit"
             color="primary"
             size="lg"
             type="submit"
@@ -688,36 +727,37 @@ const validateCustomFields = () => {
 
 const validateForm = () => {
   errors.profession = form.profession ? "" : t('recipientForm.professionRequired');
-  errors.orderHeader = form.orderHeader ? "" : t('recipientForm.orderKeywordInvalid');
+  errors.orderHeader = form.orderHeader.trim() ? "" : t('recipientForm.orderKeywordInvalid');
   errors.address = form.address ? "" : t('recipientForm.addressRequired');
   //errors.desiredRange = form.desiredRange ? "" : t('recipientForm.search_radius_required');
   errors.dateTime = form.dateTime ? "" : t('recipientForm.dateRequired');
-  errors.explanation = form.explanation ? "" : t('recipientForm.descriptionRequired');
-  //errors.budgetMin = form.budgetMin != null ? "" : t('recipientForm.budgetMinRequired');
-  //errors.budgetMax = form.budgetMax != null ? "" : t('recipientForm.budgetMaxRequired');
+  errors.explanation = form.explanation.trim() ? "" : t('recipientForm.descriptionRequired');
+  
+  const radius = Number(form.desiredRange);
 
-  /* if (form.address && (form.lat === null || form.lng === null) ) {
-      errors.address = t('recipientForm.addressAutocompleteError');
-  } else if (!form.address) {
-      errors.address = t('recipientForm.addressRequired');
-  } else {
-      errors.address = "";
-  } */
-
-  if (!form.desiredRange || form.desiredRange < 1) {
+  if (
+      form.desiredRange === "" ||
+      form.desiredRange === null ||
+      !Number.isFinite(radius) ||
+      radius < 1 ||
+      radius > 50
+  ) {
       errors.desiredRange = t('recipientForm.search_radius_required');
   } else {
       errors.desiredRange = "";
   }
 
-  if (
+  const budgetsValid = validateBudgets();
+
+  /* if (
       form.budgetMin != null &&
       form.budgetMax != null &&
       Number(form.budgetMin) > Number(form.budgetMax)
     ) {
       errors.budgetMin = t('recipientForm.budgetMinTooHigh');
       errors.budgetMax = t('recipientForm.budgetMaxTooLow');
-  }
+  } */
+
   
   const addressIsValid = validateAddress();
   const customFieldsValid =
@@ -729,40 +769,87 @@ const validateForm = () => {
     addressIsValid && 
     !errors.dateTime && 
     !errors.explanation && 
-    !errors.budgetMin && 
-    !errors.budgetMax &&
+    budgetsValid &&
     customFieldsValid &&
     !errors.desiredRange
   )
 }
 
 const validateBudgets = () => {
-  if (!isValidating.value) return;
 
-  if (
-    form.budgetMin !== null &&
-    form.budgetMin !== "" &&
-    form.budgetMax !== null &&
-    form.budgetMax !== "" &&
-    Number(form.budgetMin) > Number(form.budgetMax)
-  ) {
-    errors.budgetMin = t('recipientForm.budgetMinTooHigh');
-    errors.budgetMax = t('recipientForm.budgetMaxTooLow');
-  } else {
-    if (form.budgetMin === "" && form.budgetMax !== "") {
-      errors.budgetMin = t('recipientForm.budgetMinRequired');
-    } else if (form.budgetMin !== "" && form.budgetMax === "") {
-      errors.budgetMax = t('recipientForm.budgetMaxRequired');
-    } else {
-      errors.budgetMin = errors.budgetMax = "";
+    // Eelarve pole aktiveeritud
+    if (!isBudget.value) {
+        errors.budgetMin = "";
+        errors.budgetMax = "";
+        return true;
     }
-     
-  }
-};
 
+    const min = form.budgetMin;
+    const max = form.budgetMax;
+
+    const minEmpty =
+        min === "" ||
+        min === null ||
+        min === undefined;
+
+    const maxEmpty =
+        max === "" ||
+        max === null ||
+        max === undefined;
+
+    errors.budgetMin = "";
+    errors.budgetMax = "";
+
+    // Mõlemad väljad tühjad: eelarve on valikuline
+    if (minEmpty && maxEmpty) {
+        return true;
+    }
+
+    // Miinimum puudub
+    if (minEmpty) {
+        errors.budgetMin = t(
+            'recipientForm.budgetMinRequired'
+        );
+
+        return false;
+    }
+
+    // Maksimum puudub
+    if (maxEmpty) {
+        errors.budgetMax = t(
+            'recipientForm.budgetMaxRequired'
+        );
+
+        return false;
+    }
+
+    // Miinimum on maksimumist suurem
+    if (Number(min) > Number(max)) {
+
+        errors.budgetMin = t(
+            'recipientForm.budgetMinTooHigh'
+        );
+
+        errors.budgetMax = t(
+            'recipientForm.budgetMaxTooLow'
+        );
+
+        return false;
+    }
+
+    return true;
+};
 watch(
-  [() => form.budgetMin, () => form.budgetMax],
-  validateBudgets
+  [
+    () => form.budgetMin,
+    () => form.budgetMax,
+    () => isBudget.value
+  ],
+  () => {
+    if (isValidating.value) {
+        validateBudgets();
+    }
+  }
 );
 
 watch(() => form.profession, () => (errors.profession = ""));
@@ -778,6 +865,38 @@ const preventInvalidKeys = (e) => {
     e.preventDefault();
   }
 };
+
+// Validation removed by selecting a value
+watch(
+  () => ({ ...form.customFieldValues }),
+  (values) => {
+
+    // Enne esimest vormi saatmist
+    // ei ole vaja veateateid kontrollida.
+    if (!isValidating.value) return;
+
+    for (const field of sortedCustomFields.value) {
+
+      const value = values[field.key];
+
+      const missing =
+        value === null ||
+        value === undefined ||
+        value === '' ||
+        (Array.isArray(value) && value.length === 0);
+
+      if (field.required) {
+
+        errors[field.key] = missing
+            ? t('recipientForm.requiredField')
+            : '';
+
+      } else {
+        errors[field.key] = '';
+      }
+    }
+  }
+);
 
 const filterClientInput = ref((event) => {
   // Filter out non-digit characters

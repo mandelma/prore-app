@@ -71,12 +71,11 @@
      <MDBDropdown v-model="mobileBottomDropdown" class="mobile-nav-item" :class="{ active: mobileBottomDropdown === true }">
         <MDBDropdownToggle 
           tag="a" class="nav-link"
+          data-testid="mobile-user-menu"
           :aria-label="t('app.openUserMenu')"
           @click="mobileBottomDropdown = !mobileBottomDropdown"
         >
           <i class="fas fa-bars"></i>
-
-          <!-- <MDBBadge v-if="newNotesCount > 0" notification color="danger" pill>{{newNotesCount}}</MDBBadge> -->
         </MDBDropdownToggle>
         <span>asiointti</span>
         <MDBDropdownMenu >
@@ -165,8 +164,9 @@
           </MDBDropdownItem>
 
           <MDBDropdownItem class="dd-item logout-item">
-            <RouterLink
+            <!-- <RouterLink
               to="/"
+              data-testid="logout-button"
               class="dropdown-item dd-item logout-item"
               @click="
                 mobileBottomDropdown = false;
@@ -174,7 +174,23 @@
               "
             >
               {{ t("app.logout") }}
-            </RouterLink>
+            </RouterLink> -->
+
+
+            <button
+              type="button"
+              data-testid="logout-button"
+              class="dropdown-item dd-item logout-item"
+              @click="
+                  mobileBottomDropdown = false;
+                  $emit('log-out')
+              "
+            >
+              {{ t("app.logout") }}
+            </button>
+
+
+
           </MDBDropdownItem>
 
         </MDBDropdownMenu>

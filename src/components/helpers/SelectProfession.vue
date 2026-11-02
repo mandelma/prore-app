@@ -1,18 +1,19 @@
 <template>
     <div>
         <Select
-            style="width: 100%;"
-            v-model="selectedProfessionCode"
-            :options="groupedProfessions"
-            option-label="label"
-            option-value="code"
-            option-group-label="label"
-            option-group-children="items"
-            filter
-            filter-by="label"
-            :placeholder="label"
-            showClear
-            class="booking-control"
+          data-testid="booking-profession"
+          style="width: 100%;"
+          v-model="selectedProfessionCode"
+          :options="groupedProfessions"
+          option-label="label"
+          option-value="code"
+          option-group-label="label"
+          option-group-children="items"
+          filter
+          filter-by="label"
+          :placeholder="label"
+          showClear
+          class="booking-control"
         >
             <template #optiongroup="{ option }">
                 <div class="profession-group">
@@ -22,19 +23,37 @@
             </template>
 
             <template #option="{ option }">
-                <div class="profession-option">
-                    <i style="color: orange;" :class="option.icon" />
-                    <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
-                    <div v-if="route.name !== 'client-around'" class="profession-description">
-                        <small v-if="option.localizedDescription">
+
+              <div
+                  class="profession-option"
+                  :data-testid="`profession-option-${option.code}`"
+              >
+
+                  <i
+                      style="color: orange;"
+                      :class="option.icon"
+                  />
+
+                  <strong>
+                      &nbsp;&nbsp;&nbsp;{{ option.label }}
+                  </strong>
+
+                  <div
+                      v-if="route.name !== 'client-around'"
+                      class="profession-description"
+                  >
+                      <small v-if="option.localizedDescription">
                           {{ option.localizedDescription }}
-                        </small>
-                    </div>
-                </div>
-            </template>
+                      </small>
+                  </div>
+
+              </div>
+
+          </template>
         </Select>
         <small
             v-if="errors.profession"
+            data-testid="error-profession"
             class="profession-field__error"
             >
             <i class="fa-solid fa-circle-exclamation" />

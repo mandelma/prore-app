@@ -354,14 +354,19 @@
     <MDBRow class="g-3">
       <MDBCol md="5" lg="4">
         <MDBCard class="h-100">
-          <!-- draftProvider: {{ draftProvider }} -->
+          
           <MDBCardBody v-if="!isPanelInfoEditSection">
             
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="mb-0">{{ t('providerAdmin.provider') }}</h6>
               <div class="d-flex gap-2">
                 
-                <MDBBtn size="sm" color="primary" @click="isPanelInfoEditSection = true">
+                <MDBBtn 
+                  data-testid="pro-edit-btn"
+                  size="sm" 
+                  color="primary" 
+                  @click="isPanelInfoEditSection = true"
+                >
                   {{ t('providerAdmin.edit') }}
                 </MDBBtn>
               </div>
@@ -369,7 +374,10 @@
 
             <div class="vstack gap-3">
     
-              <div style="text-align: left;">
+              <div 
+                data-testid="pro-info-panel"
+                style="text-align: left;"
+              >
                 <!-- <div class="text-muted info-panel" >{{ draftProvider.name }}</div> -->
                 <div class="text-muted info-panel">{{ draftProvider.description }}</div>
                 <div class="text-muted info-panel">{{ draftProvider.address }}</div>
@@ -416,12 +424,31 @@
           <MDBCardBody v-else>
             <!-- Provider data edit section -->
             <div class="d-flex align-items-center justify-content-between mb-2">
-              <h6 class="mb-0 no-edit-panel" @click="isPanelInfoEditSection = false">{{ t('providerAdmin.exit') }}</h6>
+              <h6 
+                data-testid="pro-edit-exit"
+                class="mb-0 no-edit-panel" 
+                @click="exitProviderEdit"
+              >
+                {{ t('providerAdmin.exit') }}
+              </h6>
               <div class="d-flex gap-2">
-                <MDBBtn size="sm" color="light" outline @click="resetProvider" :disabled="busy || !providerDirty">
+                <MDBBtn 
+                  data-testid="pro-edit-reset"
+                  size="sm" 
+                  color="light" 
+                  outline 
+                  @click="resetProvider" 
+                  :disabled="busy || !providerDirty"
+                >
                   {{ t('providerAdmin.reset') }}
                 </MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="saveProvider" :disabled="!canSaveProvider">
+                <MDBBtn 
+                  data-testid="pro-edit-save"
+                  size="sm" 
+                  color="primary" 
+                  @click="saveProvider" 
+                  :disabled="!canSaveProvider"
+                >
                   {{ t('providerAdmin.save') }}
                 </MDBBtn>
               </div>
@@ -429,7 +456,12 @@
 
             <div class="vstack gap-3">
               
-              <MDBInput :label="t('providerAdmin.description')" v-model="draftProvider.description" @input="markDirty('provider')" />
+              <MDBInput 
+                data-testid="pro-edit-description"
+                :label="t('providerAdmin.description')" 
+                v-model="draftProvider.description" 
+                @input="markDirty('provider')" 
+              />
 
               <fieldset class="fs-box">
                 <legend class="fs-legend">{{ t('providerAdmin.address') }}</legend>
@@ -456,12 +488,17 @@
                 <div>
                   <MDBTable  style="font-size: 14px; color: #ddd; width: 100%; text-align: left;">
                     <tbody>
-                      <tr v-for="(pro, index) in draftProvider.profession" :key="pro">
+                      <tr 
+                        v-for="(pro, index) in draftProvider.profession" 
+                        :key="pro"
+                        :data-testid="`pro-profession-${pro}`"
+                      >
                         
                         <td>{{localProfessionName(pro) || pro}}</td>
                         <td>
                           <MDBBtnClose
                             v-if="draftProvider.profession.length > 1"
+                            data-testid="pro-remove-profession"
                             white
                             @click="removeProfession(index)"
                             :disabled="draftProvider.profession.length === 1"
@@ -475,6 +512,7 @@
 
                   <div class="field-wrapper">
                     <Select
+                      data-testid="pro-edit-profession-select"
                       style="width: 100%;"
                       v-model="selectedProfession"
                       :options="groupedProfessions"
@@ -497,14 +535,13 @@
                       </template>
 
                       <template #option="{ option }">
-                        <div class="profession-option">
+                        <div 
+                          class="profession-option"
+                          :data-testid="`pro-profession-option-${option.code}`"
+                        >
                           <i style="color: orange;" :class="option.icon" />
                           <strong>&nbsp;&nbsp;&nbsp;{{ option.label }}</strong>
-                          <!-- <div>
-                            <small v-if="option.localizedDescription">
-                              {{ option.localizedDescription }}
-                            </small>
-                          </div> -->
+                          
                         </div>
                       </template>
                     </Select>
@@ -515,6 +552,7 @@
      
               <!-- <MDBInput :label="t('providerAdmin.serviceAreaKm')" v-model="draftProvider.range" :value="field" @input="filterInput" /> -->
               <MDBInput
+                data-testid="pro-edit-range"
                 :label="t('providerAdmin.serviceAreaKm')"
                 v-model="draftProvider.range"
                 type="text"
@@ -524,6 +562,7 @@
                               
               <!-- <MDBInput :label="t('providerAdmin.hourlyRate')" type="text" v-model="draftProvider.priceByHour" :value="field" @input="filterInput" /> -->
               <MDBInput
+                data-testid="pro-edit-price"
                 :label="t('providerAdmin.hourlyRate')"
                 v-model="draftProvider.priceByHour"
                 type="text"
@@ -531,8 +570,13 @@
                 @input="filterPositiveDecimal($event, 'priceByHour')"
               />
 
-              <MDBTextarea :label="t('providerAdmin.notes')" rows="3" v-model="draftProvider.notes"
-                @input="markDirty('provider')" />
+              <MDBTextarea 
+                data-testid="pro-edit-notes"
+                :label="t('providerAdmin.notes')" 
+                rows="3" 
+                v-model="draftProvider.notes"
+                @input="markDirty('provider')" 
+              />
 
               <MDBRow class="g-2">
                 <MDBCol col="6">
@@ -548,7 +592,12 @@
         </MDBCard>
       </MDBCol>
 
-      <!-- Clients + extra useful sections -->
+
+
+
+
+
+      <!-- Clients + offers -->
       <MDBCol md="7" lg="8">
 
         <!-- DESKTOP -->
@@ -1052,26 +1101,28 @@ const validateProAddress = () => {
   return;
 };
 
-function onAddressInput(value) {
-  pmForm.address = value;
-  addressValid.value = false;
+const onAddressInput = (value) => {
+    const address = value ?? "";
 
-  selectedPlace.value = null;
-  pmForm.lat = null;
-  pmForm.lng = null;
+    pmForm.address = address;
+    pmForm.lat = null;
+    pmForm.lng = null;
 
-  if (value.trim()) {
-    pmError.address = t(
-      "providerAdmin.addressAutocompleteError"
-    );
-  } else {
-    pmError.address = "";
-  }
+    draftProvider.address = address;
+    draftProvider.latitude = null;
+    draftProvider.longitude = null;
 
-  markDirty("provider");
-}
+    addressValid.value = false;
+    selectedPlace.value = null;
 
-function onPlaceSelected(place) {
+    pmError.address = address.trim()
+        ? t("providerAdmin.addressAutocompleteError")
+        : "";
+
+    markDirty("provider");
+};
+
+const onPlaceSelected = (place) => {
   selectedPlace.value = place;
 
   pmForm.address = place.address;
@@ -1142,43 +1193,35 @@ const getLocalizedValue = translations => {
   );
 };
 
-async function onProfessionPicked (val) {
-  if (!val) return
-  console.log("Profession picked:", val);
-  const professionObj = professions.value.find(
-    profession => profession.code === val
-  );
-  
-  console.log("Profession object:", professionObj.name);
+const onProfessionPicked = async (val) => {
+    if (!val) return;
 
-  const localizedProfessionName = getLocalizedValue(
-    professionObj?.name
-  );
+    const professionObj = professions.value.find(
+        profession => profession.code === val
+    );
 
-  console.log("Localized profession name:", localizedProfessionName);
+    if (!professionObj) {
+        console.warn("Profession not found:", val);
+        selectedProfession.value = null;
+        return;
+    }
 
-  const p = String(val).trim()
-  if (!p) return
+    const p = String(val).trim();
 
-  // ensure array exists
-  if (!Array.isArray(draftProvider.profession)) draftProvider.profession = []
+    if (!p) return;
 
-  // avoid duplicates
-  if (!draftProvider.profession.includes(p)) {
-    draftProvider.profession.push(p)
-    markDirty("provider")
-  }
+    if (!Array.isArray(draftProvider.profession)) {
+        draftProvider.profession = [];
+    }
 
-  await nextTick()
-  selectedProfession.value = null
-}
+    if (!draftProvider.profession.includes(p)) {
+        draftProvider.profession.push(p);
+        markDirty("provider");
+    }
 
-
-/* const selectedProfessionName = computed(() => {
-  return getLocalizedValue(
-    selectedProfession.value?.name
-  );
-}); */
+    await nextTick();
+    selectedProfession.value = null;
+};
 
 // Get localized profession name by code
 const localProfessionName = (code) => {
@@ -1234,8 +1277,8 @@ watch(
     }
     Object.assign(draftProvider, mapProviderToDraft(pro));
     pmForm.address = draftProvider.address;
-    pmForm.lat = pro?.latitude || draftProvider.latitude;
-    pmForm.lng = pro?.longitude || draftProvider.longitude;
+    pmForm.lat = pro?.latitude ?? draftProvider.latitude;
+    pmForm.lng = pro?.longitude ?? draftProvider.longitude;
 
     selectedPlace.value = null;
     addressValid.value = true;
@@ -1419,56 +1462,76 @@ function resetProvider() {
 }
 
 async function saveProvider() {
-  const pro = providerStore.provider ?? null;
-  console.log("Provider - ", pro);
-  if (!pro) return;
+    const pro = providerStore.provider ?? null;
 
-  onToast("fas fa-check fa-lg me-2", `${pro.pName} tiedot ovat päivitetty onnistuneesti!`, "success");
-  busy.value = true;
-  try {
-    // Only send editable fields
-    const payload = toPlain(draftProvider);
+    if (!pro || busy.value) return;
 
-    payload.profession = normalizeProfessions(payload.profession)
-    payload.updatedAt = new Date();
+    busy.value = true;
 
-    //payload.latitude = pmForm.lat;
-    //payload.longitude = pmForm.lng;
+    try {
+        const payload = toPlain(draftProvider);
 
-    // enne
-    //latitude 60.27661508694686
-    //longitude 24.858802483640037
-    //60.2699724
-    //24.843255
-    
-    // Save via store -> store updates provider.value with DB result
-    const updatedMain = await providerStore.updateProviderPanel(pro.id, payload);
+        payload.profession = normalizeProfessions(
+            payload.profession
+        );
 
-    if (updatedMain) {
-      isPanelInfoEditSection.value = false;
+        const updatedMain =
+            await providerStore.updateProviderPanel(
+                pro.id,
+                payload
+            );
+
+        if (updatedMain) {
+            isPanelInfoEditSection.value = false;
+
+            dirty.provider = false;
+
+            onToast(
+                'fas fa-check fa-lg me-2',
+                `${pro.pName} tiedot ovat päivitetty onnistuneesti!`,
+                'success'
+            );
+        }
+
+    } catch (error) {
+        console.error(
+            'Provider update failed:',
+            error
+        );
+
+        onToast(
+            'fas fa-exclamation-circle fa-lg me-2',
+            'Tietojen päivittäminen epäonnistui.',
+            'danger'
+        );
+
+    } finally {
+        busy.value = false;
     }
+}
 
-    // No need to manually update draft; watcher will sync when provider.value changes
-    dirty.provider = false;
-  } finally {
-    busy.value = false;
-  }
+
+const exitProviderEdit = () => {
+    resetProvider();
+    isPanelInfoEditSection.value = false;
 }
 
 
 // ---- helpers ----
 function emptyProviderDraft() {
-  return {
-    name: "",
-    latitude: null,
-    longitude: null,
-    address: "",
-    profession: [],
-    status: "xx",
-    
-    notes: "",
-    
-  };
+    return {
+        name: "",
+        description: "",
+        address: "",
+        latitude: null,
+        longitude: null,
+        profession: [],
+        range: "",
+        priceByHour: "",
+        isAvailable24_7: false,
+        notes: "",
+        status: ""
+    };
 }
 
 /* name: pro?.pName ?? "",
@@ -1492,7 +1555,7 @@ function mapProviderToDraft(pro) {
     latitude: pro?.latitude ?? null,
     longitude: pro?.longitude ?? null,
 
-    isAvailable24_7: pro?.isAvailable24_7 ?? "Active",
+    isAvailable24_7: pro?.isAvailable24_7 ?? false,
     
     notes: pro?.notes ?? "",
     status: pro?.status ?? ""

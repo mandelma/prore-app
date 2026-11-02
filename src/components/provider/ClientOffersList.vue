@@ -22,10 +22,10 @@
       
       </MDBToast>
       <!-- !isOpenBooking -->
-      <div v-if="safeOffers.length">
-        <div v-for="(booking, index) in _props.clients " :key="index" >
+      <div v-if="_props.clients.length">
+        <div v-for="(booking, index) in _props.clients " :key="booking.id" >
 
-          <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" >
+          <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" :data-testid="`provider-booking-${booking.id}`">
             <div class="line">
             <span class="left-item">
               {{timeAgo(booking.started)}}
@@ -39,7 +39,7 @@
             </span>
             </div>
             <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
-              <span class="new_notification" @click="openBookingOffer(booking, index)">
+              <span class="new_notification"  :data-testid="`provider-booking-${booking.id}`" @click="openBookingOffer(booking, index)">
                 <b>{{booking.user.firstName.length < HEADER_LENGTH ?booking.user.firstName : booking.user.firstName.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
                 <span style="display: flex; justify-content: right; color: #ddd; cursor: pointer">
@@ -117,6 +117,7 @@
           <div 
             v-else 
             class="booking-row-seen"
+            :data-testid="`provider-booking-${booking.id}`"
             :class="
             booking.offers.some(
               offer => offer.bookingID === booking.id && offer.provider.id === providerId
@@ -160,7 +161,7 @@
               
               <span  :class="{'strong-tilt-move-shake': isNoLimit && index === bookingIndex}">
                 
-                <span  @click="openBookingOffer(booking, index)">
+                <span  :data-testid="`provider-booking-${booking.id}`" @click="openBookingOffer(booking, index)">
                   
                   <b>{{booking.user.firstName.length < HEADER_LENGTH ? booking.user.firstName : booking.user.firstName.substr(0, HEADER_LENGTH) + "..."}}</b><br>
 
@@ -257,6 +258,9 @@
         </MDBToast>
       </div>
 
+
+
+
     </div>
   </MDBContainer>
 </template>
@@ -292,7 +296,7 @@ const router = useRouter();
 const { t } = useI18n(); 
 const HEADER_LENGTH = ref(33);
 const proStore = useProStore();
-const { incomingOffers, providerId, proCredit } = storeToRefs(proStore);
+const { providerId, proCredit } = storeToRefs(proStore);
 const client = ref({});
 const isNoLimit = ref(false);
 const noLimitWarning = ref(false);
@@ -306,7 +310,7 @@ const bookingIndex = ref(0);
 const isOrderConfirmed = ref(false);
 const confirmedOrderMessage = ref("");
 
-const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : []);
+// const safeOffers = computed(() => Array.isArray(incomingOffers.value) ? incomingOffers.value : []);
 
 const isOfferDone = 0;
 
@@ -422,7 +426,7 @@ const openBookingOffer = async(booking, index) => {
     //client.value = booking;
     client.value = proStore.getIncomOfferById(booking.id);
     console.log("Client - " + {client})
-    console.log("Here header: " + incomingOffers.value[0].header);
+    
     //isOpenBooking.value = true;
 
 

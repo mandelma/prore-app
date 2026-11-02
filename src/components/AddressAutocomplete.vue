@@ -6,6 +6,7 @@
         <MDBInput
           size="md"
           :id="inputId"
+          data-testid="client-address"
 
           v-model="localValue"
           :label="label"
@@ -48,7 +49,8 @@ import {
   ref,
   watch,
   nextTick,
-  onMounted
+  onMounted,
+  onUnmounted
 } from "vue";
 import { loadGoogleMaps } from "./controllers/loadGoogleMap";
 import { useRouter, useRoute } from "vue-router";
@@ -108,6 +110,10 @@ watch(
   async active => {
     if (!active) return;
 
+    if (import.meta.env.VITE_E2E_TEST === 'true') {
+        return;
+    }
+
     await nextTick();
     await initMap();
   }
@@ -126,12 +132,29 @@ watch(
 
 
 function onUserInput(event) {
+  if (selectingGooglePlace.value) {
+      return;
+  }
+
   const value = event?.target?.value ?? localValue.value;
 
   emit("update:modelValue", value);
   emit("update:valid", false);
   emit("typing", value);
 }
+
+/* function onUserInput(event) {
+
+    if (selectingGooglePlace.value) {
+        return;
+    }
+
+    const value = event?.target?.value ?? localValue.value;
+
+    emit("update:modelValue", value);
+    emit("update:valid", false);
+    emit("typing", value);
+} */
 
 
 
@@ -211,7 +234,57 @@ const clearAddress = () => {
 };
 
 onMounted(() => {
+  // Ainult E2E testikeskkonnas
+  if (import.meta.env.VITE_E2E_TEST === 'true') {
+
+      window.addEventListener(
+          'duunhub:e2e-select-address',
+          onE2EAddressSelected
+      );
+
+      return;
+  }
   initMap();
+});
+
+const onE2EAddressSelected = event => {
+
+    if (import.meta.env.VITE_E2E_TEST !== 'true') {
+        return;
+    }
+
+    const place = event.detail;
+
+    if (
+        !place ||
+        typeof place.address !== 'string' ||
+        !Number.isFinite(place.lat) ||
+        !Number.isFinite(place.lng)
+    ) {
+        return;
+    }
+
+    selectingGooglePlace.value = true;
+
+    localValue.value = place.address;
+
+    latLocal.value = place.lat;
+    lngLocal.value = place.lng;
+
+    emit('update:modelValue', place.address);
+    emit('update:valid', true);
+    emit('place', place);
+
+    nextTick(() => {
+        selectingGooglePlace.value = false;
+    });
+};
+
+onUnmounted(() => {
+    window.removeEventListener(
+        'duunhub:e2e-select-address',
+        onE2EAddressSelected
+    );
 });
 
 const initMap = async () => {
@@ -287,6 +360,7 @@ const initMap = async () => {
         latLocal.value = payload.lat;
         lngLocal.value = payload.lng;
 
+        emit("update:modelValue", payload.address);
         emit("update:valid", true);
         emit("place", payload);
 

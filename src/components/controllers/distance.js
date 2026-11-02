@@ -14,6 +14,13 @@ const formatDuration = (durationMillis) => {
 };
 
 const findDistance = async (start, end) => {
+    // E2E-testkeskkonnas kasutame kindlat kaugust
+    if (import.meta.env.MODE === 'e2e') {
+        return {
+            distance: '5.0',
+            duration: '10 min'
+        };
+    }
     try {
         const { RouteMatrix } = await google.maps.importLibrary("routes");
 

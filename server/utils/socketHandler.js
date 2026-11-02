@@ -35,12 +35,20 @@ const hs = (io, socket) => {
                 return;
             }
 
+            
+
+
+
+
             // 2. Otsime tellimuse
             const booking = await Recipient.findById(bookingId);
 
             if (!booking) {
                 return;
             }
+
+           
+
 
             // 3. Kontrollime tellimuse omanikku
             if (String(booking.author_id) !== String(socket.userId)) {
@@ -61,6 +69,30 @@ const hs = (io, socket) => {
                 )
             ];
 
+            console.log(
+                '[PW-029 SERVER] create-booking-multiple:',
+                {
+                    proIdArr,
+                    providerUserIds
+                }
+            );
+
+
+            console.log('[PW-029 SERVER CHECK]', {
+                socketUserId: String(socket.userId),
+                bookingAuthorId: String(booking.author_id),
+
+                ordered: booking.ordered.map(String),
+
+                providers: providers.map(provider => ({
+                    providerId: String(provider._id),
+                    personId: String(provider.personId ?? '')
+                })),
+
+                providerUserIds
+            });
+
+
             // 6. Saadame teavitused
             for (const id of providerUserIds) {
                 io.to(`user:${id}`).emit(
@@ -75,6 +107,8 @@ const hs = (io, socket) => {
             console.error("Socket booking notification error:", error);
         }
     });
+
+
 
     socket.on('on-pro-remove-public-offer', (bookingId, receiver) => {
         const room = `user:${receiver}`

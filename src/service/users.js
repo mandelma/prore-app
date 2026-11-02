@@ -18,4 +18,12 @@ const editEmail = async (id, email) => {
     return res.data;
 }
 
-export default { getUser, addUser, editEmail };
+const deleteUser = async (id) => {
+    const response = await authApi.delete(
+        `/users/${id}`
+    );
+
+    return response.data;
+};
+
+export default { getUser, addUser, editEmail, deleteUser };

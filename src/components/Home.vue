@@ -92,11 +92,21 @@
               <!-- <p class="tagline">{{ t('home.title') }}</p> -->
 
               <div class="action-panel">
-                <button class="btn-hero btn-hero--primary" type="button" @click="clientInitial">
+                <button 
+                  class="btn-hero btn-hero--primary" 
+                  data-testid="start-booking"
+                  type="button" 
+                  @click="clientInitial"
+                >
                   {{ t('home.clientButton') }}
                 </button>
 
-                <button class="btn-hero btn-hero--accent" type="button" @click="proInitial">
+                <button 
+                  class="btn-hero btn-hero--accent" 
+                  data-testid="provider-account"
+                  type="button" 
+                  @click="proInitial"
+                >
                   {{ t('home.providerButton') }}
                 </button>
               </div>

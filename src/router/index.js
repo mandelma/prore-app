@@ -289,6 +289,10 @@ router.beforeEach(async (to, from, next) => {
         });
     } */
 
+    console.log("ROUTER BEFORE EACH", {
+        from: from.fullPath,
+        to: to.fullPath
+    });
 
 
     const savedUser =
@@ -328,6 +332,31 @@ router.beforeEach(async (to, from, next) => {
     }
 
     next();
+});
+
+
+router.afterEach((to, from, failure) => {
+
+    console.log("ROUTER AFTER EACH", {
+        from: from.fullPath,
+        to: to.fullPath,
+        failure: failure
+            ? {
+                type: failure.type,
+                message: failure.message
+            }
+            : null
+    });
+
+});
+
+router.onError(error => {
+
+    console.error(
+        "ROUTER ERROR:",
+        error
+    );
+
 });
 
 

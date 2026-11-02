@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 const Provider = require('../models/providers');
 //const Offer = require("../models/calendarOffer");
 const Recipient = require("../models/recipients");
@@ -130,8 +131,9 @@ module.exports = (io) => {
 
     })
 
-    router.post('/:id', httpAuth, async (req, res) => {
-        console.log("USER ID in provider post: " + req.user.id)
+    router.post('/', httpAuth, async (req, res) => {
+        console.log('PROVIDER POST ROUTE CALLED');
+        console.log("USER ID in provider post: " + req.user.id);
         try {
             const body = req.body;
             const provider = new Provider({
@@ -208,18 +210,80 @@ module.exports = (io) => {
     })
 
     // Update pro main from pro page
-    router.put('/:id/main-update', async (req, res) => {
+    router.put('/:id/main-update', httpAuth, async (req, res) => {
+        
         try {
-            const updatedAt = await Provider.findByIdAndUpdate(
-                req.params.id, req.body, { new: true }
-            )
+            const userId = req.user.id;
+            const providerId = req.params.id;
 
-            res.send(updatedAt);
+            if (!mongoose.isValidObjectId(providerId)) {
+                return res.status(400).json({
+                    error: 'Invalid provider ID'
+                });
+            }
+
+            const allowedFields = [
+                'description',
+                'address',
+                'latitude',
+                'longitude',
+                'profession',
+                'range',
+                'priceByHour',
+                'notes'
+            ];
+
+            const updates = {};
+
+            for (const field of allowedFields) {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        req.body,
+                        field
+                    )
+                ) {
+                    updates[field] = req.body[field];
+                }
+            }
+
+            if (Object.keys(updates).length === 0) {
+                return res.status(400).json({
+                    error: 'No editable fields provided'
+                });
+            }
+
+            updates.updatedAt = new Date();
+
+            const updatedAccount = await Provider.findOneAndUpdate(
+                {
+                    _id: providerId,
+                    user: userId
+                },
+                {
+                    $set: updates
+                },
+                {
+                    new: true,
+                    runValidators: true
+                }
+            );
+
+            if (!updatedAccount) {
+                return res.status(404).json({
+                    error: 'Provider account not found'
+                });
+            }
+
+            return res.status(200).json(updatedAccount);
+
         } catch (err) {
-            console.log("No pro updated date!")
-            res.send({ error: err.message })
+            console.error('Provider update failed:', err);
+
+            return res.status(500).json({
+                error: 'Failed to update provider'
+            });
         }
-    })
+    });
 
     // Updating pro reference
     router.put("/update-reference/:proId", async (req, res) => {
@@ -686,25 +750,6 @@ module.exports = (io) => {
             io.to(clientUserId).emit("conversation:list:refresh");
         }
 
-        /* const participantKey = [userA, userB]
-            .map(String)
-            .sort()
-            .join("_");
-
-        const conversation = await Conversation.findOne({ participantKey });
-
-        if (!conversation) {
-            return { deleted: false, reason: "Conversation not found" };
-        }
-
-        await Message.deleteMany({ conversationId: conversation._id });
-
-        await Conversation.deleteOne({ _id: conversation._id });
-
-        return {
-            deleted: true,
-            conversationId: conversation._id,
-        }; */
     }
 
     
@@ -800,7 +845,7 @@ module.exports = (io) => {
 
             await removeEvents(eventIds);
 
-            deleteConversationBetweenUsers(req.user.id, clientUserIds);
+            await deleteConversationBetweenUsers(req.user.id, clientUserIds);
 
             io.to(req.user.id).emit("conversation:list:refresh");
 

@@ -10,6 +10,7 @@
     >
       <div class="photo-card__media">
         <img
+          data-testid="booking-photo-preview"
           class="photo-img"
           :src="
             photo?.imageUrl ||
@@ -24,6 +25,7 @@
 
         <div
           v-if="!editable && photo?.text?.trim()"
+          data-testid="booking-photo-caption"
           class="photo-overlay"
         >
           <p>{{ photo.text }}</p>
@@ -31,6 +33,7 @@
 
         <button
           v-if="editable"
+          data-testid="booking-photo-remove"
           type="button"
           class="remove-photo-btn"
           :aria-label="
@@ -64,6 +67,7 @@
         </label>
 
         <textarea
+          data-testid="booking-photo-description"
           :id="`photo-caption-${idx}`"
           v-model.trim="photo.text"
           class="photo-caption"

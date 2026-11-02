@@ -25,8 +25,13 @@ export const useMapStore = defineStore('location', () => {
                     })
                 },
                 (err) => {
-                    console.error('Geolocation error:', err.code, err.message)
-                    reject(err)
+                    console.warn(
+                        'Geolocation unavailable:',
+                        err.code,
+                        err.message
+                    );
+
+                    reject(err);
                 },
                 {
                     enableHighAccuracy: false,
@@ -80,12 +85,16 @@ export const useMapStore = defineStore('location', () => {
             lastKnownPos.value = freshPos
             saveLastKnownPos(freshPos)
         } catch (e) {
-            console.error('Location init failed:', e)
-            locationError.value = e?.message || 'Location failed'
+            console.warn(
+                'Location init unavailable:',
+                e?.message
+            );
 
-            // keep cached location if available
+            locationError.value =
+                e?.message || 'Location failed';
+
             if (!userPos.value && lastKnownPos.value) {
-                userPos.value = lastKnownPos.value
+                userPos.value = lastKnownPos.value;
             }
         } finally {
             isLocating.value = false

@@ -43,6 +43,7 @@
             <MDBDropdown v-model="userDropdown">
               <MDBDropdownToggle
                 tag="a"
+                data-testid="desktop-user-menu"
                 class="nav-link"
                 :aria-label="t('app.openUserMenu')"
                 @click="userDropdown = !userDropdown"
@@ -169,8 +170,20 @@
                 </MDBDropdownItem>
 
                 <MDBDropdownItem class="dd-item logout-item">
-                  <RouterLink
+                  <button
+                    type="button"
+                    data-testid="logout-button"
+                    class="dropdown-item dd-item logout-item"
+                    @click="
+                        userDropdown = false;
+                        $emit('log-out')
+                    "
+                  >
+                    {{ t("app.logout") }}
+                  </button>
+                  <!-- <RouterLink
                     to="/"
+                    data-testid="logout-button"
                     class="dropdown-item dd-item logout-item"
                     @click="
                       userDropdown = false;
@@ -178,7 +191,7 @@
                     "
                   >
                     {{ t("app.logout") }}
-                  </RouterLink>
+                  </RouterLink> -->
                 </MDBDropdownItem>
 
               </MDBDropdownMenu>

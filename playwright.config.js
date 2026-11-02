@@ -1,6 +1,16 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
+import dotenv from 'dotenv';
+
+const result = dotenv.config({
+  path: '.env.e2e.local'
+});
+
+console.log('ENV faili laadimine:', result.error ? result.error.message : 'OK');
+console.log('E2E_USERNAME:', process.env.E2E_USERNAME);
+console.log('E2E_PASSWORD olemas:', Boolean(process.env.E2E_PASSWORD));
+
 export default defineConfig({
 
   // Playwrighti testide asukoht

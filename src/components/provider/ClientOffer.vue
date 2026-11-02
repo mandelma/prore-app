@@ -21,7 +21,11 @@
       <MDBSpinner color="info" />
     </div>
     <div v-else style="border-top: 1px solid grey; width: 100%; background-color: #1a1a1a; padding: 13px; border-radius: 5px;">
-      <h5 style="color: #dddddd; margin-bottom: 20px;">
+      <h5 
+        data-testid="provider-booking-header"
+        style="color: #dddddd; 
+        margin-bottom: 20px;"
+      >
         {{client.header}}
       </h5>
       <MDBTable borderless class="booking-table--stack" style="font-size: 12px; color: #dddddd; text-align: left;">
@@ -370,6 +374,11 @@
 
       </div>
     </div>
+
+
+
+
+
 
     
 

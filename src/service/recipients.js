@@ -127,7 +127,7 @@ const feedbackClient = async (id, isClient) => {
 }
 // Delete booking
 const removeBooking = async (id) => {
-    const res = await axios.delete(`${baseUrl}/${id}`);
+    const res = await authApi.delete(`/recipients/${id}`);
     return res.data;
 }
 

@@ -36,6 +36,10 @@ const socket = io(URL, {
     ]
 });
 
+if (import.meta.env.MODE === 'e2e') {
+    window.__E2E_SOCKET__ = socket;
+}
+
 
 const updateSocketAuth = () => {
     const raw =

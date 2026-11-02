@@ -185,7 +185,10 @@ const userLoginData = async () => {
       return;
     }
 
-    await userApp.onLogin(res);
+    await userApp.onLogin({
+      ...res,
+      remember
+    });
 
   } catch (err) {
     console.error("Login request failed:", err);

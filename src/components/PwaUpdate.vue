@@ -193,7 +193,7 @@ const installUpdate__ = async () => {
  */
 let refreshing = false;
 
-const handleControllerChange = () => {
+const handleControllerChange__ = () => {
   if (refreshing) {
     return;
   }
@@ -205,6 +205,25 @@ const handleControllerChange = () => {
   );
 
   window.location.reload();
+};
+
+const handleControllerChange = () => {
+
+    // E2E testides ei lae rakendust automaatselt uuesti
+    if (import.meta.env.VITE_E2E_TEST === 'true') {
+        console.log(
+            "E2E: PWA automatic reload skipped"
+        );
+        return;
+    }
+
+    if (refreshing) return;
+
+    refreshing = true;
+
+    console.log("New service worker activated");
+
+    window.location.reload();
 };
 
 

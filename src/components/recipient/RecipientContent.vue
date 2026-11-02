@@ -445,6 +445,7 @@ const handleRemovePublicBooking = async () => {
     console.log("Error to remove client multy booking");
   }
 }
+
 const handleCancelRemoving = () => {
   console.log('Remove cancelled');
 }

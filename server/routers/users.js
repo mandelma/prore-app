@@ -85,19 +85,33 @@ router.post('/', async (req, res) => {
         const existingUserEmail = await User.findOne({email: body.email})
 
         if (existingUser) {
-            res.json({error: "username existing"})
             console.log("Is user existing? " + existingUser)
+
+            return res.json({error: "username existing"})
+            
         } else if (existingUserEmail) {
-            res.json({error: "email existing"})
+
+            return res.json({error: "email existing"})
         }
         else {
             const savedUser = await user.save()
-            console.log('saveduser: ', savedUser)
-            res.json(savedUser)
+            console.log('saveduser: ', savedUser);
+
+            return res.status(201).json({
+                id: savedUser.id,
+                username: savedUser.username,
+                email: savedUser.email,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName
+            });
         }
 
     }catch (exception) {
         console.log('Error: ', exception)
+
+        return res.status(500).json({
+            error: 'Registration failed'
+        });
     }
 
 });
@@ -125,6 +139,50 @@ router.put('/:id/updateEmail', async (req, res) => {
         res.send("There is an error to update email!")
     }
 })
+
+router.delete('/:id', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Kasutaja võib kustutada ainult enda konto
+        if (String(req.user.id) !== String(userId)) {
+            return res.status(403).json({
+                ok: false,
+                deleted: false,
+                error: 'Not authorized to delete this user'
+            });
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                ok: false,
+                deleted: false,
+                error: 'User not found'
+            });
+        }
+
+        const result = await User.deleteOne({
+            _id: userId
+        });
+
+        return res.status(200).json({
+            ok: true,
+            deleted: result.deletedCount === 1,
+            userId
+        });
+
+    } catch (error) {
+        console.error('User deletion failed:', error);
+
+        return res.status(500).json({
+            ok: false,
+            deleted: false,
+            error: 'Failed to delete user'
+        });
+    }
+});
 
 
 module.exports = router;

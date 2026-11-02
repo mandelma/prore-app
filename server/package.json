@@ -18,6 +18,12 @@
     "build": "npm run build:ui",
     "seed:profession-categories": "node seeds/seedProfessionCategories.js",
     "seed:professions": "node seeds/seedProfessions.js",
+
+    "seed:test:profession-categories": "cross-env NODE_ENV=test node seeds/seedProfessionCategories.js",
+    "seed:test:professions": "cross-env NODE_ENV=test node seeds/seedProfessions.js",
+
+    "seed:test": "npm run seed:test:profession-categories && npm run seed:test:professions",
+
     "test": "cross-env NODE_ENV=test node --test --watch --test-concurrency=1 --test-reporter=spec",
     "test:run": "cross-env NODE_ENV=test node --test --test-concurrency=1 --test-reporter=spec",
     "test:coverage": "cross-env NODE_ENV=test node --test --coverage --test-concurrency=1"

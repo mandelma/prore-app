@@ -10,6 +10,7 @@
       <MDBTabs v-model="form1ActiveTab">
         <MDBTabNav pills>
           <MDBTabItem
+            data-testid="login-form-btn"
             @click="pressLoginTab"
             tabId="ex3-1"
             href="ex3-1"
@@ -18,6 +19,7 @@
           </MDBTabItem>
 
           <MDBTabItem
+            data-testid="register-form-btn"
             @click="pressRegisterTab"
             tabId="ex3-2"
             href="ex3-2"
@@ -35,9 +37,7 @@
     </div>
 
     <div v-else>
-      <login-panel
-        @login:data="userControl"
-      />
+      <login-panel />
     </div>
   </MDBContainer>
 </template>

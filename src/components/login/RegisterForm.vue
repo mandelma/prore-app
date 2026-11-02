@@ -20,6 +20,7 @@
       </MDBToast>
 
       <form
+        data-testid="register-form"
         class="register-card"
         @submit.prevent="submitUser"
         autocomplete="on"
@@ -97,6 +98,7 @@
             />
 
             <button
+              
               type="button"
               class="register-password-field__toggle"
               :aria-label="t('register.toggle_password')"
@@ -126,6 +128,7 @@
           <!-- Parooli kordus -->
           <div class="register-password-field">
             <MDBInput
+              
               id="registerPasswordRepeat"
               v-model="registerPasswordRepeat"
               :type="showConfirmPassword ? 'text' : 'password'"
@@ -164,6 +167,7 @@
           <!-- Remember me -->
           <div class="register-form__option">
             <MDBCheckbox
+              data-testid="register-remember"
               id="registerRememberCheck"
               v-model="registerSubscribeCheck"
               :label="t('register.remember_me')"
@@ -174,6 +178,7 @@
           <!-- Tingimused -->
           <div class="register-terms">
             <MDBCheckbox
+              data-testid="register-check"
               id="registerTermsCheck"
               v-model="acceptedTerms"
               :disabled="isSubmitting"
@@ -204,6 +209,7 @@
 
           <!-- Submit -->
           <MDBBtn
+            data-testid="register-submit"
             color="primary"
             size="lg"
             type="submit"

@@ -1135,10 +1135,6 @@ const identifyUserDevice = () => {
     deviceID.value = uuidv4();
     localStorage.setItem("deviceId", deviceID.value);
   }
-
-  /* const deviceId = localStorage.getItem("deviceId") || uuidv4();
-  deviceID.value = deviceId;
-  localStorage.setItem("deviceId", deviceId); */
 }
 
 // Will send to own account if another browser is open
@@ -1354,18 +1350,36 @@ watch(
 
 
 const refreshUserData = async (userId, userRole) => {
-  await Promise.all([
-    userStore.fetchMe(),
-    client.orderList(),
-    handleProvider.getProState(userId),
-    professionStore.initProfessions(),
-    notificationStore.handleNotifications(userId),
-    clientArchiveStore.initClientArchive(),
-    proArchiveStore.initProviderArchive(),
-    conversationStore.getConversations(),
-    adminStore.fetchAdminData(userRole, login.token)
-  ])
-}
+
+    const tasks = [
+        ["fetchMe", () => userStore.fetchMe()],
+        ["orderList", () => client.orderList()],
+        ["getProState", () => handleProvider.getProState(userId)],
+        ["initProfessions", () => professionStore.initProfessions()],
+        ["handleNotifications", () => notificationStore.handleNotifications(userId)],
+        ["initClientArchive", () => clientArchiveStore.initClientArchive()],
+        ["initProviderArchive", () => proArchiveStore.initProviderArchive()],
+        ["getConversations", () => conversationStore.getConversations()],
+        ["fetchAdminData", () => adminStore.fetchAdminData(userRole, login.token)]
+    ];
+
+    const results = await Promise.allSettled(
+        tasks.map(([, run]) => run())
+    );
+
+    results.forEach((result, index) => {
+
+        if (result.status === "rejected") {
+
+            console.error(
+                `LOGIN BOOTSTRAP ERROR: ${tasks[index][0]}`,
+                result.reason
+            );
+        }
+    });
+
+    return results;
+};
 
 watch(() => profile.value?.avatar?.imageUrl, () => {
   avatarError.value = false;
@@ -1418,6 +1432,8 @@ watch(
     await refreshUserData(u.id, u.role);
 
     profileLoaded.value = true;
+
+    
   },
   {
     immediate: true
@@ -2217,7 +2233,14 @@ onMounted(async () => {
   
   // placeWidgetBottomRight();
 
-  await mapStore.init();
+  // await mapStore.init();
+
+  void mapStore.init().catch(error => {
+      console.error(
+          "Map initialization failed:",
+          error
+      );
+  });
 });
 
 
@@ -2344,16 +2367,71 @@ const listen = async() => {
     handleProConfirmMapClient
   );
 
-  socket.on('handle-create-booking-multiple', async(id, bookingId, proIdArr) => {
-    console.log("GOT THE BOOKING " + bookingId + ": ");
-    console.log("Booking id + " + bookingId)
-    const b = await recipientService.getBookingById(bookingId);
-    bb.value = b
-    if (userID.value === id) {
-      
-      handleProvider.upsertBooking(b);
-    }
-  })
+  socket.on(
+    'handle-create-booking-multiple-prev',
+      async (id, bookingId) => {
+
+          if (String(userID.value) !== String(id)) {
+              return;
+          }
+
+          try {
+              const booking =
+                  await recipientService.getBookingById(bookingId);
+
+              if (!booking) {
+                  console.warn(
+                      'Socket booking not found:',
+                      bookingId
+                  );
+                  return;
+              }
+
+              handleProvider.upsertBooking(booking);
+
+              console.log(
+                  'Socket booking added to Pinia:',
+                  booking.id
+              );
+
+          } catch (error) {
+              console.error(
+                  'Socket booking update failed:',
+                  error
+              );
+          }
+      }
+  );
+
+
+  socket.on(
+      'handle-create-booking-multiple',
+      async (id, bookingId) => {
+
+          if (String(userID.value) !== String(id)) {
+              return;
+          }
+
+          try {
+              const booking =
+                  await recipientService.getBookingById(
+                      bookingId
+                  );
+
+              if (!booking) {
+                  return;
+              }
+
+              handleProvider.upsertBooking(booking);
+
+          } catch (error) {
+              console.error(
+                  'Failed to load incoming booking:',
+                  error
+              );
+          }
+      }
+  );
 
 
   socket.on('client use offer', async(bookingID, offer) => {
@@ -2647,15 +2725,15 @@ const handleCreateBookingMultiple = async booking => {
       proIdArr.length
     );
 
-    if (notifyBookingProviders({
+    notifyBookingProviders({
       socket,
       providerUserIds: proIdArr,
       bookingId: booking.id
-    })) {
-      await router.push("/client-panel");
-    }
+    });
 
-    //await router.push("/client-panel");
+
+    await router.push("/client-panel");
+    
   } catch (err) {
     console.log("Error to load booking - ", err.message);
   } finally {
@@ -2665,9 +2743,8 @@ const handleCreateBookingMultiple = async booking => {
   
 };
 
-const logOut = () => {
-  login.onLogOut()
-  //router.push('/');
+const logOut = async () => {
+  await login.onLogOut()
 }
 
 const onProviderBell = () => {
