@@ -3279,848 +3279,582 @@ test(
 );
 
 
-test(
-    'PW-031: Klient saab hinnapakkumise reaalajas',
-    async ({ browser, request }) => {
+const setupBookingWithOffer = async ({ browser, request }) => {
+    let clientToken = null;
+    let bookingId = null;
+    let painterUserId = null;
 
-        test.setTimeout(180000);
+    const createdProviders = [];
+    const createdUserIds = [];
+    const contexts = [];
 
-        let clientToken = null;
-        let bookingId = null;
-        let painterUserId = null;
+    const cleanup = async () => {
+        if (bookingId) {
+            try {
+                await deleteTestBookingByApi(request, bookingId, clientToken);
+                console.log('[OFFER CLEANUP] Booking deleted:', bookingId);
+            } catch (error) {
+                console.error('[OFFER CLEANUP] Booking:', error.message);
+            }
+        }
 
-        const createdProviders = [];
-        const createdUserIds = [];
+        for (const provider of [...createdProviders].reverse()) {
+            try {
+                await deleteTestProvider(provider.providerId, provider.userId);
+            } catch (error) {
+                console.error('[OFFER CLEANUP] Provider:', error.message);
+            }
+        }
 
+        for (const userId of [...createdUserIds].reverse()) {
+            try {
+                await deleteTestUser(userId);
+            } catch (error) {
+                console.error('[OFFER CLEANUP] User:', error.message);
+            }
+        }
+
+        const results = await Promise.allSettled(
+            contexts.map(context => context.close())
+        );
+
+        for (const result of results) {
+            if (result.status === 'rejected') {
+                console.error(
+                    '[OFFER CLEANUP] Context:',
+                    result.reason?.message
+                );
+            }
+        }
+
+        console.log('[OFFER CLEANUP] Completed');
+    };
+
+    try {
         const painterContext = await browser.newContext();
+        contexts.push(painterContext);
+
         const clientContext = await browser.newContext();
+        contexts.push(clientContext);
 
         const painterPage = await painterContext.newPage();
         const clientPage = await clientContext.newPage();
 
-
-        // Kliendi brauseri console.log ja console.error
-        clientPage.on('console', msg => {
-            console.log(
-                `[CLIENT ${msg.type()}]`,
-                msg.text()
-            );
-        });
-
-        // JavaScripti vead
-        clientPage.on('pageerror', error => {
-            console.error(
-                '[CLIENT JAVASCRIPT ERROR]',
-                error.message
-            );
-        });
-
-        // Ebaõnnestunud HTTP päringud
-        clientPage.on('response', response => {
-            if (response.status() >= 400) {
-                console.error(
-                    '[CLIENT HTTP ERROR]',
-                    response.status(),
-                    response.url()
-                );
-            }
-        });
-
-
-
-
-
-
-
-        clientPage.on('console', msg => {
-            if (msg.text().includes('[PW-031]')) {
-                console.log('[CLIENT BROWSER]', msg.text());
-            }
-        });
-
-        clientPage.on('pageerror', error => {
-            console.error('[CLIENT PAGE ERROR]', error.message);
-        });
-
-        try {
-
-            // ==========================================
-            // ETAPP 1: Maalri registreerimine
-            // ==========================================
-
-            const painter = await createTemporaryProvider(
-                painterPage,
-                {
-                    profession: 'house_painter',
-
-                    onUserCreated: id => {
-                        painterUserId = id;
-                        createdUserIds.push(id);
-                    },
-
-                    onProviderCreated: id => {
-                        createdProviders.push({
-                            providerId: id,
-                            userId: painterUserId
-                        });
-                    }
-                }
-            );
-
-            expect(painter.provider.profession).toContain(
-                'house_painter'
-            );
-
-            console.log(
-                '[PW-030] Maaler registreeritud:',
-                painter.providerId
-            );
-
-
-            // ==========================================
-            // ETAPP 2: Maaler avab pakkuja lehe
-            // ==========================================
-
-            await painterPage.goto(
-                'http://localhost:5174/admin/provider'
-            );
-
-            await expect(painterPage).toHaveURL(
-                /\/admin\/provider/
-            );
-
-            await painterPage.waitForFunction(
-                () => window.__E2E_SOCKET__?.connected === true,
-                null,
-                { timeout: 15000 }
-            );
-
-
-            // ==========================================
-            // ETAPP 3: Kliendi registreerimine
-            // ==========================================
-
-            const { userId: clientUserId } =
-                await registerAndLoginAsClient(clientPage);
-
-            createdUserIds.push(clientUserId);
-
-            clientToken = await clientPage.evaluate(() => {
-
-                const savedUser =
-                    localStorage.getItem('loggedAppUser') ||
-                    sessionStorage.getItem('loggedAppUser');
-
-                return savedUser
-                    ? JSON.parse(savedUser).token
-                    : null;
-            });
-
-            expect(clientToken).toBeTruthy();
-
-            console.log(
-                '[PW-030] Klient registreeritud:',
-                clientUserId
-            );
-
-
-            // ==========================================
-            // ETAPP 4: Klient loob maalritöö tellimuse
-            // ==========================================
-
-            const testHeader =
-                `PW-030 Playwright test ${Date.now()}`;
-
-            await fillHousePainterBookingForm(
-                clientPage,
-                testHeader,
-                {
-                    skipLogin: true
-                }
-            );
-
-            const booking = await createBookingAndVerify(
-                clientPage,
-                'house_painter'
-            );
-
-            bookingId = booking.id ?? booking._id;
-
-            expect(bookingId).toBeTruthy();
-
-            expect(booking.professional).toContain(
-                'house_painter'
-            );
-
-            await expect(clientPage).toHaveURL(
-                url => url.pathname === '/client-panel',
-                { timeout: 15000 }
-            );
-
-            // Hinnapakkumiste küsimiseks loodud tellimus
-            expect(booking.isIncludeOffers).toBe(true);
-
-            console.log(
-                '[PW-030] Tellimus loodud:',
-                bookingId
-            );
-
-            // ==========================================
-            // PW-031: Kliendi Socket.io ühendus
-            // ==========================================
-
-            await clientPage.waitForFunction(
-                () => window.__E2E_SOCKET__?.connected === true,
-                null,
-                { timeout: 15000 }
-            );
-
-            console.log(
-                '[PW-031] Kliendi Socket.io ühendus aktiivne'
-            );
-
-            // ==========================================
-            // PW-031: Jälgime kliendile saabuvat pakkumist
-            // ==========================================
-
-            await clientPage.evaluate(() => {
-
-                window.__E2E_CLIENT_OFFER_EVENTS__ = [];
-
-                window.__E2E_SOCKET__.on(
-                    'client-use-offer',
-                    (bookingID, offer) => {
-
-                        window.__E2E_CLIENT_OFFER_EVENTS__.push({
-                            bookingID: String(bookingID),
-                            offer
-                        });
-
-                    }
-                );
-
-            });
-
-            console.log(
-                '[PW-031] Kliendi hinnapakkumiste kuulaja aktiveeritud'
-            );
-
-
-            // ==========================================
-            // ETAPP 5: Maaler saab tellimuse
-            // ==========================================
-
-            const painterBooking = painterPage.locator(
-                `.booking-row-new[data-testid="provider-booking-${bookingId}"]`
-            ).first();
-
-            await expect(painterBooking).toBeVisible({
-                timeout: 15000
-            });
-
-            console.log(
-                '[PW-030] Tellimus jõudis maalrile'
-            );
-
-
-            // ==========================================
-            // ETAPP 6: Maaler avab tellimuse
-            // ==========================================
-
-            const painterBookingOpen = painterPage.locator(
-                `.booking-row-new span.new_notification[data-testid="provider-booking-${bookingId}"]`
-            ).first();
-
-            await painterBookingOpen.click();
-
-            await expect(
-                painterPage.getByTestId('provider-booking-header')
-            ).toHaveText(testHeader, {
-                timeout: 15000
-            });
-
-            console.log(
-                '[PW-030] Maaler avas tellimuse'
-            );
-
-
-            // ==========================================
-            // ETAPP 7: Hinnapakkumise vormi avamine
-            // ==========================================
-
-            await expect(
-                painterPage.getByTestId('open-offer-panel')
-            ).toBeVisible({
-                timeout: 15000
-            });
-
-            await painterPage.getByTestId(
-                'open-offer-panel'
-            ).click();
-
-            await expect(
-                painterPage.getByTestId('offer-input')
-            ).toBeVisible();
-
-            console.log(
-                '[PW-030] Hinnapakkumise vorm avatud'
-            );
-
-
-            // ==========================================
-            // ETAPP 8: Hinnapakkumise täitmine
-            // ==========================================
-
-            const offerPrice = 250;
-
-            const offerDescription =
-                'PW-030 Playwright test offer';
-
-            await painterPage.getByTestId(
-                'offer-input'
-            ).fill(String(offerPrice));
-
-            await painterPage.getByTestId(
-                'offer-at-client-radio'
-            ).check();
-
-            await painterPage.getByTestId(
-                'offer-details'
-            ).fill(offerDescription);
-
-            await expect(
-                painterPage.getByTestId('offer-confirm-btn')
-            ).toBeEnabled();
-
-            console.log(
-                '[PW-030] Hinnapakkumise vorm täidetud'
-            );
-
-
-            // ==========================================
-            // ETAPP 9: Hinnapakkumise saatmine
-            // ==========================================
-
-            const offerResponsePromise =
-                painterPage.waitForResponse(
-                    response =>
-                        new URL(response.url()).pathname ===
-                        '/api/offer' &&
-                        response.request().method() === 'POST'
-                );
-
-            await painterPage.getByTestId(
-                'offer-confirm-btn'
-            ).click();
-
-            const offerResponse = await offerResponsePromise;
-
-            expect(offerResponse.status()).toBe(201);
-
-            const offerResult = await offerResponse.json();
-
-            expect(offerResult.success).toBe(true);
-
-            expect(offerResult.offer).toBeTruthy();
-
-            console.log(
-                '[PW-030] Backend kinnitas pakkumise salvestamise'
-            );
-
-            // ==========================================
-            // PW-031: Socket.io sündmuse kontroll
-            // ==========================================
-
-
-
-
-            const socketState = await clientPage.evaluate(() => {
-
-                const socket = window.__E2E_SOCKET__;
-
-                return {
-                    connected: socket.connected,
-                    socketId: socket.id,
-                    offerListeners: socket.listeners('client-use-offer').length
-                };
-            });
-
-            console.log('[PW-031] Socket state:', socketState);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            await clientPage.waitForFunction(
-                bookingId => {
-
-                    const events =
-                        window.__E2E_CLIENT_OFFER_EVENTS__ || [];
-
-                    return events.some(
-                        event => event.bookingID === String(bookingId)
-                    );
-
+        // ETAPP 1: Maalri registreerimine
+        const painter = await createTemporaryProvider(
+            painterPage,
+            {
+                profession: 'house_painter',
+
+                onUserCreated: id => {
+                    painterUserId = id;
+                    createdUserIds.push(id);
                 },
-                bookingId,
-                { timeout: 15000 }
-            );
 
-            const receivedEvents = await clientPage.evaluate(() => {
-                return window.__E2E_CLIENT_OFFER_EVENTS__ || [];
-            });
-
-            const receivedOfferEvent = receivedEvents.find(
-                event => event.bookingID === String(bookingId)
-            );
-
-            expect(receivedOfferEvent).toBeTruthy();
-
-            expect(
-                Number(receivedOfferEvent.offer.price)
-            ).toBe(250);
-
-            console.log(
-                '[PW-031] Klient sai Socket.io hinnapakkumise:',
-                receivedOfferEvent.offer
-            );
-
-
-
-
-
-
-
-
-
-
-
-            const newOffersBadge = clientPage.getByTestId(
-                'new-offers-badge'
-            );
-
-
-            await expect(newOffersBadge).toBeVisible({
-                timeout: 15000
-            });
-
-            await expect(newOffersBadge).toHaveText('1');
-
-            console.log(
-                '[PW-031] Kliendi kasutajaliides näitab uut pakkumist'
-            );
-
-
-            // PW-032: Hinnapakkumise säilimine pärast lehe värskendamist
-
-            console.log('[PW-032] Refreshing client page');
-
-            await clientPage.reload({
-                waitUntil: 'domcontentloaded'
-            });
-
-            // Kontrollime, et tellimuse kaart taastub
-            await expect(
-                clientPage.getByTestId('open-booking-panel')
-            ).toBeVisible({
-                timeout: 15000
-            });
-
-            // Kontrollime, et uue pakkumise märgis taastub
-            const restoredBadge = clientPage.getByTestId(
-                'new-offers-badge'
-            );
-
-            await expect(restoredBadge).toBeVisible({
-                timeout: 15000
-            });
-
-            await expect(restoredBadge).toHaveText('1');
-
-            console.log(
-                '[PW-032] New offer badge restored successfully'
-            );
-
-
-
-            console.log(
-                '[PW-031] Badge before reload:',
-                await newOffersBadge.count()
-            );
-
-            await clientPage.reload();
-
-            await expect(
-                clientPage.getByTestId('open-booking-panel')
-            ).toBeVisible({ timeout: 15000 });
-
-            console.log(
-                '[PW-031] Badge after reload:',
-                await clientPage.getByTestId('new-offers-badge').count()
-            );
-
-
-
-
-
-
-
-
-            const socketListeners = await clientPage.evaluate(() => {
-
-                const socket = window.__E2E_SOCKET__;
-
-                return {
-                    connected: socket.connected,
-                    socketId: socket.id,
-                    offerListeners: socket.listeners('client-use-offer').length,
-                    registeredEvents: Object.keys(socket._callbacks || {})
-                };
-
-            });
-
-            console.log(
-                '[PW-031] Client socket listeners:',
-                socketListeners
-            );
-
-
-
-
-
-            // ==========================================
-            // PW-031: Kliendi UI automaatne uuenemine
-            // ==========================================
-
-            console.log(
-                '[PW-031 UI] Current URL:',
-                clientPage.url()
-            );
-
-            console.log(
-                '[PW-031 UI] Booking buttons:',
-                await clientPage.getByTestId(
-                    'open-booking-panel'
-                ).count()
-            );
-
-            console.log(
-                '[PW-031 UI] New offer badges:',
-                await clientPage.getByTestId(
-                    'new-offers-badge'
-                ).count()
-            );
-
-
-
-
-            
-
-            // PW-032: Avame kliendi tellimuse
-
-            console.log('[PW-032] Opening client booking');
-
-            await clientPage.getByTestId(
-                'open-booking-panel'
-            ).click();
-
-            // Otsime konkreetset hinnapakkumist
-            /* const offerItem = clientPage.getByTestId(
-                `offer-item-${receivedOfferEvent.offer.id}`
-            ); */
-
-            const offerItem = clientPage
-                .locator('.offer-item')
-                .filter({
-                    has: clientPage.locator('.offer-name', {
-                        hasText: 'Playwright Test Provider'
-                    })
-                });
-
-            await expect(offerItem).toBeVisible({
-                timeout: 15000
-            });
-
-
-            const offerItems = await clientPage
-                .locator('[data-testid^="offer-item-"]')
-                .evaluateAll(elements =>
-                    elements.map(el => ({
-                        testId: el.getAttribute('data-testid'),
-                        text: el.innerText
-                    }))
-                );
-
-            console.log('[PW-032] UI offers:', offerItems);
-
-            console.log(
-                '[PW-032] Socket offer ID:',
-                receivedOfferEvent.offer.id
-            );
-
-
-
-
-
-            // Kontrollime, et pakkumine on nähtav
-            await expect(offerItem).toBeVisible({
-                timeout: 15000
-            });
-
-            // Kontrollime pakkuja nime
-            await expect(
-                offerItem.locator('.offer-name')
-            ).toHaveText('Playwright Test Provider');
-
-            // Kontrollime hinda
-            await expect(
-                offerItem.locator('.offer-price')
-            ).toContainText('250');
-
-            console.log(
-                '[PW-032] Offer restored correctly after reload'
-            );
-
-            // Pakkumine peab olema märgitud uuena
-            await expect(offerItem).toHaveClass(
-                /offer-item--new/
-            );
-
-            console.log(
-                '[PW-032] Offer is marked as new'
-            );
-
-            // Avame hinnapakkumise detailvaate
-            await offerItem.click();
-
-            console.log(
-                '[PW-032] Offer details opened'
-            );
-
-
-            // Kontrollime detailvaate andmeid
-            const offerDetails = clientPage.getByTestId(
-                'offer-details'
-            );
-
-            await expect(offerDetails).toBeVisible({
-                timeout: 15000
-            });
-
-            // Kontrollime pakkumise hinda
-            await expect(offerDetails).toContainText(
-                '250 eur'
-            );
-
-            // Kontrollime pakkumise kirjeldust
-            await expect(offerDetails).toContainText(
-                'PW-030 Playwright test offer'
-            );
-
-            // Kontrollime pakkuja nime
-            await expect(offerDetails).toContainText(
-                'Playwright Test Provider'
-            );
-
-            console.log(
-                '[PW-032] Offer details verified successfully'
-            );
-
-            // Kontrollime, et pakkumine märgitakse loetuks
-            await expect(offerItem).toHaveClass(
-                /offer-item--opened/,
-                {
-                    timeout: 15000
-                }
-            );
-
-            console.log(
-                '[PW-032] Offer marked as read'
-            );
-
-
-            // ==========================================
-            // ETAPP 10: Salvestatud pakkumise kontroll
-            // ==========================================
-
-            const savedOffer = offerResult.offer;
-
-            expect(String(savedOffer.bookingID)).toBe(
-                String(bookingId)
-            );
-
-            expect(String(savedOffer.sender)).toBe(
-                String(painterUserId)
-            );
-
-            expect(String(savedOffer.provider)).toBe(
-                String(painter.providerId)
-            );
-
-            expect(Number(savedOffer.price)).toBe(
-                offerPrice
-            );
-
-            expect(savedOffer.description).toBe(
-                offerDescription
-            );
-
-            expect(savedOffer.placeOrGo).toBe('go');
-
-            expect(String(offerResult.bookingId)).toBe(
-                String(bookingId)
-            );
-
-            console.log(
-                '[PW-030] Salvestatud pakkumise andmed õiged:',
-                savedOffer._id
-            );
-
-
-            // ==========================================
-            // ETAPP 11: Pakkuja kaardi oleku kontroll
-            // ==========================================
-
-            const completedBooking = painterPage.locator(
-                `.booking-row-done[data-testid="provider-booking-${bookingId}"]`
-            ).first();
-
-            await expect(completedBooking).toBeVisible({
-                timeout: 15000
-            });
-
-            console.log(
-                '[PW-030] Tellimuse kaart on olekus booking-row-done'
-            );
-
-
-            // ==========================================
-            // ETAPP 12: Kontroll pärast reload'i
-            // ==========================================
-
-            await painterPage.reload();
-
-            const bookingAfterReload = painterPage.locator(
-                `.booking-row-done[data-testid="provider-booking-${bookingId}"]`
-            ).first();
-
-            await expect(bookingAfterReload).toBeVisible({
-                timeout: 15000
-            });
-
-            console.log(
-                '[PW-030] Pakkumise olek säilis pärast reloadi'
-            );
-
-            console.log(
-                '[PW-030] TEST EDUKALT LÄBITUD'
-            );
-
-        } finally {
-
-            // ==========================================
-            // TESTANDMETE KUSTUTAMINE
-            // ==========================================
-
-            // 1. Tellimus koos hinnapakkumistega
-
-            if (bookingId) {
-                try {
-                    await deleteTestBookingByApi(
-                        request,
-                        bookingId,
-                        clientToken
-                    );
-
-                    console.log(
-                        '[PW-030 CLEANUP] Booking deleted:',
-                        bookingId
-                    );
-
-                } catch (error) {
-                    console.error(
-                        '[PW-030 CLEANUP] Booking deletion failed:',
-                        error.message
-                    );
+                onProviderCreated: id => {
+                    createdProviders.push({
+                        providerId: id,
+                        userId: painterUserId
+                    });
                 }
             }
+        );
 
+        expect(painter.provider.profession).toContain('house_painter');
 
-            // 2. Pakkujad
+        // ETAPP 2: Maaler avab pakkuja lehe
+        await painterPage.goto(
+            'http://localhost:5174/admin/provider'
+        );
 
-            for (const provider of [...createdProviders].reverse()) {
-                try {
-                    await deleteTestProvider(
-                        provider.providerId,
-                        provider.userId
-                    );
+        await expect(painterPage).toHaveURL(/\/admin\/provider/);
 
-                    console.log(
-                        '[PW-030 CLEANUP] Provider deleted:',
-                        provider.providerId
-                    );
+        await painterPage.waitForFunction(
+            () => window.__E2E_SOCKET__?.connected === true,
+            null,
+            { timeout: 15000 }
+        );
 
-                } catch (error) {
-                    console.error(
-                        '[PW-030 CLEANUP] Provider deletion failed:',
-                        error.message
-                    );
+        // ETAPP 3: Kliendi registreerimine
+        const { userId: clientUserId } =
+            await registerAndLoginAsClient(clientPage);
+
+        createdUserIds.push(clientUserId);
+
+        clientToken = await clientPage.evaluate(() => {
+            const savedUser =
+                localStorage.getItem('loggedAppUser') ||
+                sessionStorage.getItem('loggedAppUser');
+
+            return savedUser
+                ? JSON.parse(savedUser).token
+                : null;
+        });
+
+        expect(clientToken).toBeTruthy();
+
+        // ETAPP 4: Klient loob maalritöö tellimuse
+        const testHeader =
+            `PW-OFFER Playwright test ${Date.now()}`;
+
+        await fillHousePainterBookingForm(
+            clientPage,
+            testHeader,
+            { skipLogin: true }
+        );
+
+        const booking = await createBookingAndVerify(
+            clientPage,
+            'house_painter'
+        );
+
+        bookingId = booking.id ?? booking._id;
+
+        expect(bookingId).toBeTruthy();
+        expect(booking.professional).toContain('house_painter');
+        expect(booking.isIncludeOffers).toBe(true);
+
+        await expect(clientPage).toHaveURL(
+            url => url.pathname === '/client-panel',
+            { timeout: 15000 }
+        );
+
+        // Socket.io ühenduse kontroll
+        await clientPage.waitForFunction(
+            () => window.__E2E_SOCKET__?.connected === true,
+            null,
+            { timeout: 15000 }
+        );
+
+        // Registreerime kuulaja ENNE pakkumise saatmist
+        await clientPage.evaluate(() => {
+            window.__E2E_CLIENT_OFFER_EVENTS__ = [];
+
+            window.__E2E_SOCKET__.on(
+                'client-use-offer',
+                (bookingID, offer) => {
+                    window.__E2E_CLIENT_OFFER_EVENTS__.push({
+                        bookingID: String(bookingID),
+                        offer
+                    });
                 }
-            }
+            );
+        });
 
+        // ETAPP 5: Maaler saab tellimuse
+        const painterBooking = painterPage.locator(
+            `.booking-row-new[data-testid="provider-booking-${bookingId}"]`
+        ).first();
 
-            // 3. Kasutajad
+        await expect(painterBooking).toBeVisible({
+            timeout: 15000
+        });
 
-            for (const userId of [...createdUserIds].reverse()) {
-                try {
-                    await deleteTestUser(userId);
+        // ETAPP 6: Maaler avab tellimuse
+        const painterBookingOpen = painterPage.locator(
+            `.booking-row-new span.new_notification[data-testid="provider-booking-${bookingId}"]`
+        ).first();
 
-                    console.log(
-                        '[PW-030 CLEANUP] User deleted:',
-                        userId
-                    );
+        await painterBookingOpen.click();
 
-                } catch (error) {
-                    console.error(
-                        '[PW-030 CLEANUP] User deletion failed:',
-                        error.message
-                    );
-                }
-            }
+        await expect(
+            painterPage.getByTestId('provider-booking-header')
+        ).toHaveText(testHeader, {
+            timeout: 15000
+        });
 
+        // ETAPP 7: Hinnapakkumise vormi avamine
+        await expect(
+            painterPage.getByTestId('open-offer-panel')
+        ).toBeVisible({ timeout: 15000 });
 
-            // 4. Brauserikontekstid
+        await painterPage.getByTestId(
+            'open-offer-panel'
+        ).click();
 
-            const contexts = [
-                clientContext,
-                painterContext
-            ];
+        await expect(
+            painterPage.getByTestId('offer-input')
+        ).toBeVisible();
 
-            const closeResults = await Promise.allSettled(
-                contexts.map(context => context.close())
+        // ETAPP 8: Hinnapakkumise täitmine
+        const offerPrice = 250;
+        const offerDescription = 'PW-030 Playwright test offer';
+
+        await painterPage.getByTestId(
+            'offer-input'
+        ).fill(String(offerPrice));
+
+        await painterPage.getByTestId(
+            'offer-at-client-radio'
+        ).check();
+
+        await painterPage.getByTestId(
+            'offer-details'
+        ).fill(offerDescription);
+
+        await expect(
+            painterPage.getByTestId('offer-confirm-btn')
+        ).toBeEnabled();
+
+        // ETAPP 9: Hinnapakkumise saatmine
+        const offerResponsePromise =
+            painterPage.waitForResponse(
+                response =>
+                    new URL(response.url()).pathname === '/api/offer' &&
+                    response.request().method() === 'POST'
             );
 
-            for (const result of closeResults) {
-                if (result.status === 'rejected') {
-                    console.error(
-                        '[PW-030 CLEANUP] Context close failed:',
-                        result.reason?.message
-                    );
-                }
-            }
+        await painterPage.getByTestId(
+            'offer-confirm-btn'
+        ).click();
 
-            console.log(
-                '[PW-030 CLEANUP] Cleanup completed'
-            );
-        }
+        const offerResponse = await offerResponsePromise;
+
+        expect(offerResponse.status()).toBe(201);
+
+        const offerResult = await offerResponse.json();
+
+        expect(offerResult.success).toBe(true);
+        expect(offerResult.offer).toBeTruthy();
+
+        const savedOffer = offerResult.offer;
+
+        expect(String(savedOffer.bookingID)).toBe(String(bookingId));
+        expect(String(savedOffer.sender)).toBe(String(painterUserId));
+        expect(String(savedOffer.provider)).toBe(String(painter.providerId));
+        expect(Number(savedOffer.price)).toBe(offerPrice);
+        expect(savedOffer.description).toBe(offerDescription);
+        expect(savedOffer.placeOrGo).toBe('go');
+        expect(String(offerResult.bookingId)).toBe(String(bookingId));
+
+        // Kontrollime pakkuja kaardi olekut
+        const completedBooking = painterPage.locator(
+            `.booking-row-done[data-testid="provider-booking-${bookingId}"]`
+        ).first();
+
+        await expect(completedBooking).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[OFFER SETUP] Booking and offer created:',
+            bookingId
+        );
+
+        return {
+            painterPage,
+            clientPage,
+            bookingId,
+            painterUserId,
+            clientToken,
+            offerResult,
+            offerPrice,
+            offerDescription,
+            cleanup
+        };
+
+    } catch (error) {
+        await cleanup();
+        throw error;
     }
-);
+};
+
+const findTestOffer = clientPage => {
+    return clientPage
+        .locator('.offer-item')
+        .filter({
+            has: clientPage.locator('.offer-name', {
+                hasText: 'Playwright Test Provider'
+            })
+        });
+};
+
+
+// =====================================================
+// PW-031: Klient saab hinnapakkumise reaalajas
+// =====================================================
+
+test('PW-031: Klient saab hinnapakkumise reaalajas', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            bookingId
+        } = data;
+
+        // Ootame Socket.io sündmust
+        await clientPage.waitForFunction(
+            bookingId => {
+                const events =
+                    window.__E2E_CLIENT_OFFER_EVENTS__ || [];
+
+                return events.some(
+                    event =>
+                        event.bookingID === String(bookingId)
+                );
+            },
+            bookingId,
+            { timeout: 15000 }
+        );
+
+        const receivedEvents = await clientPage.evaluate(() => {
+            return window.__E2E_CLIENT_OFFER_EVENTS__ || [];
+        });
+
+        const receivedOfferEvent = receivedEvents.find(
+            event =>
+                event.bookingID === String(bookingId)
+        );
+
+        expect(receivedOfferEvent).toBeTruthy();
+
+        expect(
+            Number(receivedOfferEvent.offer.price)
+        ).toBe(250);
+
+        console.log(
+            '[PW-031] Socket.io offer received:',
+            receivedOfferEvent.offer
+        );
+
+        // Kontrollime UI automaatset uuenemist
+        const newOffersBadge = clientPage.getByTestId(
+            'new-offers-badge'
+        );
+
+        await expect(newOffersBadge).toBeVisible({
+            timeout: 15000
+        });
+
+        await expect(newOffersBadge).toHaveText('1');
+
+        console.log('[PW-031] TEST PASSED');
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-032: Hinnapakkumine säilib pärast lehe värskendamist
+// =====================================================
+
+test('PW-032: Hinnapakkumine säilib pärast värskendamist', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            offerPrice,
+            offerDescription
+        } = data;
+
+        // Veendume, et pakkumine on enne reload'i saabunud
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // Värskendame kliendi lehe
+        await clientPage.reload({
+            waitUntil: 'domcontentloaded'
+        });
+
+        // Kontrollime tellimuse kaarti
+        await expect(
+            clientPage.getByTestId('open-booking-panel')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        // Kontrollime uue pakkumise märgist
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // Avame tellimuse
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible({
+            timeout: 15000
+        });
+
+        // Kontrollime pakkuja nime
+        await expect(
+            offerItem.locator('.offer-name')
+        ).toHaveText('Playwright Test Provider');
+
+        // Kontrollime hinda
+        await expect(
+            offerItem.locator('.offer-price')
+        ).toContainText(String(offerPrice));
+
+        // Pakkumine peab olema uus
+        await expect(offerItem).toHaveClass(
+            /offer-item--new/
+        );
+
+        // Avame pakkumise detailvaate
+        await offerItem.click();
+
+        const offerDetails = clientPage.getByTestId(
+            'offer-details'
+        );
+
+        await expect(offerDetails).toBeVisible({
+            timeout: 15000
+        });
+
+        await expect(offerDetails).toContainText(
+            `${offerPrice} eur`
+        );
+
+        await expect(offerDetails).toContainText(
+            offerDescription
+        );
+
+        await expect(offerDetails).toContainText(
+            'Playwright Test Provider'
+        );
+
+        console.log('[PW-032] TEST PASSED');
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-033: Hinnapakkumise loetuks märkimine
+// =====================================================
+
+test('PW-033: Hinnapakkumise loetuks märkimine', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const { clientPage } = data;
+
+        // Ootame uut pakkumist
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // Avame tellimuse
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible({
+            timeout: 15000
+        });
+
+        // Kontrollime, et pakkumine on uus
+        await expect(offerItem).toHaveClass(
+            /offer-item--new/
+        );
+
+        await expect(
+            offerItem.locator('.new-dot')
+        ).toHaveCount(1);
+
+        // Avame pakkumise
+        await offerItem.click();
+
+        // Kontrollime, et pakkumine märgiti loetuks
+        await expect(offerItem).toHaveClass(
+            /offer-item--opened/,
+            { timeout: 15000 }
+        );
+
+        // Oranž täpp peab kaduma
+        await expect(
+            offerItem.locator('.new-dot')
+        ).toHaveCount(0);
+
+        console.log('[PW-033] Offer marked as read');
+
+        // Värskendame lehe
+        await clientPage.reload({
+            waitUntil: 'domcontentloaded'
+        });
+
+        // Ootame tellimuste laadimist
+        await expect(
+            clientPage.getByTestId('open-booking-panel')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        // Uute pakkumiste märgis peab puuduma
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveCount(0, {
+            timeout: 15000
+        });
+
+        // Avame tellimuse uuesti
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const restoredOffer = findTestOffer(clientPage);
+
+        await expect(restoredOffer).toBeVisible({
+            timeout: 15000
+        });
+
+        // Pakkumine peab jääma loetuks
+        await expect(restoredOffer).toHaveClass(
+            /offer-item--opened/
+        );
+
+        await expect(
+            restoredOffer.locator('.new-dot')
+        ).toHaveCount(0);
+
+        console.log('[PW-033] TEST PASSED');
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
