@@ -590,8 +590,6 @@
                 :key="reInitKey"
                 disablePast
             />
-
-            xxx
             
         </div>
 
@@ -924,6 +922,7 @@
   <!-- Opening client event modal -->
   <MDBModal
     v-model="showClientEventModal"
+    data-testid="client-calendar-modal"
     tabindex="-1"
     centered
     :modelValue="true"
@@ -955,27 +954,30 @@
 
         <div class="info-row">
           <span>{{ t('calendar.service') }}</span>
-          <strong>{{ selectedEvent?.title || '—' }}</strong>
+          <strong data-testid="client-calendar-title">{{ selectedEvent?.title || '—' }}</strong>
         </div>
 
         <div class="info-row">
           <span>{{ t('calendar.description') }}</span>
-          <strong v-html="selectedEvent?.note || '—'"></strong>
+          <strong data-testid="client-calendar-description" v-html="selectedEvent?.note || '—'"></strong>
         </div>
         <!-- v-if="selectedEvent?.location" -->
         <div class="info-row" >
           <span>{{ t('calendar.location') }}</span>
-          <strong>{{ selectedEvent?.address }}</strong>
+          <strong data-testid="client-calendar-address">{{ selectedEvent?.address }}</strong>
         </div>
         <!-- selectedEvent?.priceOffer + " €" || 'Sovitaan erikseen' -->
         <div class="info-row">
           <span>{{ t('calendar.estimatedPrice') }}</span>
-          <strong >{{ selectedEvent?.budget }} €</strong>
+          <strong data-testid="client-calendar-price">{{ selectedEvent?.budget }} €</strong>
         </div>
 
         <div class="info-row">
           <span>{{ t('calendar.status') }}</span>
-          <strong class="status-waiting">{{ t('calendar.agreed') }}</strong>
+          <strong 
+            data-testid="client-calendar-status"
+            class="status-waiting"
+          >{{ t('calendar.agreed') }}</strong>
         </div>
       </div>
 
@@ -995,6 +997,7 @@
   <!-- Opening provider event modal -->
   <MDBModal
       v-model="showProEventModal"
+      data-testid="provider-calendar-modal"
       tabindex="-1"
       centered
       :modelValue="true"
@@ -1019,7 +1022,7 @@
         <div class="schedule-item">
           <span>{{ t('calendar.start') }}</span>
 
-          <strong>
+          <strong data-testid="calendar-booking-start">
             {{
               selectedEvent?.start
                 ? formatLocalDate(selectedEvent.start)
@@ -1054,12 +1057,18 @@
 
         <div class="info-row">
           <span>{{ t('calendar.service') }}</span>
-          <strong>{{ selectedEvent?.title || '—' }}</strong>
+          <strong data-testid="calendar-booking-title">
+            {{ selectedEvent?.title || '—' }}
+          </strong>
         </div>
 
         <div class="info-row">
           <span>{{ t('calendar.description') }}</span>
-          <strong v-html="selectedEvent?.note || '—'"></strong>
+          <strong 
+            v-html="selectedEvent?.note || '—'"
+            data-testid="calendar-booking-description"
+          >
+        </strong>
         </div>
 
         <div
@@ -1067,13 +1076,13 @@
           class="info-row"
         >
           <span>{{ t('calendar.location') }}</span>
-          <strong>{{ selectedEvent?.address || '—' }}</strong>
+          <strong data-testid="calendar-booking-address">{{ selectedEvent?.address || '—' }}</strong>
         </div>
 
         <div class="info-row">
           <span>{{ t('calendar.estimatedPrice') }}</span>
 
-          <strong>
+          <strong data-testid="calendar-booking-price">
             {{
               selectedEvent?.budget !== null &&
               selectedEvent?.budget !== undefined &&
@@ -1116,7 +1125,10 @@
 
         <div class="info-row">
           <span>{{ t('calendar.status') }}</span>
-          <strong class="status-waiting">
+          <strong 
+            class="status-waiting"
+            data-testid="calendar-booking-status"
+          >
             {{ t('calendar.agreed') }}
           </strong>
         </div>
@@ -1398,7 +1410,7 @@ const events = computed(() => [
         cc?.isIncludeOffers && cc?.confirmedOffer.placeOrGo !== '' 
         ? 
         (
-          cc?.confirmedOffer?.place === 'go' 
+          cc?.confirmedOffer?.placeOrGo === 'go' 
           ?  
           t('calendar.providerComing', {provider: cc.confirmedOffer.name})
           : 
@@ -3254,6 +3266,13 @@ function openEventModalPreview(raw) {
     default:
       showProEventModal.value = true; // fallback
   }
+
+  console.log('PW-037 Calendar event details:', {
+    id: selectedEvent.value.id,
+    address: selectedEvent.value.address,
+    location: selectedEvent.value.location,
+    title: selectedEvent.value.title
+  });
     
 }
 
@@ -3606,6 +3625,24 @@ const options = computed(() => ({
     const t = arg.event.extendedProps?.type
     return t && EVENT_TYPES[t]?.class ? [EVENT_TYPES[t].class] : []
   },
+
+  eventDidMount(info) {
+    const type = info.event.extendedProps?.type;
+
+    if (type === 'client') {
+      info.el.setAttribute(
+          'data-testid',
+          `client-calendar-event-${info.event.id}`
+      );
+    }
+
+    if (type === 'pro') {
+      info.el.setAttribute(
+          'data-testid',
+          `provider-calendar-event-${info.event.id}`
+      );
+    }
+  },
   
   displayEventTime: true,
 
@@ -3706,7 +3743,8 @@ const options = computed(() => ({
 
   }
 
-}))
+}));
+
 </script>
 
 <style>

@@ -7,6 +7,7 @@
     >
       <div
         class="confirm-modal"
+        data-testid="confirm-modal"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="titleId"
@@ -29,6 +30,7 @@
           <button
             type="button"
             class="btn btn-cancel"
+            data-testid="confirm-modal-cancel"
             @click="onCancel"
           >
             {{ modalCancelText }}
@@ -37,6 +39,7 @@
           <button
             type="button"
             class="btn btn-confirm"
+            data-testid="confirm-modal-confirm"
             :class="{ danger }"
             @click="onConfirm"
           >

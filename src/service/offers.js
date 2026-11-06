@@ -1,11 +1,12 @@
 //const axios = require('axios');
 import axios from 'axios';
+import { authApi } from './api';
 //import backendUrl from '@/url_config';
 //const baseUrl = `${backendUrl}/offer`;
 const baseUrl = "/api/offer";
 
 const addOffer = async (offer, receiver) => {
-    const new_offer = await axios.post(baseUrl, {offer, receiver});
+    const new_offer = await authApi.post("/offer", {offer, receiver});
     return new_offer.data;
 }
 
@@ -17,7 +18,7 @@ const removeBookingOffer = async (offerID, bookingID) => {
     await axios.delete(`${baseUrl}/${offerID}/remove_by_offerID/${bookingID}`);
 }
 const deleteBookingOffers = async (booking_id) => {
-    await axios.delete(`${baseUrl}/${booking_id}`);
+    await authApi.delete(`/offer/${booking_id}`);
 }
 
 export default {

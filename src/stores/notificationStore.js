@@ -111,12 +111,20 @@ export const useNotificationStore = defineStore('notifications', () => {
         socket.emit('on-client-del-public-booking-notification', receiver, bookingId, note);
     }
 
-    const localStateAddNotification = async (newNote) => {
+    const localStateAddNotification = (newNote) => {
+
+        const exists = notifications.value.some(
+            note => String(note._id ?? note.id) ===
+                String(newNote._id ?? newNote.id)
+        );
+
+        if (exists) return;
+
         notifications.value = [
             ...notifications.value,
             newNote
         ];
-    }
+    };
 
     const notificationUp = async(userId, note) => {
         

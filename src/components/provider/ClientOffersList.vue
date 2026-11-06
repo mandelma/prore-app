@@ -23,7 +23,11 @@
       </MDBToast>
       <!-- !isOpenBooking -->
       <div v-if="_props.clients.length">
-        <div v-for="(booking, index) in _props.clients " :key="booking.id" >
+        <div
+          v-for="(booking, index) in _props.clients"
+          :key="booking.id"
+          :data-testid="`provider-incoming-booking-${booking.id}`"
+        >
 
           <div v-if="!booking.visitors.some(id => id === providerId)" class="booking-row-new" :data-testid="`provider-booking-${booking.id}`">
             <div class="line">
@@ -54,6 +58,7 @@
             
             <div
               v-if="booking?.disabled"
+              data-testid="provider-booking-status-notice"
               class="booking-status-notice"
               :class="{
                 'booking-status-notice--removed': booking?.removed === true,
@@ -82,6 +87,7 @@
                 <button
                   type="button"
                   class="booking-status-notice__dismiss"
+                  data-testid="provider-dismiss-removed-booking"
                   @click="bookingEnded(booking.id)"
                 >
                   {{ t('notifications.dismiss') }}
@@ -177,6 +183,7 @@
               
               <div
                 v-if="booking?.disabled"
+                data-testid="provider-booking-status-notice"
                 class="booking-status-notice"
                 :class="{
                   'booking-status-notice--removed': booking?.removed === true,
@@ -205,6 +212,7 @@
                   <button
                     type="button"
                     class="booking-status-notice__dismiss"
+                    data-testid="provider-dismiss-removed-booking"
                     @click="bookingEnded(booking.id)"
                   >
                     {{ t('notifications.dismiss') }}
@@ -406,12 +414,10 @@ function parseDmyTime(dmyStr) {
 }
 
 const addVisitor = async(id, visitor) => {
-  const visited = await recipientService.addVisitor(id, visitor);
-  console.log("VISITOR id is " + visitor.visitor);
+  const visited = await recipientService.addVisitor(id);
+  console.log("VISITOR id is " + visitor);
   //clientStore.addBookingVisitor(id, _props.provider.id);
   proStore.addVisitorForBooking(id, visitor);
-
-  //this.$emit("join:visitor", id, visitor.visitor);
 }
 
 const openBookingOffer = async(booking, index) => {
@@ -435,8 +441,16 @@ const openBookingOffer = async(booking, index) => {
 
     setTimeout(unlockParent, 350)
 
-    addVisitor(booking.id, {visitor: providerId.value});
+    const visitor = providerId.value;
 
+    console.log('[VISITOR DEBUG] Registering visitor:', {
+      bookingId: booking.id,
+      providerId: providerId.value
+  });
+
+    await addVisitor(booking.id, visitor);
+
+    
     const dateObj = parseDmyTime(booking.date);
     console.log("T.A - " + timeAgo(dateObj));
   } else {

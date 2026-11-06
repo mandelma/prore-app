@@ -2143,6 +2143,8 @@ onMounted(async () => {
   checkDisplayMode();
 
   placeWidgetBottomRight();
+
+  joinServer();
   
   await login.hydrate();
 
@@ -2222,9 +2224,6 @@ onMounted(async () => {
       checkDisplayMode
     );
 
-    //await handleProvider.getAllProviders();
-
-    joinServer();
   }
 
   /*
@@ -2335,17 +2334,6 @@ const listen = async() => {
   if (isListening) return;
   isListening = true;
 
-  /* socket.on("user-action", async (action) => {
-   console.log("Action origin before - ", action)
-   if (!deviceID.value) return;
-   if (action.origin === deviceID.value) return;
-   if (processedActions.value.has(action.id)) return;
-
-   console.log("User device control...")
-
-   processedActions.value.add(action.id);
-   await refreshUserData(action.userId);
-  }) */
 
   socket.on(
     "user-action",
@@ -2434,17 +2422,43 @@ const listen = async() => {
   );
 
 
-  socket.on('client use offer', async(bookingID, offer) => {
+  /* socket.on('client-use-offer', async(bookingID, offer) => {
     console.log("I got the offer - " + offer.name);
     const target = await providerService.getProvByProvId(offer.provider.id);
     if (target) offer.provider = target;
     
-    await client.getProviderOffer(bookingID, offer);
-  })
+    await client.getOffer(bookingID, offer);
+  }) */
+
+  console.log('[PW-031] Registering client-use-offer listener');
+
+  socket.on('client-use-offer', async (bookingID, offer) => {
+
+    console.log('[PW-031] Offer received:', bookingID);
+
+    try {
+        await client.getOffer(bookingID, offer);
+
+        console.log('[PW-031] Client store updated');
+
+    } catch (error) {
+        console.error(
+            '[PW-031] Client store update failed:',
+            error
+        );
+    }
+  });
+
+  console.log(
+    '[PW-031] Registered offer listeners:',
+    socket.listeners('client-use-offer').length
+);
+
   socket.on('pro-handle-confirmed', async({sender, orderId, offerId}) => {
     console.log("PRO GOT IT - " + orderId);
     handleProvider.handleConfirmed(orderId);
   })
+
   socket.on('handle client request', async ({bookingId}) => {
     console.log("Requested booking id is xxxxxxxxxxxxxx " + bookingId);
     const request = await recipientService.getBookingById(bookingId);
@@ -2471,6 +2485,10 @@ const listen = async() => {
     await client.handleConfirmedOffer(bId, _providerId, _offer);
     await notificationStore.localStateAddNotification(_note);
   }) */
+
+
+
+
 
   socket.on('booking-offer-confirmed', async ({bookingId, notification}) => {
     console.log("CONFIRMED bookin id -- ", bookingId);
@@ -2505,7 +2523,7 @@ const listen = async() => {
     await notificationStore.localStateAddNotification(note);
   })
 
-  socket.on('handle-pro-remove-public-offer', async (bookingId) => {
+  socket.on('local-pro-remove-open-offer', async (bookingId) => {
     console.log("REMOVE " + bookingId);
     // Move booking and disable open booking
     await client.localRemovePublicBooking(bookingId);
@@ -2539,21 +2557,51 @@ const listen = async() => {
     await handleProvider.disableLocalBooking(bookingId, removed);
   })
 
-  // Kutsutakse pakkujale kui klient eemaldab multi tellimuse ja tellimusele on tehtud pakkumine
-  socket.on('local-handle-del-client-public-booking', async (bookingId, note) => {
-    console.log("Notification locally added - ", note);
-    //await handleProvider.removeLocalBooking(bookingId);
+
+
+  // ----------------------------------------------------------------
+
+
+  // Kutsutakse pakkujale kui klient eemaldab open tellimuse ja tellimusele on tehtud pakkumine
+  socket.on('local-client-del-open-booking-notify', async (bookingId, note) => {
+
+    console.log('[PW-044 DEBUG] Socket event received:', {
+        bookingId,
+        note
+    });
+
     const removed = true;
-    await handleProvider.disableLocalBooking(bookingId, removed);
+
+   
+
+    const result = await handleProvider.disableLocalBooking(
+        bookingId,
+        removed
+    );
+
+    console.log(
+        '[PW-044 DEBUG] disableLocalBooking result:',
+        result
+    );
+
     await notificationStore.localStateAddNotification(note);
-  })
-  // Kutsutakse pakkujale kui klient eemaldab multi tellimuse aga tellimuse saaja ei ole teinud pakkumist veel
-  socket.on('local-client-del-public-booking', async (bookingId) => {
+  });
+
+  // Kutsutakse pakkujale kui klient eemaldab open tellimuse aga tellimuse saaja ei ole teinud pakkumist veel
+  socket.on('local-client-del-open-booking', async (bookingId) => {
 
     console.log("Kas see kui ei ole offerit???")
     const removed = true;
+
+  console.log(
+    '[PROVIDER SOCKET] Booking deleted:',
+    bookingId
+  );
+
+
     await handleProvider.disableLocalBooking(bookingId, removed);
   })
+
 
   socket.on('local-handle-client-confirmed-deal', (bookingId, notification) => {
     // --Tegemisel--

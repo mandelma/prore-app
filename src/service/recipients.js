@@ -67,14 +67,14 @@ const editDescription = async (id, description) => {
 
 // Adding booking id to provider count
 const addProviderData = async (id, proData) => {
-    const result = await authApi.post(`recipients/${id}/add-ordered`, proData);
+    const result = await authApi.post(`/recipients/${id}/add-ordered`, proData);
     return result.data;
 }
 
 
 // Add visitor
-const addVisitor = async (id, visitor) => {
-    const newVisitor = await axios.put(`${baseUrl}/${id}/visitor`, visitor);
+const addVisitor = async (id) => {
+    const newVisitor = await authApi.put(`/recipients/${id}/visitor`);
     return newVisitor.data;
 }
 // Remove confirmed provider
@@ -101,7 +101,7 @@ const confirmOffer = async (bookingId, offer) => {
 
 // Add confirmed offer ( by client action )
 const confirmProviderOffer = async (bookingId, offer) => {
-    const confirmed = await axios.post(`${baseUrl}/${bookingId}/confirm-provider-offer`, offer);
+    const confirmed = await authApi.post(`/recipients/${bookingId}/confirm-provider-offer`, offer);
     return confirmed.data;
 }
 

@@ -677,19 +677,59 @@ module.exports = (io) => {
             res.send("There is error to remove room!")
         }
     })
-
+    
     // Removes booking object id from array
-    router.put('/:id/recipient/:recipientId', async (req, res) => {
+    router.put('/:recipientId/recipient', httpAuth, async (req, res) => {
         try {
-            await Provider.findOneAndUpdate(
-                { _id: req.params.id },
-                { $pull: { proposal: req.params.recipientId } }
-            )
-            res.send("Booking is removed!")
+            const { recipientId } = req.params;
+            const userId = req.user.id;
+
+            // Kontrollime, et tellimuse ID on korrektne
+            if (!mongoose.isValidObjectId(recipientId)) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Invalid booking ID'
+                });
+            }
+
+            // Eemaldame tellimuse ainult sisselogitud pakkuja nimekirjast
+            const provider = await Provider.findOneAndUpdate(
+                { user: userId },
+                {
+                    $pull: {
+                        proposal: recipientId
+                    }
+                },
+                { new: true }
+            );
+
+            // Pakkujakontot ei leitud
+            if (!provider) {
+                return res.status(404).json({
+                    ok: false,
+                    message: 'Provider not found'
+                });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                removed: true,
+                bookingId: recipientId,
+                message: 'Booking removed from provider list'
+            });
+
         } catch (err) {
-            res.send("No booking is deleted!").end()
+            console.error(
+                '[PROVIDER] Failed to remove booking:',
+                err
+            );
+
+            return res.status(500).json({
+                ok: false,
+                message: 'Failed to remove booking'
+            });
         }
-    })
+    });
 
     const removeEvents = async (ids) => {
         if (!ids.length) return;

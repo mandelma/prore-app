@@ -139,6 +139,78 @@ export async function loginAsClient(page) {
     );
 }
 
+export const loginExistingUser = async (
+    page,
+    username,
+    password,
+    { expectedPath = '/home'} = {}
+) => {
+
+    // 1. Avame sisselogimislehe
+    await page.goto('/login-register');
+
+    // 2. Täidame sisselogimisvormi
+    await page.locator('#loginUsername').fill(username);
+
+    await page.locator('#loginPassword').fill(password);
+
+    // 3. Ootame sisselogimise API vastust
+    const loginResponsePromise = page.waitForResponse(
+        response =>
+            new URL(response.url()).pathname === '/api/login' &&
+            response.request().method() === 'POST'
+    );
+
+    // 4. Logime sisse
+    await page.locator('button[type="submit"]').click();
+
+    const response = await loginResponsePromise;
+
+    expect(response.status()).toBe(200);
+
+    // 5. Kontrollime sisselogimist
+    await expect(page).toHaveURL(
+        url => url.pathname === expectedPath
+    );
+
+    // 6. Kontrollime kasutajaandmete salvestamist
+    await expect.poll(async () => {
+
+        try {
+            return await page.evaluate(() => {
+
+                const stored =
+                    sessionStorage.getItem('loggedAppUser') ||
+                    localStorage.getItem('loggedAppUser');
+
+                if (!stored) return null;
+
+                const user = JSON.parse(stored);
+
+                return user.token ? user.username : null;
+            });
+
+        } catch (error) {
+
+            if (
+                error.message.includes(
+                    'Execution context was destroyed'
+                )
+            ) {
+                return null;
+            }
+
+            throw error;
+        }
+
+    }, {
+        timeout: 10000,
+        intervals: [250, 500, 1000]
+    }).toBe(username);
+
+    console.log('[LOGIN] Existing user logged in');
+};
+
 import { randomUUID } from 'node:crypto';
 
 
@@ -191,7 +263,7 @@ export const registerAndLoginAsClient = async (page) => {
         });
     }).toBe(user.username);
 
-    return { userId };
+    return { userId, user };
 }
 
 export const logout = async (page, menuId) => {

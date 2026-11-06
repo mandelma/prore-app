@@ -16,11 +16,11 @@
         <booking-content :booking="booking"/>
         <div style="cursor: pointer; display: flex; justify-content: right;">
           <button
-                  
+            data-testid="client-remove-open-booking" 
             type="button"
             class="delete-link"
             @click="
-              removePublicBooking()
+              removeOpenBooking()
             "
           >
             <MDBIcon icon="trash-alt" />
@@ -41,6 +41,7 @@
             <div
               v-for="offer in offers"
               :key="offer.id"
+              :data-testid="`offer-item-${offer.id}`"
               class="offer-item"
               :class="{
                 'offer-item--new': offer.isNewOffer,
@@ -64,6 +65,7 @@
 
               <span
                 v-if="offer.isNewOffer"
+                :data-testid="`new-offer-dot-${offer.id}`"
                 class="new-dot"
                 :aria-label="tr('newOffer')"
               />
@@ -125,8 +127,18 @@
       <MDBModalFooter>
         <div style="display: flex; justify-content: right;">
           <div style="display: flex; gap: 7px;">
-            <MDBBtn color="danger" @click="openProModal = false"> <i class="fas fa-undo"></i> </MDBBtn>
-            <MDBBtn color="primary" @click="orderProvider"> {{ tr('order') }} </MDBBtn>
+            <MDBBtn 
+              data-testid="cancel-order-btn"
+              color="danger" 
+              @click="openProModal = false"
+            > <i class="fas fa-undo"></i> 
+          </MDBBtn>
+            <MDBBtn 
+              data-testid="order-provider-btn"
+              color="primary" 
+              @click="orderProvider"
+            > {{ tr('order') }} 
+          </MDBBtn>
           </div>
         </div>
         
@@ -140,7 +152,7 @@
       :confirm-text="tr('delete')"
       :cancel-text="tr('keep')"
       :danger="true"
-      @confirm="handleRemovePublicBooking"
+      @confirm="handleRemoveOpenBooking"
       @cancel="handleCancelRemoving"
     />
 
@@ -426,7 +438,7 @@ const handleQuitOfferContentConfirmed = (pro) => {
 }
 
 
-const removePublicBooking = async () => {
+const removeOpenBooking = async () => {
   console.log("BOOKING ID " + props.booking.id);
 
   showDeleteModal.value = true;
@@ -435,9 +447,9 @@ const removePublicBooking = async () => {
   
 }
 
-const handleRemovePublicBooking = async () => {
+const handleRemoveOpenBooking = async () => {
   try {
-    await clientStore.onRemovePublicBooking(props.booking.id);
+    await clientStore.onRemoveOpenBooking(props.booking.id);
 
     handleQuitContent();
     

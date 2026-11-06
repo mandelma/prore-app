@@ -173,8 +173,8 @@
 
       <button
         type="button"
+        data-testid="confirmed-requests"
         class="provider-stat-card provider-stat-card--interactive"
-        :disabled="!confirmedClients.length"
         @click="router.push('/calendar')"
       >
         <div class="provider-stat-card__header">
@@ -187,7 +187,7 @@
           </span>
         </div>
 
-        <strong class="provider-stat-card__value">
+        <strong data-testid="confirmed-requests-count" class="provider-stat-card__value">
           {{ confirmedClients.length }}
         </strong>
       </button>

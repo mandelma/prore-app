@@ -113,10 +113,13 @@ const updateTimeCredit = async (id, timeCredit) => {
     return newTimeCredit.data;
 }
 
-const removeProviderBooking = async (id, recipientId) => {
-    const bookingResult = await axios.put(`${baseUrl}/${id}/recipient/${recipientId}`);
-    return bookingResult.data;
-}
+const removeProviderBooking = async (recipientId) => {
+    const { data } = await authApi.put(
+        `/providers/${recipientId}/recipient`
+    );
+
+    return data;
+};
 
 const setRating = async (id, rating) => {
     const feedback = await axios.put(`${baseUrl}/${id}/feedback`, rating);

@@ -35,20 +35,12 @@ const hs = (io, socket) => {
                 return;
             }
 
-            
-
-
-
-
             // 2. Otsime tellimuse
             const booking = await Recipient.findById(bookingId);
 
             if (!booking) {
                 return;
             }
-
-           
-
 
             // 3. Kontrollime tellimuse omanikku
             if (String(booking.author_id) !== String(socket.userId)) {
@@ -110,17 +102,59 @@ const hs = (io, socket) => {
 
 
 
-    socket.on('on-pro-remove-public-offer', (bookingId, receiver) => {
+    socket.on('on-pro-remove-open-offer', (bookingId, receiver) => {
         const room = `user:${receiver}`
         console.log("Receiver ++ " + receiver);
-        socket.to(room).emit('handle-pro-remove-public-offer', bookingId)
+        socket.to(room).emit('local-pro-remove-open-offer', bookingId)
     })
 
     // Provider created offer
-    socket.on('client get offer', (addressee, clientID, offer) => {
+    socket.on('client-get-offer', async (addressee, bookingID, offer) => {
+        if (!mongoose.isValidObjectId(bookingID)) {
+            console.error("Invalid booking ID:", bookingID);
+            return;
+        }
+
+        console.log("Booking ID - " + bookingID);
+
+        const booking = await Recipient.findById(bookingID);
+
+        if (!booking) {
+            return;
+        }
+
+        // Adressaat peab olema tellimuse omanik
+        if (String(booking.author_id) !== String(addressee)) {
+            console.error("Invalid offer recipient");
+            return;
+        }
+
+        // Kontrollime, et sündmuse saatja on pakkumise autor
+        if (String(offer.sender) !== String(socket.userId)) {
+            console.error("Invalid offer sender");
+            return;
+        }
         const room = `user:${addressee}`
+
+        const sockets = await io.in(room).fetchSockets();
+
+        console.log('[PW-031 SOCKET DEBUG]', {
+            sender: socket.userId,
+            addressee,
+            bookingID,
+            room,
+            connectedClients: sockets.length,
+            socketIds: sockets.map(s => s.id)
+        });
+
         console.log("Offer to client " + offer.name);
-        socket.to(room).emit('client use offer', clientID, offer);
+
+        socket.to(room).emit(
+            'client-use-offer',
+            bookingID,
+            offer
+        );
+
     })
 
     socket.on('client-handle-offer', (sender, orderId, offerId) => {
@@ -301,19 +335,49 @@ const hs = (io, socket) => {
         socket.to(room).emit('local-confirmed-deal-notification', bookingId, notes);
     })
 
-    socket.on('on-client-del-public-booking-notification', async (receiver, bookingId, note) => {
+    // Client socket call for confirmed deal notification
+    socket.on('on-client-del-open-booking-notify', async (receiver, bookingId, note) => {
         const room = `user:${receiver}`
         console.log("note content: " + note.content);
-        socket.to(room).emit('local-handle-del-client-public-booking', bookingId, note);
+        socket.to(room).emit('local-client-del-open-booking-notify', bookingId, note);
     })
 
     // Same socket call without pro offers / no notification, only local delete pro booking
-    socket.on('on-client-del-public-booking', (receiver, bookingId) => {
+    socket.on('on-client-del-open-booking', (receiver, bookingId) => {
+        console.log("REMOVE FOR NO OFFERS?")
+        const room = `user:${receiver}`
+        console.log("Receiver: " + receiver);
+        socket.to(room).emit('local-client-del-open-booking', bookingId);
+    })
+
+
+
+
+
+
+
+
+
+    /* socket.on('on-client-del-public-booking-notification', async (receiver, bookingId, note) => {
+        const room = `user:${receiver}`
+        console.log("note content: " + note.content);
+        socket.to(room).emit('local-handle-del-client-public-booking', bookingId, note);
+    }) */
+
+    // Same socket call without pro offers / no notification, only local delete pro booking
+    /* socket.on('on-client-del-public-booking', (receiver, bookingId) => {
         console.log("REMOVE FOR NO OFFERS?")
         const room = `user:${receiver}`
         console.log("Receiver: " + receiver);
         socket.to(room).emit('local-client-del-public-booking', bookingId);
-    })
+    }) */
+
+
+
+
+
+
+
 
     socket.on('on-client-confirmed-deal-notification', (receiver, bookingId, notification, sideNotes) => {
         const room = `user:${receiver}`

@@ -425,7 +425,7 @@ module.exports = (io) => {
     })
 
     // Client side confirm offer
-    recipientRouter.post('/:bookingId/confirm-provider-offer', async (req, res) => {
+    recipientRouter.post('/:bookingId/confirm-provider-offer', httpAuth, async (req, res) => {
 
         /* console.error(
             "🔥🔥🔥 CONFIRM ROUTE V3 HIT 🔥🔥🔥",
@@ -438,6 +438,7 @@ module.exports = (io) => {
         try {
             
             const { bookingId } = req.params;
+
             const {
                 offerId,
                 confirmed_provider_user_id,
@@ -461,6 +462,13 @@ module.exports = (io) => {
                 });
             }
 
+            if (String(booking.author_id) !== String(req.user.id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You are not the owner of this booking"
+                });
+            }
+
             const selectedOffer = booking.offers.find(offer => String(offer._id) === String(offerId));
 
             if (!selectedOffer) {
@@ -472,7 +480,7 @@ module.exports = (io) => {
 
             booking.status = "confirmed";
             booking.confirmed_provider_user_id =
-                confirmed_provider_user_id;
+                selectedOffer.sender;
             booking.confirmedOffer = selectedOffer.toObject();
             booking.confirmedAt = new Date();
 
@@ -577,13 +585,13 @@ module.exports = (io) => {
                     );
             }
 
-            const pushReceiver = await User.findById(confirmed_provider_user_id);
+            const pushReceiver = await User.findById(winnerId);
 
             if (!pushReceiver) {
-                console.warn("Push receiver does not exist for - ", confirmed_provider_user_id);
+                console.warn("Push receiver does not exist for - ", winnerId);
             }
 
-            const badge = getUserBadgeCount(confirmed_provider_user_id);
+            const badge = getUserBadgeCount(winnerId);
 
             const payload = {
                 title: "Confirmed",
@@ -704,22 +712,55 @@ module.exports = (io) => {
         }
     })
     // Add visitor
-    recipientRouter.put('/:id/visitor', async (req, res) => {
+    recipientRouter.put('/:id/visitor', httpAuth, async (req, res) => {
         try {
-            console.log("visitor " + req.body.visitor)
             const booking = await Recipient.findById(req.params.id);
-            if (!booking.visitors.includes(req.body.visitor)) {
-                booking.visitors = booking.visitors.concat(req.body.visitor);
+
+            if (!booking) {
+                return res.status(404).json({
+                    error: 'Booking not found'
+                });
             }
 
-            await booking.save();
+            console.log('[VISITOR BACKEND] Authenticated user:', req.user.id);
 
-            res.send(booking);
+            // Leiame autentitud kasutajaga seotud pakkuja
+            const provider = await Provider.findOne({
+                user: req.user.id
+            });
+
+            console.log('[VISITOR BACKEND] Provider found:', provider?._id);
+
+            if (!provider) {
+                return res.status(403).json({
+                    error: 'Provider account required'
+                });
+            }
+
+            // Kontrollime, et pakkuja ei oleks juba külastajate hulgas
+            const providerId = provider._id.toString();
+
+            if (!booking.visitors.some(
+                id => String(id) === providerId
+            )) {
+                booking.visitors.push(provider._id);
+                await booking.save();
+            }
+
+            return res.status(200).json({
+                ok: true,
+                bookingId: booking.id,
+                visitor: providerId
+            });
+
         } catch (error) {
-            console.log("Error: " + error.message);
-        }
+            console.error('[ADD VISITOR]', error);
 
-    })
+            return res.status(500).json({
+                error: 'Failed to add visitor'
+            });
+        }
+    });
 
     // Edit order duration
     recipientRouter.put ('/:id/duration', async (req, res) => {
@@ -965,9 +1006,29 @@ module.exports = (io) => {
             const clientId = String(recipient.author_id);
 
             // Providers who are included with booking
+            // Kõik tellimusega seotud pakkujad
             const mainProviders = [
-                ...new Set((recipient.ordered || []).map(String))
+                ...new Set([
+                    ...(recipient.ordered || []).map(String),
+                    ...(recipient.visitors || []).map(String)
+                ])
             ];
+
+            // Leiame pakkujate kasutaja ID-d
+            const affectedProviders = await Provider.find({
+                _id: { $in: mainProviders }
+            }).select('_id user');
+
+            const affectedUserIds = [
+                ...new Set(
+                    affectedProviders
+                        .map(provider => provider.user?.toString())
+                        .filter(Boolean)
+                )
+            ];
+
+            console.log('[DELETE BOOKING] Provider IDs:', mainProviders);
+            console.log('[DELETE BOOKING] User IDs:', affectedUserIds);
 
             // Chat participants
             const providerIds = [
@@ -1016,7 +1077,35 @@ module.exports = (io) => {
                 io.to(mainId).emit("order:status:update", recipientId);
             }
 
-            
+
+            if (deletedBooking.deletedCount === 1) {
+                for (const userId of affectedUserIds) {
+
+                    const roomName = `user:${userId}`;
+                    const room = io.sockets.adapter.rooms.get(roomName);
+
+                    console.log('[DELETE SOCKET]', {
+                        bookingId: recipientId,
+                        providerUserId: userId,
+                        roomName,
+                        roomExists: Boolean(room),
+                        connectedSockets: room?.size ?? 0
+                    });
+
+                    io.to(roomName).emit(
+                        'local-client-del-open-booking',
+                        recipientId
+                    );
+                }
+            }
+
+            console.log(
+                '[DELETE SOCKET] Connected sockets:',
+                [...io.sockets.sockets.values()].map(socket => ({
+                    socketId: socket.id,
+                    rooms: [...socket.rooms]
+                }))
+            );
 
             return res.json({
                 ok: true,

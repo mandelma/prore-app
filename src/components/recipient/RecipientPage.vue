@@ -164,6 +164,7 @@
           <article
             v-for="booking in sortedBookings"
             :key="booking.id"
+            :data-testid="`client-booking-${booking.id}`"
             class="order-card"
           >
             <header class="order-card__header">
@@ -241,18 +242,18 @@
                 />
               </div>
 
-              <!-- Booking sent for offers -->
+              <!-- Booking sent for offers - open bookings -->
               <div
                 v-if="booking.isIncludeOffers"
                 class="order-card__actions"
               >
                 <button
                   type="button"
+                  data-testid="open-booking-panel"
                   class="primary-action"
                   @click="
                     handleRecipientResult(
-                      booking.id,
-                      booking
+                      booking.id
                     )
                   "
                 >
@@ -266,6 +267,7 @@
                         offer => offer.isNewOffer
                       ).length > 0
                     "
+                    data-testid="new-offers-badge"
                     class="action-badge"
                   >
                     {{
@@ -413,6 +415,7 @@
                     class="quit-box"
                   >
                     <MDBTextarea
+                      data-testid="client-reason-for-remove"
                       v-model="clientQuitBookingReason"
                       white
                       :label="t('recipientPage.reasonPlaceholder')"
@@ -422,17 +425,19 @@
                     <div class="quit-box__actions">
                       <button
                         type="button"
+                        data-testid="client-cancel-remove"
                         class="text-action"
-                        @click="canselQuitSelectedBooking"
+                        @click="cancelQuitSelectedBooking"
                       >
                         {{ t("recipientPage.cancel") }}
                       </button>
 
                       <button
                         v-if="clientQuitBookingReason.length > 1"
+                        data-testid="client-confirm-remove"
                         type="button"
                         class="danger-action"
-                        @click="clientRejectMapBooking(booking)"
+                        @click="clientRemoveDirectBooking(booking)"
                       >
                         {{ t("recipientPage.deleteOrder") }}
                       </button>
@@ -441,9 +446,10 @@
 
                   <button
                     v-else
+                    data-testid="client-open-remove"
                     type="button"
                     class="delete-link"
-                    @click="handleQuitSelectedBooking(booking.id)"
+                    @click="openQuitSelectedBooking(booking.id)"
                   >
                     <MDBIcon icon="trash-alt" />
 
@@ -457,6 +463,13 @@
             </div>
           </article>
         </div>
+
+
+
+
+
+
+
 
         <div v-else class="empty-state">
           <div class="empty-state__icon">
@@ -473,17 +486,23 @@
       <section class="orders-section">
         <header class="section-header">
           <div>
-            <span class="section-header__eyebrow">
+            <span 
+              data-testid="client-confirmed-count"
+              class="section-header__eyebrow"
+            >
               {{ clientConfirmed.length }}
             </span>
 
-            <h2 class="section-header__title">
+            <h2 
+              class="section-header__title"
+            >
               {{ t("recipientPage.confirmedOrders") }}
             </h2>
           </div>
 
           <button
             v-if="clientConfirmed.length && clientConfirmed.some(item => item.status === 'confirmed')"
+            data-testid="client-calendar-arrow"
             type="button"
             class="section-header__link"
             @click="router.push('/calendar')"
@@ -796,7 +815,7 @@ onUnmounted(() => {
   document.documentElement.style.overflow = '';
 });
 
-const clientRejectMapBooking = async (booking) => {
+const clientRemoveDirectBooking = async (booking) => {
   myBooking.value = booking;
   showDeleteModal.value = true;
   cTitle.value = t('recipientPage.deleteConfirmTitle');
@@ -816,7 +835,7 @@ const deleteMapBooking = async () => {
 
   console.log("Addressaat - " + addressaat)
   try {
-    const isRemoved = await clientStore.removeMapOffer(booking);
+    const isRemoved = await clientStore.removeDirectBooking(booking);
 
     const noteContent = t(
       "recipientPage.bookingCancelledNotification",
@@ -828,7 +847,7 @@ const deleteMapBooking = async () => {
     );
 
     const note = {
-      bookingId: bookingId,
+      bookingId: booking.id,
       isNewMsg: true,
       isLink: false,
       title: booking?.header,
@@ -869,7 +888,7 @@ const onRpToast = (icon, content, color) => {
 
 function handleCancelDeleting() {
   console.log('Delete cancelled');
-  canselQuitSelectedBooking();
+  cancelQuitSelectedBooking();
 }
 
 const sortedBookings = computed(() => {
@@ -893,7 +912,7 @@ const toastTest = () => {
   onRpToast("fas fa-check fa-lg me-2", `Jaa, tiedot ovat päivitetty onnistuneesti!`, "success");
 }
 
-const handleRecipientResult = (id, booking) => {
+const handleRecipientResult = (id) => {
   console.log("Booking id - " + id); 
   console.log("Booking title: ")
   isRecipientContent.value = true;
@@ -966,13 +985,13 @@ const handleCancelRecipientContentConfirmed = (pro) => {
   );
 }
 
-const handleQuitSelectedBooking = (id) => {
+const openQuitSelectedBooking = (id) => {
   console.log("Index, quit booking: " + id);
   selBookingId.value = id;
   isQuitBooking.value = true;
 }
 
-const canselQuitSelectedBooking = () => {
+const cancelQuitSelectedBooking = () => {
   isQuitBooking.value = false;
   clientQuitBookingReason.value = "";
 }

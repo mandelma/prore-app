@@ -5,6 +5,8 @@ const User = require('../models/users');
 const Recipient = require('../models/recipients');
 const Provider = require("../models/providers");
 
+const httpAuth = require('../middleware/httpAuth');
+
 const getUserBadgeCount = require('../utils/totalBadgeCount');
 
 const { sendPushToUser } = require('../services/pushService');
@@ -16,11 +18,21 @@ router.get('/:id', async(req, res) => {
 })
 
 // Final
-router.post("/", async (req, res) => {
+router.post("/", httpAuth, async (req, res) => {
     const session = await mongoose.startSession();
 
+    console.log("REQ USER:", req.user);
+    
     try {
         const { offer, receiver } = req.body;
+
+        if (offer.sender !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                code: "FORBIDDEN",
+                message: "You are not the owner of this offer."
+            });
+        }
 
         console.log("OFFER - ", offer);
 
@@ -149,7 +161,7 @@ router.post("/", async (req, res) => {
 
         const payload = {
             title: "New offer",
-            body: "You got offer from ${savedOffer?.name || 'provider'}.",
+            body: `You got offer from ${savedOffer?.name || 'provider'}.`,
 
             url:
                 '/',
@@ -226,15 +238,20 @@ router.delete('/:offer_id/remove_by_offerID/:booking_id', async (req, res) => {
 
 
 
-router.delete('/:booking_id', async (req, res) => {
+router.delete('/:booking_id', httpAuth, async (req, res) => {
     try {
         console.log("params for delete offer " + req.params.booking_id);
+
+        // const booking = await Recipient.findById(req.params.booking_id);
 
         await Offer.deleteMany({bookingID: req.params.booking_id});
         res.status(204).end();
     } catch (error) {
         console.log("Error: " + error.message);
-        res.send("Error to delete offer!")
+        res.status(500).json({
+            success: false,
+            message: "Error to delete offer!"
+        });
     }
 })
 

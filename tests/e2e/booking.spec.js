@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { loginAsClient, registerAndLoginAsClient } from './helpers/auth.helper.js';
+import { loginAsClient, loginExistingUser, registerAndLoginAsClient, logout } from './helpers/auth.helper.js';
 import { closeNotificationModal } from './helpers/modal.helper.js';
 
 import { deleteTestUser }
@@ -3000,21 +3000,50 @@ test(
             // ETAPP 6: Maaler avab tellimuse
             // ==========================================
 
+
+            // ETAPP 6: Maaler avab tellimuse
+
             const painterBookingOpen = painterPage.locator(
                 `.booking-row-new span.new_notification[data-testid="provider-booking-${bookingId}"]`
             ).first();
 
+            // Jälgime visitor API päringuid
+            painterPage.on('request', request => {
+                if (request.url().includes('/visitor')) {
+                    console.log(
+                        '[VISITOR REQUEST]',
+                        request.method(),
+                        request.url()
+                    );
+                }
+            });
+
+            painterPage.on('response', response => {
+                if (response.url().includes('/visitor')) {
+                    console.log(
+                        '[VISITOR RESPONSE]',
+                        response.status(),
+                        response.url()
+                    );
+                }
+            });
+
+            painterPage.on('pageerror', error => {
+                console.error(
+                    '[PROVIDER PAGE ERROR]',
+                    error.message
+                );
+            });
+
+            // Avame tellimuse ainult ühe korra
             await painterBookingOpen.click();
 
+            // Kontrollime avatud tellimuse pealkirja
             await expect(
                 painterPage.getByTestId('provider-booking-header')
             ).toHaveText(testHeader, {
                 timeout: 15000
             });
-
-            console.log(
-                '[PW-030] Maaler avas tellimuse'
-            );
 
 
             // ==========================================
@@ -3279,7 +3308,7 @@ test(
 );
 
 
-const setupBookingWithOffer = async ({ browser, request }) => {
+const setupBookingWithOffer = async ({ browser, request, createOffer = true }) => {
     let clientToken = null;
     let bookingId = null;
     let painterUserId = null;
@@ -3288,11 +3317,18 @@ const setupBookingWithOffer = async ({ browser, request }) => {
     const createdUserIds = [];
     const contexts = [];
 
-    const cleanup = async () => {
-        if (bookingId) {
+    const cleanup = async ({ bookingAlreadyDeleted = false } = {}) => {
+
+        if (bookingId && !bookingAlreadyDeleted) {
             try {
-                await deleteTestBookingByApi(request, bookingId, clientToken);
+                await deleteTestBookingByApi(
+                    request,
+                    bookingId,
+                    clientToken
+                );
+
                 console.log('[OFFER CLEANUP] Booking deleted:', bookingId);
+
             } catch (error) {
                 console.error('[OFFER CLEANUP] Booking:', error.message);
             }
@@ -3362,6 +3398,39 @@ const setupBookingWithOffer = async ({ browser, request }) => {
 
         expect(painter.provider.profession).toContain('house_painter');
 
+
+
+        painterPage.on('console', msg => {
+            console.log(
+                '[PROVIDER BROWSER]',
+                msg.text()
+            );
+        });
+
+        painterPage.on('pageerror', error => {
+            console.error(
+                '[PROVIDER PAGE ERROR]',
+                error.message
+            );
+        });
+
+        painterPage.on('close', () => {
+            console.log('[PW-045] Provider page CLOSED');
+        });
+
+        painterPage.context().on('close', () => {
+            console.log('[PW-045] Provider context CLOSED');
+        });
+
+
+
+
+
+
+
+
+
+
         // ETAPP 2: Maaler avab pakkuja lehe
         await painterPage.goto(
             'http://localhost:5174/admin/provider'
@@ -3376,7 +3445,7 @@ const setupBookingWithOffer = async ({ browser, request }) => {
         );
 
         // ETAPP 3: Kliendi registreerimine
-        const { userId: clientUserId } =
+        const { userId: clientUserId, user: clientUser } =
             await registerAndLoginAsClient(clientPage);
 
         createdUserIds.push(clientUserId);
@@ -3451,17 +3520,82 @@ const setupBookingWithOffer = async ({ browser, request }) => {
         });
 
         // ETAPP 6: Maaler avab tellimuse
+        // ETAPP 6 — Pakkuja avab tellimuse
+
         const painterBookingOpen = painterPage.locator(
             `.booking-row-new span.new_notification[data-testid="provider-booking-${bookingId}"]`
         ).first();
 
-        await painterBookingOpen.click();
+        await expect(painterBookingOpen).toBeVisible({
+            timeout: 15000
+        });
+
+        const [visitorResponse] = await Promise.all([
+            painterPage.waitForResponse(
+                response =>
+                    new URL(response.url()).pathname ===
+                    `/api/recipients/${bookingId}/visitor` &&
+                    response.request().method() === 'PUT',
+                { timeout: 15000 }
+            ),
+
+            painterBookingOpen.click()
+        ]);
+
+        console.log(
+            '[PW-045] Visitor API status:',
+            visitorResponse.status()
+        );
+
+        expect(visitorResponse.status()).toBe(200);
 
         await expect(
             painterPage.getByTestId('provider-booking-header')
         ).toHaveText(testHeader, {
             timeout: 15000
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+        if (!createOffer) {
+
+            console.log(
+                '[OFFER SETUP] Booking created WITHOUT offer:',
+                bookingId
+            );
+
+            return {
+                painterPage,
+                clientPage,
+                bookingId,
+                painterUserId,
+
+                painterUsername: painter.user.username,
+                painterPassword: painter.user.password,
+
+                clientUsername: clientUser.username,
+                clientPassword: clientUser.password,
+                clientUserId,
+
+                clientToken,
+                offerResult: null,
+                offerPrice: null,
+                offerDescription: null,
+                cleanup
+            };
+        }
+
+
 
         // ETAPP 7: Hinnapakkumise vormi avamine
         await expect(
@@ -3546,6 +3680,15 @@ const setupBookingWithOffer = async ({ browser, request }) => {
             clientPage,
             bookingId,
             painterUserId,
+
+            // Pakkuja uuesti sisselogimiseks
+            painterUsername: painter.user.username,
+            painterPassword: painter.user.password,
+
+            clientUsername: clientUser.username,
+            clientPassword: clientUser.password,
+            clientUserId,
+
             clientToken,
             offerResult,
             offerPrice,
@@ -3558,6 +3701,17 @@ const setupBookingWithOffer = async ({ browser, request }) => {
         throw error;
     }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 const findTestOffer = clientPage => {
     return clientPage
@@ -3857,4 +4011,2620 @@ test('PW-033: Hinnapakkumise loetuks märkimine', async ({
     }
 });
 
+// =====================================================
+// PW-034: Klient kinnitab pakkuja hinnapakkumise
+// =====================================================
 
+test('PW-034: Klient kinnitab pakkuja hinnapakkumise', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            bookingId
+        } = data;
+
+        // 1. Ootame hinnapakkumise saabumist
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // 2. Klient avab tellimuse
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        // 3. Leiame maalri hinnapakkumise
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible({
+            timeout: 15000
+        });
+
+        // 4. Klient avab hinnapakkumise
+        await offerItem.click();
+
+        // 5. Kontrollime tellimisnuppu
+        const orderButton = clientPage.getByTestId(
+            'order-provider-btn'
+        );
+
+        await expect(orderButton).toBeVisible();
+        await expect(orderButton).toBeEnabled();
+
+        // 6. Klient vajutab tellimisnuppu
+        await orderButton.click();
+
+        console.log(
+            '[PW-034] Order button clicked'
+        );
+
+        // ==========================================
+        // PW-034: Kinnitamise dialoog
+        // ==========================================
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible({
+            timeout: 15000
+        });
+
+        const confirmButton = confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        );
+
+        await expect(confirmButton).toBeVisible();
+        await expect(confirmButton).toBeEnabled();
+
+        console.log('[PW-034] Confirmation dialog opened');
+
+
+        // ==========================================
+        // PW-034: API vastuse kontroll
+        // ==========================================
+
+        // Alustame API vastuse ootamist enne nupuvajutust
+        const confirmationResponsePromise =
+            clientPage.waitForResponse(
+                response => {
+                    const url = new URL(response.url());
+
+                    return (
+                        url.pathname ===
+                        `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                        response.request().method() === 'POST'
+                    );
+                },
+                { timeout: 30000 }
+            );
+
+        // Klient kinnitab tellimuse
+        await confirmButton.click();
+
+        // Ootame API vastust
+        const confirmationResponse =
+            await confirmationResponsePromise;
+
+        // Kontrollime HTTP staatust
+        expect(confirmationResponse.status()).toBe(200);
+
+        // Loeme vastuse
+        const confirmationResult =
+            await confirmationResponse.json();
+
+        // Backend kinnitas tellimuse
+        expect(confirmationResult.success).toBe(true);
+
+        // Kontrollime endpointi versiooni
+        expect(confirmationResult.debugVersion).toBe(
+            'CONFIRM_ROUTE_V3'
+        );
+
+        /* console.log(
+            '[PW-034] Backend confirmed booking:',
+            confirmationResult.booking
+        ); */
+
+        
+
+        // ==========================================
+        // PW-034: Kinnitatud tellimuse kontroll
+        // ==========================================
+
+        const confirmedBooking = confirmationResult.booking;
+
+        console.log('[PW-034] Backend confirmed booking:', {
+            bookingId: confirmedBooking.id,
+            status: confirmedBooking.status,
+            providerId: confirmedBooking.confirmed_provider_user_id,
+            offerId: confirmedBooking.confirmedOffer._id,
+            price: confirmedBooking.confirmedOffer.price
+        });
+
+
+
+        // Tellimus peab olema kinnitatud
+        expect(confirmedBooking.status).toBe('confirmed');
+
+        // Kinnitatud pakkuja peab olema meie testmaaler
+        expect(
+            String(confirmedBooking.confirmed_provider_user_id)
+        ).toBe(
+            String(data.painterUserId)
+        );
+
+        // Kinnitatud pakkumine peab eksisteerima
+        expect(confirmedBooking.confirmedOffer).toBeTruthy();
+
+        // Kontrollime kinnitatud pakkumise hinda
+        expect(
+            Number(confirmedBooking.confirmedOffer.price)
+        ).toBe(250);
+
+        // Kontrollime pakkumise ID-d
+        expect(
+            String(
+                confirmedBooking.confirmedOffer._id ??
+                confirmedBooking.confirmedOffer.id
+            )
+        ).toBe(
+            String(
+                data.offerResult.offer._id ??
+                data.offerResult.offer.id
+            )
+        );
+
+        // Kinnitamise aeg peab olema salvestatud
+        expect(confirmedBooking.confirmedAt).toBeTruthy();
+
+        console.log(
+            '[PW-034] Confirmed booking data verified'
+        );
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-035: Pakkuja saab tellimuse kinnitamise Socket.io teavituse
+// =====================================================
+
+test('PW-035: Pakkuja saab tellimuse kinnitamise teavituse', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            painterPage,
+            bookingId
+        } = data;
+
+        // 1. Kontrollime maalri Socket.io ühendust
+        await expect.poll(
+            () => painterPage.evaluate(
+                () => window.__E2E_SOCKET__?.connected === true
+            ),
+            { timeout: 15000 }
+        ).toBe(true);
+
+        // 2. Registreerime sündmuse kuulaja
+        // ENNE kliendi kinnitamisnupu vajutamist
+        await painterPage.evaluate(() => {
+            window.__E2E_CONFIRMED_EVENTS__ = [];
+
+            window.__E2E_SOCKET__.on(
+                'booking-offer-confirmed',
+                data => {
+                    window.__E2E_CONFIRMED_EVENTS__.push(data);
+                }
+            );
+        });
+
+        console.log('[PW-035] Provider Socket.io listener registered');
+
+        // 3. Klient avab tellimuse
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId('open-booking-panel').click();
+
+        // 4. Klient avab maalri pakkumise
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        // 5. Klient vajutab tellimisnuppu
+        await clientPage.getByTestId('order-provider-btn').click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        // 6. Valmistame ette API vastuse ootamise
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        // 7. Klient kinnitab tellimuse
+        await confirmDialog.getByTestId('confirm-deal-btn').click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log('[PW-035] Client confirmed booking');
+
+        // 8. Kontrollime Socket.io sündmuse saabumist
+        await expect.poll(
+            () => painterPage.evaluate(
+                bookingId => {
+                    const events =
+                        window.__E2E_CONFIRMED_EVENTS__ || [];
+
+                    return events.some(
+                        event =>
+                            String(event.bookingId) ===
+                            String(bookingId)
+                    );
+                },
+                bookingId
+            ),
+            {
+                timeout: 15000,
+                message:
+                    'Provider did not receive booking-offer-confirmed event'
+            }
+        ).toBe(true);
+
+        // 9. Kontrollime teavituse sisu
+        const events = await painterPage.evaluate(
+            () => window.__E2E_CONFIRMED_EVENTS__
+        );
+
+        const confirmationEvent = events.find(
+            event => String(event.bookingId) === String(bookingId)
+        );
+
+        expect(confirmationEvent.notification).toBeTruthy();
+
+        expect(
+            String(confirmationEvent.notification.receiver)
+        ).toBe(String(data.painterUserId));
+
+        expect(
+            String(confirmationEvent.notification.bookingId)
+        ).toBe(String(bookingId));
+
+        console.log(
+            '[PW-035] Provider received confirmation:',
+            {
+                bookingId: confirmationEvent.bookingId,
+                notificationId:
+                    confirmationEvent.notification._id,
+                title: confirmationEvent.notification.title
+            }
+        );
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-036: Kinnitatud tellimus ilmub pakkuja kasutajaliideses
+// =====================================================
+
+test('PW-036: Kinnitatud tellimus ilmub pakkuja kasutajaliideses', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            painterPage,
+            bookingId
+        } = data;
+
+        // ==========================================
+        // 1. Kontrollime pakkuja Socket.io ühendust
+        // ==========================================
+
+        await expect.poll(
+            () => painterPage.evaluate(
+                () => window.__E2E_SOCKET__?.connected === true
+            ),
+            { timeout: 15000 }
+        ).toBe(true);
+
+        // ==========================================
+        // 2. Loeme kinnitatud tellimuste algse arvu
+        // ==========================================
+
+        const confirmedCount = painterPage.getByTestId(
+            'confirmed-requests-count'
+        );
+
+        await expect(confirmedCount).toBeVisible();
+
+        const initialCount = Number(
+            await confirmedCount.innerText()
+        );
+
+        console.log(
+            '[PW-036] Initial confirmed bookings:',
+            initialCount
+        );
+
+        // ==========================================
+        // 3. Klient avab hinnapakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+
+        await offerItem.click();
+
+        // ==========================================
+        // 4. Klient alustab tellimuse kinnitamist
+        // ==========================================
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        // ==========================================
+        // 5. Ootame API vastust
+        // ==========================================
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log(
+            '[PW-036] Client confirmed booking'
+        );
+
+        // ==========================================
+        // 6. Kontrollime kasutajaliidese reaktiivset muutust
+        // ==========================================
+
+        await expect(confirmedCount).toHaveText(
+            String(initialCount + 1),
+            { timeout: 15000 }
+        );
+
+        console.log(
+            '[PW-036] Provider confirmed bookings count updated:',
+            initialCount,
+            '→',
+            initialCount + 1
+        );
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-037: Kinnitatud tellimus ilmub pakkuja kalendris
+// =====================================================
+
+test('PW-037: Kinnitatud tellimus ilmub pakkuja kalendris', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            painterPage,
+            bookingId
+        } = data;
+
+        // 1. Kontrollime kinnitatud tellimuste algset arvu
+        const confirmedCount = painterPage.getByTestId(
+            'confirmed-requests-count'
+        );
+
+        await expect(confirmedCount).toBeVisible();
+
+        const initialCount = Number(
+            await confirmedCount.innerText()
+        );
+
+        // 2. Klient avab pakkumise
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        // 3. Klient kinnitab pakkumise
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        // 4. Ootame pakkuja kasutajaliidese uuendamist
+        await expect(confirmedCount).toHaveText(
+            String(initialCount + 1),
+            { timeout: 15000 }
+        );
+
+        console.log(
+            '[PW-037] Provider confirmed booking count updated'
+        );
+
+        // 5. Avame pakkuja kalendri
+        await painterPage.getByTestId(
+            'confirmed-requests'
+        ).click();
+
+        await expect(painterPage).toHaveURL(/\/calendar/);
+
+        // 6. Ootame FullCalendari laadimist
+        await expect(
+            painterPage.locator('.fc')
+        ).toBeVisible();
+
+        // 7. Leiame kinnitatud tellimuse kalendris
+        const calendarEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-037] Confirmed booking visible in calendar:',
+            bookingId
+        );
+
+        // 8. Avame kalendris kinnitatud tellimuse
+        await calendarEvent.click();
+
+        console.log(
+            '[PW-037] Confirmed booking clicked in calendar'
+        );
+
+
+        // Debug paus, et uurida modaalakna sisu
+        /* const modalData = await painterPage.evaluate(() => {
+            const modal = document.querySelector(
+                '[data-testid="provider-calendar-modal"]'
+            );
+
+            return {
+                modalExists: !!modal,
+                addressExists: !!modal?.querySelector(
+                    '[data-testid="calendar-booking-address"]'
+                ),
+                modalText: modal?.innerText
+            };
+        });
+
+        console.log('PW-037 MODAL DEBUG:', modalData);
+
+        await painterPage.pause(); */
+
+
+
+
+        // ==========================================
+        // PW-037: Kinnitatud tellimuse detailide kontroll
+        // ==========================================
+
+        // 9. Kontrollime detailakna avanemist
+        const bookingModal = painterPage.getByTestId(
+            'provider-calendar-modal'
+        );
+
+        await expect(bookingModal).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-037] Provider booking modal opened');
+
+
+        // 10. Kontrollime tellimuse pealkirja
+        await expect(
+            bookingModal.getByTestId('calendar-booking-title')
+        ).toHaveText(result.booking.header);
+
+
+        // 11. Kontrollime tellimuse kirjeldust
+        await expect(
+            bookingModal.getByTestId('calendar-booking-description')
+        ).toContainText(
+            'Playwright E2E test booking'
+        );
+
+
+        // 12. Kontrollime tellimuse aadressi
+        await expect(
+            bookingModal.getByTestId('calendar-booking-address')
+        ).toHaveText(
+            result.booking.address
+        );
+
+
+        // 13. Kontrollime kokkulepitud hinda
+        await expect(
+            bookingModal.getByTestId('calendar-booking-price')
+        ).toHaveText('250 €');
+
+
+        // 14. Kontrollime, et staatus on kuvatud
+        const bookingStatus = bookingModal.getByTestId(
+            'calendar-booking-status'
+        );
+
+        await expect(bookingStatus).toBeVisible();
+        await expect(bookingStatus).not.toBeEmpty();
+
+
+        // 15. Kontrollime algusaja kuvamist
+        const bookingStart = bookingModal.getByTestId(
+            'calendar-booking-start'
+        );
+
+        await expect(bookingStart).toBeVisible();
+        await expect(bookingStart).not.toHaveText('—');
+
+
+        console.log('[PW-037] Booking details verified:', {
+            bookingId,
+            title: result.booking.header,
+            address: result.booking.address,
+            price: 250,
+            status: result.booking.status
+        });
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-038: Kinnitatud tellimus säilib pärast lehe reload'i
+// =====================================================
+
+test('PW-038: Kinnitatud tellimus säilib pärast lehe värskendamist', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            painterPage,
+            bookingId
+        } = data;
+
+        // ==========================================
+        // 1. Klient kinnitab pakkuja hinnapakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log(
+            '[PW-038] Booking confirmed:',
+            bookingId
+        );
+
+        // ==========================================
+        // 2. Kontrollime reaalajas uuendamist
+        // ==========================================
+
+        const confirmedCount = painterPage.getByTestId(
+            'confirmed-requests-count'
+        );
+
+        await expect(confirmedCount).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // ==========================================
+        // 3. Avame pakkuja kalendri
+        // ==========================================
+
+        await painterPage.getByTestId(
+            'confirmed-requests'
+        ).click();
+
+        await expect(painterPage).toHaveURL(/\/calendar/);
+
+        await expect(
+            painterPage.locator('.fc')
+        ).toBeVisible();
+
+        const calendarEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-038] Booking visible before reload'
+        );
+
+
+
+
+
+
+
+
+
+
+
+
+        // ==========================================
+        // 4. Värskendame pakkuja kalendri lehte
+        // ==========================================
+
+        await painterPage.reload();
+
+        await expect(painterPage).toHaveURL(/\/calendar/);
+
+        await expect(
+            painterPage.locator('.fc')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-038] Calendar page reloaded'
+        );
+
+        // ==========================================
+        // 5. Kontrollime tellimuse taastamist
+        // ==========================================
+
+        const restoredEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(restoredEvent).toBeVisible({
+            timeout: 20000
+        });
+
+        console.log(
+            '[PW-038] Booking restored after reload'
+        );
+
+        // ==========================================
+        // 6. Avame taastatud tellimuse
+        // ==========================================
+
+        await restoredEvent.click();
+
+        const bookingModal = painterPage.getByTestId(
+            'provider-calendar-modal'
+        );
+
+        await expect(bookingModal).toBeVisible();
+
+        // ==========================================
+        // 7. Kontrollime taastatud andmeid
+        // ==========================================
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-title'
+            )
+        ).toHaveText(result.booking.header);
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-address'
+            )
+        ).toHaveText(result.booking.address);
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-price'
+            )
+        ).toHaveText('250 €');
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-status'
+            )
+        ).toBeVisible();
+
+        console.log(
+            '[PW-038] Restored booking details verified:',
+            {
+                bookingId,
+                title: result.booking.header,
+                price: 250,
+                status: result.booking.status
+            }
+        );
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+// =====================================================
+// PW-039: Kinnitatud tellimus pärast uut sisselogimist
+// =====================================================
+
+test('PW-039: Kinnitatud tellimus säilib pärast uut sisselogimist', async ({
+    browser,
+    request
+}) => {
+
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+
+        const {
+            clientPage,
+            painterPage,
+            bookingId,
+            painterUserId,
+            painterUsername,
+            painterPassword
+        } = data;
+
+        // ==========================================
+        // 1. Kontrollime algset tellimuste arvu
+        // ==========================================
+
+        const confirmedCount = painterPage.getByTestId(
+            'confirmed-requests-count'
+        );
+
+        await expect(confirmedCount).toBeVisible();
+
+        const initialCount = Number(
+            await confirmedCount.innerText()
+        );
+
+        // ==========================================
+        // 2. Klient kinnitab maalri pakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+
+        await offerItem.click();
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response =>
+                new URL(response.url()).pathname ===
+                `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                response.request().method() === 'POST'
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.booking.status).toBe('confirmed');
+
+        // ==========================================
+        // 3. Kontrollime pakkuja tellimuste arvu
+        // ==========================================
+
+        await expect(confirmedCount).toHaveText(
+            String(initialCount + 1),
+            { timeout: 15000 }
+        );
+
+        // ==========================================
+        // 4. Avame pakkuja kalendri
+        // ==========================================
+
+        await painterPage.getByTestId(
+            'confirmed-requests'
+        ).click();
+
+        await expect(painterPage).toHaveURL(/\/calendar/);
+
+        const calendarEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-039] Booking visible before logout'
+        );
+
+        // 5. Logime pakkuja välja
+        await logout(
+            painterPage,
+            'desktop-user-menu'
+        );
+
+        console.log('[PW-039] Provider logged out');
+
+        // 6. Logime sama pakkuja uuesti sisse
+        await loginExistingUser(
+            painterPage,
+            painterUsername,
+            painterPassword,
+            { expectedPath: '/admin/provider' }
+        );
+
+        console.log('[PW-039] Provider logged in again');
+
+
+        const loggedInUserId = await painterPage.evaluate(() => {
+            const saved =
+                sessionStorage.getItem('loggedAppUser') ||
+                localStorage.getItem('loggedAppUser');
+
+            if (!saved) return null;
+
+            const user = JSON.parse(saved);
+
+            return user.id ?? user._id;
+        });
+
+        expect(String(loggedInUserId)).toBe(
+            String(painterUserId)
+        );
+
+
+        // ==========================================
+        // 7. Avame uuesti kalendri
+        // ==========================================
+
+        await painterPage.goto('/calendar');
+
+        await expect(
+            painterPage.locator('.fc')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        // ==========================================
+        // 8. Kontrollime tellimuse taastamist
+        // ==========================================
+
+        const restoredEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(restoredEvent).toBeVisible({
+            timeout: 20000
+        });
+
+        console.log(
+            '[PW-039] Booking restored after login'
+        );
+
+        // ==========================================
+        // 9. Kontrollime tellimuse andmeid
+        // ==========================================
+
+        await restoredEvent.click();
+
+        const bookingModal = painterPage.getByTestId(
+            'provider-calendar-modal'
+        );
+
+        await expect(bookingModal).toBeVisible();
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-title'
+            )
+        ).toHaveText(result.booking.header);
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-price'
+            )
+        ).toHaveText('250 €');
+
+        await expect(
+            bookingModal.getByTestId(
+                'calendar-booking-address'
+            )
+        ).toHaveText(result.booking.address);
+
+        console.log(
+            '[PW-039] Booking successfully restored after login:',
+            bookingId
+        );
+
+    } finally {
+
+        await data.cleanup();
+
+    }
+
+});
+
+
+// ==========================================
+// PW-040: Uus sõltumatu brauserikontekst
+// ==========================================
+
+test('PW-040: Uus sõltumatu brauserikontekst', async ({
+    browser,
+    request
+}) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    const newContext = await browser.newContext();
+
+
+    try {
+
+        const {
+            clientPage,
+            painterPage,
+            bookingId,
+            painterUserId,
+            painterUsername,
+            painterPassword
+        } = data;
+
+        // ==========================================
+        // 1. Klient kinnitab pakkuja hinnapakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log(
+            '[PW-040] Booking confirmed:',
+            bookingId
+        );
+
+        // ==========================================
+        // 2. Kontrollime reaalajas uuendamist
+        // ==========================================
+
+        const confirmedCount = painterPage.getByTestId(
+            'confirmed-requests-count'
+        );
+
+        await expect(confirmedCount).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // ==========================================
+        // 3. Avame pakkuja kalendri
+        // ==========================================
+
+        await painterPage.getByTestId(
+            'confirmed-requests'
+        ).click();
+
+        await expect(painterPage).toHaveURL(/\/calendar/);
+
+        await expect(
+            painterPage.locator('.fc')
+        ).toBeVisible();
+
+        const calendarEvent = painterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-040] Booking visible before reload'
+        );
+
+        const newPainterPage = await newContext.newPage();
+
+        // 2. Kontrollime, et kasutaja pole sisse logitud
+        await newPainterPage.goto('/login-register');
+
+        const savedUser = await newPainterPage.evaluate(() => ({
+            local: localStorage.getItem('loggedAppUser'),
+            session: sessionStorage.getItem('loggedAppUser')
+        }));
+
+        expect(savedUser).toEqual({
+            local: null,
+            session: null
+        });
+
+        console.log('[PW-040] New browser context is empty');
+
+        // 3. Logime sisse sama pakkujaga
+        await loginExistingUser(
+            newPainterPage,
+            painterUsername,
+            painterPassword,
+            { expectedPath: '/admin/provider' }
+        );
+
+        // 4. Kontrollime kasutaja identiteeti
+        const loggedInUserId = await newPainterPage.evaluate(() => {
+            const saved =
+                sessionStorage.getItem('loggedAppUser') ||
+                localStorage.getItem('loggedAppUser');
+
+            if (!saved) return null;
+
+            const user = JSON.parse(saved);
+
+            return user.id ?? user._id;
+        });
+
+        expect(String(loggedInUserId)).toBe(
+            String(painterUserId)
+        );
+
+        // Sulgeme teavituse modaalakna, kui see on avatud
+        await closeNotificationModal(newPainterPage);
+
+        console.log('[PW-040] Pakkuja on uues brauserikontekstis sisse logitud');
+
+        console.log('[PW-040] Same provider logged in');
+
+        // 5. Avame kalendri
+        await newPainterPage.goto('/calendar');
+
+        await expect(
+            newPainterPage.locator('.fc')
+        ).toBeVisible({ timeout: 15000 });
+
+        // 6. Kontrollime kinnitatud tellimuse taastamist
+        const restoredEvent = newPainterPage.getByTestId(
+            `provider-calendar-event-${bookingId}`
+        );
+
+        await expect(restoredEvent).toBeVisible({
+            timeout: 20000
+        });
+
+        console.log(
+            '[PW-040] Confirmed booking restored in new context'
+        );
+
+        // 7. Avame tellimuse detailakna
+        await restoredEvent.click();
+
+        const bookingModal = newPainterPage.getByTestId(
+            'provider-calendar-modal'
+        );
+
+        await expect(bookingModal).toBeVisible();
+
+        // 8. Kontrollime tellimuse andmeid
+        await expect(
+            bookingModal.getByTestId('calendar-booking-title')
+        ).toHaveText(result.booking.header);
+
+        await expect(
+            bookingModal.getByTestId('calendar-booking-address')
+        ).toHaveText(result.booking.address);
+
+        await expect(
+            bookingModal.getByTestId('calendar-booking-price')
+        ).toHaveText('250 €');
+
+        console.log(
+            '[PW-040] Booking verified in independent browser context:',
+            bookingId
+        );
+
+
+    } finally {
+        try {
+            await newContext.close();
+        } finally {
+            await data.cleanup();
+        }
+    }
+
+});
+
+
+test('PW-041: Client confirmed booking appears in calendar', async ({
+    browser,
+    request
+}) => {
+
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    try {
+        const {
+            clientPage,
+            bookingId,
+            offerPrice
+        } = data;
+
+        // ==========================================
+        // 1. Klient kinnitab pakkuja hinnapakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log(
+            '[PW-041] Booking confirmed:',
+            bookingId
+        );
+
+        console.log(
+            '[PW-041] Current URL:',
+            clientPage.url()
+        );
+
+        console.log(
+            '[PW-041] Confirmed count elements:',
+            await clientPage.getByTestId(
+                'client-confirmed-count'
+            ).count()
+        );
+
+        console.log(
+            '[PW-041] Calendar button elements:',
+            await clientPage.getByTestId(
+                'client-calendar-arrow'
+            ).count()
+        );
+
+
+        const testIds = await clientPage.locator(
+            '[data-testid]'
+        ).evaluateAll(elements =>
+            elements
+                .map(el => el.getAttribute('data-testid'))
+                .filter(id =>
+                    id?.includes('confirmed') ||
+                    id?.includes('calendar')
+                )
+        );
+
+        console.log('[PW-041] Relevant test IDs:', testIds);
+
+
+        // ==========================================
+        // 2. Kontrollime kinnitatud tellimust
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('client-calendar-arrow')
+        ).toBeVisible();
+
+        await expect(
+            clientPage.getByTestId('client-confirmed-count')
+        ).toHaveText('1', {
+            timeout: 15000
+        });
+
+        console.log('[PW-041] Confirmed count verified');
+
+        // ==========================================
+        // 3. Avame kliendi kalendri
+        // ==========================================
+
+        const calendarButton = clientPage.getByTestId(
+            'client-calendar-arrow'
+        );
+
+        await expect(calendarButton).toBeVisible();
+
+        await calendarButton.click();
+
+        await expect(clientPage).toHaveURL(
+            url => url.pathname === '/calendar'
+        );
+
+        await expect(
+            clientPage.locator('.fc')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-041] Calendar opened');
+
+        // ==========================================
+        // 4. Kontrollime kalendrisündmust
+        // ==========================================
+
+        const calendarEvent = clientPage.getByTestId(
+            `client-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 20000
+        });
+
+        console.log(
+            '[PW-041] Client booking found in calendar'
+        );
+
+        // ==========================================
+        // 5. Avame sündmuse detailakna
+        // ==========================================
+
+        await calendarEvent.click();
+
+        const modal = clientPage.getByTestId(
+            'client-calendar-modal'
+        );
+
+        await expect(modal).toBeVisible();
+
+        // ==========================================
+        // 6. Kontrollime kokkulepitud hinda
+        // ==========================================
+
+        await expect(
+            modal.getByTestId('client-calendar-price')
+        ).toHaveText(`${offerPrice} €`);
+
+        // ==========================================
+        // 7. Kontrollime staatust
+        // ==========================================
+
+        await expect(
+            modal.getByTestId('client-calendar-status')
+        ).toBeVisible();
+
+        console.log(
+            '[PW-041] Client calendar booking verified:',
+            bookingId
+        );
+
+    } finally {
+        await data.cleanup();
+    }
+});
+
+
+test('PW-042: Client confirmed booking restored in new browser context', async ({
+    browser,
+    request
+}) => {
+
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    let newContext;
+
+    try {
+        const {
+            clientPage,
+            bookingId,
+            clientUserId,
+            clientUsername,
+            clientPassword,
+            offerPrice
+        } = data;
+
+        // ==========================================
+        // 1. Klient kinnitab pakkuja hinnapakkumise
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const offerItem = findTestOffer(clientPage);
+
+        await expect(offerItem).toBeVisible();
+        await offerItem.click();
+
+        await clientPage.getByTestId(
+            'order-provider-btn'
+        ).click();
+
+        const confirmDialog = clientPage.locator(
+            '.deal-modal[role="dialog"]'
+        );
+
+        await expect(confirmDialog).toBeVisible();
+
+        const responsePromise = clientPage.waitForResponse(
+            response => {
+                const url = new URL(response.url());
+
+                return (
+                    url.pathname ===
+                    `/api/recipients/${bookingId}/confirm-provider-offer` &&
+                    response.request().method() === 'POST'
+                );
+            },
+            { timeout: 30000 }
+        );
+
+        await confirmDialog.getByTestId(
+            'confirm-deal-btn'
+        ).click();
+
+        const response = await responsePromise;
+
+        expect(response.status()).toBe(200);
+
+        const result = await response.json();
+
+        expect(result.success).toBe(true);
+        expect(result.booking.status).toBe('confirmed');
+
+        console.log(
+            '[PW-042] Booking confirmed:',
+            bookingId
+        );
+
+        // ==========================================
+        // 2. Loome uue brauserikonteksti
+        // ==========================================
+
+        newContext = await browser.newContext({
+            baseURL: 'http://localhost:5174'
+        });
+
+        const newClientPage = await newContext.newPage();
+
+        await newClientPage.goto('/login-register');
+
+        // Kontrollime, et kasutaja pole sisse logitud
+        const storedUser = await newClientPage.evaluate(() => ({
+            local: localStorage.getItem('loggedAppUser'),
+            session: sessionStorage.getItem('loggedAppUser')
+        }));
+
+        expect(storedUser).toEqual({
+            local: null,
+            session: null
+        });
+
+        console.log(
+            '[PW-042] New browser context has no previous session'
+        );
+
+        // ==========================================
+        // 3. Logime sisse sama kliendina
+        // ==========================================
+
+        await loginExistingUser(
+            newClientPage,
+            clientUsername,
+            clientPassword,
+            { expectedPath: '/home' }
+        );
+
+        // Kontrollime kasutaja identiteeti
+        const loggedInUserId = await newClientPage.evaluate(() => {
+
+            const saved =
+                sessionStorage.getItem('loggedAppUser') ||
+                localStorage.getItem('loggedAppUser');
+
+            if (!saved) return null;
+
+            const user = JSON.parse(saved);
+
+            return user.id ?? user._id;
+        });
+
+        expect(String(loggedInUserId)).toBe(
+            String(clientUserId)
+        );
+
+        console.log(
+            '[PW-042] Same client authenticated in new context'
+        );
+
+        // Sulgeme teavituse modaalakna, kui see on avatud
+        await closeNotificationModal(newClientPage);
+
+        // ==========================================
+        // 4. Kontrollime kinnitatud tellimuste arvu
+        // ==========================================
+
+        /* const confirmedCount = newClientPage.getByTestId(
+            'client-confirmed-count'
+        );
+
+        await expect(confirmedCount).toHaveText('1', {
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-042] Confirmed booking restored in client account'
+        ); */
+
+
+
+
+        /* console.log(
+            '[PW-042] Confirmed text in page:',
+            await newClientPage.locator('body').innerText()
+        ); */
+
+
+
+        const menu = newClientPage.getByTestId('desktop-user-menu');
+
+        await expect(menu).toBeVisible();
+
+        await expect(menu).toHaveAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+
+        await menu.click();
+
+        await expect(menu).toHaveAttribute(
+            'aria-expanded',
+            'true'
+        );
+
+
+
+        console.log(
+            '[PW-042] Dropdown item count:',
+            await newClientPage.getByTestId(
+                'client-page-dropdown-item'
+            ).count()
+        );
+
+        console.log(
+            '[PW-042] Client panel links:',
+            await newClientPage.locator(
+                'a[href="/client-panel"]'
+            ).count()
+        );
+
+
+
+
+
+
+
+        console.log(
+            '[PW-042] User menu opened in new context'
+        );
+
+        const clientPageItem = newClientPage.getByTestId(
+            'client-page-dropdown-item'
+        ).filter({ visible: true });
+
+        await expect(clientPageItem).toBeVisible();
+
+        await clientPageItem.click();
+
+        await expect(newClientPage).toHaveURL(url => url.pathname === '/client-panel'
+        );
+
+        console.log(
+            '[PW-042] Navigated to client page in new context'
+        );
+
+
+        console.log(
+            '[PW-042] Current URL after navigation:',
+            newClientPage.url()
+        );
+
+              
+
+
+        const confirmedCount = newClientPage.getByTestId(
+            'client-confirmed-count'
+        );
+
+        await expect(confirmedCount).toHaveText('1', {
+            timeout: 15000
+        });
+
+        // ==========================================
+        // 5. Avame kliendi kalendri
+        // ==========================================
+
+        const calendarButton = newClientPage.getByTestId(
+            'client-calendar-arrow'
+        );
+
+        await expect(calendarButton).toBeVisible();
+
+        await calendarButton.click();
+
+        await expect(newClientPage).toHaveURL(
+            url => url.pathname === '/calendar'
+        );
+
+        await expect(
+            newClientPage.locator('.fc')
+        ).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log(
+            '[PW-042] Client calendar opened'
+        );
+
+        // ==========================================
+        // 6. Kontrollime kinnitatud tellimuse taastamist
+        // ==========================================
+
+        const calendarEvent = newClientPage.getByTestId(
+            `client-calendar-event-${bookingId}`
+        );
+
+        await expect(calendarEvent).toBeVisible({
+            timeout: 20000
+        });
+
+        console.log(
+            '[PW-042] Confirmed booking visible in new context'
+        );
+
+        // ==========================================
+        // 7. Avame tellimuse detailakna
+        // ==========================================
+
+        await calendarEvent.click();
+
+        const modal = newClientPage.getByTestId(
+            'client-calendar-modal'
+        );
+
+        await expect(modal).toBeVisible();
+
+        // ==========================================
+        // 8. Kontrollime tellimuse andmeid
+        // ==========================================
+
+        await expect(
+            modal.getByTestId('client-calendar-title')
+        ).toHaveText(result.booking.header);
+
+        await expect(
+            modal.getByTestId('client-calendar-address')
+        ).toBeVisible();
+
+        await expect(
+            modal.getByTestId('client-calendar-price')
+        ).toHaveText(`${offerPrice} €`);
+
+        await expect(
+            modal.getByTestId('client-calendar-status')
+        ).toBeVisible();
+
+        console.log(
+            '[PW-042] SUCCESS: Client booking restored:',
+            bookingId
+        );
+
+    } finally {
+
+        // Sulgeme uue brauserikonteksti
+        try {
+            if (newContext) {
+                await newContext.close();
+            }
+        } finally {
+            // Kustutame ajutised testandmed
+            await data.cleanup();
+        }
+    }
+});
+
+
+test('PW-043: Client deletes open booking with provider offer', async ({
+    browser,
+    request
+}) => {
+
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    let bookingDeleted = false;
+
+    try {
+
+        const {
+            clientPage,
+            bookingId
+        } = data;
+
+        console.log('[PW-043] Booking created:', bookingId);
+
+        // ==========================================
+        // 1. Kontrollime hinnapakkumise olemasolu
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId('new-offers-badge')
+        ).toHaveText('1', { timeout: 15000 });
+
+        console.log('[PW-043] Provider offer received');
+
+        // ==========================================
+        // 2. Avame open-tellimuse
+        // ==========================================
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+        const removeButton = clientPage.getByTestId(
+            'client-remove-open-booking'
+        );
+
+        await expect(removeButton).toBeVisible();
+
+        console.log('[PW-043] Open booking panel opened');
+
+        // ==========================================
+        // 3. Avame kustutamise kinnitusakna
+        // ==========================================
+
+        await removeButton.click();
+
+        const modal = clientPage.getByTestId(
+            'confirm-modal'
+        );
+
+        await expect(modal).toBeVisible();
+
+        await expect(
+            modal.getByTestId('confirm-modal-confirm')
+        ).toBeVisible();
+
+        console.log('[PW-043] Delete confirmation modal opened');
+
+        // ==========================================
+        // 4. Kinnitame kustutamise
+        // ==========================================
+
+        const deleteResponsePromise = clientPage.waitForResponse(
+            response =>
+                new URL(response.url()).pathname ===
+                `/api/recipients/${bookingId}` &&
+                response.request().method() === 'DELETE',
+            { timeout: 30000 }
+        );
+
+        await modal.getByTestId(
+            'confirm-modal-confirm'
+        ).click();
+
+        // ==========================================
+        // 5. Kontrollime backendi vastust
+        // ==========================================
+
+        const deleteResponse = await deleteResponsePromise;
+
+        expect(deleteResponse.status()).toBe(200);
+
+        const result = await deleteResponse.json();
+
+        expect(result.ok).toBe(true);
+        expect(result.deleted).toBe(true);
+
+        bookingDeleted = true;
+
+        expect(String(result.bookingId)).toBe(
+            String(bookingId)
+        );
+
+        console.log(
+            '[PW-043] Backend confirmed booking deletion'
+        );
+
+        // ==========================================
+        // 6. Kontrollime kasutajaliidest
+        // ==========================================
+
+        await expect(
+            clientPage.getByTestId(
+                'client-remove-open-booking'
+            )
+        ).toBeHidden({ timeout: 15000 });
+
+        console.log(
+            '[PW-043] Deleted booking panel closed'
+        );
+
+        console.log('[PW-043] TEST PASSED');
+
+    } finally {
+
+        await data.cleanup({
+            bookingAlreadyDeleted: bookingDeleted
+        });
+
+    }
+
+});
+
+
+test('PW-044: Provider receives open booking deletion in real time', async ({ browser, request }) => {
+    test.setTimeout(180000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request
+    });
+
+    let bookingDeleted = false;
+
+    try {
+        const {
+            clientPage,
+            painterPage,
+            bookingId
+        } = data;
+
+
+
+        painterPage.on('console', msg => {
+            console.log('[PROVIDER BROWSER]', msg.text());
+        });
+
+        painterPage.on('pageerror', error => {
+            console.error('[PROVIDER PAGE ERROR]', error.message);
+        });
+
+
+
+
+        // 1. Kontrollime pakkuja tellimuse olemasolu
+        const bookingCard = painterPage.getByTestId(
+            `provider-incoming-booking-${bookingId}`
+        ).filter({ visible: true });
+
+
+
+
+        const bookingCards = painterPage.getByTestId(
+            `provider-incoming-booking-${bookingId}`
+        );
+
+        console.log(
+            '[PW-044] Matching booking cards:',
+            await bookingCards.count()
+        );
+
+        for (let i = 0; i < await bookingCards.count(); i++) {
+            console.log(
+                `[PW-044] Card ${i} visible:`,
+                await bookingCards.nth(i).isVisible()
+            );
+        }
+
+
+        await expect(bookingCard).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-044] Provider booking visible');
+
+        // 2. Enne kustutamist pole kustutamise teadet
+        const removedNotice = bookingCard.getByTestId(
+            'provider-booking-status-notice'
+        );
+
+        await expect(removedNotice).toHaveCount(0);
+
+        // 3. Klient avab open-tellimuse
+        await clientPage.getByTestId('open-booking-panel').click();
+
+        const removeButton = clientPage.getByTestId(
+            'client-remove-open-booking'
+        );
+
+        await expect(removeButton).toBeVisible();
+
+        // 4. Klient avab kustutamise kinnituse
+        await removeButton.click();
+
+        const modal = clientPage.getByTestId('confirm-modal');
+
+        await expect(modal).toBeVisible();
+
+        // 5. Jälgime DELETE päringut
+        const deleteResponsePromise = clientPage.waitForResponse(
+            response =>
+                new URL(response.url()).pathname ===
+                `/api/recipients/${bookingId}` &&
+                response.request().method() === 'DELETE',
+            { timeout: 30000 }
+        );
+
+        // 6. Klient kinnitab kustutamise
+        await modal.getByTestId('confirm-modal-confirm').click();
+
+        const deleteResponse = await deleteResponsePromise;
+
+        expect(deleteResponse.status()).toBe(200);
+
+        const result = await deleteResponse.json();
+
+        expect(result.ok).toBe(true);
+        expect(result.deleted).toBe(true);
+        expect(String(result.bookingId)).toBe(String(bookingId));
+
+        bookingDeleted = true;
+
+        console.log('[PW-044] Client deleted open booking');
+
+        // 7. Kontrollime pakkuja kasutajaliidese muutumist
+        // Lehte EI värskendata!
+        await expect(removedNotice).toBeVisible({
+            timeout: 15000
+        });
+
+        await expect(removedNotice).toHaveClass(
+            /booking-status-notice--removed/
+        );
+
+        console.log('[PW-044] Provider received deletion in real time');
+
+        // 8. Kontrollime, et tellimuse tegevused on blokeeritud
+        const offerButton = bookingCard.getByTestId('open-offer-panel');
+
+        if (await offerButton.count() > 0) {
+            await expect(offerButton).toBeDisabled();
+        }
+
+        console.log('[PW-044] Provider booking actions disabled');
+
+        console.log('[PW-044] TEST PASSED');
+
+    } finally {
+        await data.cleanup({
+            bookingAlreadyDeleted: bookingDeleted
+        });
+    }
+});
+
+
+test('PW-045: Provider receives open booking deletion without offer', async ({ browser, request }) => {
+
+    test.setTimeout(120000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request,
+        createOffer: false
+    });
+
+    let bookingDeleted = false;
+
+    const {
+        clientPage,
+        painterPage,
+        bookingId
+    } = data;
+
+    try {
+
+        // 1. Registreerime Socket.io sündmuse jälgimise
+
+        await painterPage.evaluate(() => {
+
+            const socket = window.__E2E_SOCKET__;
+
+            if (!socket) {
+                throw new Error('E2E Socket not available');
+            }
+
+            window.__PW045_SOCKET_EVENTS__ = [];
+
+            window.__PW045_SOCKET_HANDLER__ = id => {
+
+                window.__PW045_SOCKET_EVENTS__.push(
+                    String(id)
+                );
+
+                console.log(
+                    '[PW-045 SOCKET RECEIVED]',
+                    id
+                );
+            };
+
+            socket.on(
+                'local-client-del-open-booking',
+                window.__PW045_SOCKET_HANDLER__
+            );
+        });
+
+
+        // 2. Kontrollime, et pakkuja näeb tellimust
+
+        const bookingCard = painterPage.getByTestId(
+            `provider-incoming-booking-${bookingId}`
+        ).filter({ visible: true });
+
+        await expect(bookingCard).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-045] Provider booking visible');
+
+
+        // 3. Kontrollime, et hinnapakkumist pole tehtud
+
+        const offerButton = bookingCard.getByTestId(
+            'open-offer-panel'
+        );
+
+        await expect(offerButton).toBeEnabled();
+
+        console.log('[PW-045] No offer submitted');
+
+
+        // 4. Enne kustutamist pole staatuse teadet
+
+        const removedNotice = bookingCard.getByTestId(
+            'provider-booking-status-notice'
+        );
+
+        await expect(removedNotice).toHaveCount(0);
+
+
+        // 5. Klient avab open-tellimuse
+
+        await clientPage.getByTestId(
+            'open-booking-panel'
+        ).click();
+
+
+        // 6. Klient avab kustutamise kinnituse
+
+        const removeButton = clientPage.getByTestId(
+            'client-remove-open-booking'
+        );
+
+        await expect(removeButton).toBeVisible();
+
+        await removeButton.click();
+
+        const modal = clientPage.getByTestId(
+            'confirm-modal'
+        );
+
+        await expect(modal).toBeVisible();
+
+
+        // 7. Klient kinnitab tellimuse kustutamise
+
+        console.log('[PW-045] CLIENT DELETE START');
+
+        const deleteResponsePromise = clientPage.waitForResponse(
+            response =>
+                new URL(response.url()).pathname ===
+                `/api/recipients/${bookingId}` &&
+                response.request().method() === 'DELETE',
+            { timeout: 30000 }
+        );
+
+        await modal.getByTestId(
+            'confirm-modal-confirm'
+        ).click();
+
+        const deleteResponse = await deleteResponsePromise;
+
+        expect(deleteResponse.status()).toBe(200);
+
+        const result = await deleteResponse.json();
+
+        expect(result.ok).toBe(true);
+        expect(result.deleted).toBe(true);
+
+        expect(String(result.bookingId)).toBe(
+            String(bookingId)
+        );
+
+        bookingDeleted = true;
+
+        console.log('[PW-045] CLIENT DELETE COMPLETED');
+
+
+        // 8. Kontrollime Socket.io sündmuse saabumist
+
+        await expect.poll(
+            async () => painterPage.evaluate(
+                () => window.__PW045_SOCKET_EVENTS__ || []
+            ),
+            { timeout: 15000 }
+        ).toContain(String(bookingId));
+
+        console.log('[PW-045] Socket event received');
+
+
+        // 9. Pakkuja näeb kustutamise teadet
+        // ilma lehte värskendamata
+
+        await expect(removedNotice).toBeVisible({
+            timeout: 15000
+        });
+
+        await expect(removedNotice).toHaveClass(
+            /booking-status-notice--removed/
+        );
+
+        console.log(
+            '[PW-045] Provider received deletion in real time'
+        );
+
+
+        // 10. Hinnapakkumise nupp on blokeeritud
+
+        await expect(offerButton).toBeDisabled();
+
+        console.log('[PW-045] Offer action disabled');
+
+        console.log('[PW-045] TEST PASSED');
+
+    } finally {
+
+        // Eemaldame ainult selle testi Socket.io kuulaja
+
+        if (!painterPage.isClosed()) {
+            try {
+                await painterPage.evaluate(() => {
+
+                    const socket = window.__E2E_SOCKET__;
+
+                    if (socket && window.__PW045_SOCKET_HANDLER__) {
+
+                        socket.off(
+                            'local-client-del-open-booking',
+                            window.__PW045_SOCKET_HANDLER__
+                        );
+                    }
+
+                    delete window.__PW045_SOCKET_HANDLER__;
+                    delete window.__PW045_SOCKET_EVENTS__;
+                });
+            } catch (error) {
+                console.warn(
+                    '[PW-045] Socket listener cleanup failed:',
+                    error.message
+                );
+            }
+        }
+
+        // Testandmete koristamine
+
+        await data.cleanup({
+            bookingAlreadyDeleted: bookingDeleted
+        });
+    }
+});
+
+
+test('PW-046: Provider removes open booking without offer', async ({ browser, request }) => {
+    test.setTimeout(120000);
+
+    const data = await setupBookingWithOffer({
+        browser,
+        request,
+        createOffer: false
+    });
+
+    const {
+        clientPage,
+        painterPage,
+        bookingId
+    } = data;
+
+    try {
+        // 1. Pakkuja näeb avatud tellimust
+        const bookingCard = painterPage.getByTestId(
+            `provider-incoming-booking-${bookingId}`
+        ).filter({ visible: true });
+
+        await expect(bookingCard).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-046] Provider booking visible');
+
+
+
+
+        const buttonsDebug = await painterPage.evaluate(() => {
+            return [...document.querySelectorAll('button')].map(button => ({
+                text: button.textContent?.trim(),
+                testId: button.getAttribute('data-testid'),
+                disabled: button.disabled,
+                visible: button.getClientRects().length > 0,
+                html: button.outerHTML.slice(0, 500)
+            })).filter(button =>
+                button.text?.toUpperCase().includes('POISTA') ||
+                button.testId?.includes('remove')
+            );
+        });
+
+        console.log(
+            '[PW-046] REMOVE BUTTONS:',
+            JSON.stringify(buttonsDebug, null, 2)
+        );
+
+
+
+        const debugState = await painterPage.evaluate(() => {
+
+            const buttons = [
+                ...document.querySelectorAll(
+                    '[data-testid="open-remove-panel-btn"]'
+                )
+            ];
+
+            return {
+                removeButtons: buttons.length,
+
+                buttons: buttons.map(button => ({
+                    html: button.outerHTML,
+                    visible: button.getClientRects().length > 0,
+                    disabled: button.disabled
+                }))
+            };
+        });
+
+        console.log(
+            '[PW-046] Remove button debug:',
+            JSON.stringify(debugState, null, 2)
+        );
+
+
+
+
+
+        // 2. Pakkuja saab avatud tellimuse eemaldada
+
+        const deleteOrderButton = painterPage.getByTestId(
+            'delete-order-btn'
+        ).filter({ visible: true });
+
+        await expect(deleteOrderButton).toBeVisible({
+            timeout: 15000
+        });
+
+        await expect(deleteOrderButton).toBeEnabled();
+
+        console.log('[PW-046] Delete order button visible');
+
+
+        // 3. Pakkuja vajutab eemaldamise nuppu
+
+        await deleteOrderButton.click();
+
+
+        // 4. Kontrollime kinnitamise dialoogi
+
+        const modal = painterPage.getByTestId(
+            'confirm-modal'
+        );
+
+        await expect(modal).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-046] Confirmation modal opened');
+
+
+        // 5. Kontrollime kinnitamise nuppu
+
+        const modalConfirmButton = modal.getByTestId(
+            'confirm-modal-confirm'
+        );
+
+        await expect(modalConfirmButton).toBeVisible();
+        await expect(modalConfirmButton).toBeEnabled();
+
+
+
+
+
+
+
+
+        // 6. Jälgime eemaldamise API päringut
+        const removeResponsePromise = painterPage.waitForResponse(
+            response =>
+                new URL(response.url()).pathname ===
+                `/api/providers/${bookingId}/recipient` &&
+                response.request().method() === 'PUT',
+            { timeout: 30000 }
+        );
+
+        // 7. Pakkuja kinnitab eemaldamise
+        await modal.getByTestId(
+            'confirm-modal-confirm'
+        ).click();
+
+        const removeResponse = await removeResponsePromise;
+
+        expect(removeResponse.status()).toBe(200);
+
+        const result = await removeResponse.json();
+
+        expect(result.ok).toBe(true);
+        expect(result.removed).toBe(true);
+        expect(String(result.bookingId)).toBe(String(bookingId));
+
+        console.log('[PW-046] Remove API successful');
+
+        // 8. Tellimus kaob pakkuja nimekirjast
+        await expect(bookingCard).toHaveCount(0, {
+            timeout: 15000
+        });
+
+        console.log('[PW-046] Booking removed from provider list');
+
+        // 9. Kontrollime, et eemaldamine säilib pärast värskendamist
+        await painterPage.reload();
+
+        await expect(
+            painterPage.getByTestId(
+                `provider-incoming-booking-${bookingId}`
+            )
+        ).toHaveCount(0, {
+            timeout: 15000
+        });
+
+        console.log('[PW-046] Booking remains removed after reload');
+
+        // 10. Kontrollime, et kliendi tellimus jäi alles
+        const clientBooking = clientPage.getByTestId(
+            `client-booking-${bookingId}`
+        );
+
+        await expect(clientBooking).toBeVisible({
+            timeout: 15000
+        });
+
+        console.log('[PW-046] Client booking still exists');
+
+        console.log('[PW-046] TEST PASSED');
+
+    } finally {
+        await data.cleanup({
+            bookingAlreadyDeleted: false
+        });
+    }
+});

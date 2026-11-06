@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div data-testid="offer-details">
         <div style="display: flex; justify-content: left;">
             <div v-if="!isFeedback">
                 <MDBBtn v-if="offerContent?.provider?.feedback.length" color="info" block @click="goToFeedback">{{ t('offerContent.received_feedback') }}</MDBBtn>

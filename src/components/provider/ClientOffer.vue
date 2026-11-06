@@ -201,12 +201,13 @@
       <div v-if="client.isIncludeOffers" class="offer-actions" >
         <div v-if="!client.offers.some(offer => offer.bookingID === client.id && offer.provider.id === providerId)">
           <MDBBtn
+              data-testid="open-offer-panel"
               :disabled="isDisabled"
               class="mb-3"
               block
               color="primary"
               size="lg"
-              @click="makeOfferBtn(booking)"
+              @click="openOfferPanel"
           >
             {{ t('clientOffer.make_offer') }}
           </MDBBtn>
@@ -231,6 +232,7 @@
                   <form class="form-card">
                     <div class="offer-field">
                       <MDBInput 
+                        data-testid="offer-input"
                         style="margin-bottom: 5px;"
                         type="text" 
                         :label="t('clientOffer.offer_price')" 
@@ -242,16 +244,9 @@
                       <span v-if="offerPriceWarning" class="text-danger">{{ t('clientOffer.offerExceedsBudget') }}</span>
                     </div>
                     
-                    
-                    <!-- <MDBInput
-                      v-model="filteredOfferPrice"
-                      type="text"
-                      inputmode="decimal"
-                      :label="t('clientOffer.offer_price')"
-                      wrapperClass="mb-4"
-                    /> -->
                     <div style="text-align: left; margin-bottom: 17px;">
                       <MDBRadio
+                          data-testid="offer-at-client-radio"
                           :label="t('clientOffer.offer_at_client')"
                           name="area"
                           v-model="offerPlace"
@@ -260,6 +255,7 @@
 
                       </MDBRadio>
                       <MDBRadio
+                          data-testid="offer-at-my-place-radio"
                           :label="t('clientOffer.offer_at_my_place')"
                           name="area"
                           v-model="offerPlace"
@@ -271,6 +267,7 @@
 
 
                     <MDBTextarea
+                        data-testid="offer-details"
                         style=""
                         :label="t('clientOffer.offer_details')"
                         rows="3"
@@ -279,6 +276,7 @@
 
                     </MDBTextarea>
                     <MDBBtn
+                        data-testid="offer-confirm-btn"
                         :disabled="isDisabled"
                         v-if="offerPrice"
                         :label="t('clientOffer.make_offer')"
@@ -300,7 +298,14 @@
 
           </div>
 
-          <MDBBtn v-if="!isHandleOffer" :disabled="isDisabled" block outline="danger" @click="rejectFormBooking">
+          <MDBBtn 
+            v-if="!isHandleOffer" 
+            :disabled="isDisabled" 
+            data-testid="delete-order-btn"
+            block 
+            outline="danger"
+            @click="deleteOpenBooking"
+          >
             {{ t('clientOffer.delete_order') }}
           </MDBBtn>
  
@@ -312,11 +317,12 @@
 
         <MDBBtn
             v-if="!isQuitClientBooking"
+            data-testid="confirm-deal"
             :disabled="isDisabled"
             block
             outline="success"
             size="lg"
-            @click="confirmProviderOffer()"
+            @click="confirmDeal()"
         >
             {{ t('clientOffer.confirm_order') }}
         </MDBBtn>
@@ -331,46 +337,49 @@
             @after-leave="onUnlock"
           >
           <div v-if="isQuitClientBooking" style="padding: 13px; margin-top: 13px; border: 1px solid grey;" class="form-card">
-          <div style="display: flex; justify-content: right; margin-bottom: 7px;">
-            <MDBBtnClose white @click="undoRejectMapOffer"/>
+            <div style="display: flex; justify-content: right; margin-bottom: 7px;">
+              <MDBBtnClose 
+                data-testid="close-remove-panel-btn"
+                white 
+                @click="closeRemovePanel"
+              />
+            </div>
+
+            <MDBTextarea
+                data-testid="reason-textarea"
+                style=""
+                :label="t('clientOffer.reason')"
+                rows="3"
+                v-model="reason"
+            >
+
+            </MDBTextarea>
+            <MDBBtn
+                data-testid="remove-client-request"
+                :disabled="reason.length < 3"
+                block size="lg"
+                color="success"
+                style="margin-top: 12px;"
+                @click="removeClientRequest"
+            >
+              {{ t('clientOffer.confirm_delete') }}
+            </MDBBtn>
           </div>
-
-          <MDBTextarea
-              style=""
-              :label="t('clientOffer.reason')"
-              rows="3"
-              v-model="reason"
-          >
-
-          </MDBTextarea>
-          <MDBBtn
-              :disabled="reason.length < 3"
-              block size="lg"
-              color="success"
-              style="margin-top: 12px;"
-              @click="confirmRejectMapBooking"
-          >
-            {{ t('clientOffer.confirm_delete') }}
-          </MDBBtn>
-        </div>
         </transition>
 
         
 <!--        :disabled="isDisableProNotMapBtns"-->
         <MDBBtn
             v-if="!isQuitClientBooking"
-            
+            data-testid="open-remove-panel-btn"
             :disabled="isDisabled"
             block
             outline="danger"
             size="lg"
-            @click="quitMapOffer"
+            @click="openRemovePanel"
         >
           {{ t('clientOffer.delete_order') }}
         </MDBBtn>
-
-        <!-- Spinner test -->
-        <!-- <button @click="handleOrder">Place Order</button> -->
 
       </div>
     </div>
@@ -391,7 +400,7 @@
     :confirm-text="t('clientOffer.delete_order')"
     :cancel-text="t('clientOffer.keep_button')"
     :danger="true"
-    @confirm="handleConfirmRemoveClientBooking"
+    @confirm="handleConfirmRemoveClientRequest"
     @cancel="handleCancelRemoving"
   />
 
@@ -402,7 +411,7 @@
     :confirm-text="t('clientOffer.deal_confirm_button')"
     :cancel-text="t('clientOffer.deal_cancel_button')"
     :show-icon="true"
-    @confirm= "confirmDeal"
+    @confirm= "handleConfirmDeal"
     @cancel="cancelDeal" 
   />
 
@@ -800,7 +809,7 @@ const onChat = async () => {
   });
 }
 
-const makeOfferBtn = () => {
+const openOfferPanel = () => {
   console.log("Make offer!");
   isHandleOffer.value = true;
 }
@@ -901,7 +910,7 @@ const createOffer = async () => {
     emit("handle-user-action");
 
     socket.emit(
-      "client get offer",
+      "client-get-offer",
       addressee,
       client.value.id,
       result.offer
@@ -975,23 +984,23 @@ const createOffer = async () => {
 
 
 
-// On single offer from map
-const quitMapOffer = async () => {
+// Open remove panel field for provider to remove client booking
+const openRemovePanel = async () => {
   isQuitClientBooking.value = true;
   
 }
 
-const undoRejectMapOffer = () => {
+const closeRemovePanel = () => {
   isQuitClientBooking.value = false;
   reason.value = "";
 }
 
-const confirmProviderOffer = async () => {
+const confirmDeal = async () => {
   showDealConfirm.value = true;
 }
 
 // Confirming provider offer and sending notification
-const confirmDeal = async () => {
+const handleConfirmDeal = async () => {
   loading.value = true;
   const bookingId = client.value?.id;
   const receiver = client.value?.author_id;
@@ -1148,8 +1157,9 @@ const cancelDeal = () => {
   showDealConfirm.value = false;
 };  
 
-// Removing client map offer
-const confirmRejectMapBooking = async () => {
+
+// Removing client request from form after confirmation done
+const removeClientRequest = async () => {
   showDeleteModal.value = true;
   cTitle.value = t('clientOffer.delete_title');
   cMessage.value = t('clientOffer.delete_message');
@@ -1157,21 +1167,21 @@ const confirmRejectMapBooking = async () => {
 }
 
 // Removing client form offer
-const rejectFormBooking = async () => {
+const deleteOpenBooking = async () => {
   showDeleteModal.value = true;
   cTitle.value = t('clientOffer.delete_title');
   cMessage.value = t('clientOffer.delete_message');
  
 }
 
-// Removing map ( form ) booking after confirmation done
-const handleConfirmRemoveClientBooking = async () => {
+// Removing booking after confirmation done
+const handleConfirmRemoveClientRequest = async () => {
   console.log("Tilaus poisto confirmed!!!");
   const clientName = client.value?.user?.firstName || 'asiakkaan';
   const toastMessage = t('clientOffer.notifications.order_removed', {
     name: clientName
   });
-  // Removing form booking
+  // Removing form booking - open booking
   if (client.value.isIncludeOffers) {
     console.log("FORM REMOVING --------")
     isQuitClientBooking.value = true;
@@ -1186,12 +1196,12 @@ const handleConfirmRemoveClientBooking = async () => {
 
     })
     console.log('grandchild emitted')
-    await proStore.removeBookingPublicOffer(client.value.id, receiver);
+    await proStore.removeBookingOpenOffer(client.value.id, receiver);
     emit('handle-user-action');
     //onCoToast("fas fa-check fa-lg me-2", `Asiakkaan tilaus on poistettu!`, "success");
     
   } else {
-    // removing map booking
+    // removing direct booking from map
     console.log("-------MAP REMOVING CLIENT - " + client.value.author_id);
     console.log("##################", Object.keys(client.value.user));
     const bookingId = client.value.id;
@@ -1236,7 +1246,7 @@ const handleConfirmRemoveClientBooking = async () => {
 
 const handleCancelRemoving = () => {
   console.log('Remove cancelled');
-  undoRejectMapOffer();
+  undoRejectDirectOffer();
 
 }
 

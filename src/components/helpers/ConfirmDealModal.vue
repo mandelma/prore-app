@@ -26,11 +26,19 @@
         </p>
 
         <div class="deal-actions">
-          <button type="button" class="btn btn-cancel" @click="onCancel">
+          <button 
+            type="button" 
+            data-testid="cancel-deal-btn"
+            class="btn btn-cancel" 
+            @click="onCancel">
             {{ modalCancelText }}
           </button>
 
-          <button type="button" class="btn btn-confirm" @click="onConfirm">
+          <button 
+            type="button" 
+            data-testid="confirm-deal-btn"
+            class="btn btn-confirm" 
+            @click="onConfirm">
             {{ modalConfirmText }}
           </button>
         </div>

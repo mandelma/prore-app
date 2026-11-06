@@ -54,10 +54,26 @@ export const useProStore = defineStore("pro", () => {
         proCredit.value = ((created.proTime - new Date().getTime()) / 86400000).toFixed() <= 0 ? 0 : ((created.proTime - new Date().getTime()) / 86400000).toFixed();
         providerId.value = created.id;
     }
-    const addVisitorForBooking = (bId, offer) => {
-        const index = incomingOffers.value.findIndex(inx => inx.id === bId);
-        incomingOffers.value[index].visitors.push(offer.visitor);
-    }
+    const addVisitorForBooking = (bId, visitor) => {
+        const booking = incomingOffers.value.find(
+            item => String(item.id) === String(bId)
+        );
+
+        if (!booking) {
+            console.warn('[VISITOR] Booking not found:', bId);
+            return;
+        }
+
+        if (!Array.isArray(booking.visitors)) {
+            booking.visitors = [];
+        }
+
+        if (!booking.visitors.some(
+            id => String(id) === String(visitor.visitor)
+        )) {
+            booking.visitors.push(visitor.visitor);
+        }
+    };
 
     const providerStat = async () => {
         const document = await providerService.getDocument();
@@ -491,10 +507,10 @@ export const useProStore = defineStore("pro", () => {
     }
 
 
-    const removeLocalBooking = async (id) => {
+    const removeLocalBooking__ = async (id) => {
         console.log("Pro id " + providerId.value);
         console.log("Booking id " + id);
-        const removed = await providerService.removeProviderBooking(providerId.value, id);
+        const removed = await providerService.removeProviderBooking(id);
         // Here probably local state to delete booking??
         let removeResult;
         if (!removed) {
@@ -506,10 +522,33 @@ export const useProStore = defineStore("pro", () => {
         const getId = (b) => String(b?.id ?? b?._id);
         const next = incomingOffers.value.filter(b => getId(b) !== targetId);
         incomingOffers.value = next;
-        //incomingOffersCount.value = next.length;
 
         return removeResult
     }
+
+    const removeLocalBooking = async (id) => {
+        const result = await providerService.removeProviderBooking(id);
+
+        if (!result?.ok || !result?.removed) {
+            return false;
+        }
+
+        const targetId = String(id);
+
+        const getId = booking =>
+            String(booking?.id ?? booking?._id);
+
+        incomingOffers.value = incomingOffers.value.filter(
+            booking => getId(booking) !== targetId
+        );
+
+        console.log(
+            '[PROVIDER] Booking removed from local list:',
+            targetId
+        );
+
+        return true;
+    };
 
     const disableLocalBooking = async (id, isRemoved = false) => {
         console.log("Disabled booking id " + id);
@@ -518,8 +557,6 @@ export const useProStore = defineStore("pro", () => {
         
         const targetId = String(id);
         const getId = (b) => String(b?.id ?? b?._id);
-        //const next = incomingOffers.value.filter(b => getId(b) !== targetId);
-        //incomingOffers.value = next;
 
         const result = await providerService.removeProviderBooking(providerId.value, id);
 
@@ -540,20 +577,6 @@ export const useProStore = defineStore("pro", () => {
                 removed: Boolean(isRemoved)
             }
         })
-
-        /* if (isRemoved) {
-            const next = incomingOffers.value.map(item =>
-                getId(item) === targetId ? { ...item, disabled: true, removed: true } : { ...item, disabled: false, removed: false });
-
-            incomingOffers.value = next;
-        } else {
-            console.log("HERE IS NOT REMOVED")
-            const next = incomingOffers.value.map(item =>
-                getId(item) === targetId ? { ...item, disabled: true, removed: false } : { ...item, disabled: false, removed: false });
-
-            incomingOffers.value = next;
-        } */
-
 
         console.log(
             "Updated booking:",
@@ -579,24 +602,21 @@ export const useProStore = defineStore("pro", () => {
 
 
     // Provider side form multy booking removing
-    const removeBookingPublicOffer = async (id, receiver) => {
+    const removeBookingOpenOffer = async (id, receiver) => {
+        const removed = await removeLocalBooking(id);
 
-        console.log("Does proStore remove works?" + id);
+        if (!removed) {
+            return false;
+        }
 
-        //await providerService.removeProviderBooking(providerId.value, id);
+        socket.emit(
+            'on-pro-remove-open-offer',
+            id,
+            receiver
+        );
 
-        //await clientService.removeBooking(id);
-
-        await removeLocalBooking(id);
-        
-
-        console.log("Receiver ID - " + receiver);
-        socket.emit('on-pro-remove-public-offer', id, receiver);
-
-        /* if (incomingOffersCount.value < 1) {
-            router.push('/');
-        } */
-    }
+        return true;
+    };
 
     // In provider side
     const removeMapOffer = async (id, addressaat) => {
@@ -616,14 +636,40 @@ export const useProStore = defineStore("pro", () => {
     }
     // Confirmed by client multi offer
     const handleConfirmed = (bookingId) => {
-        console.log("Prostore --confirmed--")
-        const confirmedOffer = incomingOffers.value.find(i => i.id === bookingId);
-        const pendingOffers = incomingOffers.value.filter(item => item.id !== bookingId);
-        incomingOffers.value = pendingOffers;
-        confirmedOffer.status = 'confirmed';
-        proCalendarEvents.value = proCalendarEvents.value.concat(confirmedOffer);
-        //incomingOffersCount.value = incomingOffers.value.length;
-    }
+
+        console.log("Prostore --confirmed--", bookingId);
+
+        const confirmedOffer = incomingOffers.value.find(
+            item => String(item.id) === String(bookingId)
+        );
+
+        if (!confirmedOffer) {
+            console.warn(
+                "Confirmed booking not found in incomingOffers:",
+                bookingId
+            );
+
+            return;
+        }
+
+        incomingOffers.value = incomingOffers.value.filter(
+            item => String(item.id) !== String(bookingId)
+        );
+
+        const confirmedBooking = {
+            ...confirmedOffer,
+            status: 'confirmed'
+        };
+
+        const alreadyExists = proCalendarEvents.value.some(
+            item => String(item.id) === String(bookingId)
+        );
+
+        if (!alreadyExists) {
+            proCalendarEvents.value.push(confirmedBooking);
+        }
+    };
+    
     // Confirming client offer sended from map
     const onClientBooking = async(bookingId, offer, myself, clientId, providerId, notes) => {
         console.log("CLIENT id is " + bookingId)
@@ -897,7 +943,7 @@ export const useProStore = defineStore("pro", () => {
         upsertBooking,
         addProviderOffer,
         removeBookingMapOffer,
-        removeBookingPublicOffer,
+        removeBookingOpenOffer,
         removeLocalBooking,
         handleWinnerdOffer,
         disableLocalBooking,
